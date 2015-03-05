@@ -21,8 +21,8 @@ _io = [
 	("user_sw", 2, Pins("L4"), IOStandard("LVTTL"), Misc("PULLUP")),
 	("user_sw", 3, Pins("L5"), IOStandard("LVTTL"), Misc("PULLUP")),
 
-	("clk32", 0, Pins("K3"), IOStandard("LVCMOS33")),
-	("clk50", 0, Pins("J4"), IOStandard("LVCMOS33")),
+	("clk32", 0, Pins("J4"), IOStandard("LVCMOS33")),
+	("clk50", 0, Pins("K3"), IOStandard("LVCMOS33")),
 
 	("spiflash", 0,
 		Subsignal("cs_n", Pins("T3"), IOStandard("LVTTL")),
@@ -39,8 +39,8 @@ _io = [
 	),
 
 	("serial", 0,
-		Subsignal("tx", Pins("N3"), IOStandard("LVTTL")),
-		Subsignal("rx", Pins("N1"), IOStandard("LVTTL"))
+		Subsignal("tx", Pins("N6"), IOStandard("LVTTL")), # FTDI D1
+		Subsignal("rx", Pins("M7"), IOStandard("LVTTL"))  # FTDI D0
 	),
 
 	("audio", 0,
@@ -73,12 +73,8 @@ _io = [
 	("dvi_in", 0,
 		Subsignal("clk_p", Pins("C9"), IOStandard("TMDS_33")),
 		Subsignal("clk_n", Pins("A9"), IOStandard("TMDS_33")),
-		Subsignal("data0_p", Pins("C7"), IOStandard("TMDS_33")),
-		Subsignal("data0_n", Pins("A7"), IOStandard("TMDS_33")),
-		Subsignal("data1_p", Pins("B6"), IOStandard("TMDS_33")),
-		Subsignal("data1_n", Pins("A6"), IOStandard("TMDS_33")),
-		Subsignal("data2_p", Pins("B5"), IOStandard("TMDS_33")),
-		Subsignal("data2_n", Pins("A5"), IOStandard("TMDS_33")),
+		Subsignal("data_p", Pins("C7 B6 B5"), IOStandard("TMDS_33")),
+		Subsignal("data_n", Pins("A7 A6 A5"), IOStandard("TMDS_33")),
 		Subsignal("scl", Pins("C1"), IOStandard("LVTTL")),
 		Subsignal("sda", Pins("B1"), IOStandard("LVTTL"))
 	),
@@ -86,12 +82,8 @@ _io = [
 	("dvi_out", 0,
 		Subsignal("clk_p", Pins("B14"), IOStandard("TMDS_33")),
 		Subsignal("clk_n", Pins("A14"), IOStandard("TMDS_33")),
-		Subsignal("data0_p", Pins("C13"), IOStandard("TMDS_33")),
-		Subsignal("data0_n", Pins("A13"), IOStandard("TMDS_33")),
-		Subsignal("data1_p", Pins("B12"), IOStandard("TMDS_33")),
-		Subsignal("data1_n", Pins("A12"), IOStandard("TMDS_33")),
-		Subsignal("data2_p", Pins("C11"), IOStandard("TMDS_33")),
-		Subsignal("data2_n", Pins("A11"), IOStandard("TMDS_33"))
+		Subsignal("data_p", Pins("C13 B12 C11"), IOStandard("TMDS_33")),
+		Subsignal("data_n", Pins("A13 A12 A11"), IOStandard("TMDS_33")),
 	)
 ]
 
@@ -105,6 +97,8 @@ _connectors = [
 ]
 
 class Platform(XilinxISEPlatform):
+	default_clk_name = "clk50"
+	default_clk_period = 20
 	def __init__(self):
 		XilinxISEPlatform.__init__(self, "xc6slx9-3-ftg256", _io,
 			lambda p: SimpleCRG(p, "clk50", None), _connectors)
