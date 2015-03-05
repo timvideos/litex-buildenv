@@ -10,10 +10,15 @@
 
 [> Getting started
 ------------------
-XXX
+1. Follow MiSoC Quick start guide
+	https://github.com/m-labs/misoc
+
+2. Build the Mixxeo gateware and software:
+	go to misoc dir
+	./make.py -X your_scarab-soc_path -t minispartan6 all
 
 [> Status:
-XXX
+Basic target with UART
 
 [> Contact
 E-mail: florent@enjoy-digital.fr

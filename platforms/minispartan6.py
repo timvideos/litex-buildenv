@@ -3,8 +3,8 @@
 
 from mibuild.generic_platform import *
 from mibuild.crg import SimpleCRG
-from mibuild.xilinx_ise import XilinxISEPlatform
-from mibuild.programmer import XC3SProg
+from mibuild.xilinx.ise import XilinxISEPlatform
+from mibuild.xilinx.programmer import XC3SProg
 
 _io = [
 	("user_led", 0, Pins("P11"), IOStandard("LVTTL"), Misc("SLEW=SLOW")),
