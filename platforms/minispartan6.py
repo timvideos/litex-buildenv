@@ -58,7 +58,8 @@ _io = [
 		Subsignal("cs_n", Pins("R1")),
 		Subsignal("cke", Pins("H16")),
 		Subsignal("ba", Pins("R14 T14")),
-		Subsignal("dm", Pins("T5 F15"))
+		Subsignal("dm", Pins("T5 F15")),
+		IOStandard("LVTTL")
 	),
 
 	("sd", 0,

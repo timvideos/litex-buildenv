@@ -4,7 +4,9 @@ from migen.fhdl.std import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from misoclib.mem import sdram
+from misoclib.mem.sdram.module import AS4C16M16
 from misoclib.mem.sdram.phy import gensdrphy
+from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
 from misoclib.mem.flash import spiflash
 from misoclib.soc.sdram import SDRAMSoC
 
@@ -13,7 +15,7 @@ class _CRG(Module):
 		self.clock_domains.cd_sys = ClockDomain()
 		self.clock_domains.cd_sys_ps = ClockDomain()
 
-		f0 = 32*1000*1000
+		f0 = 32*10e6
 		clk32 = platform.request("clk32")
 		clk32a = Signal()
 		self.specials += Instance("IBUFG", i_I=clk32, o_O=clk32a)
@@ -33,7 +35,7 @@ class _CRG(Module):
 			i_DADDR=0, i_DCLK=0, i_DEN=0, i_DI=0, i_DWE=0, i_RST=0, i_REL=0,
 			p_DIVCLK_DIVIDE=1, p_CLKFBOUT_MULT=m*p//n, p_CLKFBOUT_PHASE=0.,
 			i_CLKIN1=clk32b, i_CLKIN2=0, i_CLKINSEL=1,
-			p_CLKIN1_PERIOD=1/f0, p_CLKIN2_PERIOD=0.,
+			p_CLKIN1_PERIOD=10e9/f0, p_CLKIN2_PERIOD=0.,
 			i_CLKFBIN=pll_fb, o_CLKFBOUT=pll_fb, o_LOCKED=pll_lckd,
 			o_CLKOUT0=pll[0], p_CLKOUT0_DUTY_CYCLE=.5,
 			o_CLKOUT1=pll[1], p_CLKOUT1_DUTY_CYCLE=.5,
@@ -61,31 +63,18 @@ class _CRG(Module):
 class BaseSoC(SDRAMSoC):
 	default_platform = "minispartan6"
 
-	def __init__(self, platform, **kwargs):
-		clk_freq = 80*1000*1000
+	def __init__(self, platform, sdram_controller_settings=LASMIconSettings(), **kwargs):
+		clk_freq = 80*10e6
 		SDRAMSoC.__init__(self, platform, clk_freq,
-			with_rom=True,
+			with_integrated_rom=True,
+			sdram_controller_settings=sdram_controller_settings,
 			**kwargs)
 
 		self.submodules.crg = _CRG(platform, clk_freq)
 
-		sdram_geom = sdram.GeomSettings(
-			bank_a=2,
-			row_a=13,
-			col_a=9
-		)
-		sdram_timing = sdram.TimingSettings(
-			tRP=self.ns(18),
-			tRCD=self.ns(18),
-			tWR=self.ns(12),
-			tWTR=2,
-			tREFI=self.ns(256*1000*1000/4096, False),
-			tRFC=self.ns(60),
-			req_queue_size=8,
-			read_time=32,
-			write_time=16
-		)
-		self.submodules.sdrphy = gensdrphy.GENSDRPHY(platform.request("sdram"))
-		self.register_sdram_phy(self.sdrphy, sdram_geom, sdram_timing)
+		if not self.with_integrated_main_ram:
+			sdram_module = AS4C16M16(clk_freq)
+			self.submodules.sdrphy = gensdrphy.GENSDRPHY(platform.request("sdram"))
+			self.register_sdram_phy(self.sdrphy, sdram_module.geom_settings, sdram_module.timing_settings)
 
 default_subtarget = BaseSoC
