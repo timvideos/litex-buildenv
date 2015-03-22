@@ -10,15 +10,17 @@ from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
 from misoclib.mem.flash import spiflash
 from misoclib.soc.sdram import SDRAMSoC
 
-from misoclib.com.liteusb.frontend.uart import FtdiUART
-from misoclib.com.liteusb.frontend.dma import FtdiDMA
-from misoclib.com.liteusb.core.crc import FtdiCRC32
-from misoclib.com.liteusb.core.com import FtdiCom
+from misoclib.com.liteusb.frontend.uart import LiteUSBUART
+from misoclib.com.liteusb.frontend.dma import LiteUSBDMA
+from misoclib.com.liteusb.core.crc import LiteUSBCRC32
+from misoclib.com.liteusb.core.com import LiteUSBCom
+from misoclib.com.liteusb.phy.ft2232h import FT2232HPHY
 
 class _CRG(Module):
 	def __init__(self, platform, clk_freq):
 		self.clock_domains.cd_sys = ClockDomain()
 		self.clock_domains.cd_sys_ps = ClockDomain()
+		self.clock_domains.cd_ftdi = ClockDomain()
 
 		f0 = 32*1e6
 		clk32 = platform.request("clk32")
@@ -65,6 +67,11 @@ class _CRG(Module):
 			i_C0=self.cd_sys.clk, i_C1=~self.cd_sys.clk,
 			o_Q=platform.request("sdram_clock"))
 
+		self.comb += [
+			self.cd_ftdi.clk.eq(self.cd_sys.clk),
+			self.cd_ftdi.rst.eq(self.cd_sys.rst)
+		]
+
 class BaseSoC(SDRAMSoC):
 	default_platform = "minispartan6"
 
@@ -96,17 +103,17 @@ class USBSoC(BaseSoC):
 	def __init__(self, platform, **kwargs):
 		BaseSoC.__init__(self, platform, with_uart=False, **kwargs)
 
-		self.submodules.uart = FtdiUART(self.usb_map["uart"])
-		self.submodules.usb_dma = FtdiDMA(
+		self.submodules.uart = LiteUSBUART(self.usb_map["uart"])
+		self.submodules.usb_dma = LiteUSBDMA(
 					self.sdram.crossbar.get_master(),
 					self.sdram.crossbar.get_master(),
 					self.usb_map["dma"])
-		self.submodules.usb_crc32 = FtdiCRC32(self.usb_map["dma"])
+		self.submodules.usb_crc32 = LiteUSBCRC32(self.usb_map["dma"])
 		self.comb += [
 			self.usb_dma.source.connect(self.usb_crc32.dma_sink),
 			self.usb_crc32.dma_source.connect(self.usb_dma.sink),
 		]
-		self.submodules.usb_com = FtdiCom(platform.request("ftdi_fifo"),
-			self.uart, self.usb_crc32)
+		self.submodules.usb_phy = FT2232HPHY(platform.request("ftdi_fifo"))
+		self.submodules.usb_com = LiteUSBCom(self.usb_phy, self.uart, self.usb_crc32)
 
 default_subtarget = BaseSoC
