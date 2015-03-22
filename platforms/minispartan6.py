@@ -4,7 +4,7 @@
 from mibuild.generic_platform import *
 from mibuild.crg import SimpleCRG
 from mibuild.xilinx import XilinxPlatform
-from mibuild.xilinx.programmer import FpgaProg
+from mibuild.xilinx.programmer import XC3SProg, FpgaProg
 
 _io = [
 	("user_led", 0, Pins("P11"), IOStandard("LVCMOS33")),
@@ -102,8 +102,14 @@ class Platform(XilinxPlatform):
 	default_clk_name = "clk32"
 	default_clk_period = 31.25
 
-	def __init__(self, device="xc6slx25"):
+	def __init__(self, device="xc6slx25", programmer="fpgaprog"):
+		self.programmer = programmer
 		XilinxPlatform.__init__(self, device+"-3-ftg256", _io, _connectors)
 
 	def create_programmer(self):
-		return FpgaProg()
+		if self.programmer == "xc3sprog":
+			return XC3SProg("minispartan6", "bscan_spi_minispartan6.bit")
+		elif self.programmer == "fpgaprog":
+			return FpgaProg()
+		else:
+			raise ValueError("{} programmer is not supported".format(programmer))
