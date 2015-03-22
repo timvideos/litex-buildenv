@@ -10,6 +10,11 @@ from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
 from misoclib.mem.flash import spiflash
 from misoclib.soc.sdram import SDRAMSoC
 
+from misoclib.com.liteusb.frontend.uart import FtdiUART
+from misoclib.com.liteusb.frontend.dma import FtdiDMA
+from misoclib.com.liteusb.core.crc import FtdiCRC32
+from misoclib.com.liteusb.core.com import FtdiCom
+
 class _CRG(Module):
 	def __init__(self, platform, clk_freq):
 		self.clock_domains.cd_sys = ClockDomain()
@@ -76,5 +81,32 @@ class BaseSoC(SDRAMSoC):
 			sdram_module = AS4C16M16(clk_freq)
 			self.submodules.sdrphy = gensdrphy.GENSDRPHY(platform.request("sdram"))
 			self.register_sdram_phy(self.sdrphy, sdram_module.geom_settings, sdram_module.timing_settings)
+
+class USBSoC(BaseSoC):
+	csr_map = {
+		"usb_dma":		16,
+	}
+	csr_map.update(BaseSoC.csr_map)
+
+	usb_map = {
+		"uart":		0,
+		"dma":		1
+	}
+
+	def __init__(self, platform, **kwargs):
+		BaseSoC.__init__(self, platform, with_uart=False, **kwargs)
+
+		self.submodules.uart = FtdiUART(self.usb_map["uart"])
+		self.submodules.usb_dma = FtdiDMA(
+					self.sdram.crossbar.get_master(),
+					self.sdram.crossbar.get_master(),
+					self.usb_map["dma"])
+		self.submodules.usb_crc32 = FtdiCRC32(self.usb_map["dma"])
+		self.comb += [
+			self.usb_dma.source.connect(self.usb_crc32.dma_sink),
+			self.usb_crc32.dma_source.connect(self.usb_dma.sink),
+		]
+		self.submodules.usb_com = FtdiCom(platform.request("ftdi_fifo"),
+			self.uart, self.usb_crc32)
 
 default_subtarget = BaseSoC
