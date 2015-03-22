@@ -98,8 +98,8 @@ _connectors = [
 ]
 
 class Platform(XilinxPlatform):
-	default_clk_name = "clk50"
-	default_clk_period = 20
+	default_clk_name = "clk32"
+	default_clk_period = 31.25
 
 	def __init__(self, device="xc6slx25"):
 		XilinxPlatform.__init__(self, device+"-3-ftg256", _io, _connectors)
