@@ -4,7 +4,7 @@
 from mibuild.generic_platform import *
 from mibuild.crg import SimpleCRG
 from mibuild.xilinx import XilinxPlatform
-from mibuild.xilinx.programmer import XC3SProg
+from mibuild.xilinx.programmer import FpgaProg
 
 _io = [
 	("user_led", 0, Pins("P11"), IOStandard("LVTTL"), Misc("SLEW=SLOW")),
@@ -105,4 +105,4 @@ class Platform(XilinxPlatform):
 		XilinxPlatform.__init__(self, device+"-3-ftg256", _io, _connectors)
 
 	def create_programmer(self):
-		return XC3SProg("minispartan6", "bscan_spi_minispartan6.bit")
+		return FpgaProg()
