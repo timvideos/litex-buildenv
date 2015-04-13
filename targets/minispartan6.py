@@ -16,104 +16,107 @@ from misoclib.com.liteusb.core.crc import LiteUSBCRC32
 from misoclib.com.liteusb.core.com import LiteUSBCom
 from misoclib.com.liteusb.phy.ft2232h import FT2232HPHY
 
+
 class _CRG(Module):
-	def __init__(self, platform, clk_freq):
-		self.clock_domains.cd_sys = ClockDomain()
-		self.clock_domains.cd_sys_ps = ClockDomain()
-		self.clock_domains.cd_ftdi = ClockDomain()
+    def __init__(self, platform, clk_freq):
+        self.clock_domains.cd_sys = ClockDomain()
+        self.clock_domains.cd_sys_ps = ClockDomain()
+        self.clock_domains.cd_ftdi = ClockDomain()
 
-		f0 = 32*1e6
-		clk32 = platform.request("clk32")
-		clk32a = Signal()
-		self.specials += Instance("IBUFG", i_I=clk32, o_O=clk32a)
-		clk32b = Signal()
-		self.specials += Instance("BUFIO2", p_DIVIDE=1,
-			p_DIVIDE_BYPASS="TRUE", p_I_INVERT="FALSE",
-			i_I=clk32a, o_DIVCLK=clk32b)
-		f = Fraction(int(clk_freq), int(f0))
-		n, m, p = f.denominator, f.numerator, 8
-		assert f0/n*m == clk_freq
-		pll_lckd = Signal()
-		pll_fb = Signal()
-		pll = Signal(6)
-		self.specials.pll = Instance("PLL_ADV", p_SIM_DEVICE="SPARTAN6",
-			p_BANDWIDTH="OPTIMIZED", p_COMPENSATION="INTERNAL",
-			p_REF_JITTER=.01, p_CLK_FEEDBACK="CLKFBOUT",
-			i_DADDR=0, i_DCLK=0, i_DEN=0, i_DI=0, i_DWE=0, i_RST=0, i_REL=0,
-			p_DIVCLK_DIVIDE=1, p_CLKFBOUT_MULT=m*p//n, p_CLKFBOUT_PHASE=0.,
-			i_CLKIN1=clk32b, i_CLKIN2=0, i_CLKINSEL=1,
-			p_CLKIN1_PERIOD=1e9/f0, p_CLKIN2_PERIOD=0.,
-			i_CLKFBIN=pll_fb, o_CLKFBOUT=pll_fb, o_LOCKED=pll_lckd,
-			o_CLKOUT0=pll[0], p_CLKOUT0_DUTY_CYCLE=.5,
-			o_CLKOUT1=pll[1], p_CLKOUT1_DUTY_CYCLE=.5,
-			o_CLKOUT2=pll[2], p_CLKOUT2_DUTY_CYCLE=.5,
-			o_CLKOUT3=pll[3], p_CLKOUT3_DUTY_CYCLE=.5,
-			o_CLKOUT4=pll[4], p_CLKOUT4_DUTY_CYCLE=.5,
-			o_CLKOUT5=pll[5], p_CLKOUT5_DUTY_CYCLE=.5,
-			p_CLKOUT0_PHASE=0., p_CLKOUT0_DIVIDE=p//1,
-			p_CLKOUT1_PHASE=0., p_CLKOUT1_DIVIDE=p//1,
-			p_CLKOUT2_PHASE=0., p_CLKOUT2_DIVIDE=p//1,
-			p_CLKOUT3_PHASE=0., p_CLKOUT3_DIVIDE=p//1,
-			p_CLKOUT4_PHASE=0., p_CLKOUT4_DIVIDE=p//1, # sys
-			p_CLKOUT5_PHASE=270., p_CLKOUT5_DIVIDE=p//1, # sys_ps
-		)
-		self.specials += Instance("BUFG", i_I=pll[4], o_O=self.cd_sys.clk)
-		self.specials += Instance("BUFG", i_I=pll[5], o_O=self.cd_sys_ps.clk)
-		self.specials += AsyncResetSynchronizer(self.cd_sys, ~pll_lckd)
+        f0 = 32*1e6
+        clk32 = platform.request("clk32")
+        clk32a = Signal()
+        self.specials += Instance("IBUFG", i_I=clk32, o_O=clk32a)
+        clk32b = Signal()
+        self.specials += Instance("BUFIO2", p_DIVIDE=1,
+                                  p_DIVIDE_BYPASS="TRUE", p_I_INVERT="FALSE",
+                                  i_I=clk32a, o_DIVCLK=clk32b)
+        f = Fraction(int(clk_freq), int(f0))
+        n, m, p = f.denominator, f.numerator, 8
+        assert f0/n*m == clk_freq
+        pll_lckd = Signal()
+        pll_fb = Signal()
+        pll = Signal(6)
+        self.specials.pll = Instance("PLL_ADV", p_SIM_DEVICE="SPARTAN6",
+                                     p_BANDWIDTH="OPTIMIZED", p_COMPENSATION="INTERNAL",
+                                     p_REF_JITTER=.01, p_CLK_FEEDBACK="CLKFBOUT",
+                                     i_DADDR=0, i_DCLK=0, i_DEN=0, i_DI=0, i_DWE=0, i_RST=0, i_REL=0,
+                                     p_DIVCLK_DIVIDE=1, p_CLKFBOUT_MULT=m*p//n, p_CLKFBOUT_PHASE=0.,
+                                     i_CLKIN1=clk32b, i_CLKIN2=0, i_CLKINSEL=1,
+                                     p_CLKIN1_PERIOD=1e9/f0, p_CLKIN2_PERIOD=0.,
+                                     i_CLKFBIN=pll_fb, o_CLKFBOUT=pll_fb, o_LOCKED=pll_lckd,
+                                     o_CLKOUT0=pll[0], p_CLKOUT0_DUTY_CYCLE=.5,
+                                     o_CLKOUT1=pll[1], p_CLKOUT1_DUTY_CYCLE=.5,
+                                     o_CLKOUT2=pll[2], p_CLKOUT2_DUTY_CYCLE=.5,
+                                     o_CLKOUT3=pll[3], p_CLKOUT3_DUTY_CYCLE=.5,
+                                     o_CLKOUT4=pll[4], p_CLKOUT4_DUTY_CYCLE=.5,
+                                     o_CLKOUT5=pll[5], p_CLKOUT5_DUTY_CYCLE=.5,
+                                     p_CLKOUT0_PHASE=0., p_CLKOUT0_DIVIDE=p//1,
+                                     p_CLKOUT1_PHASE=0., p_CLKOUT1_DIVIDE=p//1,
+                                     p_CLKOUT2_PHASE=0., p_CLKOUT2_DIVIDE=p//1,
+                                     p_CLKOUT3_PHASE=0., p_CLKOUT3_DIVIDE=p//1,
+                                     p_CLKOUT4_PHASE=0., p_CLKOUT4_DIVIDE=p//1, # sys
+                                     p_CLKOUT5_PHASE=270., p_CLKOUT5_DIVIDE=p//1, # sys_ps
+        )
+        self.specials += Instance("BUFG", i_I=pll[4], o_O=self.cd_sys.clk)
+        self.specials += Instance("BUFG", i_I=pll[5], o_O=self.cd_sys_ps.clk)
+        self.specials += AsyncResetSynchronizer(self.cd_sys, ~pll_lckd)
 
-		self.specials += Instance("ODDR2", p_DDR_ALIGNMENT="NONE",
-			p_INIT=0, p_SRTYPE="SYNC",
-			i_D0=0, i_D1=1, i_S=0, i_R=0, i_CE=1,
-			i_C0=self.cd_sys.clk, i_C1=~self.cd_sys.clk,
-			o_Q=platform.request("sdram_clock"))
+        self.specials += Instance("ODDR2", p_DDR_ALIGNMENT="NONE",
+                                  p_INIT=0, p_SRTYPE="SYNC",
+                                  i_D0=0, i_D1=1, i_S=0, i_R=0, i_CE=1,
+                                  i_C0=self.cd_sys.clk, i_C1=~self.cd_sys.clk,
+                                  o_Q=platform.request("sdram_clock"))
 
-		self.comb += [
-			self.cd_ftdi.clk.eq(self.cd_sys.clk),
-			self.cd_ftdi.rst.eq(self.cd_sys.rst)
-		]
+        self.comb += [
+            self.cd_ftdi.clk.eq(self.cd_sys.clk),
+            self.cd_ftdi.rst.eq(self.cd_sys.rst)
+        ]
+
 
 class BaseSoC(SDRAMSoC):
-	default_platform = "minispartan6"
+    default_platform = "minispartan6"
 
-	def __init__(self, platform, sdram_controller_settings=LASMIconSettings(), **kwargs):
-		clk_freq = 80*1e6
-		SDRAMSoC.__init__(self, platform, clk_freq,
-			with_integrated_rom=True,
-			sdram_controller_settings=sdram_controller_settings,
-			**kwargs)
+    def __init__(self, platform, sdram_controller_settings=LASMIconSettings(), **kwargs):
+        clk_freq = 80*1e6
+        SDRAMSoC.__init__(self, platform, clk_freq,
+            with_integrated_rom=True,
+            sdram_controller_settings=sdram_controller_settings,
+            **kwargs)
 
-		self.submodules.crg = _CRG(platform, clk_freq)
+        self.submodules.crg = _CRG(platform, clk_freq)
 
-		if not self.with_integrated_main_ram:
-			sdram_module = AS4C16M16(clk_freq)
-			self.submodules.sdrphy = gensdrphy.GENSDRPHY(platform.request("sdram"))
-			self.register_sdram_phy(self.sdrphy, sdram_module.geom_settings, sdram_module.timing_settings)
+        if not self.with_integrated_main_ram:
+            sdram_module = AS4C16M16(clk_freq)
+            self.submodules.sdrphy = gensdrphy.GENSDRPHY(platform.request("sdram"))
+            self.register_sdram_phy(self.sdrphy, sdram_module.geom_settings, sdram_module.timing_settings)
+
 
 class USBSoC(BaseSoC):
-	csr_map = {
-		"usb_dma":		16,
-	}
-	csr_map.update(BaseSoC.csr_map)
+    csr_map = {
+        "usb_dma":        16,
+    }
+    csr_map.update(BaseSoC.csr_map)
 
-	usb_map = {
-		"uart":		0,
-		"dma":		1
-	}
+    usb_map = {
+        "uart":        0,
+        "dma":        1
+    }
 
-	def __init__(self, platform, **kwargs):
-		BaseSoC.__init__(self, platform, with_uart=False, **kwargs)
+    def __init__(self, platform, **kwargs):
+        BaseSoC.__init__(self, platform, with_uart=False, **kwargs)
 
-		self.submodules.uart = LiteUSBUART(self.usb_map["uart"])
-		self.submodules.usb_dma = LiteUSBDMA(
-					self.sdram.crossbar.get_master(),
-					self.sdram.crossbar.get_master(),
-					self.usb_map["dma"])
-		self.submodules.usb_crc32 = LiteUSBCRC32(self.usb_map["dma"])
-		self.comb += [
-			self.usb_dma.source.connect(self.usb_crc32.dma_sink),
-			self.usb_crc32.dma_source.connect(self.usb_dma.sink),
-		]
-		self.submodules.usb_phy = FT2232HPHY(platform.request("ftdi_fifo"))
-		self.submodules.usb_com = LiteUSBCom(self.usb_phy, self.uart, self.usb_crc32)
+        self.submodules.uart = LiteUSBUART(self.usb_map["uart"])
+        self.submodules.usb_dma = LiteUSBDMA(
+                    self.sdram.crossbar.get_master(),
+                    self.sdram.crossbar.get_master(),
+                    self.usb_map["dma"])
+        self.submodules.usb_crc32 = LiteUSBCRC32(self.usb_map["dma"])
+        self.comb += [
+            self.usb_dma.source.connect(self.usb_crc32.dma_sink),
+            self.usb_crc32.dma_source.connect(self.usb_dma.sink),
+        ]
+        self.submodules.usb_phy = FT2232HPHY(platform.request("ftdi_fifo"))
+        self.submodules.usb_com = LiteUSBCom(self.usb_phy, self.uart, self.usb_crc32)
 
 default_subtarget = BaseSoC
