@@ -7,7 +7,6 @@ from misoclib.mem import sdram
 from misoclib.mem.sdram.module import AS4C16M16
 from misoclib.mem.sdram.phy import gensdrphy
 from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
-from misoclib.mem.flash import spiflash
 from misoclib.soc.sdram import SDRAMSoC
 
 from misoclib.com.liteusb.frontend.uart import LiteUSBUART
@@ -23,7 +22,7 @@ class _CRG(Module):
         self.clock_domains.cd_sys_ps = ClockDomain()
         self.clock_domains.cd_ftdi = ClockDomain()
 
-        f0 = 32*1e6
+        f0 = 32*1000000
         clk32 = platform.request("clk32")
         clk32a = Signal()
         self.specials += Instance("IBUFG", i_I=clk32, o_O=clk32a)
@@ -43,7 +42,7 @@ class _CRG(Module):
                                      i_DADDR=0, i_DCLK=0, i_DEN=0, i_DI=0, i_DWE=0, i_RST=0, i_REL=0,
                                      p_DIVCLK_DIVIDE=1, p_CLKFBOUT_MULT=m*p//n, p_CLKFBOUT_PHASE=0.,
                                      i_CLKIN1=clk32b, i_CLKIN2=0, i_CLKINSEL=1,
-                                     p_CLKIN1_PERIOD=1e9/f0, p_CLKIN2_PERIOD=0.,
+                                     p_CLKIN1_PERIOD=1000000000/f0, p_CLKIN2_PERIOD=0.,
                                      i_CLKFBIN=pll_fb, o_CLKFBOUT=pll_fb, o_LOCKED=pll_lckd,
                                      o_CLKOUT0=pll[0], p_CLKOUT0_DUTY_CYCLE=.5,
                                      o_CLKOUT1=pll[1], p_CLKOUT1_DUTY_CYCLE=.5,
@@ -55,8 +54,8 @@ class _CRG(Module):
                                      p_CLKOUT1_PHASE=0., p_CLKOUT1_DIVIDE=p//1,
                                      p_CLKOUT2_PHASE=0., p_CLKOUT2_DIVIDE=p//1,
                                      p_CLKOUT3_PHASE=0., p_CLKOUT3_DIVIDE=p//1,
-                                     p_CLKOUT4_PHASE=0., p_CLKOUT4_DIVIDE=p//1, # sys
-                                     p_CLKOUT5_PHASE=270., p_CLKOUT5_DIVIDE=p//1, # sys_ps
+                                     p_CLKOUT4_PHASE=0., p_CLKOUT4_DIVIDE=p//1,  # sys
+                                     p_CLKOUT5_PHASE=270., p_CLKOUT5_DIVIDE=p//1,  # sys_ps
         )
         self.specials += Instance("BUFG", i_I=pll[4], o_O=self.cd_sys.clk)
         self.specials += Instance("BUFG", i_I=pll[5], o_O=self.cd_sys_ps.clk)
@@ -78,29 +77,29 @@ class BaseSoC(SDRAMSoC):
     default_platform = "minispartan6"
 
     def __init__(self, platform, sdram_controller_settings=LASMIconSettings(), **kwargs):
-        clk_freq = 80*1e6
+        clk_freq = 80*1000000
         SDRAMSoC.__init__(self, platform, clk_freq,
-            with_integrated_rom=True,
-            sdram_controller_settings=sdram_controller_settings,
-            **kwargs)
+                          integrated_rom_size=0x8000,
+                          sdram_controller_settings=sdram_controller_settings,
+                          **kwargs)
 
         self.submodules.crg = _CRG(platform, clk_freq)
 
-        if not self.with_integrated_main_ram:
-            sdram_module = AS4C16M16(clk_freq)
-            self.submodules.sdrphy = gensdrphy.GENSDRPHY(platform.request("sdram"))
-            self.register_sdram_phy(self.sdrphy, sdram_module.geom_settings, sdram_module.timing_settings)
+        if not self.integrated_main_ram_size:
+            self.submodules.sdrphy = gensdrphy.GENSDRPHY(platform.request("sdram"),
+                                                         AS4C16M16(clk_freq))
+            self.register_sdram_phy(self.sdrphy)
 
 
 class USBSoC(BaseSoC):
     csr_map = {
-        "usb_dma":        16,
+        "usb_dma": 16,
     }
     csr_map.update(BaseSoC.csr_map)
 
     usb_map = {
-        "uart":        0,
-        "dma":        1
+        "uart": 0,
+        "dma":  1
     }
 
     def __init__(self, platform, **kwargs):
