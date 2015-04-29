@@ -18,7 +18,6 @@ class _CRG(Module):
     def __init__(self, platform, clk_freq):
         self.clock_domains.cd_sys = ClockDomain()
         self.clock_domains.cd_sys_ps = ClockDomain()
-        self.clock_domains.cd_ftdi = ClockDomain()
 
         f0 = 32*1000000
         clk32 = platform.request("clk32")
@@ -65,12 +64,6 @@ class _CRG(Module):
                                   i_C0=self.cd_sys.clk, i_C1=~self.cd_sys.clk,
                                   o_Q=platform.request("sdram_clock"))
 
-        self.comb += [
-            self.cd_ftdi.clk.eq(self.cd_sys.clk),
-            self.cd_ftdi.rst.eq(self.cd_sys.rst)
-        ]
-
-
 class BaseSoC(SDRAMSoC):
     default_platform = "minispartan6"
 
@@ -94,7 +87,7 @@ class USBSoC(BaseSoC):
         BaseSoC.__init__(self, platform, **kwargs)
 
         self.submodules.usb_phy = FT2232HPHYAsynchronous(platform.request("ftdi_fifo"), self.clk_freq)
-        self.submodules.usb_core = LiteUSBCore(self.usb_phy)
+        self.submodules.usb_core = LiteUSBCore(self.usb_phy, self.clk_freq, with_crc=False)
 
         usb_port = self.usb_core.crossbar.get_port(0x00)
 
