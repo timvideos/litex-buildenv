@@ -2,6 +2,7 @@ from fractions import Fraction
 
 from migen.fhdl.std import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
+from migen.actorlib.fifo import SyncFIFO
 
 from misoclib.mem import sdram
 from misoclib.mem.sdram.module import AS4C16M16
@@ -9,12 +10,9 @@ from misoclib.mem.sdram.phy import gensdrphy
 from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
 from misoclib.soc.sdram import SDRAMSoC
 
-from misoclib.com.liteusb.frontend.uart import LiteUSBUART
-from misoclib.com.liteusb.frontend.dma import LiteUSBDMA
-from misoclib.com.liteusb.core.crc import LiteUSBCRC32
-from misoclib.com.liteusb.core.com import LiteUSBCom
-from misoclib.com.liteusb.phy.ft2232h import FT2232HPHY
-
+from misoclib.com.liteusb.common import *
+from misoclib.com.liteusb.phy.ft2232h import FT2232HPHYAsynchronous
+from misoclib.com.liteusb.core import LiteUSBCore
 
 class _CRG(Module):
     def __init__(self, platform, clk_freq):
@@ -92,30 +90,26 @@ class BaseSoC(SDRAMSoC):
 
 
 class USBSoC(BaseSoC):
-    csr_map = {
-        "usb_dma": 16,
-    }
-    csr_map.update(BaseSoC.csr_map)
-
-    usb_map = {
-        "uart": 0,
-        "dma":  1
-    }
-
     def __init__(self, platform, **kwargs):
-        BaseSoC.__init__(self, platform, with_uart=False, **kwargs)
+        BaseSoC.__init__(self, platform, **kwargs)
 
-        self.submodules.uart = LiteUSBUART(self.usb_map["uart"])
-        self.submodules.usb_dma = LiteUSBDMA(
-                    self.sdram.crossbar.get_master(),
-                    self.sdram.crossbar.get_master(),
-                    self.usb_map["dma"])
-        self.submodules.usb_crc32 = LiteUSBCRC32(self.usb_map["dma"])
+        self.submodules.usb_phy = FT2232HPHYAsynchronous(platform.request("ftdi_fifo"), self.clk_freq)
+        self.submodules.usb_core = LiteUSBCore(self.usb_phy)
+
+        usb_port = self.usb_core.crossbar.get_port(0x00)
+
+        leds = Cat(iter([platform.request("user_led", i) for i in range(8)]))
+
+        usb_loopback_fifo = SyncFIFO(user_description(8), 1024, buffered=True)
+        self.submodules += usb_loopback_fifo
         self.comb += [
-            self.usb_dma.source.connect(self.usb_crc32.dma_sink),
-            self.usb_crc32.dma_source.connect(self.usb_dma.sink),
+            usb_port.source.connect(usb_loopback_fifo.sink),
+            usb_loopback_fifo.source.connect(usb_port.sink)
         ]
-        self.submodules.usb_phy = FT2232HPHY(platform.request("ftdi_fifo"))
-        self.submodules.usb_com = LiteUSBCom(self.usb_phy, self.uart, self.usb_crc32)
+        self.sync += [
+            If(usb_port.source.stb & usb_port.source.ack,
+                leds.eq(usb_port.source.data)
+            )
+        ]
 
 default_subtarget = BaseSoC
