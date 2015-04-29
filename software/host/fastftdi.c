@@ -55,7 +55,7 @@ DeviceInit(FTDIDevice *dev)
 {
   int err, interface;
 
-  for (interface = 0; interface < 2; interface++) {
+  for (interface = 1; interface < 2; interface++) {
     if (libusb_kernel_driver_active(dev->handle, interface) == 1) {
       if ((err = libusb_detach_kernel_driver(dev->handle, interface))) {
         perror("Error detaching kernel driver");
@@ -69,7 +69,7 @@ DeviceInit(FTDIDevice *dev)
     return err;
   }
 
-  for (interface = 0; interface < 2; interface++) {
+  for (interface = 1; interface < 2; interface++) {
     if ((err = libusb_claim_interface(dev->handle, interface))) {
       perror("Error claiming interface");
       return err;
@@ -93,9 +93,6 @@ FTDIDevice_Open(FTDIDevice *dev)
 
   libusb_set_debug(dev->libusb, 0);
 
-  dev->handle = libusb_open_device_with_vid_pid(dev->libusb,
-						LITEUSB_VENDOR,
-						LITEUSB_PRODUCT);
 
   if (!dev->handle) {
     dev->handle = libusb_open_device_with_vid_pid(dev->libusb,
@@ -173,7 +170,7 @@ FTDIDevice_SetMode(FTDIDevice *dev, FTDIInterface interface,
                                   FTDI_COMMAND_TIMEOUT);
     if (err)
       return err;
-  } 
+  }
 
   return err;
 }
@@ -477,7 +474,7 @@ FTDIDevice_ReadStream(FTDIDevice *dev, FTDIInterface interface,
  */
 
 int
-FTDIDevice_MPSSE_Enable(FTDIDevice *dev, FTDIInterface interface)          
+FTDIDevice_MPSSE_Enable(FTDIDevice *dev, FTDIInterface interface)
 {
   int err;
 
@@ -508,7 +505,7 @@ FTDIDevice_MPSSE_SetDivisor(FTDIDevice *dev, FTDIInterface interface,
 }
 
 int
-FTDIDevice_MPSSE_SetLowByte(FTDIDevice *dev, FTDIInterface interface, uint8_t data, uint8_t dir) 
+FTDIDevice_MPSSE_SetLowByte(FTDIDevice *dev, FTDIInterface interface, uint8_t data, uint8_t dir)
 {
   uint8_t buf[3] = {FTDI_MPSSE_SETLOW, 0, 0};
 
@@ -519,7 +516,7 @@ FTDIDevice_MPSSE_SetLowByte(FTDIDevice *dev, FTDIInterface interface, uint8_t da
 }
 
 int
-FTDIDevice_MPSSE_SetHighByte(FTDIDevice *dev, FTDIInterface interface, uint8_t data, uint8_t dir) 
+FTDIDevice_MPSSE_SetHighByte(FTDIDevice *dev, FTDIInterface interface, uint8_t data, uint8_t dir)
 {
   uint8_t buf[3] = {FTDI_MPSSE_SETHIGH, 0, 0};
 

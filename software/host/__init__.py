@@ -93,8 +93,6 @@ class FTDIDevice:
 		else:
 			self.__is_open = True
 
-		err = FTDIDevice_SetMode(self._dev, FTDI_INTERFACE_A, FTDI_BITMODE_SYNC_FIFO,  0xFF, 0)
-		
 		return err
 
 	def write(self, intf, buf, async=False):
@@ -123,8 +121,8 @@ class FTDIDevice:
 			return callback(b, prog)
 
 		cb = p_cb_StreamCallback(callback_wrapper)
-		
-		return FTDIDevice_ReadStream(self._dev, intf, cb, 
+
+		return FTDIDevice_ReadStream(self._dev, intf, cb,
 				None, packetsPerTransfer, numTransfers)
 
 class ProtocolError(Exception):
@@ -224,21 +222,21 @@ class DMA:
 
 	def do_write(self, data):
 		length = len(data)
-		msg = [0x5A, 0xA5, 0x5A, 0xA5, self.tag, 
+		msg = [0x5A, 0xA5, 0x5A, 0xA5, self.tag,
 			(length & 0xff000000) >> 24,
 			(length & 0x00ff0000) >> 16,
 			(length & 0x0000ff00) >> 8,
 			(length & 0x000000ff) >> 0]
 		msg += data
 		self.service.write(bytes(msg))
-		
+
 class FTDIComDevice:
 	def __init__(self, uart_tag=0, dma_tag=1, verbose=False):
 		self.__is_open = False
 
 		self.dev = FTDIDevice()
 		self.verbose = verbose
-		
+
 		self.uart = UART(uart_tag)
 		self.dma = DMA(dma_tag)
 
@@ -250,10 +248,10 @@ class FTDIComDevice:
 				if self.verbose:
 					print("< %s" % " ".join("%02x" % i for i in msg))
 
-				self.dev.write(FTDI_INTERFACE_A, msg, async=False)
+				self.dev.write(FTDI_INTERFACE_B, msg, async=False)
 
 			service.write = write
-	
+
 	def __comms(self):
 		self.__buf = b""
 
@@ -278,14 +276,14 @@ class FTDIComDevice:
 					else:
 						self.__buf = self.__buf[1:]
 
-				return int(self.__comm_term) 
+				return int(self.__comm_term)
 			except Exception as e:
 				self.__comm_term = True
 				self.__comm_exc = e
 				return 1
 
 		while not self.__comm_term:
-			self.dev.read_async(FTDI_INTERFACE_A, callback, 8, 16)
+			self.dev.read_async(FTDI_INTERFACE_B, callback, 8, 16)
 
 		if self.__comm_exc:
 			raise self.__comm_exc
@@ -293,7 +291,7 @@ class FTDIComDevice:
 	def __del__(self):
 		if self.__is_open:
 			self.close()
-			
+
 	def open(self):
 		if self.__is_open:
 			raise ValueError("FTDICOMDevice doubly opened")
@@ -302,7 +300,7 @@ class FTDIComDevice:
 		if stat:
 			print("USB: Error opening device\n")
 			return stat
-	
+
 		self.commthread = threading.Thread(target=self.__comms, daemon=True)
 		self.__comm_term = False
 		self.__comm_exc = None
@@ -351,7 +349,7 @@ def uart_console(ftdi_com):
 				c = ord(e)
 				ftdi_com.uartwrite(c)
 			ftdi_com.uartwrite(ord("\n"))
-	
+
 
 	writethread = threading.Thread(target=write, daemon=True)
 	writethread.start()
@@ -375,7 +373,7 @@ def uart_virtual(ftdi_com):
 		while True:
 			for c in list(os.read(master, 100)):
 				ftdi_com.uartwrite(c)
-	
+
 	writethread = threading.Thread(target=write, daemon=True)
 	writethread.start()
 
@@ -388,10 +386,12 @@ if __name__ == "__main__":
 	}
 	ftdi_com = FTDIComDevice(ftdi_map["uart"], ftdi_map["dma"], verbose=False)
 	ftdi_com.open()
-	if platform.system() == "Windows":
-		uart_console(ftdi_com) # redirect uart to console since pty does not exist on Windows platforms
-	else:
-		s_name = uart_virtual(ftdi_com)
-		print(s_name)
+	ftdi_com.dmawrite([0x5A])
+	print("toto")
+	#if platform.system() == "Windows":
+	#	uart_console(ftdi_com) # redirect uart to console since pty does not exist on Windows platforms
+	#else:
+	#	s_name = uart_virtual(ftdi_com)
+	#	print(s_name)
 	while True:
 		time.sleep(1)

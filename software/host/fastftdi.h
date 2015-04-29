@@ -79,9 +79,6 @@ typedef struct {
 #define FTDI_VENDOR               0x0403
 #define FTDI_PRODUCT_FT2232H      0x6010
 
-#define LITEUSB_VENDOR              0x1d50  // XXX
-#define LITEUSB_PRODUCT             0x607c  // XXX
-
 #define FTDI_COMMAND_TIMEOUT      1000
 
 #define FTDI_SET_BAUD_REQUEST     0x03

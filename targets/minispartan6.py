@@ -93,15 +93,18 @@ class USBSoC(BaseSoC):
 
         leds = Cat(iter([platform.request("user_led", i) for i in range(8)]))
 
-        usb_loopback_fifo = SyncFIFO(user_description(8), 1024, buffered=True)
-        self.submodules += usb_loopback_fifo
         self.comb += [
-            usb_port.source.connect(usb_loopback_fifo.sink),
-            usb_loopback_fifo.source.connect(usb_port.sink)
+            usb_port.source.ack.eq(1)
         ]
+        #usb_loopback_fifo = SyncFIFO(user_description(8), 1024, buffered=True)
+        #self.submodules += usb_loopback_fifo
+        #self.comb += [
+        #    usb_port.source.connect(usb_loopback_fifo.sink),
+        #    usb_loopback_fifo.source.connect(usb_port.sink)
+        #]
         self.sync += [
-            If(usb_port.source.stb & usb_port.source.ack,
-                leds.eq(usb_port.source.data)
+            If(~self.usb_phy.rxf_n,
+                leds.eq(leds+1)
             )
         ]
 
