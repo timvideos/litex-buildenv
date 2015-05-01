@@ -215,7 +215,7 @@ class DMA:
 
 	def do_read(self, timeout=None):
 		try:
-			resp = self.service.q.get(True, timeout)
+			resp = list(self.service.q.get(True, timeout))
 		except queue.Empty:
 			raise TimeoutError("DMA read timed out")
 		return resp
@@ -386,12 +386,17 @@ if __name__ == "__main__":
 	}
 	ftdi_com = FTDIComDevice(ftdi_map["uart"], ftdi_map["dma"], verbose=False)
 	ftdi_com.open()
+	# test DMA
 	for i in range(256):
 		ftdi_com.dmawrite([i])
-	#if platform.system() == "Windows":
-	#	uart_console(ftdi_com) # redirect uart to console since pty does not exist on Windows platforms
-	#else:
-	#	s_name = uart_virtual(ftdi_com)
-	#	print(s_name)
+		print("%02x" %(ftdi_com.dmaread()[0]), end="")
+		sys.stdout.flush()
+	print("")
+	# test UART
+	if platform.system() == "Windows":
+		uart_console(ftdi_com) # redirect uart to console since pty does not exist on Windows platforms
+	else:
+		s_name = uart_virtual(ftdi_com)
+		print(s_name)
 	while True:
 		time.sleep(1)

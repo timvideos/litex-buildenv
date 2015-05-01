@@ -13,6 +13,7 @@ from misoclib.soc.sdram import SDRAMSoC
 from misoclib.com.liteusb.common import *
 from misoclib.com.liteusb.phy.ft2232h import FT2232HPHYAsynchronous
 from misoclib.com.liteusb.core import LiteUSBCore
+from misoclib.com.liteusb.frontend.uart import LiteUSBUART
 
 class _CRG(Module):
     def __init__(self, platform, clk_freq):
@@ -83,36 +84,33 @@ class BaseSoC(SDRAMSoC):
 
 
 class USBSoC(BaseSoC):
+    csr_map = {
+        "usb_dma": 16,
+    }
+    csr_map.update(BaseSoC.csr_map)
+
+    usb_map = {
+        "uart": 0,
+        "dma":  1
+    }
+
     def __init__(self, platform, **kwargs):
-        BaseSoC.__init__(self, platform, **kwargs)
+        BaseSoC.__init__(self, platform, with_uart=False, **kwargs)
 
         self.submodules.usb_phy = FT2232HPHYAsynchronous(platform.request("ftdi_fifo"), self.clk_freq)
         self.submodules.usb_core = LiteUSBCore(self.usb_phy, self.clk_freq, with_crc=False)
 
-        usb_port = self.usb_core.crossbar.get_port(0x01)
+        # UART
+        usb_uart_port = self.usb_core.crossbar.get_port(self.usb_map["uart"])
+        self.submodules.uart = LiteUSBUART(usb_uart_port)
 
-        leds = Cat(iter([platform.request("user_led", i) for i in range(8)]))
-
+        # DMA
+        usb_dma_port = self.usb_core.crossbar.get_port(self.usb_map["dma"])
+        usb_dma_loopback_fifo = SyncFIFO(user_description(8), 1024, buffered=True)
+        self.submodules += usb_dma_loopback_fifo
         self.comb += [
-            usb_port.source.ack.eq(1)
-        ]
-        #usb_loopback_fifo = SyncFIFO(user_description(8), 1024, buffered=True)
-        #self.submodules += usb_loopback_fifo
-        #self.comb += [
-        #    usb_port.source.connect(usb_loopback_fifo.sink),
-        #    usb_loopback_fifo.source.connect(usb_port.sink)
-        #]
-        self.sync += [
-            If(usb_port.source.stb,
-                leds.eq(usb_port.source.data)
-            )
-        ]
-
-        debug = platform.request("debug")
-        self.sync += [
-            debug.channel1.eq(0),
-            debug.channel2.eq(0),
-            debug.channel3.eq(0),
+            usb_dma_port.source.connect(usb_dma_loopback_fifo.sink),
+            usb_dma_loopback_fifo.source.connect(usb_dma_port.sink)
         ]
 
 default_subtarget = BaseSoC
