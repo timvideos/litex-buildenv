@@ -13,6 +13,9 @@ from misoclib.com.liteusb.common import *
 from misoclib.com.liteusb.phy.ft245 import FT245PHY
 from misoclib.com.liteusb.core import LiteUSBCore
 from misoclib.com.liteusb.frontend.uart import LiteUSBUART
+from misoclib.com.liteusb.frontend.wishbone import LiteUSBWishboneBridge
+
+from misoclib.com.gpio import GPIOOut
 
 class _CRG(Module):
     def __init__(self, platform, clk_freq):
@@ -90,8 +93,9 @@ class USBSoC(BaseSoC):
     csr_map.update(BaseSoC.csr_map)
 
     usb_map = {
-        "uart": 0,
-        "dma":  1
+        "uart":   0,
+        "dma":    1,
+        "bridge": 2
     }
 
     def __init__(self, platform, **kwargs):
@@ -112,5 +116,15 @@ class USBSoC(BaseSoC):
             usb_dma_port.source.connect(usb_dma_loopback_fifo.sink),
             usb_dma_loopback_fifo.source.connect(usb_dma_port.sink)
         ]
+
+        # Wishbone Bridge
+        usb_bridge_port = self.usb_core.crossbar.get_port(self.usb_map["bridge"])
+        usb_bridge = LiteUSBWishboneBridge(usb_bridge_port, self.clk_freq)
+        self.submodules += usb_bridge
+        self.add_wb_master(usb_bridge.wishbone)
+
+        # Leds
+        leds = Cat(iter([platform.request("user_led", i) for i in range(8)]))
+        self.submodules.leds = GPIOOut(leds)
 
 default_subtarget = BaseSoC
