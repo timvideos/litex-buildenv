@@ -61,7 +61,7 @@ _io = [
         IOStandard("LVCMOS33"), Misc("SLEW=FAST")
     ),
 
-    ("ftdi_fifo", 0,
+    ("usb_fifo", 0,
         Subsignal("data", Pins("M7 N6 M6 P5 N5 P4 P2 P1")),
         Subsignal("rxf_n", Pins("N3")),
         Subsignal("txe_n", Pins("N1")),
