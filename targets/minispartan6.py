@@ -89,7 +89,7 @@ class USBSoC(BaseSoC):
         self.submodules.usb_phy = FT2232HPHYAsynchronous(platform.request("ftdi_fifo"), self.clk_freq)
         self.submodules.usb_core = LiteUSBCore(self.usb_phy, self.clk_freq, with_crc=False)
 
-        usb_port = self.usb_core.crossbar.get_port(0x00)
+        usb_port = self.usb_core.crossbar.get_port(0x01)
 
         leds = Cat(iter([platform.request("user_led", i) for i in range(8)]))
 
@@ -103,9 +103,16 @@ class USBSoC(BaseSoC):
         #    usb_loopback_fifo.source.connect(usb_port.sink)
         #]
         self.sync += [
-            If(~self.usb_phy.rxf_n,
-                leds.eq(leds+1)
+            If(usb_port.source.stb,
+                leds.eq(usb_port.source.data)
             )
+        ]
+
+        debug = platform.request("debug")
+        self.sync += [
+            debug.channel1.eq(0),
+            debug.channel2.eq(0),
+            debug.channel3.eq(0),
         ]
 
 default_subtarget = BaseSoC

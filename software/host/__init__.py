@@ -386,8 +386,8 @@ if __name__ == "__main__":
 	}
 	ftdi_com = FTDIComDevice(ftdi_map["uart"], ftdi_map["dma"], verbose=False)
 	ftdi_com.open()
-	ftdi_com.dmawrite([0x5A])
-	print("toto")
+	for i in range(256):
+		ftdi_com.dmawrite([i])
 	#if platform.system() == "Windows":
 	#	uart_console(ftdi_com) # redirect uart to console since pty does not exist on Windows platforms
 	#else:
