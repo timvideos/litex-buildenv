@@ -11,7 +11,7 @@ from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
 from misoclib.soc.sdram import SDRAMSoC
 
 from misoclib.com.liteusb.common import *
-from misoclib.com.liteusb.phy.ft2232h import FT2232HPHYAsynchronous
+from misoclib.com.liteusb.phy.ft245 import FT245PHY
 from misoclib.com.liteusb.core import LiteUSBCore
 from misoclib.com.liteusb.frontend.uart import LiteUSBUART
 
@@ -97,7 +97,7 @@ class USBSoC(BaseSoC):
     def __init__(self, platform, **kwargs):
         BaseSoC.__init__(self, platform, with_uart=False, **kwargs)
 
-        self.submodules.usb_phy = FT2232HPHYAsynchronous(platform.request("ftdi_fifo"), self.clk_freq)
+        self.submodules.usb_phy = FT245PHY(platform.request("ftdi_fifo"), self.clk_freq)
         self.submodules.usb_core = LiteUSBCore(self.usb_phy, self.clk_freq, with_crc=False)
 
         # UART
