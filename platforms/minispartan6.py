@@ -65,8 +65,8 @@ _io = [
         Subsignal("data", Pins("M7 N6 M6 P5 N5 P4 P2 P1")),
         Subsignal("rxf_n", Pins("N3")),
         Subsignal("txe_n", Pins("N1")),
-        Subsignal("rd_n", Pins("M2")),
-        Subsignal("wr_n", Pins("M1")),
+        Subsignal("rd_n", Pins("M1")),
+        Subsignal("wr_n", Pins("M2")),
         Subsignal("siwua", Pins("M3")),
         IOStandard("LVCMOS33"), Drive(8), Misc("SLEW=FAST")
     ),
@@ -95,6 +95,13 @@ _io = [
         Subsignal("clk_n", Pins("A14"), IOStandard("TMDS_33")),
         Subsignal("data_p", Pins("C13 B12 C11"), IOStandard("TMDS_33")),
         Subsignal("data_n", Pins("A13 A12 A11"), IOStandard("TMDS_33")),
+    ),
+
+    ("debug", 0,
+        Subsignal("channel1", Pins("J12")), # C1
+        Subsignal("channel2", Pins("L14")), # C3
+        Subsignal("channel3", Pins("M14")), # C5
+        IOStandard("LVTTL")
     )
 ]
 
