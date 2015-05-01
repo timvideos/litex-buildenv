@@ -26,7 +26,10 @@ pFTDI_Device = ctypes.POINTER(FTDI_Device)
 
 # FTDIDevice_Open
 FTDIDevice_Open = libftdicom.FTDIDevice_Open
-FTDIDevice_Open.argtypes = [pFTDI_Device]
+FTDIDevice_Open.argtypes = [
+		pFTDI_Device, # Dev
+		ctypes.c_int  # Interface 
+	]
 FTDIDevice_Open.restype = ctypes.c_int
 
 # FTDIDevice_Close
@@ -77,9 +80,11 @@ FTDI_INTERFACE_B = 2
 FTDI_BITMODE_SYNC_FIFO = (1 << 6)
 
 class FTDIDevice:
-	def __init__(self):
+	def __init__(self, interface, mode):
 		self.__is_open = False
 		self._dev = FTDI_Device()
+		self.interface = interface
+		self.mode = mode
 
 	def __del__(self):
 		if self.__is_open:
@@ -87,11 +92,14 @@ class FTDIDevice:
 			FTDIDevice_Close(self._dev)
 
 	def open(self):
-		err = FTDIDevice_Open(self._dev)
+		err = FTDIDevice_Open(self._dev, self.interface)
 		if err:
 			return err
 		else:
 			self.__is_open = True
+
+		if self.mode == "synchronous":
+			err = FTDIDevice_SetMode(self._dev, interface, FTDI_BITMODE_SYNC_FIFO,  0xFF, 0)
 
 		return err
 
@@ -231,10 +239,13 @@ class DMA:
 		self.service.write(bytes(msg))
 
 class FTDIComDevice:
-	def __init__(self, uart_tag=0, dma_tag=1, verbose=False):
+	def __init__(self, interface, mode, uart_tag=0, dma_tag=1, verbose=False):
 		self.__is_open = False
 
-		self.dev = FTDIDevice()
+		self.interface = interface
+		self.mode = mode
+
+		self.dev = FTDIDevice(interface, mode)
 		self.verbose = verbose
 
 		self.uart = UART(uart_tag)
@@ -248,7 +259,7 @@ class FTDIComDevice:
 				if self.verbose:
 					print("< %s" % " ".join("%02x" % i for i in msg))
 
-				self.dev.write(FTDI_INTERFACE_B, msg, async=False)
+				self.dev.write(self.interface, msg, async=False)
 
 			service.write = write
 
@@ -283,7 +294,7 @@ class FTDIComDevice:
 				return 1
 
 		while not self.__comm_term:
-			self.dev.read_async(FTDI_INTERFACE_B, callback, 8, 16)
+			self.dev.read_async(self.interface, callback, 8, 16)
 
 		if self.__comm_exc:
 			raise self.__comm_exc
@@ -384,7 +395,11 @@ if __name__ == "__main__":
 		"uart": 0,
 		"dma":  1
 	}
-	ftdi_com = FTDIComDevice(ftdi_map["uart"], ftdi_map["dma"], verbose=False)
+	ftdi_com = FTDIComDevice(FTDI_INTERFACE_B,
+                             mode="asynchronous",
+							 uart_tag=ftdi_map["uart"],
+							 dma_tag=ftdi_map["dma"],
+							 verbose=False)
 	ftdi_com.open()
 	# test DMA
 	for i in range(256):

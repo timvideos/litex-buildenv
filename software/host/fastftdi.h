@@ -4,6 +4,7 @@
  *              for synchronous FIFO mode.
  *
  * Copyright (C) 2009 Micah Elizabeth Scott
+ * Copyright (C) 2015 Florent Kermarrec
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -99,9 +100,9 @@ typedef int (FTDIStreamCallback)(uint8_t *buffer, int length,
  * Public Functions
  */
 
-int FTDIDevice_Open(FTDIDevice *dev);
+int FTDIDevice_Open(FTDIDevice *dev, FTDIInterface interface);
 void FTDIDevice_Close(FTDIDevice *dev);
-int FTDIDevice_Reset(FTDIDevice *dev);
+int FTDIDevice_Reset(FTDIDevice *dev, FTDIInterface interface);
 
 int FTDIDevice_SetMode(FTDIDevice *dev, FTDIInterface interface,
                        FTDIBitmode mode, uint8_t pinDirections,
