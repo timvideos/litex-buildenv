@@ -4,7 +4,6 @@ from migen.fhdl.std import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 from migen.actorlib.fifo import SyncFIFO
 
-from misoclib.mem import sdram
 from misoclib.mem.sdram.module import AS4C16M16
 from misoclib.mem.sdram.phy import gensdrphy
 from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
@@ -65,6 +64,7 @@ class _CRG(Module):
                                   i_C0=self.cd_sys.clk, i_C1=~self.cd_sys.clk,
                                   o_Q=platform.request("sdram_clock"))
 
+
 class BaseSoC(SDRAMSoC):
     default_platform = "minispartan6"
 
@@ -97,7 +97,7 @@ class USBSoC(BaseSoC):
     def __init__(self, platform, **kwargs):
         BaseSoC.__init__(self, platform, with_uart=False, **kwargs)
 
-        self.submodules.usb_phy = FT245PHY(platform.request("ftdi_fifo"), self.clk_freq)
+        self.submodules.usb_phy = FT245PHY(platform.request("usb_fifo"), self.clk_freq)
         self.submodules.usb_core = LiteUSBCore(self.usb_phy, self.clk_freq, with_crc=False)
 
         # UART
