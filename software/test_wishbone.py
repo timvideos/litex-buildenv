@@ -7,6 +7,7 @@ wb = LiteUSBWishboneDriver("ft2232h", FTDI_INTERFACE_B, "asynchronous", 2, debug
 wb.open()
 for i in range(64):
     wb.write(0xe0003000, i)
-for i in range(64):
-    print("%08x" %wb.read(4*i))
+data = wb.read(0x00000000, 128)
+for value in data:
+	print("{:08x}".format(value))
 wb.close()
