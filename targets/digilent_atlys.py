@@ -5,7 +5,7 @@ from fractions import Fraction
 from migen.fhdl.std import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from misoclib.mem.sdram.module import P3R1GE3EGF
+from misoclib.mem.sdram.module import SDRAMModule
 from misoclib.mem.sdram.phy import s6ddrphy
 from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
 from misoclib.mem.flash import spiflash
@@ -13,8 +13,38 @@ from misoclib.soc import mem_decoder
 from misoclib.soc.sdram import SDRAMSoC
 
 from misoclib.com.liteeth.phy import LiteEthPHY
-from misoclib.com.liteeth.mac import LiteEthMAC
+from misoclib.com.liteeth.core.mac import LiteEthMAC
 
+
+class P3R1GE3EGF(SDRAMModule):
+    # MIRA P3R1GE3EGF
+    # Density: 1G bits
+    # 8M words × 16 bits × 8 banks (P3R1GE4JGF) -- 1235E - G8E -- E20316JOR826
+    # 2KB page size (P3R1GE4JGF) - Row address: A0 to A12 - Column address: A0 to A9
+    # http://208.74.204.60/t5/Spartan-Family-FPGAs/Atlys-DDR2-memory/td-p/497304
+    geom_settings = {
+        "nbanks": 8,
+        "nrows": 8192,
+        "ncols": 1024,
+        # bank_a=3,
+        # row_a=12, # Note: 1. A13 pin is NC for × 16 organization.
+        # col_a=10,
+    }
+    timing_settings = {
+        "tRP":  15, # 12.5 ns  (MIG 15ns)
+        "tRCD": 15, # 12.5 ns  (MIG 15ns)
+        "tWR":  15, # 15.0 ns  (MIG 15ns)
+        "tWTR":  2, # 7.5 ns   (MIG same)
+        "tREFI": 7800,  # 7.8 uS
+        "tRFC":  127.5, # 256Mb = 75ns, 512Mb = 105ns, 1Gb = 127.5ns, 2Gb = 197.5ns
+        #req_queue_size=8,
+        #read_time=32,
+        #write_time=16
+    }
+
+    def __init__(self, clk_freq):
+        SDRAMModule.__init__(self, clk_freq, "DDR2", self.geom_settings,
+            self.timing_settings)
 
 
 class _CRG(Module):
