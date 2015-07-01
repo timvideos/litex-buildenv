@@ -1,6 +1,6 @@
 from mibuild.generic_platform import *
-from mibuild.xilinx import XilinxPlatform, XC3SProg, VivadoProgrammer, iMPACT
-from mibuild.xilinx.ise import XilinxISEToolchain
+from mibuild.xilinx import XilinxPlatform
+from mibuild.xilinx import XC3SProg, iMPACT
 
 # There appear to be 4 x LTC2481C on the U1-SCL / U1-SDA lines connected to the Cypress
 
@@ -561,34 +561,17 @@ class Platform(XilinxPlatform):
     default_clk_name = "clk100"
     default_clk_period = 10.0
 
-    ise_commands = """
-promgen -w -spi -c FF -p mcs -o {build_name}.mcs -u 0 {build_name}.bit
-"""
-
-    def __init__(self, toolchain="ise", programmer="xc3sprog"):
+    def __init__(self, programmer="xc3sprog"):
         # XC6SLX45-2CSG324C
-        XilinxPlatform.__init__(self,  "xc6slx45-csg324-2", _io, _connectors,
-            toolchain=toolchain)
-
-        if toolchain == "ise":
-            self.toolchain.bitgen_opt = "-g LCK_cycle:NoWait -g Binary:No -w -g SPI_buswidth:1 -g UnusedPin:PullDown"
-        elif toolchain == "vivado":
-            raise SystemError("FIXME:")
-            #self.toolchain.bitstream_commands = ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
-            #self.toolchain.additional_commands = ["write_cfgmem -force -format bin -interface spix4 -size 16 -loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
-
-        self.programmer = programmer
+        XilinxPlatform.__init__(self,  "xc6slx45-csg324-2", _io, _connectors)
+        self.toolchain.bitgen_opt = "-g LCK_cycle:NoWait -g Binary:No -w -g SPI_buswidth:1 -g UnusedPin:PullDown"
 
         # FPGA AUX is connected to the 2.5V supply on the Atlys
-        self.add_platform_command("""
-CONFIG VCCAUX="2.5";
-""")
+        self.add_platform_command("""CONFIG VCCAUX="2.5";""")
 
     def create_programmer(self):
         if self.programmer == "xc3sprog":
             return XC3SProg("jtaghs1_fast", "bscan_spi_digilent_atlys.bit")
-        elif self.programmer == "vivado":
-            return VivadoProgrammer()
         elif self.programmer == "impact":
             return iMPACT()
         else:
@@ -596,11 +579,6 @@ CONFIG VCCAUX="2.5";
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
-        #try:
-        #    self.add_period_constraint(self.lookup_request("clk100").p, 5.0)
-        #except ConstraintError:
-        #    pass
-
         for i in range(2):
             try:
                 self.add_period_constraint(self.lookup_request("dvi_in", i).clk_p, 12)
