@@ -25,10 +25,7 @@ class P3R1GE3EGF(SDRAMModule):
     geom_settings = {
         "nbanks": 8,
         "nrows": 8192,
-        "ncols": 1024,
-        # bank_a=3,
-        # row_a=12, # Note: 1. A13 pin is NC for × 16 organization.
-        # col_a=10,
+        "ncols": 1024
     }
     timing_settings = {
         "tRP":  15, # 12.5 ns  (MIG 15ns)
@@ -37,9 +34,6 @@ class P3R1GE3EGF(SDRAMModule):
         "tWTR":  2, # 7.5 ns   (MIG same)
         "tREFI": 7800,  # 7.8 uS
         "tRFC":  127.5, # 256Mb = 75ns, 512Mb = 105ns, 1Gb = 127.5ns, 2Gb = 197.5ns
-        #req_queue_size=8,
-        #read_time=32,
-        #write_time=16
     }
 
     def __init__(self, clk_freq):
@@ -78,7 +72,7 @@ class _CRG(Module):
                                      i_DADDR=0, i_DCLK=0, i_DEN=0, i_DI=0, i_DWE=0, i_RST=0, i_REL=0,
                                      p_DIVCLK_DIVIDE=1, p_CLKFBOUT_MULT=m*p//n, p_CLKFBOUT_PHASE=0.,
                                      i_CLKIN1=clk100b, i_CLKIN2=0, i_CLKINSEL=1,
-                                     p_CLKIN1_PERIOD=1000000000/f0, p_CLKIN2_PERIOD=0.,
+                                     p_CLKIN1_PERIOD=1e9/f0, p_CLKIN2_PERIOD=0.,
                                      i_CLKFBIN=pll_fb, o_CLKFBOUT=pll_fb, o_LOCKED=pll_lckd,
                                      o_CLKOUT0=pll[0], p_CLKOUT0_DUTY_CYCLE=.5,
                                      o_CLKOUT1=pll[1], p_CLKOUT1_DUTY_CYCLE=.5,
@@ -87,14 +81,14 @@ class _CRG(Module):
                                      o_CLKOUT4=pll[4], p_CLKOUT4_DUTY_CYCLE=.5,
                                      o_CLKOUT5=pll[5], p_CLKOUT5_DUTY_CYCLE=.5,
                                      p_CLKOUT0_PHASE=0., p_CLKOUT0_DIVIDE=p//4,  # sdram wr rd
-                                     p_CLKOUT1_PHASE=0., p_CLKOUT1_DIVIDE=p//8,
+                                     p_CLKOUT1_PHASE=0., p_CLKOUT1_DIVIDE=p//4,
                                      p_CLKOUT2_PHASE=270., p_CLKOUT2_DIVIDE=p//2,  # sdram dqs adr ctrl
                                      p_CLKOUT3_PHASE=250., p_CLKOUT3_DIVIDE=p//2,  # off-chip ddr
                                      p_CLKOUT4_PHASE=0., p_CLKOUT4_DIVIDE=p//1,
                                      p_CLKOUT5_PHASE=0., p_CLKOUT5_DIVIDE=p//1,  # sys
         )
         self.specials += Instance("BUFG", i_I=pll[5], o_O=self.cd_sys.clk)
-        reset = platform.request("cpu_reset")
+        reset = ~platform.request("cpu_reset")
         self.clock_domains.cd_por = ClockDomain()
         por = Signal(max=1 << 11, reset=(1 << 11) - 1)
         self.sync.por += If(por != 0, por.eq(por - 1))
@@ -127,13 +121,12 @@ class BaseSoC(SDRAMSoC):
     default_platform = "digilent_atlys"
 
     csr_map = {
-        "spiflash": 16,
-        "ddrphy":   17,
+        "ddrphy":   16,
     }
     csr_map.update(SDRAMSoC.csr_map)
 
     def __init__(self, platform, sdram_controller_settings=LASMIconSettings(), **kwargs):
-        clk_freq = 80*1000000
+        clk_freq = 75*1000000
         SDRAMSoC.__init__(self, platform, clk_freq,
                           integrated_rom_size=0x8000,
                           sdram_controller_settings=sdram_controller_settings,
@@ -144,9 +137,9 @@ class BaseSoC(SDRAMSoC):
         if not self.integrated_main_ram_size:
             self.submodules.ddrphy = s6ddrphy.S6DDRPHY(platform.request("ddram"),
                                                        P3R1GE3EGF(self.clk_freq),
-                                                       rd_bitslip=1,
-                                                       wr_bitslip=3,
-                                                       dqs_ddr_alignment="C1")
+                                                       rd_bitslip=0,
+                                                       wr_bitslip=4,
+                                                       dqs_ddr_alignment="C0")
             self.comb += [
                 self.ddrphy.clk4x_wr_strb.eq(self.crg.clk4x_wr_strb),
                 self.ddrphy.clk4x_rd_strb.eq(self.crg.clk4x_rd_strb),
@@ -158,8 +151,8 @@ default_subtarget = BaseSoC
 
 class MiniSoC(BaseSoC):
     csr_map = {
-        "ethphy": 18,
-        "ethmac": 19,
+        "ethphy": 17,
+        "ethmac": 18,
     }
     csr_map.update(BaseSoC.csr_map)
 

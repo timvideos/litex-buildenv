@@ -564,7 +564,7 @@ class Platform(XilinxPlatform):
     def __init__(self, programmer="xc3sprog"):
         # XC6SLX45-2CSG324C
         XilinxPlatform.__init__(self,  "xc6slx45-csg324-2", _io, _connectors)
-        self.toolchain.bitgen_opt = "-g LCK_cycle:NoWait -g Binary:No -w -g SPI_buswidth:1 -g UnusedPin:PullDown"
+        self.programmer = programmer
 
         # FPGA AUX is connected to the 2.5V supply on the Atlys
         self.add_platform_command("""CONFIG VCCAUX="2.5";""")
