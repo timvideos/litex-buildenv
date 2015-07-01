@@ -153,12 +153,6 @@ class BaseSoC(SDRAMSoC):
             ]
             self.register_sdram_phy(self.ddrphy)
 
-        #if not self.integrated_rom_size:
-        #    self.submodules.spiflash = spiflash.SpiFlash(platform.request("spiflash4x"),
-        #                                                 dummy=10, div=4)
-        #    self.flash_boot_address = 0xb00000
-        #    self.register_rom(self.spiflash.bus)
-
 default_subtarget = BaseSoC
 
 
@@ -188,29 +182,3 @@ class MiniSoC(BaseSoC):
         self.add_memory_region("ethmac", self.mem_map["ethmac"]+self.shadow_address, 0x2000)
 
 default_subtarget = BaseSoC
-
-'''
-def get_dvi(platform):
-    try:
-        pads_dvi = platform.request("dvi_out")
-    except ConstraintError:
-        pads_dvi = None
-    else:
-        platform.add_platform_command("""
-PIN "dviout_pix_bufg.O" CLOCK_DEDICATED_ROUTE = FALSE;
-""")
-    return pads_dvi
-
-
-class FramebufferSoC(MiniSoC):
-    csr_map = {
-        "fb":                    11,
-    }
-    csr_map.update(MiniSoC.csr_map)
-
-    def __init__(self, platform, **kwargs):
-        kwargs['with_memtest']=True
-        MiniSoC.__init__(self, platform, **kwargs)
-        pads_dvi = get_dvi(platform)
-        self.submodules.fb = framebuffer.Framebuffer(None, pads_dvi, self.lasmixbar.get_master())
-'''
