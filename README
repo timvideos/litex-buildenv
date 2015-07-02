@@ -23,7 +23,7 @@
 [> Status:
 Atlys:
 * BaseSoC working (CPU + DDR2 + UART)
-* MiniSoC working (BaseSoC + Ethernet, 10/100Mbps for now)
+* MiniSoC working (BaseSoC + 10/100/1000Mbps Ethernet)
 
 [> Other Docs
 USB UART - Use Linux drivers at https://github.com/shenki/exar-uart-driver
