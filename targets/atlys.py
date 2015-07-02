@@ -3,6 +3,7 @@
 from fractions import Fraction
 
 from migen.fhdl.std import *
+from migen.fhdl.specials import Keep
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from misoclib.mem.sdram.module import SDRAMModule
@@ -12,6 +13,7 @@ from misoclib.mem.flash import spiflash
 from misoclib.soc import mem_decoder
 from misoclib.soc.sdram import SDRAMSoC
 from misoclib.video import dvisampler
+from misoclib.video import framebuffer
 
 from misoclib.com.liteeth.phy import LiteEthPHY
 from misoclib.com.liteeth.core.mac import LiteEthMAC
@@ -48,6 +50,7 @@ class _CRG(Module):
         self.clock_domains.cd_sdram_half = ClockDomain()
         self.clock_domains.cd_sdram_full_wr = ClockDomain()
         self.clock_domains.cd_sdram_full_rd = ClockDomain()
+        self.clock_domains.cd_base50 = ClockDomain()
 
         self.clk4x_wr_strb = Signal()
         self.clk4x_rd_strb = Signal()
@@ -118,6 +121,17 @@ class _CRG(Module):
         self.specials += Instance("OBUFDS", i_I=output_clk, o_O=clk.p, o_OB=clk.n)
 
 
+        dcm_base50_locked = Signal()
+        self.specials += Instance("DCM_CLKGEN",
+                                  p_CLKFXDV_DIVIDE=2, p_CLKFX_DIVIDE=4, p_CLKFX_MD_MAX=1.0, p_CLKFX_MULTIPLY=2,
+                                  p_CLKIN_PERIOD=10.0, p_SPREAD_SPECTRUM="NONE", p_STARTUP_WAIT="FALSE",
+
+                                  i_CLKIN=clk100a, o_CLKFX=self.cd_base50.clk,
+                                  o_LOCKED=dcm_base50_locked,
+                                  i_FREEZEDCM=0, i_RST=ResetSignal())
+        self.specials += AsyncResetSynchronizer(self.cd_base50, self.cd_sys.rst | ~dcm_base50_locked)
+
+
 class BaseSoC(SDRAMSoC):
     default_platform = "atlys"
 
@@ -175,7 +189,21 @@ class MiniSoC(BaseSoC):
         self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)
         self.add_memory_region("ethmac", self.mem_map["ethmac"]+self.shadow_base, 0x2000)
 
-        platform.add_platform_command("""NET "eth_clocks_rx" CLOCK_DEDICATED_ROUTE = FALSE;""")
+        self.specials += [
+            Keep(self.crg.cd_sys.clk),
+            Keep(self.ethphy.crg.cd_eth_rx.clk),
+            Keep(self.ethphy.crg.cd_eth_tx.clk)
+        ]
+        platform.add_platform_command("""
+NET "eth_clocks_rx" CLOCK_DEDICATED_ROUTE = FALSE;
+NET "sys_clk" TNM_NET = "GRPsys_clk";
+NET "eth_rx_clk" TNM_NET = "GRPeth_rx_clk";
+NET "eth_tx_clk" TNM_NET = "GRPeth_tx_clk";
+TIMESPEC "TSise_sucks1" = FROM "GRPeth_tx_clk" TO "GRPsys_clk" TIG;
+TIMESPEC "TSise_sucks2" = FROM "GRPsys_clk" TO "GRPeth_tx_clk" TIG;
+TIMESPEC "TSise_sucks3" = FROM "GRPeth_rx_clk" TO "GRPsys_clk" TIG;
+TIMESPEC "TSise_sucks4" = FROM "GRPsys_clk" TO "GRPeth_rx_clk" TIG;
+""")
 
 
 class VideoInSoC(MiniSoC):
@@ -199,6 +227,30 @@ class VideoInSoC(MiniSoC):
                                                             self.sdram.crossbar.get_master())
         self.submodules.dvisampler1 = dvisampler.DVISampler(platform.request("dvi_in", 1),
                                                             self.sdram.crossbar.get_master())
+
+
+class VideoOutSoC(MiniSoC):
+    csr_map = {
+        "fb": 19,
+    }
+    csr_map.update(MiniSoC.csr_map)
+
+    def __init__(self, platform, **kwargs):
+        MiniSoC.__init__(self, platform, **kwargs)
+
+        self.submodules.fb = framebuffer.Framebuffer(None, platform.request("dvi_out"),
+                                                     self.sdram.crossbar.get_master())
+
+        platform.add_platform_command("""PIN "dviout_pix_bufg.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
+
+        self.specials += [
+            Keep(self.fb.driver.clocking.cd_pix.clk)
+        ]
+        platform.add_platform_command("""
+NET "pix_clk" TNM_NET = "GRPpix_clk";
+TIMESPEC "TSise_sucks5" = FROM "GRPpix_clk" TO "GRPsys_clk" TIG;
+TIMESPEC "TSise_sucks6" = FROM "GRPsys_clk" TO "GRPpix_clk" TIG;
+""")
 
 
 default_subtarget = MiniSoC
