@@ -1,0 +1,40 @@
+
+          <TODO(florent): put banner thing here>
+
+            Copyright 2015 / EnjoyDigital
+              florent@enjoy-digital.fr
+
+    Alternative HDMI2USB firmware built on Migen/MiSoC
+
+[> Getting started
+------------------
+1. Follow MiSoC Quick start guide
+	https://github.com/m-labs/misoc
+
+2. Clone https://github.com/timvideos/HDMI2USB-misoc-firmware into same directory as misoc
+
+3. Build the gateware and software:
+	go to misoc dir
+	./make.py -X ../HDMI2USB-misoc-firmware -t digilent_atlys -s MiniSoC all
+
+[> Status:
+* TBD 
+* Possibly working on Atlys board
+  * USB UART - Use Linux drivers at https://github.com/shenki/exar-uart-driver
+  * DDR2 RAM?
+  * Gigabit Ethernet?
+
+[> Other Docs
+
+Original HDMI2USB firmware can be found at http://github.com/timvideos/HDMI2USB
+
+ * The HDMI2USB wiki (http://github.com/timvideos/HDMI2USB/wiki) has lots of
+   information about the Digilent Atlys board.
+
+ * The HDMI2USB Developer Documentation - http://j.mp/hdmi2usb-dev-gdoc
+ 
+[> Contact
+
+Mailing List: 
+ * https://groups.google.com/forum/#!forum/hdmi2usb
+ * hdmi2usb@googlegroups.com
