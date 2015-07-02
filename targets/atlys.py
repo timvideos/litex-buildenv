@@ -118,7 +118,7 @@ class _CRG(Module):
 
 
 class BaseSoC(SDRAMSoC):
-    default_platform = "digilent_atlys"
+    default_platform = "atlys"
 
     csr_map = {
         "ddrphy":   16,

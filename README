@@ -18,7 +18,7 @@
 
 3. Build the gateware and software:
 	go to misoc dir
-	./make.py -X ../HDMI2USB-misoc-firmware -t digilent_atlys -s MiniSoC all load-bitstream
+	./make.py -X ../HDMI2USB-misoc-firmware -t atlys -s MiniSoC all load-bitstream
 
 [> Status:
 Atlys:
