@@ -130,6 +130,7 @@ class _CRG(Module):
                                   o_LOCKED=dcm_base50_locked,
                                   i_FREEZEDCM=0, i_RST=ResetSignal())
         self.specials += AsyncResetSynchronizer(self.cd_base50, self.cd_sys.rst | ~dcm_base50_locked)
+        platform.add_period_constraint(self.cd_base50.clk, 20)
 
 
 class BaseSoC(SDRAMSoC):
