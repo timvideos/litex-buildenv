@@ -336,16 +336,16 @@ _io = [
     # NET "HDMIIN1SCL"  LOC = "C13"; # Bank = 0, Pin name = IO_L50P,        Sch name = PMOD-SCL
     # NET "HDMIIN1SDA"  LOC = "A13"; # Bank = 0, Pin name = IO_L50N,        Sch name = PMOD-SDA
     ("dvi_in", 0,
-        Subsignal("clk_p", Pins("D11"), IOStandard("TMDS_33")),
-        Subsignal("clk_n", Pins("C11"), IOStandard("TMDS_33")),
-        Subsignal("data0_p", Pins("G9"), IOStandard("TMDS_33")),
-        Subsignal("data0_n", Pins("F9"), IOStandard("TMDS_33")),
-        Subsignal("data1_p", Pins("B11"), IOStandard("TMDS_33")),
-        Subsignal("data1_n", Pins("A11"), IOStandard("TMDS_33")),
-        Subsignal("data2_p", Pins("B12"), IOStandard("TMDS_33")),
-        Subsignal("data2_n", Pins("A12"), IOStandard("TMDS_33")),
+        Subsignal("clk_p", Pins("D11")),
+        Subsignal("clk_n", Pins("C11")),
+        Subsignal("data0_p", Pins("G9")),
+        Subsignal("data0_n", Pins("F9")),
+        Subsignal("data1_p", Pins("B11")),
+        Subsignal("data1_n", Pins("A11")),
+        Subsignal("data2_p", Pins("B12")),
+        Subsignal("data2_n", Pins("A12")),
         # Make sure JP2 is connected. Shared with J1.
-        Subsignal("scl", Pins("C13"), IOStandard("LVCMOS33")),
+        Subsignal("scl", Pins("C13"), IOStandard("LVCMOS25")),
         Subsignal("sda", Pins("A13"), IOStandard("LVCMOS33")),
         #Subsignal("hpd_notif", Pins("G22"), IOStandard("LVCMOS33")),
         #Subsignal("hpd_en", Pins("G17"), IOStandard("LVCMOS33"))
@@ -368,18 +368,18 @@ _io = [
     # NET "HDMIIN2SCL"  LOC = "M16"; # Bank = 1, Pin name = IO_L47P_FWE_B_M1DQ0, Sch name = TMDS-RX-SCL
     # NET "HDMIIN2SDA"  LOC = "M18"; # Bank = 1, Pin name = IO_L47N_LDC_M1DQ1,   Sch name = TMDS-RX-SDA
     ("dvi_in", 1,
-        Subsignal("clk_p", Pins("H17"), IOStandard("TMDS_33")),
-        Subsignal("clk_n", Pins("H18"), IOStandard("TMDS_33")),
-        Subsignal("data0_p", Pins("K17"), IOStandard("TMDS_33")),
-        Subsignal("data0_n", Pins("K18"), IOStandard("TMDS_33")),
-        Subsignal("data1_p", Pins("L17"), IOStandard("TMDS_33")),
-        Subsignal("data1_n", Pins("L18"), IOStandard("TMDS_33")),
-        Subsignal("data2_p", Pins("J16"), IOStandard("TMDS_33")),
-        Subsignal("data2_n", Pins("J18"), IOStandard("TMDS_33")),
+        Subsignal("clk_p", Pins("H17")),
+        Subsignal("clk_n", Pins("H18")),
+        Subsignal("data0_p", Pins("K17")),
+        Subsignal("data0_n", Pins("K18")),
+        Subsignal("data1_p", Pins("L17")),
+        Subsignal("data1_n", Pins("L18")),
+        Subsignal("data2_p", Pins("J16")),
+        Subsignal("data2_n", Pins("J18")),
         # Disconnect JP6 and JP7 for FPGA SCL/SDA control, otherwise
         # this is connected to J2's SCL/SDA pins.
-        Subsignal("scl", Pins("M16"), IOStandard("LVCMOS33")),
-        Subsignal("sda", Pins("M18"), IOStandard("LVCMOS33")),
+        Subsignal("scl", Pins("M16"), IOStandard("LVCMOS25")),
+        Subsignal("sda", Pins("M18"), IOStandard("LVCMOS25")),
         #Subsignal("hpd_notif", Pins("G16"), IOStandard("LVCMOS33")),
         #Subsignal("hpd_en", Pins("B20"), IOStandard("LVCMOS33"))
     ),

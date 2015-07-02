@@ -11,6 +11,7 @@ from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
 from misoclib.mem.flash import spiflash
 from misoclib.soc import mem_decoder
 from misoclib.soc.sdram import SDRAMSoC
+from misoclib.video import dvisampler
 
 from misoclib.com.liteeth.phy import LiteEthPHY
 from misoclib.com.liteeth.core.mac import LiteEthMAC
@@ -175,6 +176,29 @@ class MiniSoC(BaseSoC):
         self.add_memory_region("ethmac", self.mem_map["ethmac"]+self.shadow_base, 0x2000)
 
         platform.add_platform_command("""NET "eth_clocks_rx" CLOCK_DEDICATED_ROUTE = FALSE;""")
+
+
+class VideoInSoC(MiniSoC):
+    csr_map = {
+        "dvisampler0":          19,
+        "dvisampler0_edid_mem": 20,
+        "dvisampler1":          21,
+        "dvisampler1_edid_mem": 22,
+    }
+    csr_map.update(MiniSoC.csr_map)
+
+    interrupt_map = {
+        "dvisampler0": 3,
+        "dvisampler1": 4,
+    }
+    interrupt_map.update(MiniSoC.interrupt_map)
+
+    def __init__(self, platform, **kwargs):
+        MiniSoC.__init__(self, platform, **kwargs)
+        self.submodules.dvisampler0 = dvisampler.DVISampler(platform.request("dvi_in", 0),
+                                                            self.sdram.crossbar.get_master())
+        self.submodules.dvisampler1 = dvisampler.DVISampler(platform.request("dvi_in", 1),
+                                                            self.sdram.crossbar.get_master())
 
 
 default_subtarget = MiniSoC
