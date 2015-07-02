@@ -1,6 +1,6 @@
 from mibuild.generic_platform import *
 from mibuild.xilinx import XilinxPlatform
-from mibuild.xilinx import XC3SProg, iMPACT
+from mibuild.xilinx import XC3SProg, iMPACT, Adept
 
 # There appear to be 4 x LTC2481C on the U1-SCL / U1-SDA lines connected to the Cypress
 
@@ -574,6 +574,11 @@ class Platform(XilinxPlatform):
             return XC3SProg("jtaghs1_fast", "bscan_spi_digilent_atlys.bit")
         elif self.programmer == "impact":
             return iMPACT()
+        elif self.programmer == "adept":
+            return Adept("Atlys", 0)
+        elif self.programmer == "fpgalink":
+            from mibuild.fpgalink_programmer import FPGALink
+            return FPGALink("1443:0007")
         else:
             raise ValueError("{} programmer is not supported".format(programmer))
 
