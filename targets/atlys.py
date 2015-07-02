@@ -195,41 +195,21 @@ class MiniSoC(BaseSoC):
             Keep(self.ethphy.crg.cd_eth_tx.clk)
         ]
         platform.add_platform_command("""
-NET "eth_clocks_rx" CLOCK_DEDICATED_ROUTE = FALSE;
-NET "sys_clk" TNM_NET = "GRPsys_clk";
-NET "eth_rx_clk" TNM_NET = "GRPeth_rx_clk";
-NET "eth_tx_clk" TNM_NET = "GRPeth_tx_clk";
+NET "{eth_clocks_rx}" CLOCK_DEDICATED_ROUTE = FALSE;
+NET "{sys_clk}" TNM_NET = "GRPsys_clk";
+NET "{eth_rx_clk}" TNM_NET = "GRPeth_rx_clk";
+NET "{eth_tx_clk}" TNM_NET = "GRPeth_tx_clk";
 TIMESPEC "TSise_sucks1" = FROM "GRPeth_tx_clk" TO "GRPsys_clk" TIG;
 TIMESPEC "TSise_sucks2" = FROM "GRPsys_clk" TO "GRPeth_tx_clk" TIG;
 TIMESPEC "TSise_sucks3" = FROM "GRPeth_rx_clk" TO "GRPsys_clk" TIG;
 TIMESPEC "TSise_sucks4" = FROM "GRPsys_clk" TO "GRPeth_rx_clk" TIG;
-""")
+""", eth_clocks_rx=platform.lookup_request("eth_clocks").rx,
+     sys_clk=self.crg.cd_sys.clk,
+     eth_rx_clk=self.ethphy.crg.cd_eth_rx.clk,
+     eth_tx_clk=self.ethphy.crg.cd_eth_tx.clk)
 
 
-class VideoInSoC(MiniSoC):
-    csr_map = {
-        "dvisampler0":          19,
-        "dvisampler0_edid_mem": 20,
-        "dvisampler1":          21,
-        "dvisampler1_edid_mem": 22,
-    }
-    csr_map.update(MiniSoC.csr_map)
-
-    interrupt_map = {
-        "dvisampler0": 3,
-        "dvisampler1": 4,
-    }
-    interrupt_map.update(MiniSoC.interrupt_map)
-
-    def __init__(self, platform, **kwargs):
-        MiniSoC.__init__(self, platform, **kwargs)
-        self.submodules.dvisampler0 = dvisampler.DVISampler(platform.request("dvi_in", 0),
-                                                            self.sdram.crossbar.get_master())
-        self.submodules.dvisampler1 = dvisampler.DVISampler(platform.request("dvi_in", 1),
-                                                            self.sdram.crossbar.get_master())
-
-
-class VideoOutSoC(MiniSoC):
+class FramebufferSoC(MiniSoC):
     csr_map = {
         "fb": 19,
     }
@@ -247,10 +227,33 @@ class VideoOutSoC(MiniSoC):
             Keep(self.fb.driver.clocking.cd_pix.clk)
         ]
         platform.add_platform_command("""
-NET "pix_clk" TNM_NET = "GRPpix_clk";
+NET "{pix_clk}" TNM_NET = "GRPpix_clk";
 TIMESPEC "TSise_sucks5" = FROM "GRPpix_clk" TO "GRPsys_clk" TIG;
 TIMESPEC "TSise_sucks6" = FROM "GRPsys_clk" TO "GRPpix_clk" TIG;
-""")
+""", pix_clk=self.fb.driver.clocking.cd_pix.clk)
+
+
+class VideomixerSoC(FramebufferSoC):
+    csr_map = {
+        "dvisampler0":          20,
+        "dvisampler0_edid_mem": 21,
+        "dvisampler1":          22,
+        "dvisampler1_edid_mem": 23,
+    }
+    csr_map.update(FramebufferSoC.csr_map)
+
+    interrupt_map = {
+        "dvisampler0": 3,
+        "dvisampler1": 4,
+    }
+    interrupt_map.update(FramebufferSoC.interrupt_map)
+
+    def __init__(self, platform, **kwargs):
+        FramebufferSoC.__init__(self, platform, **kwargs)
+        self.submodules.dvisampler0 = dvisampler.DVISampler(platform.request("dvi_in", 0),
+                                                            self.sdram.crossbar.get_master())
+        self.submodules.dvisampler1 = dvisampler.DVISampler(platform.request("dvi_in", 1),
+                                                            self.sdram.crossbar.get_master())
 
 
 default_subtarget = MiniSoC
