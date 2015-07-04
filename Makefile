@@ -1,9 +1,21 @@
+MSCDIR = ../misoc
+HDMI2USBDIR = ../hdmi2usb
 PYTHON = python3
+SOC = VideomixerSoC
+LOWER_SOC  = $(shell tr '[:upper:]' '[:lower:]' <<< $(SOC))
+
+CMD = $(PYTHON) make.py -X $(HDMI2USBDIR) -t atlys -s $(SOC) -Op programmer impact
+
+gateware:
+	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream load-bitstream
+
+load_gateware:
+	cd $(MSCDIR) && $(CMD) load-bitstream
 
 firmware:
 	$(MAKE) -C firmware all
 
-load:
+load_firmware:
 	$(PYTHON) tools/flterm.py --port 5 --kernel=firmware/firmware.bin
 
 clean:
