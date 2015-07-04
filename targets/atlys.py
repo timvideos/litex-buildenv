@@ -248,12 +248,15 @@ class EtherboneSoC(BaseSoC):
         ]
         platform.add_platform_command("""
 NET "{eth_clocks_rx}" CLOCK_DEDICATED_ROUTE = FALSE;
+NET "{eth_clocks_rx}" TNM_NET = "GRPeth_clocks_rx";
 NET "{eth_rx_clk}" TNM_NET = "GRPeth_rx_clk";
 NET "{eth_tx_clk}" TNM_NET = "GRPeth_tx_clk";
-TIMESPEC "TSise_sucks1" = FROM "GRPeth_tx_clk" TO "GRPsys_clk" TIG;
-TIMESPEC "TSise_sucks2" = FROM "GRPsys_clk" TO "GRPeth_tx_clk" TIG;
-TIMESPEC "TSise_sucks3" = FROM "GRPeth_rx_clk" TO "GRPsys_clk" TIG;
-TIMESPEC "TSise_sucks4" = FROM "GRPsys_clk" TO "GRPeth_rx_clk" TIG;
+TIMESPEC "TSise_sucks1" = FROM "GRPeth_clocks_rx" TO "GRPsys_clk" TIG;
+TIMESPEC "TSise_sucks2" = FROM "GRPsys_clk" TO "GRPeth_clocks_rx" TIG;
+TIMESPEC "TSise_sucks3" = FROM "GRPeth_tx_clk" TO "GRPsys_clk" TIG;
+TIMESPEC "TSise_sucks4" = FROM "GRPsys_clk" TO "GRPeth_tx_clk" TIG;
+TIMESPEC "TSise_sucks5" = FROM "GRPeth_rx_clk" TO "GRPsys_clk" TIG;
+TIMESPEC "TSise_sucks6" = FROM "GRPsys_clk" TO "GRPeth_rx_clk" TIG;
 """, eth_clocks_rx=platform.lookup_request("eth_clocks").rx,
      eth_rx_clk=self.ethphy.crg.cd_eth_rx.clk,
      eth_tx_clk=self.ethphy.crg.cd_eth_tx.clk)
@@ -278,8 +281,8 @@ class FramebufferSoC(EtherboneSoC):
         ]
         platform.add_platform_command("""
 NET "{pix_clk}" TNM_NET = "GRPpix_clk";
-TIMESPEC "TSise_sucks5" = FROM "GRPpix_clk" TO "GRPsys_clk" TIG;
-TIMESPEC "TSise_sucks6" = FROM "GRPsys_clk" TO "GRPpix_clk" TIG;
+TIMESPEC "TSise_sucks7" = FROM "GRPpix_clk" TO "GRPsys_clk" TIG;
+TIMESPEC "TSise_sucks8" = FROM "GRPsys_clk" TO "GRPpix_clk" TIG;
 """, pix_clk=self.fb.driver.clocking.cd_pix.clk)
 
 
