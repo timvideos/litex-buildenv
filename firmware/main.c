@@ -26,11 +26,11 @@ int main(void)
 
 	config_init();
 	time_init();
-	//processor_start(config_get(CONFIG_KEY_RESOLUTION));
+	processor_start(config_get(CONFIG_KEY_RESOLUTION));
 
 	while(1) {
-		//processor_service();
-		//ui_service();
+		processor_service();
+		ui_service();
 		ci_service();
 	}
 
