@@ -4,8 +4,7 @@
 #include <generated/csr.h>
 #include <hw/flags.h>
 
-#include "dvisampler0.h"
-#include "dvisampler1.h"
+#include "dvisampler.h"
 #include "edid.h"
 #include "pll.h"
 #include "processor.h"
@@ -244,10 +243,7 @@ static void edid_set_mode(const struct video_timing *mode)
 
 	generate_edid(&edid, "OHW", "MX", 2013, "Mixxeo ch.A", mode);
 	for(i=0;i<sizeof(edid);i++)
-		MMPTR(CSR_DVISAMPLER0_EDID_MEM_BASE+4*i) = edid[i];
-	generate_edid(&edid, "OHW", "MX", 2013, "Mixxeo ch.B", mode);
-	for(i=0;i<sizeof(edid);i++)
-		MMPTR(CSR_DVISAMPLER1_EDID_MEM_BASE+4*i) = edid[i];
+		MMPTR(CSR_DVISAMPLER_EDID_MEM_BASE+4*i) = edid[i];
 }
 
 void processor_start(int mode)
@@ -256,28 +252,22 @@ void processor_start(int mode)
 
 	fb_fi_enable_write(0);
 	fb_driver_clocking_pll_reset_write(1);
-	dvisampler0_edid_hpd_en_write(0);
-	dvisampler1_edid_hpd_en_write(0);
+	dvisampler_edid_hpd_en_write(0);
 
-	dvisampler0_disable();
-	dvisampler1_disable();
-	dvisampler0_clear_framebuffers();
-	dvisampler1_clear_framebuffers();
+	dvisampler_disable();
+	dvisampler_clear_framebuffers();
 
 	pll_config_for_clock(m->pixel_clock);
 	fb_set_mode(m);
 	edid_set_mode(m);
-	dvisampler0_init_video(m->h_active, m->v_active);
-	dvisampler1_init_video(m->h_active, m->v_active);
+	dvisampler_init_video(m->h_active, m->v_active);
 
 	fb_driver_clocking_pll_reset_write(0);
 	fb_fi_enable_write(1);
-	dvisampler0_edid_hpd_en_write(1);
-	dvisampler1_edid_hpd_en_write(1);
+	dvisampler_edid_hpd_en_write(1);
 }
 
 void processor_service(void)
 {
-	dvisampler0_service();
-	dvisampler1_service();
+	dvisampler_service();
 }

@@ -4,8 +4,7 @@
 #include <generated/csr.h>
 
 #include "config.h"
-#include "dvisampler0.h"
-#include "dvisampler1.h"
+#include "dvisampler.h"
 #include "processor.h"
 #include "pll.h"
 #include "ci.h"
@@ -59,11 +58,11 @@ void ci_service(void)
 				list_video_modes();
 				break;
 			case 'D':
-				dvisampler0_debug = dvisampler1_debug = 1;
+				dvisampler_debug = 1;
 				printf("DVI sampler debug is ON\n");
 				break;
 			case 'd':
-				dvisampler0_debug = dvisampler1_debug = 0;
+				dvisampler_debug = 0;
 				printf("DVI sampler debug is OFF\n");
 				break;
 			case 'F':

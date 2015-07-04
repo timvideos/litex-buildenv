@@ -249,25 +249,20 @@ TIMESPEC "TSise_sucks6" = FROM "GRPsys_clk" TO "GRPpix_clk" TIG;
 
 class VideomixerSoC(FramebufferSoC):
     csr_map = {
-        "dvisampler0":          20,
-        "dvisampler0_edid_mem": 21,
-        "dvisampler1":          22,
-        "dvisampler1_edid_mem": 23,
+        "dvisampler":          20,
+        "dvisampler_edid_mem": 21
     }
     csr_map.update(FramebufferSoC.csr_map)
 
     interrupt_map = {
-        "dvisampler0": 3,
-        "dvisampler1": 4,
+        "dvisampler": 3,
     }
     interrupt_map.update(FramebufferSoC.interrupt_map)
 
     def __init__(self, platform, **kwargs):
         FramebufferSoC.__init__(self, platform, **kwargs)
-        self.submodules.dvisampler0 = dvisampler.DVISampler(platform.request("dvi_in", 0),
-                                                            self.sdram.crossbar.get_master())
-        self.submodules.dvisampler1 = dvisampler.DVISampler(platform.request("dvi_in", 1),
-                                                            self.sdram.crossbar.get_master())
+        self.submodules.dvisampler = dvisampler.DVISampler(platform.request("dvi_in", 1),
+                                                           self.sdram.crossbar.get_master())
 
 
 default_subtarget = MiniSoC
