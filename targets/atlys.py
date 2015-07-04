@@ -16,8 +16,10 @@ from misoclib.soc.sdram import SDRAMSoC
 from misoclib.video import dvisampler
 from misoclib.video import framebuffer
 
+from misoclib.com.liteeth.common import *
 from misoclib.com.liteeth.phy import LiteEthPHY
-from misoclib.com.liteeth.core.mac import LiteEthMAC
+from misoclib.com.liteeth.core import LiteEthUDPIPCore
+from misoclib.com.liteeth.frontend.etherbone import LiteEthEtherbone
 
 
 class P3R1GE4JGF(SDRAMModule):
@@ -176,6 +178,7 @@ class BaseSoC(SDRAMSoC):
 NET "{sys_clk}" TNM_NET = "GRPsys_clk";
 """, sys_clk=self.crg.cd_sys.clk)
 
+
 class MiniSoC(BaseSoC):
     csr_map = {
         "ethphy": 17,
@@ -218,14 +221,52 @@ TIMESPEC "TSise_sucks4" = FROM "GRPsys_clk" TO "GRPeth_rx_clk" TIG;
      eth_tx_clk=self.ethphy.crg.cd_eth_tx.clk)
 
 
-class FramebufferSoC(BaseSoC):
+class EtherboneSoC(BaseSoC):
     csr_map = {
-        "fb": 19,
+        "ethphy": 17,
+        "ethcore": 18,
     }
     csr_map.update(BaseSoC.csr_map)
 
-    def __init__(self, platform, **kwargs):
+    def __init__(self, platform,
+        mac_address=0x10e2d5000000,
+        ip_address="192.168.1.42",
+        **kwargs):
         BaseSoC.__init__(self, platform, **kwargs)
+
+        # Ethernet PHY and UDP/IP stack
+        self.submodules.ethphy = LiteEthPHY(platform.request("eth_clocks"), platform.request("eth"), clk_freq=self.clk_freq)
+        self.submodules.ethcore = LiteEthUDPIPCore(self.ethphy, mac_address, convert_ip(ip_address), self.clk_freq)
+
+        # Etherbone bridge
+        self.submodules.etherbone = LiteEthEtherbone(self.ethcore.udp, 20000)
+        self.add_wb_master(self.etherbone.master.bus)
+
+        self.specials += [
+            Keep(self.ethphy.crg.cd_eth_rx.clk),
+            Keep(self.ethphy.crg.cd_eth_tx.clk)
+        ]
+        platform.add_platform_command("""
+NET "{eth_clocks_rx}" CLOCK_DEDICATED_ROUTE = FALSE;
+NET "{eth_rx_clk}" TNM_NET = "GRPeth_rx_clk";
+NET "{eth_tx_clk}" TNM_NET = "GRPeth_tx_clk";
+TIMESPEC "TSise_sucks1" = FROM "GRPeth_tx_clk" TO "GRPsys_clk" TIG;
+TIMESPEC "TSise_sucks2" = FROM "GRPsys_clk" TO "GRPeth_tx_clk" TIG;
+TIMESPEC "TSise_sucks3" = FROM "GRPeth_rx_clk" TO "GRPsys_clk" TIG;
+TIMESPEC "TSise_sucks4" = FROM "GRPsys_clk" TO "GRPeth_rx_clk" TIG;
+""", eth_clocks_rx=platform.lookup_request("eth_clocks").rx,
+     eth_rx_clk=self.ethphy.crg.cd_eth_rx.clk,
+     eth_tx_clk=self.ethphy.crg.cd_eth_tx.clk)
+
+
+class FramebufferSoC(EtherboneSoC):
+    csr_map = {
+        "fb": 19,
+    }
+    csr_map.update(EtherboneSoC.csr_map)
+
+    def __init__(self, platform, **kwargs):
+        EtherboneSoC.__init__(self, platform, **kwargs)
 
         self.submodules.fb = framebuffer.Framebuffer(None, platform.request("dvi_out"),
                                                      self.sdram.crossbar.get_master())
