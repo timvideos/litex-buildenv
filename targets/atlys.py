@@ -20,8 +20,8 @@ from misoclib.com.liteeth.phy import LiteEthPHY
 from misoclib.com.liteeth.core.mac import LiteEthMAC
 
 
-class P3R1GE3EGF(SDRAMModule):
-    # MIRA P3R1GE3EGF
+class P3R1GE4JGF(SDRAMModule):
+    # MIRA P3R1GE4JGF
     # Density: 1G bits
     # 8M words × 16 bits × 8 banks (P3R1GE4JGF) -- 1235E - G8E -- E20316JOR826
     # 2KB page size (P3R1GE4JGF) - Row address: A0 to A12 - Column address: A0 to A9
@@ -32,11 +32,11 @@ class P3R1GE3EGF(SDRAMModule):
         "ncols": 1024
     }
     timing_settings = {
-        "tRP":  15, # 12.5 ns  (MIG 15ns)
-        "tRCD": 15, # 12.5 ns  (MIG 15ns)
-        "tWR":  15, # 15.0 ns  (MIG 15ns)
-        "tWTR":  2, # 7.5 ns   (MIG same)
-        "tREFI": 7800,  # 7.8 uS
+        "tRP":   12.5,
+        "tRCD":  12.5,
+        "tWR":   15,
+        "tWTR":  3,
+        "tREFI": 7800,
         "tRFC":  127.5, # 256Mb = 75ns, 512Mb = 105ns, 1Gb = 127.5ns, 2Gb = 197.5ns
     }
 
@@ -161,7 +161,7 @@ class BaseSoC(SDRAMSoC):
 
         if not self.integrated_main_ram_size:
             self.submodules.ddrphy = s6ddrphy.S6DDRPHY(platform.request("ddram"),
-                                                       P3R1GE3EGF(self.clk_freq),
+                                                       P3R1GE4JGF(self.clk_freq),
                                                        rd_bitslip=0,
                                                        wr_bitslip=4,
                                                        dqs_ddr_alignment="C0")

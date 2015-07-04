@@ -218,27 +218,22 @@ _io = [
     ("ddram_clock", 0,
         Subsignal("p", Pins("G3")),
         Subsignal("n", Pins("G1")),
-        IOStandard("DIFF_SSTL18_II")
+        IOStandard("DIFF_SSTL18_II"), Misc("IN_TERM=NONE")
     ),
     ("ddram", 0,
         # NET "DDR2CKE"    LOC = "H7"; # Bank = 3, Pin name = IO_L53P_M3CKE,           Sch name = DDR-CKE
-        Subsignal("cke", Pins("H7")),
+        Subsignal("cke", Pins("H7"), IOStandard("SSTL18_II")),
         # NET "DDR2RASN"   LOC = "L5"; # Bank = 3, Pin name = IO_L43P_GCLK23_M3RASN,   Sch name = DDR-RAS
-        Subsignal("ras_n", Pins("L5")),
+        Subsignal("ras_n", Pins("L5"), IOStandard("SSTL18_II")),
         # NET "DDR2CASN"   LOC = "K5"; # Bank = 3, Pin name = IO_L43N_GCLK22_IRDY2_M3CASN, Sch name = DDR-CAS
-        Subsignal("cas_n", Pins("K5")),
+        Subsignal("cas_n", Pins("K5"), IOStandard("SSTL18_II")),
         # NET "DDR2WEN"    LOC = "E3"; # Bank = 3, Pin name = IO_L50P_M3WE,         Sch name = DDR-WE
-        Subsignal("we_n", Pins("E3")),
-
-        # NET "DDR2RZQ"      LOC = "L6"; # Bank = 3, Pin name = IO_L31P,            Sch name = RZQ
-        Subsignal("rzq", Pins("L6")),
-        # NET "DDR2ZIO"      LOC = "C2"; # Bank = 3, Pin name = IO_L83P,            Sch name = ZIO
-        Subsignal("zio", Pins("C2")),
+        Subsignal("we_n", Pins("E3"), IOStandard("SSTL18_II")),
 
         # NET "DDR2BA0"    LOC = "F2"; # Bank = 3, Pin name = IO_L48P_M3BA0,        Sch name = DDR-BA0
         # NET "DDR2BA1"    LOC = "F1"; # Bank = 3, Pin name = IO_L48N_M3BA1,        Sch name = DDR-BA1
         # NET "DDR2BA2"    LOC = "E1"; # Bank = 3, Pin name = IO_L50N_M3BA2,        Sch name = DDR-BA2
-        Subsignal("ba", Pins("F2 F1 E1")),
+        Subsignal("ba", Pins("F2 F1 E1"), IOStandard("SSTL18_II")),
 
         # NET "DDR2A0"     LOC = "J7"; # Bank = 3, Pin name = IO_L47P_M3A0,         Sch name = DDR-A0
         # NET "DDR2A1"     LOC = "J6"; # Bank = 3, Pin name = IO_L47N_M3A1,         Sch name = DDR-A1
@@ -253,7 +248,7 @@ _io = [
         # NET "DDR2A10"    LOC = "F4"; # Bank = 3, Pin name = IO_L51P_M3A10,        Sch name = DDR-A10
         # NET "DDR2A11"    LOC = "D3"; # Bank = 3, Pin name = IO_L54N_M3A11,        Sch name = DDR-A11
         # NET "DDR2A12"    LOC = "G6"; # Bank = 3, Pin name = IO_L53N_M3A12,        Sch name = DDR-A12
-        Subsignal("a", Pins("J7 J6 H5 L7 F3 H4 H3 H6 D2 D1 F4 D3 G6")),
+        Subsignal("a", Pins("J7 J6 H5 L7 F3 H4 H3 H6 D2 D1 F4 D3 G6"), IOStandard("SSTL18_II")),
         # NET "DDR2DQ0"    LOC = "L2"; # Bank = 3, Pin name = IO_L37P_M3DQ0,        Sch name = DDR-DQ0
         # NET "DDR2DQ1"    LOC = "L1"; # Bank = 3, Pin name = IO_L37N_M3DQ1,        Sch name = DDR-DQ1
         # NET "DDR2DQ2"    LOC = "K2"; # Bank = 3, Pin name = IO_L38P_M3DQ2,        Sch name = DDR-DQ2
@@ -272,7 +267,7 @@ _io = [
         # NET "DDR2DQ15"   LOC = "U1"; # Bank = 3, Pin name = IO_L32N_M3DQ15,       Sch name = DDR-DQ15
         Subsignal("dq", Pins(
                     "L2 L1 K2 K1 H2 H1 J3 J1",
-                    "M3 M1 N2 N1 T2 T1 U2 U1")),
+                    "M3 M1 N2 N1 T2 T1 U2 U1"), IOStandard("SSTL18_II")),
         # U == Upper, L == Lower
         # NET "DDR2UDQS"   LOC="P2"; # Bank = 3, Pin name = IO_L34P_M3UDQS,         Sch name = DDR-UDQS_P
         # NET "DDR2UDQSN"  LOC="P1"; # Bank = 3, Pin name = IO_L34N_M3UDQSN,        Sch name = DDR-UDQS_N
@@ -282,14 +277,9 @@ _io = [
         Subsignal("dqs_n", Pins("P1 L3"), IOStandard("DIFF_SSTL18_II")),
         # NET "DDR2UDM"    LOC="K4"; # Bank = 3, Pin name = IO_L42P_GCLK25_TRDY2_M3UDM, Sch name = DDR-UDM
         # NET "DDR2LDM"    LOC="K3"; # Bank = 3, Pin name = IO_L42N_GCLK24_M3LDM,   Sch name = DDR-LDM
-        Subsignal("dm", Pins("K4 K3")),
+        Subsignal("dm", Pins("K4 K3"), IOStandard("SSTL18_II")),
         # NET "DDR2ODT"    LOC="K6"; # Bank = 3, Pin name = IO_L45N_M3ODT,          Sch name = DDR-ODT
-        Subsignal("odt", Pins("K6")),
-
-        # FIXME: ???
-        #Subsignal("cs_n", Pins(""), IOStandard("SSTL15")),
-
-        IOStandard("SSTL18_II")
+        Subsignal("odt", Pins("K6"), IOStandard("SSTL18_II"))
     ),
 
     ## onboard HDMI OUT
