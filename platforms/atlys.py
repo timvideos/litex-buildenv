@@ -308,12 +308,12 @@ _io = [
     ("dvi_out", 0,
         Subsignal("clk_p", Pins("B6"), IOStandard("TMDS_33")),
         Subsignal("clk_n", Pins("A6"), IOStandard("TMDS_33")),
-        Subsignal("data0_p", Pins("D8"), IOStandard("TMDS_33")),
-        Subsignal("data0_n", Pins("C8"), IOStandard("TMDS_33")),
+        Subsignal("data2_p", Pins("D8"), IOStandard("TMDS_33")),
+        Subsignal("data2_n", Pins("C8"), IOStandard("TMDS_33")),
         Subsignal("data1_p", Pins("C7"), IOStandard("TMDS_33")),
         Subsignal("data1_n", Pins("A7"), IOStandard("TMDS_33")),
-        Subsignal("data2_p", Pins("B8"), IOStandard("TMDS_33")),
-        Subsignal("data2_n", Pins("A8"), IOStandard("TMDS_33")),
+        Subsignal("data0_p", Pins("B8"), IOStandard("TMDS_33")),
+        Subsignal("data0_n", Pins("A8"), IOStandard("TMDS_33")),
         # Disconnect JP6 and JP7 for FPGA SCL/SDA control, otherwise
         # this is connected to J3's SCL/SDA pins.
         Subsignal("scl", Pins("D9"), IOStandard("LVCMOS33")),
