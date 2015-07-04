@@ -13,10 +13,13 @@
 
 int dvisamplerX_debug;
 
+// Hack for debug
+#define DVISAMPLERX_BUFFER_BASE 0x00000000
+#define DVISAMPLERX_BUFFER_SIZE 1280*720*4
+
 #define FRAMEBUFFER_COUNT 4
 #define FRAMEBUFFER_MASK (FRAMEBUFFER_COUNT - 1)
 
-static unsigned int dvisamplerX_framebuffers[FRAMEBUFFER_COUNT][1280*720] __attribute__((aligned(16)));
 static int dvisamplerX_fb_slot_indexes[2];
 static int dvisamplerX_next_fb_index;
 static int dvisamplerX_hres, dvisamplerX_vres;
@@ -28,8 +31,8 @@ void dvisamplerX_isr(void)
 	int expected_length;
 	unsigned int address_min, address_max;
 
-	address_min = (unsigned int)dvisamplerX_framebuffers & 0x0fffffff;
-	address_max = address_min + sizeof(dvisamplerX_framebuffers);
+	address_min = DVISAMPLERX_BUFFER_BASE;
+	address_max = DVISAMPLERX_BUFFER_SIZE;
 	if((dvisamplerX_dma_slot0_status_read() == DVISAMPLER_SLOT_PENDING)
 		&& ((dvisamplerX_dma_slot0_address_read() < address_min) || (dvisamplerX_dma_slot0_address_read() > address_max)))
 		printf("dvisamplerX: slot0: stray DMA\n");
@@ -41,11 +44,11 @@ void dvisamplerX_isr(void)
 	  || (dvisamplerX_resdetection_vres_read() != dvisamplerX_vres)) {
 		/* Dump frames until we get the expected resolution */
 		if(dvisamplerX_dma_slot0_status_read() == DVISAMPLER_SLOT_PENDING) {
-			dvisamplerX_dma_slot0_address_write((unsigned int)dvisamplerX_framebuffers[dvisamplerX_fb_slot_indexes[0]]);
+			dvisamplerX_dma_slot0_address_write(DVISAMPLERX_BUFFER_BASE);
 			dvisamplerX_dma_slot0_status_write(DVISAMPLER_SLOT_LOADED);
 		}
 		if(dvisamplerX_dma_slot1_status_read() == DVISAMPLER_SLOT_PENDING) {
-			dvisamplerX_dma_slot1_address_write((unsigned int)dvisamplerX_framebuffers[dvisamplerX_fb_slot_indexes[1]]);
+			dvisamplerX_dma_slot1_address_write(DVISAMPLERX_BUFFER_BASE);
 			dvisamplerX_dma_slot1_status_write(DVISAMPLER_SLOT_LOADED);
 		}
 		return;
@@ -53,31 +56,30 @@ void dvisamplerX_isr(void)
 
 	expected_length = dvisamplerX_hres*dvisamplerX_vres*4;
 	if(dvisamplerX_dma_slot0_status_read() == DVISAMPLER_SLOT_PENDING) {
-		length = dvisamplerX_dma_slot0_address_read() - ((unsigned int)dvisamplerX_framebuffers[dvisamplerX_fb_slot_indexes[0]] & 0x0fffffff);
+		length = dvisamplerX_dma_slot0_address_read() - (DVISAMPLERX_BUFFER_BASE);
 		if(length == expected_length) {
 			fb_index = dvisamplerX_fb_slot_indexes[0];
 			dvisamplerX_fb_slot_indexes[0] = dvisamplerX_next_fb_index;
 			dvisamplerX_next_fb_index = (dvisamplerX_next_fb_index + 1) & FRAMEBUFFER_MASK;
 		} else
 			printf("dvisamplerX: slot0: unexpected frame length: %d\n", length);
-		dvisamplerX_dma_slot0_address_write((unsigned int)dvisamplerX_framebuffers[dvisamplerX_fb_slot_indexes[0]]);
+		dvisamplerX_dma_slot0_address_write(DVISAMPLERX_BUFFER_BASE);
 		dvisamplerX_dma_slot0_status_write(DVISAMPLER_SLOT_LOADED);
 	}
 	if(dvisamplerX_dma_slot1_status_read() == DVISAMPLER_SLOT_PENDING) {
-		length = dvisamplerX_dma_slot1_address_read() - ((unsigned int)dvisamplerX_framebuffers[dvisamplerX_fb_slot_indexes[1]] & 0x0fffffff);
+		length = dvisamplerX_dma_slot1_address_read() - (DVISAMPLERX_BUFFER_BASE);
 		if(length == expected_length) {
 			fb_index = dvisamplerX_fb_slot_indexes[1];
 			dvisamplerX_fb_slot_indexes[1] = dvisamplerX_next_fb_index;
 			dvisamplerX_next_fb_index = (dvisamplerX_next_fb_index + 1) & FRAMEBUFFER_MASK;
 		} else
 			printf("dvisamplerX: slot1: unexpected frame length: %d\n", length);
-		dvisamplerX_dma_slot1_address_write((unsigned int)dvisamplerX_framebuffers[dvisamplerX_fb_slot_indexes[1]]);
+		dvisamplerX_dma_slot1_address_write(DVISAMPLERX_BUFFER_BASE);
 		dvisamplerX_dma_slot1_status_write(DVISAMPLER_SLOT_LOADED);
 	}
 
 	if(fb_index != -1)
-	//	fb_fi_baseX_write((unsigned int)dvisamplerX_framebuffers[fb_index]);
-		fb_fi_base0_write((unsigned int)dvisamplerX_framebuffers[fb_index]); /* FIXME */
+		fb_fi_base0_write(DVISAMPLERX_BUFFER_BASE);
 }
 
 static int dvisamplerX_connected;
@@ -93,10 +95,10 @@ void dvisamplerX_init_video(int hres, int vres)
 
 	dvisamplerX_dma_frame_size_write(hres*vres*4);
 	dvisamplerX_fb_slot_indexes[0] = 0;
-	dvisamplerX_dma_slot0_address_write((unsigned int)dvisamplerX_framebuffers[0]);
+	dvisamplerX_dma_slot0_address_write(DVISAMPLERX_BUFFER_BASE);
 	dvisamplerX_dma_slot0_status_write(DVISAMPLER_SLOT_LOADED);
 	dvisamplerX_fb_slot_indexes[1] = 1;
-	dvisamplerX_dma_slot1_address_write((unsigned int)dvisamplerX_framebuffers[1]);
+	dvisamplerX_dma_slot1_address_write(DVISAMPLERX_BUFFER_BASE);
 	dvisamplerX_dma_slot1_status_write(DVISAMPLER_SLOT_LOADED);
 	dvisamplerX_next_fb_index = 2;
 
@@ -106,8 +108,7 @@ void dvisamplerX_init_video(int hres, int vres)
 	mask |= 1 << DVISAMPLERX_INTERRUPT;
 	irq_setmask(mask);
 
-	//fb_fi_baseX_write((unsigned int)dvisamplerX_framebuffers[3]);
-	fb_fi_base0_write((unsigned int)dvisamplerX_framebuffers[3]); /* FIXME */
+	fb_fi_base0_write(DVISAMPLERX_BUFFER_BASE);
 
 }
 
@@ -126,7 +127,6 @@ void dvisamplerX_disable(void)
 
 void dvisamplerX_clear_framebuffers(void)
 {
-	memset(&dvisamplerX_framebuffers, 0, sizeof(dvisamplerX_framebuffers));
 	flush_l2_cache();
 }
 

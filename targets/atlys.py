@@ -5,6 +5,7 @@ from fractions import Fraction
 from migen.fhdl.std import *
 from migen.fhdl.specials import Keep
 from migen.genlib.resetsync import AsyncResetSynchronizer
+from migen.bus import wishbone
 
 from misoclib.mem.sdram.module import SDRAMModule
 from misoclib.mem.sdram.phy import s6ddrphy
@@ -141,19 +142,27 @@ class BaseSoC(SDRAMSoC):
     }
     csr_map.update(SDRAMSoC.csr_map)
 
-    def __init__(self, platform, **kwargs):
+    mem_map = {
+        "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
+    }
+    mem_map.update(SDRAMSoC.mem_map)
+
+    def __init__(self, platform, firmware_ram_size=0x10000, **kwargs):
         clk_freq = 75*1000000
         SDRAMSoC.__init__(self, platform, clk_freq,
                           integrated_rom_size=0x8000,
-                          sdram_controller_settings=LASMIconSettings(l2_size=16384,
-                                                                     req_queue_size=64,
+                          sdram_controller_settings=LASMIconSettings(l2_size=8192,
+                                                                     req_queue_size=8,
                                                                      read_time=32,
-                                                                     write_time=64,
+                                                                     write_time=16,
                                                                      with_refresh=False, # XXX
                                                                      with_bandwidth=False),
                           **kwargs)
 
         self.submodules.crg = _CRG(platform, clk_freq)
+
+        self.submodules.firmware_ram = wishbone.SRAM(firmware_ram_size)
+        self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
 
         if not self.integrated_main_ram_size:
             self.submodules.ddrphy = s6ddrphy.S6DDRPHY(platform.request("ddram"),
@@ -167,8 +176,10 @@ class BaseSoC(SDRAMSoC):
             ]
             self.register_sdram_phy(self.ddrphy)
 
-default_subtarget = BaseSoC
-
+        self.specials += Keep(self.crg.cd_sys.clk)
+        platform.add_platform_command("""
+NET "{sys_clk}" TNM_NET = "GRPsys_clk";
+""", sys_clk=self.crg.cd_sys.clk)
 
 class MiniSoC(BaseSoC):
     csr_map = {
@@ -196,13 +207,11 @@ class MiniSoC(BaseSoC):
         self.add_memory_region("ethmac", self.mem_map["ethmac"]+self.shadow_base, 0x2000)
 
         self.specials += [
-            Keep(self.crg.cd_sys.clk),
             Keep(self.ethphy.crg.cd_eth_rx.clk),
             Keep(self.ethphy.crg.cd_eth_tx.clk)
         ]
         platform.add_platform_command("""
 NET "{eth_clocks_rx}" CLOCK_DEDICATED_ROUTE = FALSE;
-NET "{sys_clk}" TNM_NET = "GRPsys_clk";
 NET "{eth_rx_clk}" TNM_NET = "GRPeth_rx_clk";
 NET "{eth_tx_clk}" TNM_NET = "GRPeth_tx_clk";
 TIMESPEC "TSise_sucks1" = FROM "GRPeth_tx_clk" TO "GRPsys_clk" TIG;
@@ -210,19 +219,18 @@ TIMESPEC "TSise_sucks2" = FROM "GRPsys_clk" TO "GRPeth_tx_clk" TIG;
 TIMESPEC "TSise_sucks3" = FROM "GRPeth_rx_clk" TO "GRPsys_clk" TIG;
 TIMESPEC "TSise_sucks4" = FROM "GRPsys_clk" TO "GRPeth_rx_clk" TIG;
 """, eth_clocks_rx=platform.lookup_request("eth_clocks").rx,
-     sys_clk=self.crg.cd_sys.clk,
      eth_rx_clk=self.ethphy.crg.cd_eth_rx.clk,
      eth_tx_clk=self.ethphy.crg.cd_eth_tx.clk)
 
 
-class FramebufferSoC(MiniSoC):
+class FramebufferSoC(BaseSoC):
     csr_map = {
         "fb": 19,
     }
-    csr_map.update(MiniSoC.csr_map)
+    csr_map.update(BaseSoC.csr_map)
 
     def __init__(self, platform, **kwargs):
-        MiniSoC.__init__(self, platform, **kwargs)
+        BaseSoC.__init__(self, platform, **kwargs)
 
         self.submodules.fb = framebuffer.Framebuffer(None, platform.request("dvi_out"),
                                                      self.sdram.crossbar.get_master())
