@@ -18,6 +18,7 @@ from misoclib.video import framebuffer
 
 from misoclib.com.liteeth.common import *
 from misoclib.com.liteeth.phy import LiteEthPHY
+from misoclib.com.liteeth.phy.mii import LiteEthPHYMII
 from misoclib.com.liteeth.core import LiteEthUDPIPCore
 from misoclib.com.liteeth.frontend.etherbone import LiteEthEtherbone
 
@@ -235,7 +236,7 @@ class EtherboneSoC(BaseSoC):
         BaseSoC.__init__(self, platform, **kwargs)
 
         # Ethernet PHY and UDP/IP stack
-        self.submodules.ethphy = LiteEthPHY(platform.request("eth_clocks"), platform.request("eth"), clk_freq=self.clk_freq)
+        self.submodules.ethphy = LiteEthPHYMII(platform.request("eth_clocks"), platform.request("eth"))
         self.submodules.ethcore = LiteEthUDPIPCore(self.ethphy, mac_address, convert_ip(ip_address), self.clk_freq)
 
         # Etherbone bridge
