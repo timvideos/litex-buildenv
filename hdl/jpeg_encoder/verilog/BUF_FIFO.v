@@ -28,9 +28,9 @@
 //
 // Content   : Input FIFO Buffer
 //
-// Description : 
+// Description :
 //
-// Spec.     : 
+// Spec.     :
 //
 // Author    : Michal Krepa
 //
@@ -42,24 +42,24 @@
 // /// Copyright (c) 2013, Jahanzeb Ahmad
 // /// All rights reserved.
 // ///
-// /// Redistribution and use in source and binary forms, with or without modification, 
+// /// Redistribution and use in source and binary forms, with or without modification,
 // /// are permitted provided that the following conditions are met:
 // ///
-// ///  * Redistributions of source code must retain the above copyright notice, 
+// ///  * Redistributions of source code must retain the above copyright notice,
 // ///    this list of conditions and the following disclaimer.
-// ///  * Redistributions in binary form must reproduce the above copyright notice, 
-// ///    this list of conditions and the following disclaimer in the documentation and/or 
+// ///  * Redistributions in binary form must reproduce the above copyright notice,
+// ///    this list of conditions and the following disclaimer in the documentation and/or
 // ///    other materials provided with the distribution.
 // ///
-// ///    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
-// ///    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
-// ///    OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
-// ///    SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
-// ///    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
-// ///    LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-// ///    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-// ///    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-// ///    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+// ///    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+// ///    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+// ///    OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+// ///    SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+// ///    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// ///    LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+// ///    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+// ///    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ///    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // ///   POSSIBILITY OF SUCH DAMAGE.
 // ///
 // ///
@@ -78,16 +78,27 @@ module BUF_FIFO
  input wire 			 RST,
  input wire [15:0] 		 img_size_x,
  input wire [15:0] 		 img_size_y,
- 
+
  input wire 			 sof,
  input wire 			 iram_wren,
  input wire [C_PIXEL_BITS - 1:0] iram_wdata,
  output reg 			 fifo_almost_full,
- 
+
  input wire 			 fdct_fifo_rd,
  output wire [23:0] 		 fdct_fifo_q,
  output reg 			 fdct_fifo_hf_full
 );
+
+function integer clog2;
+  input integer value;
+  begin
+    value = value - 1;
+    for (clog2 = 0; value > 0; clog2 = clog2 + 1)
+      value = value >> 1;
+  end
+endfunction
+
+`define CLOG2 clog2
 
     /// @todo: better home, these were in a global package in
     ///    the VHDL version.  Might need to use a header file,
@@ -100,40 +111,40 @@ module BUF_FIFO
     parameter C_MAX_LINE_WIDTH  = 1280;
     parameter C_NUM_LINES       = 8 + C_EXTRA_LINES;
 
-    localparam RAMADDR_W = $clog2(C_MAX_LINE_WIDTH*C_NUM_LINES);
-    localparam LINADDR_W = $clog2(C_NUM_LINES);
-    
-    
+    localparam RAMADDR_W = `CLOG2(C_MAX_LINE_WIDTH*C_NUM_LINES);
+    localparam LINADDR_W = `CLOG2(C_NUM_LINES);
+
+
     reg [15:0] 			 pixel_cnt;
     wire [15:0] 		 line_cnt;
     wire [C_PIXEL_BITS - 1:0] 	 ramq;
     reg [C_PIXEL_BITS - 1:0] 	 ramd;
-    
+
     reg [RAMADDR_W-1:0] ramwaddr;
-    reg 		ramenw;    
+    reg 		ramenw;
     wire [RAMADDR_W-1:0] ramraddr;
-    
+
     reg [3:0] 		 pix_inblk_cnt;
     reg [3:0] 		 pix_inblk_cnt_d1;
     reg [2:0] 		 line_inblk_cnt;
     reg [12:0] 		 read_block_cnt;
     reg [12:0] 		 read_block_cnt_d1;
     wire [12:0] 	 write_block_cnt;
-    
-    reg [16 + $clog2(C_NUM_LINES) - 1:0] ramraddr_int;
-    reg [16 + $clog2(C_NUM_LINES) - 1:0] raddr_base_line;
+
+    reg [16 + `CLOG2(C_NUM_LINES) - 1:0] ramraddr_int;
+    reg [16 + `CLOG2(C_NUM_LINES) - 1:0] raddr_base_line;
     reg [15:0] 				 raddr_tmp;
     reg [RAMADDR_W-1:0] 		 ramwaddr_d1;
-    
-    wire [$clog2(C_NUM_LINES) - 1:0] 	 line_lock;
-    reg [$clog2(C_NUM_LINES)  - 1:0] 	 memwr_line_cnt;
-    reg [$clog2(C_NUM_LINES)  - 1 + 1:0] memrd_offs_cnt;
-    reg [$clog2(C_NUM_LINES)  - 1:0] 	 memrd_line;
+
+    wire [`CLOG2(C_NUM_LINES) - 1:0] 	 line_lock;
+    reg [`CLOG2(C_NUM_LINES)  - 1:0] 	 memwr_line_cnt;
+    reg [`CLOG2(C_NUM_LINES)  - 1 + 1:0] memrd_offs_cnt;
+    reg [`CLOG2(C_NUM_LINES)  - 1:0] 	 memrd_line;
     reg [15:0] 				 wr_line_idx;
     reg [15:0] 				 rd_line_idx;
-    reg 				 image_write_end;  
-    
-   
+    reg 				 image_write_end;
+
+
     //-----------------------------------------------------------------
     // RAM for SUB_FIFOs
     //-----------------------------------------------------------------
@@ -148,33 +159,33 @@ module BUF_FIFO
        .clk   (CLK),
        .q     (ramq)
        );
-    
+
     //-----------------------------------------------------------------
     // register RAM data input
-    //-----------------------------------------------------------------   
+    //-----------------------------------------------------------------
     always @(posedge CLK or posedge RST) begin
 	if(RST == 1'b 1) begin
 	    ramenw <= 1'b 0;
 	    ramd <= {(((C_PIXEL_BITS - 1))-((0))+1){1'b0}};
-	end 
+	end
 	else begin
 	    ramd <= iram_wdata;
 	    ramenw <= iram_wren;
 	end
     end
-    
+
     //-----------------------------------------------------------------
     // resolve RAM write address
-    //-----------------------------------------------------------------    
-    always @(posedge CLK or posedge RST) begin	
-	if (RST == 1'b1) begin	    
-	    pixel_cnt <= {16{1'b0}};	
-            memwr_line_cnt <= {((($clog2(C_NUM_LINES) - 1))-((0))+1){1'b0}};
+    //-----------------------------------------------------------------
+    always @(posedge CLK or posedge RST) begin
+	if (RST == 1'b1) begin
+	    pixel_cnt <= {16{1'b0}};
+            memwr_line_cnt <= {(((`CLOG2(C_NUM_LINES) - 1))-((0))+1){1'b0}};
             wr_line_idx <= {16{1'b0}};
-            ramwaddr <= {((($clog2(C_MAX_LINE_WIDTH * C_NUM_LINES) - 1))-((0))+1){1'b0}};
-            ramwaddr_d1 <= {((($clog2(C_MAX_LINE_WIDTH * C_NUM_LINES) - 1))-((0))+1){1'b0}};
+            ramwaddr <= {(((`CLOG2(C_MAX_LINE_WIDTH * C_NUM_LINES) - 1))-((0))+1){1'b0}};
+            ramwaddr_d1 <= {(((`CLOG2(C_MAX_LINE_WIDTH * C_NUM_LINES) - 1))-((0))+1){1'b0}};
             image_write_end <= 1'b 0;
-        end 
+        end
 	else begin
 	    ramwaddr_d1 <= ramwaddr;
 	    if(iram_wren == 1'b 1) begin
@@ -188,24 +199,24 @@ module BUF_FIFO
 		   end
 		   // memory line index
 	           if(memwr_line_cnt == (C_NUM_LINES - 1)) begin
-		       memwr_line_cnt <= {((($clog2(C_NUM_LINES) - 1))-((0))+1){1'b0}};
-		       ramwaddr <= {((($clog2(C_MAX_LINE_WIDTH * C_NUM_LINES) - 1))-((0))+1){1'b0}};
+		       memwr_line_cnt <= {(((`CLOG2(C_NUM_LINES) - 1))-((0))+1){1'b0}};
+		       ramwaddr <= {(((`CLOG2(C_MAX_LINE_WIDTH * C_NUM_LINES) - 1))-((0))+1){1'b0}};
                    end
 		   else begin
 		       memwr_line_cnt <= memwr_line_cnt + 1;
 		       ramwaddr <= ramwaddr + 1;
 		   end
-                end 
+                end
 		else begin
 		    pixel_cnt <= pixel_cnt + 1;
 		    ramwaddr <= ramwaddr + 1;
 		end
 	    end
-	    
+
 	    if(sof == 1'b 1) begin
 		pixel_cnt <= {16{1'b0}};
-                ramwaddr <= {((($clog2(C_MAX_LINE_WIDTH * C_NUM_LINES) - 1))-((0))+1){1'b0}};
-                memwr_line_cnt <= {((($clog2(C_NUM_LINES) - 1))-((0))+1){1'b0}};
+                ramwaddr <= {(((`CLOG2(C_MAX_LINE_WIDTH * C_NUM_LINES) - 1))-((0))+1){1'b0}};
+                memwr_line_cnt <= {(((`CLOG2(C_NUM_LINES) - 1))-((0))+1){1'b0}};
                 wr_line_idx <= {16{1'b0}};
                 image_write_end <= 1'b0;
             end
@@ -219,7 +230,7 @@ module BUF_FIFO
 	if (RST == 1'b1) begin
 	    fdct_fifo_hf_full <= 1'b0;
 	    fifo_almost_full <= 1'b0;
-	end 
+	end
 	else begin
 	    if((rd_line_idx + 8) <= wr_line_idx) begin
 		fdct_fifo_hf_full <= 1'b1;
@@ -243,25 +254,25 @@ module BUF_FIFO
     // read side
     //-----------------------------------------------------------------
     always @(posedge CLK or posedge RST) begin
-	if(RST == 1'b1) begin 
-	    memrd_offs_cnt <= {((($clog2(C_NUM_LINES) - 1 + 1))-((0))+1){1'b0}};
+	if(RST == 1'b1) begin
+	    memrd_offs_cnt <= {(((`CLOG2(C_NUM_LINES) - 1 + 1))-((0))+1){1'b0}};
             read_block_cnt <= {13{1'b0}};
 	    pix_inblk_cnt <= {4{1'b0}};
             line_inblk_cnt <= {3{1'b0}};
             rd_line_idx <= {16{1'b0}};
             pix_inblk_cnt_d1 <= {4{1'b0}};
             read_block_cnt_d1 <= {13{1'b0}};
-        end 
+        end
 	else begin
 	    pix_inblk_cnt_d1 <= pix_inblk_cnt;
 	    read_block_cnt_d1 <= read_block_cnt;
-	    
+
 	    // BUF FIFO read
 	    if(fdct_fifo_rd == 1'b 1) begin
 		// last pixel in block
 		if(pix_inblk_cnt == (8 - 1)) begin
 		    pix_inblk_cnt <= {4{1'b0}};
-		
+
 		    // last line in 8
 		    if(line_inblk_cnt == (8 - 1)) begin
 		        line_inblk_cnt <= {3{1'b0}};
@@ -282,23 +293,23 @@ module BUF_FIFO
                     end
 		    else begin
 		        line_inblk_cnt <= line_inblk_cnt + 1;
-		    end		
+		    end
                 end
 	        else begin
 	            pix_inblk_cnt <= pix_inblk_cnt + 1;
 	        end
 	    end
-	    
+
 	    if((memrd_offs_cnt + ((line_inblk_cnt))) > (C_NUM_LINES - 1)) begin
-		memrd_line <= memrd_offs_cnt[$clog2(C_NUM_LINES) - 1:0] + ((line_inblk_cnt)) - ((C_NUM_LINES));
+		memrd_line <= memrd_offs_cnt[`CLOG2(C_NUM_LINES) - 1:0] + ((line_inblk_cnt)) - ((C_NUM_LINES));
 	    end
 	    else begin
-		memrd_line <= memrd_offs_cnt[$clog2(C_NUM_LINES) - 1:0] + ((line_inblk_cnt));
+		memrd_line <= memrd_offs_cnt[`CLOG2(C_NUM_LINES) - 1:0] + ((line_inblk_cnt));
 	    end
-	    
+
 	    if(sof == 1'b1) begin
-		memrd_line <= {((($clog2(C_NUM_LINES) - 1))-((0))+1){1'b0}};
-                memrd_offs_cnt <= {((($clog2(C_NUM_LINES) - 1 + 1))-((0))+1){1'b0}};
+		memrd_line <= {(((`CLOG2(C_NUM_LINES) - 1))-((0))+1){1'b0}};
+                memrd_offs_cnt <= {(((`CLOG2(C_NUM_LINES) - 1 + 1))-((0))+1){1'b0}};
                 read_block_cnt <= {13{1'b0}};
                 pix_inblk_cnt <= {4{1'b0}};
                 line_inblk_cnt <= {3{1'b0}};
@@ -308,19 +319,19 @@ module BUF_FIFO
     end
 
     // generate RAM data output based on 16 or 24 bit mode selection
-    assign fdct_fifo_q = C_PIXEL_BITS == 16 ? 
-			 {ramq[15:11],3'b 000,ramq[10:5],2'b 00,ramq[4:0],3'b 000} : 
+    assign fdct_fifo_q = C_PIXEL_BITS == 16 ?
+			 {ramq[15:11],3'b 000,ramq[10:5],2'b 00,ramq[4:0],3'b 000} :
 		         (((ramq)));
-    
-    assign ramraddr = ramraddr_int[$clog2(C_MAX_LINE_WIDTH * C_NUM_LINES) - 1:0];
-   
+
+    assign ramraddr = ramraddr_int[`CLOG2(C_MAX_LINE_WIDTH * C_NUM_LINES) - 1:0];
+
     //-----------------------------------------------------------------
     // resolve RAM read address
     //-----------------------------------------------------------------
     always @(posedge CLK or posedge RST) begin
 	if(RST == 1'b1) begin
-	    ramraddr_int <= {(((16 + $clog2(C_NUM_LINES) - 1))-((0))+1){1'b0}};
-        end 
+	    ramraddr_int <= {(((16 + `CLOG2(C_NUM_LINES) - 1))-((0))+1){1'b0}};
+        end
 	else begin
 	    raddr_base_line <= ((memrd_line)) * ((img_size_x));
 	    raddr_tmp <= {read_block_cnt_d1,3'b000} + pix_inblk_cnt_d1;

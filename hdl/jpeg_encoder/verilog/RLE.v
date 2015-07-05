@@ -44,24 +44,24 @@
 // /// Copyright (c) 2013, Jahanzeb Ahmad
 // /// All rights reserved.
 // ///
-// /// Redistribution and use in source and binary forms, with or without modification, 
+// /// Redistribution and use in source and binary forms, with or without modification,
 // /// are permitted provided that the following conditions are met:
 // ///
-// ///  * Redistributions of source code must retain the above copyright notice, 
+// ///  * Redistributions of source code must retain the above copyright notice,
 // ///    this list of conditions and the following disclaimer.
-// ///  * Redistributions in binary form must reproduce the above copyright notice, 
-// ///    this list of conditions and the following disclaimer in the documentation and/or 
+// ///  * Redistributions in binary form must reproduce the above copyright notice,
+// ///    this list of conditions and the following disclaimer in the documentation and/or
 // ///    other materials provided with the distribution.
 // ///
-// ///    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
-// ///    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
-// ///    OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
-// ///    SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
-// ///    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
-// ///    LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-// ///    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-// ///    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-// ///    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+// ///    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+// ///    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+// ///    OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+// ///    SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+// ///    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// ///    LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+// ///    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+// ///    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ///    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // ///   POSSIBILITY OF SUCH DAMAGE.
 // ///
 // ///
@@ -92,34 +92,34 @@ module rle
 
    parameter SIZE_REG_C = 4;
    parameter ZEROS_32_C = 0;
-   
+
    reg [RAMDATA_W - 1:0]       prev_dc_reg_0 = 0;
    reg [RAMDATA_W - 1:0]       prev_dc_reg_1 = 0;
    reg [RAMDATA_W - 1:0]       prev_dc_reg_2 = 0;
    reg [RAMDATA_W - 1:0]       prev_dc_reg_3 = 0;
-    
+
    reg [RAMDATA_W:0] 	       acc_reg = 0;
    reg [SIZE_REG_C - 1:0]      size_reg = 0;
    reg [RAMDATA_W:0] 	       ampli_vli_reg = 0;
    reg [3:0] 		       runlength_reg = 0;
    reg 			       dovalid_reg = 1'b0;
    reg [5:0] 		       zero_cnt = 0;
-    
+
    reg [5:0] 		       wr_cnt_d1 = 0;
    reg [5:0] 		       wr_cnt = 0;
    reg [5:0] 		       rd_cnt = 0;
    reg 			       rd_en = 1'b0;
-    
+
    reg 			       divalid = 1'b0;
    reg 			       divalid_en = 1'b0;
-    
+
    reg 			       zrl_proc = 1'b0;
    reg [RAMDATA_W - 1:0]       zrl_di = 0;
-   
+
    assign size = (size_reg);
    assign amplitude = (ampli_vli_reg[11:0]);
    assign rd_addr = (rd_cnt);
-   
+
     //-----------------------------------------
     // MAIN PROCESSING
     //-----------------------------------------
@@ -140,7 +140,7 @@ module rle
             rd_en <= 1'b0;
             rd_cnt <= {6{1'b0}};
             divalid_en <= 1'b0;
-        end 
+        end
 	else begin
 	    dovalid_reg <= 1'b0;
 	    runlength_reg <= {4{1'b0}};
@@ -148,16 +148,16 @@ module rle
 	    runlength <= (runlength_reg);
 	    dovalid <= dovalid_reg;
 	    divalid <= rd_en;
-	 
+
 	    if(start_pb == 1'b1) begin
 		rd_cnt <= {6{1'b0}};
                 rd_en <= 1'b1;
                 divalid_en <= 1'b1;
-            end	    
+            end
             if(divalid == 1'b1 && wr_cnt == 63) begin
 	        divalid_en <= 1'b0;
 	    end
-	 
+
 	    // input read enable
 	    if(rd_en == 1'b1) begin
 		if(rd_cnt == (64 - 1)) begin
@@ -167,38 +167,38 @@ module rle
                 else begin
                    rd_cnt <= rd_cnt + 1;
                 end
-	    end 
-	 
+	    end
+
 	    // input data valid
 	    if(divalid == 1'b1) begin
 		wr_cnt <= wr_cnt + 1;
 		// first DCT coefficient received, DC data
 		if(wr_cnt == 0) begin
-		    
+
 		    // differental coding of DC data per component
 		    case(rss_cmp_idx)
 		      3'b000, 3'b001 : begin
 			  // @todo verify?
 			  //acc_reg <= RESIZE(SIGNED(di),RAMDATA_W+1) - RESIZE(prev_dc_reg_0,RAMDATA_W+1);
-			  acc_reg <= $signed(di) - prev_dc_reg_0;	     
+			  acc_reg <= $signed(di) - prev_dc_reg_0;
 			  prev_dc_reg_0 <= (di);
 		      end
 		      3'b010 : begin
-			  // @todo: verify?              
+			  // @todo: verify?
 			  //acc_reg <= RESIZE(SIGNED(di),RAMDATA_W+1) - RESIZE(prev_dc_reg_1,RAMDATA_W+1);
 			  acc_reg <= $signed(di) - prev_dc_reg_1;
 			  prev_dc_reg_1 <= (di);
 		      end
 		      3'b011 : begin
-			  // @todo: verify?            
+			  // @todo: verify?
 			  //acc_reg <= RESIZE(SIGNED(di),RAMDATA_W+1) - RESIZE(prev_dc_reg_2,RAMDATA_W+1);
-			  acc_reg <= $signed(di) - prev_dc_reg_2;	     
+			  acc_reg <= $signed(di) - prev_dc_reg_2;
 			  prev_dc_reg_2 <= (di);
 		      end
 		      default : begin
 		      end
 		    endcase
-		    
+
 		    runlength_reg <= {4{1'b0}};
 		    dovalid_reg <= 1'b 1;
 		    // AC coefficient
@@ -221,9 +221,9 @@ module rle
 		    else begin
 			// normal RLE case
 			if(zero_cnt <= 15) begin
-			    // @todo: verify?  
-			    //acc_reg        <= RESIZE(SIGNED(di),RAMDATA_W+1);  
-			    acc_reg <= $signed(di);             
+			    // @todo: verify?
+			    //acc_reg        <= RESIZE(SIGNED(di),RAMDATA_W+1);
+			    acc_reg <= $signed(di);
 			    runlength_reg <= zero_cnt[3:0];
 			    zero_cnt <= {6{1'b0}};
 			    dovalid_reg <= 1'b1;
@@ -244,16 +244,16 @@ module rle
 		    end
 		end
 	    end
-	  
+
 	    // ZRL processing
 	    if(zrl_proc == 1'b1) begin
 		if(zero_cnt <= 15) begin
-		    
+
 		    // @todo: verify
 		    //acc_reg        <= RESIZE(SIGNED(zrl_di),RAMDATA_W+1);
-		    acc_reg = $signed(zrl_di);	    
+		    acc_reg <= $signed(zrl_di);
 		    runlength_reg <= zero_cnt[3:0];
-		    
+
 		    if(((zrl_di)) == 0) begin
 			//zero_cnt     <= to_unsigned(1,zero_cnt'length);
 			zero_cnt <= 1;
@@ -261,7 +261,7 @@ module rle
 		    else begin
 			zero_cnt <= {6{1'b0}};
 		end
-		    
+
 		    dovalid_reg <= 1'b1;
 		    divalid <= divalid_en;
 		    // continue input handling
@@ -278,7 +278,7 @@ module rle
                     rd_cnt <= rd_cnt;
                 end
 	    end
-	  
+
 	    // start of 8x8 block processing
 	    if(start_pb == 1'b1) begin
 		zero_cnt <= {6{1'b0}};
@@ -300,7 +300,7 @@ module rle
 	if(rst == 1'b1) begin
 	    ampli_vli_reg <= {(((RAMDATA_W))-((0))+1){1'b0}};
       	    size_reg <= {(((SIZE_REG_C - 1))-((0))+1){1'b0}};
-        end 
+        end
 	else begin
 	    // perform VLI (variable length integer) encoding for Symbol-2 (Amplitude)
 	    // positive input
@@ -308,10 +308,10 @@ module rle
 		ampli_vli_reg <= acc_reg;
 	    end
 	    else begin
-		ampli_vli_reg <= acc_reg - 1;	 
+		ampli_vli_reg <= acc_reg - 1;
 	    end
-       
-	    // compute Symbol-1 Size	    
+
+	    // compute Symbol-1 Size
 	    // clog2 implementation
 	    if (acc_reg == -1) begin
 		size_reg <= 1;
@@ -346,7 +346,7 @@ module rle
 	    else if (acc_reg < -1023 && acc_reg > -2048) begin
 		size_reg <= 11;
 	    end
-       
+
 	    // compute Symbol-1 Size
 	    // positive input
 	    // simple clog2
@@ -383,7 +383,7 @@ module rle
 	    else if (acc_reg > 1023 && acc_reg < 2048) begin
 		size_reg <= 11;
 	    end
-	    
+
 	    // DC coefficient amplitude=0 case OR EOB
 	    if(acc_reg == 0) begin
 		size_reg <= (0);
