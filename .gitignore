@@ -4,3 +4,4 @@ firmware/*.d
 firmware/firmware.bin
 firmware/firmware.elf
 firmware/version.h
+test/dump.png
