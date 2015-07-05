@@ -67,7 +67,7 @@ class JPEGEncoder(Module):
         # add VHDL sources
         platform.add_source_dir(os.path.join(platform.soc_ext_path, "hdl", "jpeg_encoder", "vhd"))
 
-class JPEGDMA(Module):
+class JPEGDMA(Module, AutoCSR):
     def __init__(self, lasmim):
         self.source = Source([("data", 32)])
 
