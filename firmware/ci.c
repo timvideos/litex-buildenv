@@ -86,11 +86,11 @@ void ci_service(void)
 #ifdef JPEG_ENCODER_BASE
 			case 'e':
 				printf("start encoding...\n");
-				encoder_start(1024, 768);
+				encoder_start(640, 480);
 				jpeg_dma_ev_pending_write(jpeg_dma_ev_pending_read());
 				jpeg_dma_ev_enable_write(1);
 				jpeg_dma_dma_base_write(0);
-				jpeg_dma_dma_length_write(1024*768*4);
+				jpeg_dma_dma_length_write(640*480*4);
 				jpeg_dma_dma_shoot_write(1);
 				printf("waiting...");
 				while(jpeg_dma_dma_busy_read()==1);
