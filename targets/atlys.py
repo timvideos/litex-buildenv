@@ -22,7 +22,7 @@ from misoclib.com.liteeth.phy.mii import LiteEthPHYMII
 from misoclib.com.liteeth.core import LiteEthUDPIPCore
 from misoclib.com.liteeth.frontend.etherbone import LiteEthEtherbone
 
-from hdl.jpeg_encoder import JPEGDMA, JPEGEncoder
+from hdl.encoder import EncoderReader, Encoder
 
 
 class P3R1GE4JGF(SDRAMModule):
@@ -310,27 +310,27 @@ class VideomixerSoC(FramebufferSoC):
 
 class VideostreamerSoC(VideomixerSoC):
     csr_map = {
-        "jpeg_dma": 22
+        "encoder_reader": 22
     }
     csr_map.update(VideomixerSoC.csr_map)
     mem_map = {
-        "jpeg_encoder": 0x30000000,  # (shadow @0xb0000000)
+        "encoder": 0x30000000,  # (shadow @0xb0000000)
     }
     mem_map.update(VideomixerSoC.mem_map)
 
     def __init__(self, platform, **kwargs):
         VideomixerSoC.__init__(self, platform, **kwargs)
 
-        self.submodules.jpeg_dma = JPEGDMA(self.sdram.crossbar.get_master())
-        self.submodules.jpeg_encoder = JPEGEncoder(platform)
+        self.submodules.encoder_reader = EncoderReader(self.sdram.crossbar.get_master())
+        self.submodules.encoder = Encoder(platform)
 
         self.comb += [
-            platform.request("user_led", 0).eq(self.jpeg_dma.source.stb),
-            platform.request("user_led", 1).eq(self.jpeg_dma.source.ack),
-            Record.connect(self.jpeg_dma.source, self.jpeg_encoder.sink),
-            self.jpeg_encoder.source.ack.eq(1) # XXX send it over UDP?
+            platform.request("user_led", 0).eq(self.encoder_reader.source.stb),
+            platform.request("user_led", 1).eq(self.encoder_reader.source.ack),
+            Record.connect(self.encoder_reader.source, self.encoder.sink),
+            self.encoder.source.ack.eq(1) # XXX send it over UDP?
         ]
-        self.add_wb_slave(mem_decoder(self.mem_map["jpeg_encoder"]), self.jpeg_encoder.bus)
-        self.add_memory_region("jpeg_encoder", self.mem_map["jpeg_encoder"]+self.shadow_base, 0x2000)
+        self.add_wb_slave(mem_decoder(self.mem_map["encoder"]), self.encoder.bus)
+        self.add_memory_region("encoder", self.mem_map["encoder"]+self.shadow_base, 0x2000)
 
 default_subtarget = MiniSoC

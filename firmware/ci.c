@@ -83,17 +83,17 @@ void ci_service(void)
 			case 'p':
 				pll_dump();
 				break;
-#ifdef JPEG_ENCODER_BASE
+#ifdef ENCODER_BASE
 			case 'e':
 				printf("start encoding...\n");
 				encoder_start(640, 480);
-				jpeg_dma_ev_pending_write(jpeg_dma_ev_pending_read());
-				jpeg_dma_ev_enable_write(1);
-				jpeg_dma_dma_base_write(0);
-				jpeg_dma_dma_length_write(640*480*4);
-				jpeg_dma_dma_shoot_write(1);
+				encoder_reader_ev_pending_write(encoder_reader_ev_pending_read());
+				encoder_reader_ev_enable_write(1);
+				encoder_reader_dma_base_write(0);
+				encoder_reader_dma_length_write(640*480*4);
+				encoder_reader_dma_shoot_write(1);
 				printf("waiting...");
-				while(jpeg_dma_dma_busy_read()==1);
+				while(encoder_reader_dma_busy_read()==1);
 				while(encoder_done()==0);
 				printf("done\n");
 				break;

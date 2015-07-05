@@ -1,6 +1,6 @@
 #include <generated/csr.h>
 #include <generated/mem.h>
-#ifdef JPEG_ENCODER_BASE
+#ifdef ENCODER_BASE
 
 #include <stdio.h>
 #include <console.h>
@@ -8,11 +8,11 @@
 #include "encoder.h"
 
 void encoder_write_reg(unsigned int adr, unsigned int value) {
-		MMPTR(JPEG_ENCODER_BASE+adr) = value;
+		MMPTR(ENCODER_BASE+adr) = value;
 }
 
 unsigned int encoder_read_reg(unsigned int adr) {
-		return MMPTR(JPEG_ENCODER_BASE+adr);
+		return MMPTR(ENCODER_BASE+adr);
 }
 
 const char luma_rom_100[64] = {

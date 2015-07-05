@@ -29,7 +29,7 @@ int main(void)
 	config_init();
 	time_init();
 	processor_start(config_get(CONFIG_KEY_RESOLUTION));
-#ifdef JPEG_ENCODER_BASE
+#ifdef ENCODER_BASE
 	encoder_init(luma_rom_100, chroma_rom_100);
 #endif
 

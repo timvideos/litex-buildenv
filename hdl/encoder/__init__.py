@@ -12,7 +12,33 @@ from migen.bank.eventmanager import *
 from misoclib.mem.sdram.frontend import dma_lasmi
 
 
-class JPEGEncoder(Module):
+class EncoderReader(Module, AutoCSR):
+    def __init__(self, lasmim):
+        self.source = Source([("data", 32)])
+
+        reader = dma_lasmi.Reader(lasmim)
+        self.dma = spi.DMAReadController(reader, mode=spi.MODE_SINGLE_SHOT)
+
+        pack_factor = lasmim.dw//32
+        packed_dat = structuring.pack_layout(32, pack_factor)
+        cast = structuring.Cast(lasmim.dw, packed_dat)
+        unpack = structuring.Unpack(pack_factor, [("data", 32)])
+
+
+        # Graph
+        g = DataFlowGraph()
+        g.add_pipeline(self.dma, cast, unpack)
+        self.submodules += CompositeActor(g)
+        self.comb += Record.connect(unpack.source, self.source)
+
+        # Irq
+        self.submodules.ev = EventManager()
+        self.ev.done = EventSourceProcess()
+        self.ev.finalize()
+        self.comb += self.ev.done.trigger.eq(self.dma._busy.status)
+
+
+class Encoder(Module):
     def __init__(self, platform):
         self.sink = Sink([("data", 30)])
         self.source = Source([("data", 8)])
@@ -64,30 +90,4 @@ class JPEGEncoder(Module):
         ]
 
         # add VHDL sources
-        platform.add_source_dir(os.path.join(platform.soc_ext_path, "hdl", "jpeg_encoder", "vhdl"))
-
-
-class JPEGDMA(Module, AutoCSR):
-    def __init__(self, lasmim):
-        self.source = Source([("data", 32)])
-
-        reader = dma_lasmi.Reader(lasmim)
-        self.dma = spi.DMAReadController(reader, mode=spi.MODE_SINGLE_SHOT)
-
-        pack_factor = lasmim.dw//32
-        packed_dat = structuring.pack_layout(32, pack_factor)
-        cast = structuring.Cast(lasmim.dw, packed_dat)
-        unpack = structuring.Unpack(pack_factor, [("data", 32)])
-
-
-        # Graph
-        g = DataFlowGraph()
-        g.add_pipeline(self.dma, cast, unpack)
-        self.submodules += CompositeActor(g)
-        self.comb += Record.connect(unpack.source, self.source)
-
-        # Irq
-        self.submodules.ev = EventManager()
-        self.ev.done = EventSourceProcess()
-        self.ev.finalize()
-        self.comb += self.ev.done.trigger.eq(self.dma._busy.status)
+        platform.add_source_dir(os.path.join(platform.soc_ext_path, "hdl", "encoder", "vhdl"))
