@@ -83,7 +83,7 @@ class Encoder(Module):
                                    o_ram_byte=fifo.sink.data,
                                    o_ram_wren=fifo.sink.stb,
                                    #o_ram_wraddr=,
-                                   i_outif_almost_full=(fifo.fifo.level > 64 + 16),
+                                   i_outif_almost_full=(fifo.fifo.level > (64 - 16)),
                                    #o_frame_size=
                                    )
         self.comb += [
