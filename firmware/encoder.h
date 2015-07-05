@@ -1,0 +1,29 @@
+#ifndef __ENCODER_H
+#define __ENCODER_H
+
+#define ENCODER_START_REG          0x0
+#define ENCODER_IMAGE_SIZE_REG     0x4
+#define ENCODER_RAM_ACCESS_REG     0x8
+#define ENCODER_STS_REG            0xC
+#define ENCODER_COD_DATA_ADDR_REG  0x10
+#define ENCODER_LENGTH_REG         0x14
+
+#define ENCODER_QUANTIZER_RAM_LUMA_BASE 0x100
+
+const char luma_rom_100[256];
+const char luma_rom_85[256];
+const char luma_rom_75[256];
+const char luma_rom_50[256];
+
+#define ENCODER_QUANTIZER_RAM_CHROMA_BASE 0x200
+
+const char chroma_rom_100[256];
+const char chroma_rom_85[256];
+const char chroma_rom_75[256];
+const char chroma_rom_50[256];
+
+void encoder_init(const char * luma_table, const char * chroma_table);
+void encoder_start(short resx, short resy);
+int encoder_done(void);
+
+#endif

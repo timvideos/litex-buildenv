@@ -36,7 +36,7 @@ class JPEGEncoder(Module):
                                    i_CLK=ClockSignal(),
                                    i_RST=ResetSignal(),
 
-                                   i_OPB_ABus=self.bus.adr,
+                                   i_OPB_ABus=Cat(Signal(2), self.bus.adr),
                                    i_OPB_BE=self.bus.sel,
                                    i_OPB_DBus_in=self.bus.dat_w,
                                    i_OPB_RNW=~self.bus.we,

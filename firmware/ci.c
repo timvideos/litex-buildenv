@@ -8,6 +8,7 @@
 #include "processor.h"
 #include "pll.h"
 #include "ci.h"
+#include "encoder.h"
 
 #ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
 static void print_mem_bandwidth(void)
@@ -81,6 +82,15 @@ void ci_service(void)
 			case 'p':
 				pll_dump();
 				break;
+#ifdef JPEG_ENCODER_BASE
+			case 'e':
+				prinf("start encoding...\n");
+				encoder_start(320, 240);
+				prinf("waiting...");
+				while(encoder_done()==0);
+				prinf("done\n");
+				break;
+#endif
 		}
 	}
 }
