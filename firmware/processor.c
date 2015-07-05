@@ -246,9 +246,11 @@ static void edid_set_mode(const struct video_timing *mode)
 		MMPTR(CSR_DVISAMPLER_EDID_MEM_BASE+4*i) = edid[i];
 }
 
+int processor_mode = 0;
 void processor_start(int mode)
 {
 	const struct video_timing *m = &video_modes[mode];
+	processor_mode = mode;
 
 	fb_fi_enable_write(0);
 	fb_driver_clocking_pll_reset_write(1);

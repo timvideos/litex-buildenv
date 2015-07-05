@@ -4,6 +4,7 @@
 #define PROCESSOR_MODE_COUNT 10
 #define PROCESSOR_MODE_DESCLEN 32
 
+extern int processor_mode;
 void processor_list_modes(char *mode_descriptors);
 void processor_start(int mode);
 void processor_service(void);

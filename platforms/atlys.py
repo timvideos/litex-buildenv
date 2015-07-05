@@ -1,6 +1,6 @@
 from mibuild.generic_platform import *
 from mibuild.xilinx import XilinxPlatform
-from mibuild.xilinx import XC3SProg, iMPACT, Adept
+from mibuild.xilinx import XC3SProg, iMPACT, Adept, UrJTAG
 
 # There appear to be 4 x LTC2481C on the U1-SCL / U1-SDA lines connected to the Cypress
 
@@ -569,6 +569,8 @@ class Platform(XilinxPlatform):
         elif self.programmer == "fpgalink":
             from mibuild.fpgalink_programmer import FPGALink
             return FPGALink("1443:0007")
+        elif self.programmer == "urjtag":
+            return UrJTAG(cable="USBBlaster", pld="spartan-6")
         else:
             raise ValueError("{} programmer is not supported".format(programmer))
 

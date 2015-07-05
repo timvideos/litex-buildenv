@@ -9,6 +9,7 @@
 #include "processor.h"
 #include "pll.h"
 #include "ci.h"
+#include "version.h"
 #include "encoder.h"
 
 #ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
@@ -51,6 +52,8 @@ void ci_service(void)
 
 			m = c - '0';
 			if(m < PROCESSOR_MODE_COUNT) {
+				printf("Setting resolution to %d (was %d)\n",
+					m, processor_mode);
 				config_set(CONFIG_KEY_RESOLUTION, m);
 				processor_start(m);
 			}
@@ -83,6 +86,17 @@ void ci_service(void)
 			case 'p':
 				pll_dump();
 				break;
+			case 's':
+				if (dvisampler_debug == 1)
+					printf("DVI sampler debug: ON\n");
+				else
+					printf("DVI sampler debug: OFF\n");
+				printf("       Resolution: %d\n", processor_mode);
+				printf("       git commit: %s\n", git_commit);
+				printf("     git describe: %s\n", git_describe);
+				printf("       git status:\n%s\n", git_status);
+				break;
+		}
 #ifdef ENCODER_BASE
 			case 'e':
 				printf("start encoding...\n");

@@ -1,0 +1,6 @@
+test/csr.csv
+firmware/*.o
+firmware/*.d
+firmware/firmware.bin
+firmware/firmware.elf
+firmware/version.h
