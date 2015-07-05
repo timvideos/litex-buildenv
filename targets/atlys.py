@@ -152,11 +152,12 @@ class BaseSoC(SDRAMSoC):
     }
     mem_map.update(SDRAMSoC.mem_map)
 
-    def __init__(self, platform, firmware_ram_size=0x10000, **kwargs):
+    def __init__(self, platform, firmware_ram_size=0x8000, **kwargs):
         clk_freq = 75*1000000
         SDRAMSoC.__init__(self, platform, clk_freq,
                           integrated_rom_size=0x8000,
-                          sdram_controller_settings=LASMIconSettings(with_bandwidth=True),
+                          sdram_controller_settings=LASMIconSettings(l2_size=128,
+                                                                     with_bandwidth=True),
                           **kwargs)
 
         self.submodules.crg = _CRG(platform, clk_freq)
