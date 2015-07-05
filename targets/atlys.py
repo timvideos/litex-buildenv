@@ -266,14 +266,14 @@ TIMESPEC "TSise_sucks6" = FROM "GRPsys_clk" TO "GRPeth_rx_clk" TIG;
      eth_tx_clk=self.ethphy.crg.cd_eth_tx.clk)
 
 
-class FramebufferSoC(EtherboneSoC):
+class FramebufferSoC(BaseSoC):
     csr_map = {
         "fb": 19,
     }
-    csr_map.update(EtherboneSoC.csr_map)
+    csr_map.update(BaseSoC.csr_map)
 
     def __init__(self, platform, **kwargs):
-        EtherboneSoC.__init__(self, platform, **kwargs)
+        BaseSoC.__init__(self, platform, **kwargs)
 
         self.submodules.fb = framebuffer.Framebuffer(None, platform.request("dvi_out"),
                                                      self.sdram.crossbar.get_master())
