@@ -50,6 +50,8 @@ void ci_service(void)
 
 			m = c - '0';
 			if(m < PROCESSOR_MODE_COUNT) {
+				printf("Setting resolution to %d (was %d)\n",
+					m, processor_mode);
 				config_set(CONFIG_KEY_RESOLUTION, m);
 				processor_start(m);
 			}
@@ -88,6 +90,7 @@ void ci_service(void)
 					printf("DVI sampler debug: ON\n");
 				else
 					printf("DVI sampler debug: OFF\n");
+				printf("       Resolution: %d\n", processor_mode);
 				printf("       git commit: %s\n", git_commit);
 				printf("     git describe: %s\n", git_describe);
 				printf("       git status:\n%s\n", git_status);
