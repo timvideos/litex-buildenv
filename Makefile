@@ -1,7 +1,7 @@
 MSCDIR = ../misoc
 HDMI2USBDIR = ../hdmi2usb
 PYTHON = python3
-SOC = VideomixerSoC
+SOC = VideostreamerSoC
 LOWER_SOC  = $(shell tr '[:upper:]' '[:lower:]' <<< $(SOC))
 
 CMD = $(PYTHON) make.py -X $(HDMI2USBDIR) -t atlys -s $(SOC) -Op programmer impact

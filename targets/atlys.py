@@ -22,6 +22,8 @@ from misoclib.com.liteeth.phy.mii import LiteEthPHYMII
 from misoclib.com.liteeth.core import LiteEthUDPIPCore
 from misoclib.com.liteeth.frontend.etherbone import LiteEthEtherbone
 
+from hdl.jpeg_encoder import JPEGDMA, JPEGEncoder
+
 
 class P3R1GE4JGF(SDRAMModule):
     # MIRA P3R1GE4JGF
@@ -303,6 +305,25 @@ class VideomixerSoC(FramebufferSoC):
         FramebufferSoC.__init__(self, platform, **kwargs)
         self.submodules.dvisampler = dvisampler.DVISampler(platform.request("dvi_in", 1),
                                                            self.sdram.crossbar.get_master())
+
+
+class VideostreamerSoC(VideomixerSoC):
+    csr_map = {
+        "jpeg_dma": 22
+    }
+    csr_map.update(VideomixerSoC.csr_map)
+    mem_map = {
+        "jpeg_encoder": 0x30000000,  # (shadow @0xb0000000)
+    }
+    mem_map.update(VideomixerSoC.mem_map)
+
+    def __init__(self, platform, **kwargs):
+        VideomixerSoC.__init__(self, platform, **kwargs)
+
+        self.submodules.jpeg_dma = JPEGDMA(self.sdram.crossbar.get_master())
+        self.submodules.jpeg_encoder = JPEGEncoder(platform)
+        self.add_wb_slave(mem_decoder(self.mem_map["jpeg_encoder"]), self.jpeg_encoder.bus)
+        self.add_memory_region("jpeg_encoder", self.mem_map["jpeg_encoder"]+self.shadow_base, 0x2000)
 
 
 default_subtarget = MiniSoC
