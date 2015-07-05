@@ -31,7 +31,7 @@ class JPEGEncoder(Module):
         self.submodules += fifo
 
         self.specials += Instance("JpegEnc",
-                                   p_C_PIXEL_BITS=24,
+                                   #p_C_PIXEL_BITS=24,
 
                                    i_CLK=ClockSignal(),
                                    i_RST=ResetSignal(),
@@ -62,8 +62,10 @@ class JPEGEncoder(Module):
         self.comb += Record.connect(fifo.source, self.source)
 
         # add Verilog sources
-        platform.add_source_dir(os.path.join(platform.soc_ext_path, "hdl", "jpeg_encoder", "verilog"))
+        #platform.add_source_dir(os.path.join(platform.soc_ext_path, "hdl", "jpeg_encoder", "verilog"))
 
+        # add VHDL sources
+        platform.add_source_dir(os.path.join(platform.soc_ext_path, "hdl", "jpeg_encoder", "vhd"))
 
 class JPEGDMA(Module):
     def __init__(self, lasmim):
