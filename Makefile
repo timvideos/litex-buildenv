@@ -9,6 +9,18 @@ LOWER_SOC  = $(shell tr '[:upper:]' '[:lower:]' <<< $(SOC))
 
 CMD = $(PYTHON) make.py -X $(HDMI2USBDIR) -t atlys -s $(SOC) -Op programmer $(PROG)
 
+help:
+	@echo "Targets avaliable:"
+	@echo " make gateware"
+	@echo " make load_gateware"
+	@echo " make load_firmware (OR) make load_firmware_alt"
+	@echo " make clean"
+	@echo ""
+	@echo "Environment:"
+	@echo " MSCDIR=misoc directory (current: $(MSCDIR))"
+	@echo "   PROG=programmer      (current: $(PROG))"
+	@echo " SERIAL=serial port     (current: $(SERIAL))"
+
 gateware:
 	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream
 
@@ -26,5 +38,7 @@ load_firmware_alt: firmware
 
 clean:
 	$(MAKE) -C firmware clean
+
+all: gateware load_gateware load_firmware
 
 .PHONY: firmware load clean
