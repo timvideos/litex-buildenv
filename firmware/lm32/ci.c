@@ -19,6 +19,7 @@
 #include "tofe_eeprom.h"
 #include "hdmi_out0.h"
 #include "hdmi_out1.h"
+#include "version.h"
 
 int status_enabled;
 
@@ -139,8 +140,17 @@ static void help(void)
 
 static void version(void)
 {
-	printf("gateware revision: %08x\r\n", identifier_revision_read());
-	printf("firmware revision: %08x, built "__DATE__" "__TIME__"\r\n", MSC_GIT_ID);
+	printf("gateware version info\r\n");
+	printf("===============================================\r\n");
+	printf(" misoc revision: %08x\r\n", identifier_revision_read());
+	printf("-----------------------------------------------\r\n");
+	printf("firmware version info\r\n");
+	printf("===============================================\r\n");
+	printf("  git commit: %s\n", git_commit);
+	printf("git describe: %s\n", git_describe);
+	printf("  git status:\n%s\n", git_status);
+	printf("       built: "__DATE__" "__TIME__"\r\n");
+	printf("-----------------------------------------------\r\n");
 }
 
 static void reboot(void)

@@ -48,7 +48,7 @@ firmware.elf: $(OBJECTS) libs
 main.o: main.c
 	$(compile-dep)
 
-%.o: %.c
+%.o: %.c version.h
 	$(compile-dep)
 
 %.o: %.S
@@ -62,4 +62,7 @@ clean:
 	$(RM) $(OBJECTS) $(OBJECTS:.o=.d) firmware.elf firmware.bin
 	$(RM) .*~ *~
 
-.PHONY: all main.o clean libs load
+version.h: version.sh
+	bash version.sh
+
+.PHONY: all main.o clean libs load version.h
