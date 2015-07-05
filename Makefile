@@ -1,5 +1,5 @@
 MSCDIR = ../misoc
-HDMI2USBDIR = ../hdmi2usb
+HDMI2USBDIR = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 PYTHON = python3
 SOC = VideostreamerSoC
 LOWER_SOC  = $(shell tr '[:upper:]' '[:lower:]' <<< $(SOC))
