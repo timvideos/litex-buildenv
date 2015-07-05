@@ -323,8 +323,14 @@ class VideostreamerSoC(VideomixerSoC):
 
         self.submodules.jpeg_dma = JPEGDMA(self.sdram.crossbar.get_master())
         self.submodules.jpeg_encoder = JPEGEncoder(platform)
+
+        self.comb += [
+            platform.request("user_led", 0).eq(self.jpeg_dma.source.stb),
+            platform.request("user_led", 1).eq(self.jpeg_dma.source.ack),
+            Record.connect(self.jpeg_dma.source, self.jpeg_encoder.sink),
+            self.jpeg_encoder.source.ack.eq(1) # XXX send it over UDP?
+        ]
         self.add_wb_slave(mem_decoder(self.mem_map["jpeg_encoder"]), self.jpeg_encoder.bus)
         self.add_memory_region("jpeg_encoder", self.mem_map["jpeg_encoder"]+self.shadow_base, 0x2000)
-
 
 default_subtarget = MiniSoC

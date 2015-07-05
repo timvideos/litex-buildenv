@@ -30,13 +30,14 @@ class JPEGEncoder(Module):
         fifo = SyncFIFO([("data", 8)], 128)
         self.submodules += fifo
 
-        self.specials += Instance("JpegEnc",
-                                   #p_C_PIXEL_BITS=24,
+        iram_fifo_full = Signal()
+        self.comb += self.sink.ack.eq(~iram_fifo_full)
 
+        self.specials += Instance("JpegEnc",
                                    i_CLK=ClockSignal(),
                                    i_RST=ResetSignal(),
 
-                                   i_OPB_ABus=Cat(Signal(2), self.bus.adr),
+                                   i_OPB_ABus=Cat(Signal(2), self.bus.adr) & 0x3ff,
                                    i_OPB_BE=self.bus.sel,
                                    i_OPB_DBus_in=self.bus.dat_w,
                                    i_OPB_RNW=~self.bus.we,
@@ -48,18 +49,20 @@ class JPEGEncoder(Module):
                                    o_OPB_errAck=self.bus.err,
 
                                    i_iram_wdata=data,
-                                   i_iram_wren=self.sink.stb & self.sink.ack,
-                                   o_iram_fifo_afull=self.sink.ack,
+                                   i_iram_wren=self.sink.stb & ~iram_fifo_full,
+                                   o_iram_fifo_afull=iram_fifo_full,
 
                                    o_ram_byte=fifo.sink.data,
                                    o_ram_wren=fifo.sink.stb,
                                    #o_ram_wraddr=,
-                                   i_outif_almost_full=(fifo.fifo.level < 64 + 16),
-
+                                   i_outif_almost_full=(fifo.fifo.level > 64 + 16),
                                    #o_frame_size=
                                    )
 
-        self.comb += Record.connect(fifo.source, self.source)
+        self.comb += [
+            self.sink.ack.eq(~iram_fifo_full),
+            Record.connect(fifo.source, self.source)
+        ]
 
         # add Verilog sources
         #platform.add_source_dir(os.path.join(platform.soc_ext_path, "hdl", "jpeg_encoder", "verilog"))
@@ -67,12 +70,13 @@ class JPEGEncoder(Module):
         # add VHDL sources
         platform.add_source_dir(os.path.join(platform.soc_ext_path, "hdl", "jpeg_encoder", "vhd"))
 
+
 class JPEGDMA(Module, AutoCSR):
     def __init__(self, lasmim):
         self.source = Source([("data", 32)])
 
         reader = dma_lasmi.Reader(lasmim)
-        self.dma = spi.DMAReadController(reader, spi.MODE_SINGLE_SHOT)
+        self.dma = spi.DMAReadController(reader, mode=spi.MODE_SINGLE_SHOT)
 
         pack_factor = lasmim.dw//32
         packed_dat = structuring.pack_layout(32, pack_factor)
@@ -85,7 +89,6 @@ class JPEGDMA(Module, AutoCSR):
         g.add_pipeline(self.dma, cast, unpack)
         self.submodules += CompositeActor(g)
         self.comb += Record.connect(unpack.source, self.source)
-
 
         # Irq
         self.submodules.ev = EventManager()

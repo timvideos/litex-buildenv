@@ -98,14 +98,14 @@ _io = [
     # NET "Led<5>" LOC = "D4";  # Bank = 0, Pin name = IO_L1P_HSWAPEN_0,     Sch name = HSWAP/LD5
     # NET "Led<6>" LOC = "P16"; # Bank = 1, Pin name = IO_L74N_DOUT_BUSY_1,  Sch name = LD6
     # NET "Led<7>" LOC = "N12"; # Bank = 2, Pin name = IO_L13P_M1_2,         Sch name = M1/LD7
-    ("user_led", 0, Pins("U18"), IOStandard("LVCMOS33"), Drive(24), Misc("SLEW=QUIETIO")),
-    ("user_led", 1, Pins("M14"), IOStandard("LVCMOS33"), Drive(24), Misc("SLEW=QUIETIO")),
-    ("user_led", 2, Pins("N14"), IOStandard("LVCMOS33"), Drive(24), Misc("SLEW=QUIETIO")),
-    ("user_led", 3, Pins("L14"), IOStandard("LVCMOS33"), Drive(24), Misc("SLEW=QUIETIO")),
-    ("user_led", 4, Pins("M13"), IOStandard("LVCMOS33"), Drive(24), Misc("SLEW=QUIETIO")),
-    ("user_led", 5, Pins("D4"), IOStandard("LVCMOS33"), Drive(24), Misc("SLEW=QUIETIO")),
-    ("user_led", 6, Pins("P16"), IOStandard("LVCMOS33"), Drive(24), Misc("SLEW=QUIETIO")),
-    ("user_led", 7, Pins("N12"), IOStandard("LVCMOS33"), Drive(24), Misc("SLEW=QUIETIO")),
+    ("user_led", 0, Pins("U18")),
+    ("user_led", 1, Pins("M14")),
+    ("user_led", 2, Pins("N14")),
+    ("user_led", 3, Pins("L14")),
+    ("user_led", 4, Pins("M13")),
+    ("user_led", 5, Pins("D4"), IOStandard("LVCMOS33")),
+    ("user_led", 6, Pins("P16")),
+    ("user_led", 7, Pins("N12")),
 
     ## onBoard PUSH BUTTONS - FIXME
     # Mapping "up" to north

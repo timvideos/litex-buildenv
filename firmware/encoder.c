@@ -7,11 +7,11 @@
 
 #include "encoder.h"
 
-static void encoder_write_reg(unsigned int adr, unsigned int value) {
+void encoder_write_reg(unsigned int adr, unsigned int value) {
 		MMPTR(JPEG_ENCODER_BASE+adr) = value;
 }
 
-static unsigned int encoder_read_reg(unsigned int adr) {
+unsigned int encoder_read_reg(unsigned int adr) {
 		return MMPTR(JPEG_ENCODER_BASE+adr);
 }
 

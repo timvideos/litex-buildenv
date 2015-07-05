@@ -22,6 +22,8 @@ const char chroma_rom_85[256];
 const char chroma_rom_75[256];
 const char chroma_rom_50[256];
 
+void encoder_write_reg(unsigned int adr, unsigned int value);
+unsigned int encoder_read_reg(unsigned int adr);
 void encoder_init(const char * luma_table, const char * chroma_table);
 void encoder_start(short resx, short resy);
 int encoder_done(void);

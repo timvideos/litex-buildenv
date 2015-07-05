@@ -2,6 +2,7 @@
 
 #include <console.h>
 #include <generated/csr.h>
+#include <generated/mem.h>
 
 #include "config.h"
 #include "dvisampler.h"
@@ -84,11 +85,17 @@ void ci_service(void)
 				break;
 #ifdef JPEG_ENCODER_BASE
 			case 'e':
-				prinf("start encoding...\n");
-				encoder_start(320, 240);
-				prinf("waiting...");
+				printf("start encoding...\n");
+				encoder_start(1024, 768);
+				jpeg_dma_ev_pending_write(jpeg_dma_ev_pending_read());
+				jpeg_dma_ev_enable_write(1);
+				jpeg_dma_dma_base_write(0);
+				jpeg_dma_dma_length_write(1024*768*4);
+				jpeg_dma_dma_shoot_write(1);
+				printf("waiting...");
+				while(jpeg_dma_dma_busy_read()==1);
 				while(encoder_done()==0);
-				prinf("done\n");
+				printf("done\n");
 				break;
 #endif
 		}
