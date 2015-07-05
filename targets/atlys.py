@@ -22,7 +22,7 @@ from misoclib.com.liteeth.phy.mii import LiteEthPHYMII
 from misoclib.com.liteeth.core import LiteEthUDPIPCore
 from misoclib.com.liteeth.frontend.etherbone import LiteEthEtherbone
 
-from hdl.encoder import EncoderReader, Encoder
+from hdl.encoder import EncoderReader, Encoder, EncoderSender
 
 
 class P3R1GE4JGF(SDRAMModule):
@@ -156,8 +156,7 @@ class BaseSoC(SDRAMSoC):
         clk_freq = 75*1000000
         SDRAMSoC.__init__(self, platform, clk_freq,
                           integrated_rom_size=0x8000,
-                          sdram_controller_settings=LASMIconSettings(l2_size=128,
-                                                                     with_bandwidth=True),
+                          sdram_controller_settings=LASMIconSettings(l2_size=128),
                           **kwargs)
 
         self.submodules.crg = _CRG(platform, clk_freq)
@@ -266,14 +265,14 @@ TIMESPEC "TSise_sucks6" = FROM "GRPsys_clk" TO "GRPeth_rx_clk" TIG;
      eth_tx_clk=self.ethphy.crg.cd_eth_tx.clk)
 
 
-class FramebufferSoC(BaseSoC):
+class FramebufferSoC(EtherboneSoC):
     csr_map = {
         "fb": 19,
     }
-    csr_map.update(BaseSoC.csr_map)
+    csr_map.update(EtherboneSoC.csr_map)
 
     def __init__(self, platform, **kwargs):
-        BaseSoC.__init__(self, platform, **kwargs)
+        EtherboneSoC.__init__(self, platform, **kwargs)
 
         self.submodules.fb = framebuffer.Framebuffer(None, platform.request("dvi_out"),
                                                      self.sdram.crossbar.get_master())
@@ -323,12 +322,15 @@ class VideostreamerSoC(VideomixerSoC):
 
         self.submodules.encoder_reader = EncoderReader(self.sdram.crossbar.get_master())
         self.submodules.encoder = Encoder(platform)
+        encoder_port = self.ethcore.udp.crossbar.get_port(8000, 8)
+        self.submodules.encoder_sender = EncoderSender(convert_ip("192.168.1.15"), 8000, 256)
 
         self.comb += [
             platform.request("user_led", 0).eq(self.encoder_reader.source.stb),
             platform.request("user_led", 1).eq(self.encoder_reader.source.ack),
             Record.connect(self.encoder_reader.source, self.encoder.sink),
-            self.encoder.source.ack.eq(1) # XXX send it over UDP?
+            Record.connect(self.encoder.source, self.encoder_sender.sink),
+            Record.connect(self.encoder_sender.source, encoder_port.sink)
         ]
         self.add_wb_slave(mem_decoder(self.mem_map["encoder"]), self.encoder.bus)
         self.add_memory_region("encoder", self.mem_map["encoder"]+self.shadow_base, 0x2000)
