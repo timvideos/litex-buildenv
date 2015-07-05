@@ -8,6 +8,7 @@
 #include "processor.h"
 #include "pll.h"
 #include "ci.h"
+#include "version.h"
 
 #ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
 static void print_mem_bandwidth(void)
@@ -80,6 +81,16 @@ void ci_service(void)
 #endif
 			case 'p':
 				pll_dump();
+				break;
+
+			case 's':
+				if (dvisampler_debug == 1)
+					printf("DVI sampler debug: ON\n");
+				else
+					printf("DVI sampler debug: OFF\n");
+				printf("       git commit: %s\n", git_commit);
+				printf("     git describe: %s\n", git_describe);
+				printf("       git status:\n%s\n", git_status);
 				break;
 		}
 	}
