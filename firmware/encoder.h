@@ -10,17 +10,17 @@
 
 #define ENCODER_QUANTIZER_RAM_LUMA_BASE 0x100
 
-const char luma_rom_100[256];
-const char luma_rom_85[256];
-const char luma_rom_75[256];
-const char luma_rom_50[256];
+const char luma_rom_100[64];
+const char luma_rom_85[64];
+const char luma_rom_75[64];
+const char luma_rom_50[64];
 
 #define ENCODER_QUANTIZER_RAM_CHROMA_BASE 0x200
 
-const char chroma_rom_100[256];
-const char chroma_rom_85[256];
-const char chroma_rom_75[256];
-const char chroma_rom_50[256];
+const char chroma_rom_100[64];
+const char chroma_rom_85[64];
+const char chroma_rom_75[64];
+const char chroma_rom_50[64];
 
 void encoder_write_reg(unsigned int adr, unsigned int value);
 unsigned int encoder_read_reg(unsigned int adr);

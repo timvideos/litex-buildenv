@@ -30,7 +30,7 @@ int main(void)
 	time_init();
 	processor_start(config_get(CONFIG_KEY_RESOLUTION));
 #ifdef JPEG_ENCODER_BASE
-	//encoder_init(luma_rom_50, chroma_rom_50);
+	encoder_init(luma_rom_100, chroma_rom_100);
 #endif
 
 	while(1) {
