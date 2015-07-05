@@ -58,17 +58,13 @@ class JPEGEncoder(Module):
                                    i_outif_almost_full=(fifo.fifo.level > 64 + 16),
                                    #o_frame_size=
                                    )
-
         self.comb += [
             self.sink.ack.eq(~iram_fifo_full),
             Record.connect(fifo.source, self.source)
         ]
 
-        # add Verilog sources
-        #platform.add_source_dir(os.path.join(platform.soc_ext_path, "hdl", "jpeg_encoder", "verilog"))
-
         # add VHDL sources
-        platform.add_source_dir(os.path.join(platform.soc_ext_path, "hdl", "jpeg_encoder", "vhd"))
+        platform.add_source_dir(os.path.join(platform.soc_ext_path, "hdl", "jpeg_encoder", "vhdl"))
 
 
 class JPEGDMA(Module, AutoCSR):
