@@ -23,7 +23,9 @@
 [> Status:
 Atlys:
 * BaseSoC working (CPU + DDR2 + UART)
-* MiniSoC working (BaseSoC + 10/100/1000Mbps Ethernet)
+* MiniSoC working (BaseSoC + 10/100/1000Mbps Ethernet MAC handled by the CPU)
+* EtherboneSoC working (BaseSoC + 10/100Mbps HW Ethernet UDP/IP stack and Etherbone)
+* Videomixer working (EtherboneSoC + HDMI in + Framebuffer + Hdmi out)
 
 [> Other Docs
 USB UART - Use Linux drivers at https://github.com/shenki/exar-uart-driver
