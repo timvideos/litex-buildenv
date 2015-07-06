@@ -87,10 +87,6 @@ void ci_service(void)
 				pll_dump();
 				break;
 			case 's':
-				if (dvisampler_debug == 1)
-					printf("DVI sampler debug: ON\n");
-				else
-					printf("DVI sampler debug: OFF\n");
 				printf("       Resolution: %d\n", processor_mode);
 				printf("       git commit: %s\n", git_commit);
 				printf("     git describe: %s\n", git_describe);
