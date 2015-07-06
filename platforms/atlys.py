@@ -583,7 +583,7 @@ class Platform(XilinxPlatform):
                 pass
 
         try:
-            self.add_period_constraint(self.lookup_request("eth_clocks").rx, 8.0)
+            self.add_period_constraint(self.lookup_request("eth_clocks").rx, 40.0)
         except ConstraintError:
             pass
 
