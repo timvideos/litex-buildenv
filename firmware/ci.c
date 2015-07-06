@@ -96,7 +96,6 @@ void ci_service(void)
 				printf("     git describe: %s\n", git_describe);
 				printf("       git status:\n%s\n", git_status);
 				break;
-		}
 #ifdef ENCODER_BASE
 			case 'e':
 				printf("start encoding...\n");
