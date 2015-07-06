@@ -16,16 +16,16 @@
 
 2. Clone https://github.com/timvideos/HDMI2USB-misoc-firmware into same directory as misoc
 
-3. Build the gateware and software:
-	go to misoc dir
-	./make.py -X ../HDMI2USB-misoc-firmware -t atlys -s MiniSoC all load-bitstream
+3. Follow instructions to build the gateware and software:
+	# In the HDMI2USB-misoc-firmware directory
+	make help
 
 [> Status:
 Atlys:
 * BaseSoC working (CPU + DDR2 + UART)
 * MiniSoC working (BaseSoC + 10/100/1000Mbps Ethernet MAC handled by the CPU)
 * EtherboneSoC working (BaseSoC + 10/100Mbps HW Ethernet UDP/IP stack and Etherbone)
-* Videomixer working (EtherboneSoC + HDMI in + Framebuffer + Hdmi out)
+* VideomixerSoC working (EtherboneSoC + HDMI in + Framebuffer + Hdmi out)
 
 [> Other Docs
 USB UART - Use Linux drivers at https://github.com/shenki/exar-uart-driver
