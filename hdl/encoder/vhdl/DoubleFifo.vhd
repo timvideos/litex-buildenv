@@ -7,9 +7,9 @@
 --
 -- Content   : DoubleFifo
 --
--- Description : 
+-- Description :
 --
--- Spec.     : 
+-- Spec.     :
 --
 -- Author    : Michal Krepa
 --
@@ -21,24 +21,24 @@
 -- /// Copyright (c) 2013, Jahanzeb Ahmad
 -- /// All rights reserved.
 -- ///
--- /// Redistribution and use in source and binary forms, with or without modification, 
+-- /// Redistribution and use in source and binary forms, with or without modification,
 -- /// are permitted provided that the following conditions are met:
 -- ///
--- ///  * Redistributions of source code must retain the above copyright notice, 
+-- ///  * Redistributions of source code must retain the above copyright notice,
 -- ///    this list of conditions and the following disclaimer.
--- ///  * Redistributions in binary form must reproduce the above copyright notice, 
--- ///    this list of conditions and the following disclaimer in the documentation and/or 
+-- ///  * Redistributions in binary form must reproduce the above copyright notice,
+-- ///    this list of conditions and the following disclaimer in the documentation and/or
 -- ///    other materials provided with the distribution.
 -- ///
--- ///    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
--- ///    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
--- ///    OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
--- ///    SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
--- ///    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
--- ///    LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
--- ///    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
--- ///    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
--- ///    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+-- ///    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+-- ///    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+-- ///    OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+-- ///    SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+-- ///    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+-- ///    LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+-- ///    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+-- ///    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+-- ///    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 -- ///   POSSIBILITY OF SUCH DAMAGE.
 -- ///
 -- ///
@@ -69,7 +69,7 @@ library ieee;
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 entity DoubleFifo is
-  port 
+  port
   (
         CLK                : in  std_logic;
         RST                : in  std_logic;
@@ -97,31 +97,31 @@ architecture RTL of DoubleFifo is
   signal fifo1_full    : std_logic;
   signal fifo1_empty   : std_logic;
   signal fifo1_count   : std_logic_vector(7 downto 0);
-  
+
   signal fifo2_rd      : std_logic;
   signal fifo2_wr      : std_logic;
   signal fifo2_q       : std_logic_vector(7 downto 0);
   signal fifo2_full    : std_logic;
   signal fifo2_empty   : std_logic;
   signal fifo2_count   : std_logic_vector(7 downto 0);
-  
+
   signal fifo_data_in  : std_logic_vector(7 downto 0);
 -------------------------------------------------------------------------------
 -- Architecture: begin
 -------------------------------------------------------------------------------
 begin
-  
+
   -------------------------------------------------------------------
   -- FIFO 1
   -------------------------------------------------------------------
-  U_FIFO_1 : entity work.FIFO   
+  U_FIFO_1 : entity work.FIFO
   generic map
   (
         DATA_WIDTH        => 8,
         ADDR_WIDTH        => 7
   )
-  port map 
-  (        
+  port map
+  (
         rst               => RST,
         clk               => CLK,
         rinc              => fifo1_rd,
@@ -133,18 +133,18 @@ begin
         emptyo            => fifo1_empty,
         count             => fifo1_count
   );
-  
+
   -------------------------------------------------------------------
   -- FIFO 2
   -------------------------------------------------------------------
-  U_FIFO_2 : entity work.FIFO   
+  U_FIFO_2 : entity work.FIFO
   generic map
   (
         DATA_WIDTH        => 8,
         ADDR_WIDTH        => 7
   )
-  port map 
-  (        
+  port map
+  (
         rst               => RST,
         clk               => CLK,
         rinc              => fifo2_rd,
@@ -156,7 +156,7 @@ begin
         emptyo            => fifo2_empty,
         count             => fifo2_count
   );
-  
+
   -------------------------------------------------------------------
   -- mux2
   -------------------------------------------------------------------
@@ -165,40 +165,54 @@ begin
     if RST = '1' then
       fifo1_wr <= '0';
       fifo2_wr <= '0';
-      fifo_data_in <= (others => '0');
     elsif CLK'event and CLK = '1' then
       if buf_sel = '0' then
         fifo1_wr <= wren;
       else
         fifo2_wr <= wren;
       end if;
+    end if;
+  end process;
+
+
+  p_mux2_data : process(RST)
+  begin
+    if CLK'event and CLK = '1' then
       fifo_data_in <= data_in;
     end if;
   end process;
-  
+
   -------------------------------------------------------------------
   -- mux3
   -------------------------------------------------------------------
   p_mux3 : process(CLK, RST)
   begin
     if RST = '1' then
-      data_out   <= (others => '0');
       fifo1_rd   <= '0';
       fifo2_rd   <= '0';
       fifo_empty <= '0';
     elsif CLK'event and CLK = '1' then
       if buf_sel = '1' then
-        data_out   <= fifo1_q;
         fifo1_rd   <= rd_req;
         fifo_empty <= fifo1_empty;
       else
-        data_out <= fifo2_q;
         fifo2_rd <= rd_req;
         fifo_empty <= fifo2_empty;
       end if;
     end if;
   end process;
-  
+
+  p_mux3_data : process(CLK)
+  begin
+    if CLK'event and CLK = '1' then
+      if buf_sel = '1' then
+        data_out   <= fifo1_q;
+      else
+        data_out <= fifo2_q;
+      end if;
+    end if;
+  end process;
+
 
 end architecture RTL;
 -------------------------------------------------------------------------------

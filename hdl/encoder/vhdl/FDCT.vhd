@@ -9,7 +9,7 @@
 --
 -- Description : 2D Discrete Cosine Transform
 --
--- Spec.     : 
+-- Spec.     :
 --
 -- Author    : Michal Krepa
 --
@@ -21,24 +21,24 @@
 -- /// Copyright (c) 2013, Jahanzeb Ahmad
 -- /// All rights reserved.
 -- ///
--- /// Redistribution and use in source and binary forms, with or without modification, 
+-- /// Redistribution and use in source and binary forms, with or without modification,
 -- /// are permitted provided that the following conditions are met:
 -- ///
--- ///  * Redistributions of source code must retain the above copyright notice, 
+-- ///  * Redistributions of source code must retain the above copyright notice,
 -- ///    this list of conditions and the following disclaimer.
--- ///  * Redistributions in binary form must reproduce the above copyright notice, 
--- ///    this list of conditions and the following disclaimer in the documentation and/or 
+-- ///  * Redistributions in binary form must reproduce the above copyright notice,
+-- ///    this list of conditions and the following disclaimer in the documentation and/or
 -- ///    other materials provided with the distribution.
 -- ///
--- ///    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
--- ///    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
--- ///    OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
--- ///    SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
--- ///    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
--- ///    LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
--- ///    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
--- ///    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
--- ///    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+-- ///    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+-- ///    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+-- ///    OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+-- ///    SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+-- ///    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+-- ///    LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+-- ///    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+-- ///    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+-- ///    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 -- ///   POSSIBILITY OF SUCH DAMAGE.
 -- ///
 -- ///
@@ -70,7 +70,7 @@ library work;
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 entity FDCT is
-  port 
+  port
   (
         CLK                : in  std_logic;
         RST                : in  std_logic;
@@ -78,22 +78,22 @@ entity FDCT is
         start_pb           : in  std_logic;
         ready_pb           : out std_logic;
         fdct_sm_settings   : in  T_SM_SETTINGS;
-        
+
         -- BUF_FIFO
         bf_fifo_rd         : out std_logic;
         bf_fifo_q          : in  std_logic_vector(23 downto 0);
         bf_fifo_hf_full    : in  std_logic;
-        
+
         -- ZIG ZAG
         zz_buf_sel         : in  std_logic;
         zz_rd_addr         : in  std_logic_vector(5 downto 0);
         zz_data            : out std_logic_vector(11 downto 0);
         zz_rden            : in  std_logic;
-        
+
         -- HOST
         img_size_x         : in  std_logic_vector(15 downto 0);
         img_size_y         : in  std_logic_vector(15 downto 0);
-        sof                : in  std_logic        
+        sof                : in  std_logic
     );
 end entity FDCT;
 
@@ -103,7 +103,7 @@ end entity FDCT;
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 architecture RTL of FDCT is
-  
+
   constant C_Y_1       : signed(14 downto 0) := to_signed(4899,  15);
   constant C_Y_2       : signed(14 downto 0) := to_signed(9617,  15);
   constant C_Y_3       : signed(14 downto 0) := to_signed(1868,  15);
@@ -113,7 +113,7 @@ architecture RTL of FDCT is
   constant C_Cr_1      : signed(14 downto 0) := to_signed(8192,  15);
   constant C_Cr_2      : signed(14 downto 0) := to_signed(-6860, 15);
   constant C_Cr_3      : signed(14 downto 0) := to_signed(-1332, 15);
-  
+
 
   signal mdct_data_in      : std_logic_vector(7 downto 0):=(others=>'0');
   signal mdct_idval        : std_logic:='0';
@@ -140,7 +140,7 @@ architecture RTL of FDCT is
   signal dbuf_raddr        : std_logic_vector(6 downto 0):=(others=>'0');
   signal xw_cnt            : unsigned(2 downto 0):=(others=>'0');
   signal yw_cnt            : unsigned(2 downto 0):=(others=>'0');
-                           
+
   signal dbuf_q_z1         : std_logic_vector(11 downto 0):=(others=>'0');
   constant C_SIMA_ASZ      : integer := 9;
   signal sim_rd_addr       : unsigned(C_SIMA_ASZ-1 downto 0):=(others=>'0');
@@ -183,60 +183,60 @@ architecture RTL of FDCT is
   signal fifo1_q_dval      : std_logic:='0';
   signal fifo_data_in      : std_logic_vector(11 downto 0):=(others=>'0');
   signal fifo_rd_arm       : std_logic:='0';
-  
+
   signal eoi_fdct          : std_logic:='0';
   signal bf_fifo_rd_s      : std_logic:='0';
   signal start_int         : std_logic:='0';
   signal start_int_d       : std_logic_vector(4 downto 0):=(others=>'0');
-  
+
   signal fram1_data        : std_logic_vector(23 downto 0):=(others=>'0');
   signal fram1_q           : std_logic_vector(23 downto 0):=(others=>'0');
   signal fram1_we          : std_logic:='0';
   signal fram1_waddr       : std_logic_vector(6 downto 0):=(others=>'0');
   signal fram1_raddr       : std_logic_vector(6 downto 0):=(others=>'0');
   signal fram1_rd_d        : std_logic_vector(8 downto 0):=(others=>'0');
-  signal fram1_rd          : std_logic:='0';  
+  signal fram1_rd          : std_logic:='0';
   signal rd_started        : std_logic:='0';
   signal writing_en        : std_logic:='0';
   signal fram1_q_vld       : std_logic:='0';
-  
+
   signal fram1_line_cnt    : unsigned(2 downto 0):=(others=>'0');
   signal fram1_pix_cnt     : unsigned(2 downto 0):=(others=>'0');
-  
-  
+
+
 -------------------------------------------------------------------------------
 -- Architecture: begin
 -------------------------------------------------------------------------------
 begin
 
   zz_data      <= dbuf_q;
-  
+
   bf_fifo_rd   <= bf_fifo_rd_s;
-  
+
   -------------------------------------------------------------------
   -- FRAM1 (Frame RAM, hold 16x8)
   -------------------------------------------------------------------
   U_FRAM1 : entity work.RAMZ
   generic map
-  ( 
+  (
       RAMADDR_W     => 7,
       RAMDATA_W     => 24
   )
   port map
-  (      
+  (
         d           => fram1_data,
         waddr       => fram1_waddr,
         raddr       => fram1_raddr,
         we          => fram1_we,
         clk         => CLK,
-                    
+
         q           => fram1_q
   );
-  
+
   fram1_we    <= bf_dval;         -- moving a new block
   fram1_data  <= bf_fifo_q;       -- data from BUF_FIFO
   fram1_q_vld <= fram1_rd_d(5);   -- onto the next ...
-  
+
   -------------------------------------------------------------------
   -- FRAM1 address process
   -------------------------------------------------------------------
@@ -252,7 +252,7 @@ begin
   end process;
 
   -------------------------------------------------------------------
-  -- Intermidiate (I)RAM read process 
+  -- Intermidiate (I)RAM read process
   -------------------------------------------------------------------
   p_counter1 : process(CLK, RST)
   begin
@@ -287,7 +287,7 @@ begin
       fram1_pix_cnt   <= (others => '0');
     elsif CLK'event and CLK = '1' then
       rd_en_d1 <= rd_en;
-      
+
       cur_cmp_idx_d1 <= cur_cmp_idx;
       cur_cmp_idx_d2 <= cur_cmp_idx_d1;
       cur_cmp_idx_d3 <= cur_cmp_idx_d2;
@@ -297,13 +297,13 @@ begin
       cur_cmp_idx_d7 <= cur_cmp_idx_d6;
       cur_cmp_idx_d8 <= cur_cmp_idx_d7;
       cur_cmp_idx_d9 <= cur_cmp_idx_d8;
-      
-      start_int      <= '0';      
+
+      start_int      <= '0';
       bf_dval_m3     <= bf_fifo_rd_s;
       bf_dval_m2     <= bf_dval_m3;
       bf_dval_m1     <= bf_dval_m2;
       bf_dval        <= bf_dval_m1;
-      
+
       fram1_rd_d     <= fram1_rd_d(fram1_rd_d'length-2 downto 0) & fram1_rd;
       start_int_d    <= start_int_d(start_int_d'length-2 downto 0) & start_int;
 
@@ -312,8 +312,8 @@ begin
       if (sof = '1' or start_int = '1') then
         input_rd_cnt <= (others => '0');
         -- enable BUF_FIFO/FRAM1 reading
-        rd_started      <= '1'; 
-        
+        rd_started      <= '1';
+
         -- component index
         if cmp_idx = 4-1 then
           cmp_idx <= (others => '0');
@@ -324,7 +324,7 @@ begin
             if y_line_cnt = unsigned(img_size_y)-8 then
               y_line_cnt <= (others => '0');
               -- set end of image flag
-              eoi_fdct <= '1';    
+              eoi_fdct <= '1';
             else
               y_line_cnt <= y_line_cnt + 8;
             end if;
@@ -334,9 +334,9 @@ begin
         else
           cmp_idx <=cmp_idx + 1;
         end if;
-        
+
         cur_cmp_idx     <= cmp_idx;
-        
+
       end if;
 
       ----------------------------------------------------------------
@@ -346,20 +346,20 @@ begin
         rd_en      <= '1';
         rd_started <= '0';
       end if;
-      
+
       bf_fifo_rd_s   <= '0';
       fram1_rd       <= '0';
 
       ----------------------------------------------------------------
-      -- stall reading from input FIFO and writing to output FIFO 
+      -- stall reading from input FIFO and writing to output FIFO
       -- when output FIFO is almost full
-      if rd_en = '1' and unsigned(fifo1_count) < 512-64 and 
+      if rd_en = '1' and unsigned(fifo1_count) < 512-64 and
          (bf_fifo_hf_full = '1' or cur_cmp_idx > 1) then
-        -- read request goes to BUF_FIFO only for component 0. 
-        if cur_cmp_idx < 2 then 
+        -- read request goes to BUF_FIFO only for component 0.
+        if cur_cmp_idx < 2 then
           bf_fifo_rd_s <= '1';
         end if;
-        
+
         -- count number of samples read from input in one run
         if input_rd_cnt = 64-1 then
           rd_en        <= '0';
@@ -387,19 +387,19 @@ begin
       elsif start_int_d(4) = '1' then
         fram1_line_cnt  <= (others => '0');
         fram1_pix_cnt   <= (others => '0');
-        
+
         case cur_cmp_idx_d4 is
           -- Y1, Cr, Cb
-          when "000" | "010" | "011" => 
+          when "000" | "010" | "011" =>
             fram1_raddr <= (others => '0');
           -- Y2
-          when "001" => 
+          when "001" =>
             fram1_raddr <= std_logic_vector(to_unsigned(64, fram1_raddr'length));
           when others =>
             null;
         end case;
-        
-      elsif fram1_rd_d(4) = '1' then       
+
+      elsif fram1_rd_d(4) = '1' then
         if fram1_pix_cnt = 8-1 then
           fram1_pix_cnt <= (others => '0');
           if fram1_line_cnt = 8-1 then
@@ -411,11 +411,11 @@ begin
           fram1_pix_cnt <= fram1_pix_cnt + 1;
         end if;
 
-        
+
         case cur_cmp_idx_d6 is
-          when "000" | "001" => 
+          when "000" | "001" =>
             fram1_raddr <= std_logic_vector(unsigned(fram1_raddr) + 1);
-          when "010" | "011" => 
+          when "010" | "011" =>
             if fram1_pix_cnt = 4-1 then
               fram1_raddr <= std_logic_vector('1' & fram1_line_cnt & "000");
             elsif fram1_pix_cnt = 8-1 then
@@ -429,19 +429,19 @@ begin
             end if;
           when others =>
             null;
-        end case;      
+        end case;
       end if;
       ----------------------------------------------------------------
-      
+
     end if;
   end process;
-  
+
   -------------------------------------------------------------------
   -- FDCT with input level shift
   -------------------------------------------------------------------
   U_MDCT : entity work.MDCT
         port map
-  (       
+  (
                 clk          => CLK,
                 rst          => RST,
     dcti         => mdct_data_in,
@@ -450,14 +450,14 @@ begin
     dcto         => mdct_data_out,
     odv1         => odv1,
     dcto1        => dcto1
-        ); 
-  
+        );
+
   mdct_idval   <= fram1_rd_d(8);
-  
+
   R_s <= signed('0' & fram1_q(7 downto 0));
   G_s <= signed('0' & fram1_q(15 downto 8));
   B_s <= signed('0' & fram1_q(23 downto 16));
-  
+
   -------------------------------------------------------------------
   -- Mux1
   -------------------------------------------------------------------
@@ -467,11 +467,11 @@ begin
       mdct_data_in <= (others => '0');
     elsif CLK'event and CLK = '1' then
       case cur_cmp_idx_d9 is
-        when "000" | "001" => 
+        when "000" | "001" =>
           mdct_data_in <= std_logic_vector(Y_8bit);
-        when "010" => 
+        when "010" =>
           mdct_data_in <= std_logic_vector(Cb_8bit);
-        when "011" => 
+        when "011" =>
           mdct_data_in <= std_logic_vector(Cr_8bit);
         when others =>
           null;
@@ -479,18 +479,18 @@ begin
     end if;
   end process;
 
-  
+
   -------------------------------------------------------------------
   -- FIFO1
   -------------------------------------------------------------------
-  U_FIFO1 : entity work.FIFO   
+  U_FIFO1 : entity work.FIFO
   generic map
   (
         DATA_WIDTH        => 12,
         ADDR_WIDTH        => 9
   )
-  port map 
-  (        
+  port map
+  (
         rst               => RST,
         clk               => CLK,
         rinc              => fifo1_rd,
@@ -502,12 +502,12 @@ begin
         emptyo            => fifo1_empty,
         count             => fifo1_count
   );
-  
+
   fifo1_wr     <= mdct_odval;
   fifo_data_in <= mdct_data_out;
-  
-  
-  
+
+
+
   -------------------------------------------------------------------
   -- FIFO1 rd controller
   -------------------------------------------------------------------
@@ -519,15 +519,15 @@ begin
       fifo1_rd_cnt <= (others => '0');
       fifo1_q_dval <= '0';
     elsif CLK'event and CLK = '1' then
-      fifo1_rd     <= '0';      
+      fifo1_rd     <= '0';
       fifo1_q_dval <= fifo1_rd;
-    
+
       if start_pb = '1' then
         fifo_rd_arm  <= '1';
         fifo1_rd_cnt <= (others => '0');
       end if;
-      
-      if fifo_rd_arm = '1' then      
+
+      if fifo_rd_arm = '1' then
         if fifo1_rd_cnt = 64-1 then
           fifo_rd_arm  <= '0';
           fifo1_rd     <= '1';
@@ -535,11 +535,11 @@ begin
           fifo1_rd     <= '1';
           fifo1_rd_cnt <= fifo1_rd_cnt + 1;
         end if;
-      
+
       end if;
     end if;
   end process;
-  
+
   -------------------------------------------------------------------
   -- write counter
   -------------------------------------------------------------------
@@ -553,14 +553,14 @@ begin
       writing_en <= '0';
     elsif CLK'event and CLK = '1' then
       ready_pb <= '0';
-    
+
       if start_pb = '1' then
         wr_cnt <= (others => '0');
         xw_cnt <= (others => '0');
         yw_cnt <= (others => '0');
         writing_en  <= '1';
       end if;
-      
+
       if writing_en = '1' then
         if fifo1_q_dval = '1' then
           if wr_cnt = 64-1 then
@@ -570,7 +570,7 @@ begin
           else
             wr_cnt <= wr_cnt + 1;
           end if;
-          
+
           if yw_cnt = 8-1 then
             yw_cnt <= (others => '0');
             xw_cnt <= xw_cnt+1;
@@ -581,70 +581,57 @@ begin
       end if;
     end if;
   end process;
-  
+
   -------------------------------------------------------------------
   -- RGB to YCbCr conversion
   -------------------------------------------------------------------
-  p_rgb2ycbcr : process(CLK, RST)
+  p_rgb2ycbcr : process(CLK)
   begin
-    if RST = '1' then
-      Y_Reg_1  <= (others => '0');
-      Y_Reg_2  <= (others => '0');
-      Y_Reg_3  <= (others => '0');
-      Cb_Reg_1 <= (others => '0');
-      Cb_Reg_2 <= (others => '0');
-      Cb_Reg_3 <= (others => '0');
-      Cr_Reg_1 <= (others => '0');
-      Cr_Reg_2 <= (others => '0');
-      Cr_Reg_3 <= (others => '0');
-      Y_Reg    <= (others => '0');
-      Cb_Reg   <= (others => '0');
-      Cr_Reg   <= (others => '0');
-    elsif CLK'event and CLK = '1' then
+    if CLK'event and CLK = '1' then
       Y_Reg_1  <= R_s*C_Y_1;
       Y_Reg_2  <= G_s*C_Y_2;
       Y_Reg_3  <= B_s*C_Y_3;
-      
+
       Cb_Reg_1 <= R_s*C_Cb_1;
       Cb_Reg_2 <= G_s*C_Cb_2;
       Cb_Reg_3 <= B_s*C_Cb_3;
-      
+
       Cr_Reg_1 <= R_s*C_Cr_1;
       Cr_Reg_2 <= G_s*C_Cr_2;
       Cr_Reg_3 <= B_s*C_Cr_3;
-      
+
       Y_Reg  <= Y_Reg_1 + Y_Reg_2 + Y_Reg_3;
       Cb_Reg <= Cb_Reg_1 + Cb_Reg_2 + Cb_Reg_3 + to_signed(128*16384,Cb_Reg'length);
       Cr_Reg <= Cr_Reg_1 + Cr_Reg_2 + Cr_Reg_3 + to_signed(128*16384,Cr_Reg'length);
 
     end if;
   end process;
-  
+
   Y_8bit  <= unsigned(Y_Reg(21 downto 14));
   Cb_8bit <= unsigned(Cb_Reg(21 downto 14));
   Cr_8bit <= unsigned(Cr_Reg(21 downto 14));
-  
-  
+
+
   -------------------------------------------------------------------
   -- DBUF
   -------------------------------------------------------------------
   U_RAMZ : entity work.RAMZ
   generic map
-  ( 
+  (
       RAMADDR_W     => 7,
       RAMDATA_W     => 12
   )
   port map
-  (      
+  (
         d           => dbuf_data,
         waddr       => dbuf_waddr,
         raddr       => dbuf_raddr,
         we          => dbuf_we,
         clk         => CLK,
-                    
+
         q           => dbuf_q
   );
-  
+
   dbuf_data  <= fifo1_q;
   dbuf_we    <= fifo1_q_dval;
   dbuf_waddr <= (not zz_buf_sel) & std_logic_vector(yw_cnt & xw_cnt);

@@ -7,9 +7,9 @@
 --
 -- Content   : DC_ROM Luminance
 --
--- Description : 
+-- Description :
 --
--- Spec.     : 
+-- Spec.     :
 --
 -- Author    : Michal Krepa
 --
@@ -41,14 +41,14 @@ library ieee;
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 entity DC_ROM is
-  port 
+  port
   (
         CLK                : in  std_logic;
         RST                : in  std_logic;
         VLI_size           : in  std_logic_vector(3 downto 0);
-        
+
         VLC_DC_size        : out std_logic_vector(3 downto 0);
-        VLC_DC             : out unsigned(8 downto 0)        
+        VLC_DC             : out unsigned(8 downto 0)
     );
 end entity DC_ROM;
 
@@ -59,8 +59,8 @@ end entity DC_ROM;
 -------------------------------------------------------------------------------
 architecture RTL of DC_ROM is
 
-  
-  
+
+
 -------------------------------------------------------------------------------
 -- Architecture: begin
 -------------------------------------------------------------------------------
@@ -69,57 +69,54 @@ begin
   -------------------------------------------------------------------
   -- DC-ROM
   -------------------------------------------------------------------
-  p_dc_rom : process(CLK, RST)
+  p_dc_rom : process(CLK)
   begin
-    if RST = '1' then
-      VLC_DC_size <= X"0";
-      VLC_DC      <= (others => '0'); 
-    elsif CLK'event and CLK = '1' then
-      case VLI_size is 
+    if CLK'event and CLK = '1' then
+      case VLI_size is
         when X"0" =>
           VLC_DC_size <= X"2";
-          VLC_DC      <= resize("00", VLC_DC'length); 
+          VLC_DC      <= resize("00", VLC_DC'length);
         when X"1" =>
           VLC_DC_size <= X"3";
-          VLC_DC      <= resize("010", VLC_DC'length); 
+          VLC_DC      <= resize("010", VLC_DC'length);
         when X"2" =>
           VLC_DC_size <= X"3";
-          VLC_DC      <= resize("011", VLC_DC'length); 
+          VLC_DC      <= resize("011", VLC_DC'length);
         when X"3" =>
           VLC_DC_size <= X"3";
-          VLC_DC      <= resize("100", VLC_DC'length); 
+          VLC_DC      <= resize("100", VLC_DC'length);
         when X"4" =>
           VLC_DC_size <= X"3";
-          VLC_DC      <= resize("101", VLC_DC'length); 
+          VLC_DC      <= resize("101", VLC_DC'length);
         when X"5" =>
           VLC_DC_size <= X"3";
-          VLC_DC      <= resize("110", VLC_DC'length); 
+          VLC_DC      <= resize("110", VLC_DC'length);
         when X"6" =>
           VLC_DC_size <= X"4";
-          VLC_DC      <= resize("1110", VLC_DC'length); 
+          VLC_DC      <= resize("1110", VLC_DC'length);
         when X"7" =>
           VLC_DC_size <= X"5";
-          VLC_DC      <= resize("11110", VLC_DC'length); 
+          VLC_DC      <= resize("11110", VLC_DC'length);
         when X"8" =>
           VLC_DC_size <= X"6";
-          VLC_DC      <= resize("111110", VLC_DC'length); 
+          VLC_DC      <= resize("111110", VLC_DC'length);
         when X"9" =>
           VLC_DC_size <= X"7";
-          VLC_DC      <= resize("1111110", VLC_DC'length); 
+          VLC_DC      <= resize("1111110", VLC_DC'length);
         when X"A" =>
           VLC_DC_size <= X"8";
-          VLC_DC      <= resize("11111110", VLC_DC'length); 
+          VLC_DC      <= resize("11111110", VLC_DC'length);
         when X"B" =>
           VLC_DC_size <= X"9";
-          VLC_DC      <= resize("111111110", VLC_DC'length); 
+          VLC_DC      <= resize("111111110", VLC_DC'length);
         when others =>
           VLC_DC_size <= X"0";
-          VLC_DC      <= (others => '0'); 
+          VLC_DC      <= (others => '0');
       end case;
     end if;
   end process;
-  
-  
+
+
 
 end architecture RTL;
 -------------------------------------------------------------------------------

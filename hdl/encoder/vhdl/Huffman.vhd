@@ -9,7 +9,7 @@
 --
 -- Description : Huffman encoder core
 --
--- Spec.     : 
+-- Spec.     :
 --
 -- Author    : Michal Krepa
 --
@@ -21,24 +21,24 @@
 -- /// Copyright (c) 2013, Jahanzeb Ahmad
 -- /// All rights reserved.
 -- ///
--- /// Redistribution and use in source and binary forms, with or without modification, 
+-- /// Redistribution and use in source and binary forms, with or without modification,
 -- /// are permitted provided that the following conditions are met:
 -- ///
--- ///  * Redistributions of source code must retain the above copyright notice, 
+-- ///  * Redistributions of source code must retain the above copyright notice,
 -- ///    this list of conditions and the following disclaimer.
--- ///  * Redistributions in binary form must reproduce the above copyright notice, 
--- ///    this list of conditions and the following disclaimer in the documentation and/or 
+-- ///  * Redistributions in binary form must reproduce the above copyright notice,
+-- ///    this list of conditions and the following disclaimer in the documentation and/or
 -- ///    other materials provided with the distribution.
 -- ///
--- ///    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
--- ///    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
--- ///    OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
--- ///    SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
--- ///    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
--- ///    LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
--- ///    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
--- ///    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
--- ///    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+-- ///    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+-- ///    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+-- ///    OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+-- ///    SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+-- ///    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+-- ///    LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+-- ///    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+-- ///    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+-- ///    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 -- ///   POSSIBILITY OF SUCH DAMAGE.
 -- ///
 -- ///
@@ -70,7 +70,7 @@ library work;
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 entity Huffman is
-  port 
+  port
   (
         CLK                : in  std_logic;
         RST                : in  std_logic;
@@ -78,12 +78,12 @@ entity Huffman is
         start_pb           : in  std_logic;
         ready_pb           : out std_logic;
         huf_sm_settings    : in  T_SM_SETTINGS;
-        
+
         -- HOST IF
         sof                : in  std_logic;
         img_size_x         : in  std_logic_vector(15 downto 0);
         img_size_y         : in  std_logic_vector(15 downto 0);
-        
+
         -- RLE
         rle_buf_sel        : out std_logic;
         rd_en              : out std_logic;
@@ -92,12 +92,12 @@ entity Huffman is
         VLI                : in  std_logic_vector(11 downto 0);
         d_val              : in  std_logic;
         rle_fifo_empty     : in  std_logic;
-     
+
         -- Byte Stuffer
         bs_buf_sel         : in  std_logic;
         bs_fifo_empty      : out std_logic;
         bs_rd_req          : in  std_logic;
-        bs_packed_byte     : out std_logic_vector(7 downto 0)        
+        bs_packed_byte     : out std_logic_vector(7 downto 0)
     );
 end entity Huffman;
 
@@ -109,7 +109,7 @@ end entity Huffman;
 architecture RTL of Huffman is
 
   type T_STATE is (IDLE, RUN_VLC, RUN_VLI, PAD);
-  
+
   constant C_M             : integer := 23;
   constant BLK_SIZE        : integer := 64;
 
@@ -134,8 +134,8 @@ architecture RTL of Huffman is
   signal VLC_DC            : unsigned(8 downto 0):=(others =>'0');
   signal VLC_AC_size       : unsigned(4 downto 0):=(others =>'0');
   signal VLC_AC            : unsigned(15 downto 0):=(others =>'0');
-  signal vlc_vld           : std_logic:='0';    
-  signal d_val_d1          : std_logic:='0';    
+  signal vlc_vld           : std_logic:='0';
+  signal d_val_d1          : std_logic:='0';
   signal d_val_d2          : std_logic:='0';
   signal d_val_d3          : std_logic:='0';
   signal d_val_d4          : std_logic:='0';
@@ -155,17 +155,17 @@ architecture RTL of Huffman is
   signal VLC_CR_AC_size    : unsigned(4 downto 0):=(others =>'0');
   signal VLC_CR_AC         : unsigned(15 downto 0):=(others =>'0');
   signal start_pb_d1       : std_logic:='0';
-  
+
 -------------------------------------------------------------------------------
 -- Architecture: begin
 -------------------------------------------------------------------------------
 begin
 
   rle_buf_sel <= rle_buf_sel_s;
-  
+
   rd_en   <= rd_en_s;
   vlc_vld <= rd_en_s;
-  
+
   -------------------------------------------------------------------
   -- latch FIFO Q
   -------------------------------------------------------------------
@@ -176,12 +176,12 @@ begin
       VLI_r       <= (others => '0');
     elsif CLK'event and CLK = '1' then
       if d_val = '1' then
-        VLI_size_r  <= VLI_size; 
-        VLI_r       <= VLI;            
+        VLI_size_r  <= VLI_size;
+        VLI_r       <= VLI;
       end if;
     end if;
   end process;
-  
+
   -------------------------------------------------------------------
   -- DC_ROM Luminance
   -------------------------------------------------------------------
@@ -191,11 +191,11 @@ begin
         CLK                => CLK,
         RST                => RST,
         VLI_size           => VLI_size,
-                           
+
         VLC_DC_size        => VLC_DC_size,
         VLC_DC             => VLC_DC
   );
-    
+
   -------------------------------------------------------------------
   -- AC_ROM Luminance
   -------------------------------------------------------------------
@@ -206,11 +206,11 @@ begin
         RST                => RST,
         runlength          => runlength,
         VLI_size           => VLI_size,
-                           
+
         VLC_AC_size        => VLC_AC_size,
         VLC_AC             => VLC_AC
     );
-    
+
   -------------------------------------------------------------------
   -- DC_ROM Chrominance
   -------------------------------------------------------------------
@@ -220,11 +220,11 @@ begin
         CLK                => CLK,
         RST                => RST,
         VLI_size           => VLI_size,
-                           
+
         VLC_DC_size        => VLC_CR_DC_size,
         VLC_DC             => VLC_CR_DC
   );
-    
+
   -------------------------------------------------------------------
   -- AC_ROM Chrominance
   -------------------------------------------------------------------
@@ -235,11 +235,11 @@ begin
         RST                => RST,
         runlength          => runlength,
         VLI_size           => VLI_size,
-                           
+
         VLC_AC_size        => VLC_CR_AC_size,
         VLC_AC             => VLC_CR_AC
     );
-   
+
   -------------------------------------------------------------------
   -- Double Fifo
   -------------------------------------------------------------------
@@ -257,21 +257,21 @@ begin
         fifo_empty         => bs_fifo_empty,
         data_out           => bs_packed_byte
     );
-  
+
   -------------------------------------------------------------------
   -- RLE buf_sel
   -------------------------------------------------------------------
   p_rle_buf_sel : process(CLK, RST)
   begin
     if RST = '1' then
-      rle_buf_sel_s   <= '0'; 
+      rle_buf_sel_s   <= '0';
     elsif CLK'event and CLK = '1' then
       if start_pb = '1' then
         rle_buf_sel_s <= not rle_buf_sel_s;
       end if;
     end if;
   end process;
-  
+
   -------------------------------------------------------------------
   -- mux for DC/AC ROM Luminance/Chrominance
   -------------------------------------------------------------------
@@ -306,7 +306,7 @@ begin
       end if;
     end if;
   end process;
-  
+
   -------------------------------------------------------------------
   -- Block Counter / Last Block detector
   -------------------------------------------------------------------
@@ -317,53 +317,44 @@ begin
       last_block      <= '0';
     elsif CLK'event and CLK = '1' then
       image_area_size <= unsigned(img_size_x)*unsigned(img_size_y);
-      
+
       if sof = '1' then
         block_cnt <= (others => '0');
       elsif start_pb = '1' then
         block_cnt <= block_cnt + 1;
       end if;
-      
+
       if block_cnt = image_area_size(31 downto 5) then
         last_block <= '1';
       else
         last_block <= '0';
       end if;
-      
+
     end if;
   end process;
-  
+
   VLI_ext      <= unsigned("0000" & VLI_d1);
   VLI_ext_size <= unsigned('0' & VLI_size_d1);
-  
+
   -------------------------------------------------------------------
   -- delay line
   -------------------------------------------------------------------
-  p_vli_dly : process(CLK, RST)
+  p_vli_dly : process(CLK)
   begin
-    if RST = '1' then
-      VLI_d       <= (others => '0');
-      VLI_size_d  <= (others => '0');
-      VLI_d1      <= (others => '0');
-      VLI_size_d1 <= (others => '0');
-      d_val_d1    <= '0';
-      d_val_d2    <= '0';
-      d_val_d3    <= '0';
-      d_val_d4    <= '0';
-    elsif CLK'event and CLK = '1' then
+    if CLK'event and CLK = '1' then
       VLI_d1      <= VLI_r;
       VLI_size_d1 <= VLI_size_r;
-      
+
       VLI_d       <= VLI_d1;
       VLI_size_d  <= VLI_size_d1;
-      
+
       d_val_d1   <= d_val;
       d_val_d2   <= d_val_d1;
       d_val_d3   <= d_val_d2;
       d_val_d4   <= d_val_d3;
     end if;
   end process;
-  
+
   -------------------------------------------------------------------
   -- HandleFifoWrites
   -------------------------------------------------------------------
@@ -381,11 +372,11 @@ begin
       ready_HFW <= '0';
       rd_en_s   <= '0';
       start_pb_d1 <= start_pb;
-      
+
       if start_pb_d1 = '1' then
         rd_en_s     <= '1' and not rle_fifo_empty;
       end if;
-    
+
       if HFW_running = '1' and ready_HFW = '0' then
         -- there is no at least one integer byte to write this time
         if num_fifo_wrs = 0 then
@@ -407,12 +398,12 @@ begin
           end if;
         end if;
       end if;
-      
-      case fifo_wrt_cnt is 
+
+      case fifo_wrt_cnt is
         when "00" =>
           fifo_wbyte <= std_logic_vector(word_reg(C_M-1 downto C_M-8));
         when "01" =>
-          fifo_wbyte <= std_logic_vector(word_reg(C_M-8-1 downto C_M-16));            
+          fifo_wbyte <= std_logic_vector(word_reg(C_M-8-1 downto C_M-16));
         when others =>
           fifo_wbyte <= (others => '0');
       end case;
@@ -420,13 +411,13 @@ begin
         fifo_wbyte <= pad_byte;
       end if;
 
-          
+
     end if;
   end process;
-  
+
   -- divide by 8
   num_fifo_wrs <= bit_ptr(4 downto 3);
-  
+
   -------------------------------------------------------------------
   -- Variable Length Processor FSM
   -------------------------------------------------------------------
@@ -443,18 +434,18 @@ begin
       pad_byte     <= (others => '0');
     elsif CLK'event and CLK = '1' then
       ready_pb  <= '0';
-    
+
       case state is
-      
+
         when IDLE =>
           if start_pb = '1' then
             first_rle_word <= '1';
             state       <= RUN_VLC;
           end if;
-        
+
         when RUN_VLC =>
           -- data valid DC or data valid AC
-          if (d_val_d1 = '1' and first_rle_word = '1') or 
+          if (d_val_d1 = '1' and first_rle_word = '1') or
              (d_val = '1' and first_rle_word = '0') then
             for i in 0 to C_M-1 loop
               if i < to_integer(VLC_size) then
@@ -462,51 +453,51 @@ begin
               end if;
             end loop;
             bit_ptr <= bit_ptr + resize(VLC_size,bit_ptr'length);
-            
+
             -- HandleFifoWrites
             HFW_running  <= '1';
           -- HandleFifoWrites completed
-          elsif HFW_running = '1' and 
+          elsif HFW_running = '1' and
                 (num_fifo_wrs = 0 or fifo_wrt_cnt + 1 = num_fifo_wrs) then
             -- shift word reg left to skip bytes already written to FIFO
             word_reg <= shift_left(word_reg, to_integer(num_fifo_wrs & "000"));
             -- adjust bit pointer after some bytes were written to FIFO
             -- modulo 8 operation
-            bit_ptr <= bit_ptr - (num_fifo_wrs & "000"); 
+            bit_ptr <= bit_ptr - (num_fifo_wrs & "000");
             HFW_running     <= '0';
             first_rle_word  <= '0';
             state           <= RUN_VLI;
           end if;
-        
+
         when RUN_VLI =>
           if HFW_running = '0' then
-            
+
             for i in 0 to C_M-1 loop
               if i < to_integer(VLI_ext_size) then
                 word_reg(C_M-1-to_integer(bit_ptr)-i)
                   <= VLI_ext(to_integer(VLI_ext_size)-1-i);
               end if;
             end loop;
-              
+
             bit_ptr <= bit_ptr + resize(VLI_ext_size,bit_ptr'length);
-            
+
             -- HandleFifoWrites
             HFW_running <= '1';
           -- HandleFifoWrites completed
-          elsif HFW_running = '1' and 
+          elsif HFW_running = '1' and
                 (num_fifo_wrs = 0 or fifo_wrt_cnt + 1 = num_fifo_wrs) then
             -- shift word reg left to skip bytes already written to FIFO
             word_reg <= shift_left(word_reg, to_integer(num_fifo_wrs & "000"));
             -- adjust bit pointer after some bytes were written to FIFO
             -- modulo 8 operation
-            bit_ptr <= bit_ptr - (num_fifo_wrs & "000"); 
+            bit_ptr <= bit_ptr - (num_fifo_wrs & "000");
             HFW_running <= '0';
-            
+
             -- end of block
             if rle_fifo_empty = '1' then
               -- end of segment
               if bit_ptr - (num_fifo_wrs & "000") /= 0 and last_block = '1' then
-                state <= PAD;  
+                state <= PAD;
               else
                 ready_pb <= '1';
                 state    <= IDLE;
@@ -515,7 +506,7 @@ begin
               state          <= RUN_VLC;
             end if;
           end if;
-          
+
         -- end of segment which requires bit padding
         when PAD =>
           if HFW_running = '0' then
@@ -528,12 +519,12 @@ begin
               end if;
             end loop;
             pad_reg <= '1';
-            
-            bit_ptr <= to_unsigned(8, bit_ptr'length);         
+
+            bit_ptr <= to_unsigned(8, bit_ptr'length);
 
             -- HandleFifoWrites
             HFW_running <= '1';
-         elsif HFW_running = '1' and 
+         elsif HFW_running = '1' and
                 (num_fifo_wrs = 0 or fifo_wrt_cnt + 1 = num_fifo_wrs) then
            bit_ptr      <= (others => '0');
            HFW_running  <= '0';
@@ -542,15 +533,15 @@ begin
            ready_pb <= '1';
            state <= IDLE;
          end if;
-        
+
         when others =>
-        
+
       end case;
-      
+
       if sof = '1' then
         bit_ptr <= (others => '0');
       end if;
-      
+
     end if;
   end process;
 
