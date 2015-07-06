@@ -76,6 +76,9 @@ entity JFIFGen is
   (
         CLK                : in  std_logic;
         RST                : in  std_logic;
+
+        outif_almost_full  : in std_logic;
+
         -- CTRL
         start              : in  std_logic;
         ready              : out std_logic;
@@ -130,7 +133,9 @@ architecture RTL of JFIFGen is
   signal eoi_cnt      : unsigned(1 downto 0):=(others =>'0');
   signal eoi_wr       : std_logic:='0';
   signal eoi_wr_d1    : std_logic:='0';
-  
+
+  signal reading_header : std_logic;
+
   component HeaderRam is
   port
   (
@@ -253,6 +258,7 @@ begin
       ram_wren   <= '0';
       ram_byte   <= (others => '0');
       ram_wraddr <= (others => '0');
+      reading_header <= '0';
     elsif CLK'event and CLK = '1' then
       ready     <= '0';
       rd_cnt_d1 <= rd_cnt;
@@ -269,18 +275,26 @@ begin
       if start = '1' and eoi = '0' then
         rd_cnt <= (others => '0');
         rd_en  <= '1';
+        reading_header <= '1';
       elsif start = '1' and eoi = '1' then
         eoi_wr  <= '1';
-        eoi_cnt <= (others => '0'); 
+        eoi_cnt <= (others => '0');
       end if;
-      
+
       -- read JFIF Header
-      if rd_en = '1' then
+      if reading_header = '1' then
         if rd_cnt = C_HDR_SIZE-1 then
+          reading_header <= '0';
           rd_en  <= '0';
           ready  <= '1';
         else
-          rd_cnt <= rd_cnt + 1;
+          if outif_almost_full = '0' then
+            rd_en  <= '1';
+            rd_cnt <= rd_cnt + 1;
+          else
+            rd_en  <= '0';
+          end if;
+
         end if;
       end if;
       

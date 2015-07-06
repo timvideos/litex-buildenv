@@ -497,6 +497,9 @@ begin
   (
         CLK                => CLK,
         RST                => RST,
+
+        outif_almost_full => outif_almost_full,
+
         -- CTRL
         start              => jfif_start,
         ready              => jfif_ready,
