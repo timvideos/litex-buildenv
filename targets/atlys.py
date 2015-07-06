@@ -323,7 +323,7 @@ class VideostreamerSoC(VideomixerSoC):
         self.submodules.encoder_reader = EncoderReader(self.sdram.crossbar.get_master())
         self.submodules.encoder = Encoder(platform)
         encoder_port = self.ethcore.udp.crossbar.get_port(8000, 8)
-        self.submodules.encoder_sender = EncoderSender(convert_ip("192.168.1.15"), 8000, 256)
+        self.submodules.encoder_sender = EncoderSender(convert_ip("192.168.1.15"), 8000)
 
         self.comb += [
             platform.request("user_led", 0).eq(self.encoder_reader.source.stb),
