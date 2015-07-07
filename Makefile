@@ -9,6 +9,12 @@ LOWER_SOC  = $(shell tr '[:upper:]' '[:lower:]' <<< $(SOC))
 
 CMD = $(PYTHON) make.py -X $(HDMI2USBDIR) -t atlys -s $(SOC) -Op programmer $(PROG)
 
+ifeq ($(OS),Windows_NT)
+	FLTERM = $(PYTHON) $(MSCDIR)/tools/flterm.py
+else
+	FLTERM = $(MSCDIR)/tools/flterm
+endif
+
 help:
 	@echo "Targets avaliable:"
 	@echo " make gateware"
@@ -32,10 +38,7 @@ firmware:
 	$(MAKE) -C firmware all
 
 load_firmware: firmware
-	$(PYTHON) tools/flterm.py --port $(SERIAL) --kernel=firmware/firmware.bin
-
-load_firmware_alt: firmware
-	$(MSCDIR)/tools/flterm --port $(SERIAL) --kernel=firmware/firmware.bin --kernel-adr=0x20000000
+	$(FLTERM) --port $(SERIAL) --kernel=firmware/firmware.bin --kernel-adr=0x20000000 --speed 115200
 
 clean:
 	$(MAKE) -C firmware clean
