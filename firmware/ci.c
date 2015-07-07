@@ -105,6 +105,9 @@ void ci_service(void)
 				printf("done\n");
 				break;
 #endif
+			case 'r':
+			    asm("call r0");
+				break;
 		}
 	}
 }
