@@ -1,6 +1,6 @@
 MSCDIR ?= ../misoc
 PROG ?= impact
-SERIAL ?= /dev/ttyVIZ0
+SERIAL ?= 5
 
 HDMI2USBDIR = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 PYTHON = python3

@@ -9,7 +9,6 @@
 #include "processor.h"
 #include "pll.h"
 #include "ci.h"
-#include "version.h"
 #include "encoder.h"
 
 #ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
@@ -87,10 +86,7 @@ void ci_service(void)
 				pll_dump();
 				break;
 			case 's':
-				printf("       Resolution: %d\n", processor_mode);
-				printf("       git commit: %s\n", git_commit);
-				printf("     git describe: %s\n", git_describe);
-				printf("       git status:\n%s\n", git_status);
+				printf("Revision %08x built "__DATE__" "__TIME__"\n\n", MSC_GIT_ID);
 				break;
 #ifdef ENCODER_BASE
 			case 'e':
