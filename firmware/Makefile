@@ -23,7 +23,7 @@ firmware.elf: $(OBJECTS) libs
 		$(OBJECTS) \
 		-L$(MSCDIR)/software/libbase \
 		-L$(MSCDIR)/software/libcompiler-rt \
-		-lbase -lcompiler-rt
+		-lbase-nofloat -lcompiler-rt
 	chmod -x $@
 
 main.o: main.c
