@@ -29,10 +29,6 @@ int main(void)
 	config_init();
 	time_init();
 	processor_start(config_get(CONFIG_KEY_RESOLUTION));
-#ifdef ENCODER_BASE
-	encoder_init(luma_rom_50, chroma_rom_50);
-#endif
-
 	while(1) {
 		processor_service();
 		ui_service();

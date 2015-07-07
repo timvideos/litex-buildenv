@@ -94,6 +94,7 @@ void ci_service(void)
 #ifdef ENCODER_BASE
 			case 'e':
 				printf("Start Encoding video buffer...");
+				encoder_init(luma_rom_50, chroma_rom_50);
 				encoder_start(processor_h_active, processor_v_active);
 				encoder_reader_ev_pending_write(encoder_reader_ev_pending_read());
 				encoder_reader_ev_enable_write(1);
