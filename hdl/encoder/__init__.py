@@ -25,7 +25,7 @@ class EncoderReader(Module, AutoCSR):
         pack_factor = lasmim.dw//32
         packed_dat = structuring.pack_layout(32, pack_factor)
         cast = structuring.Cast(lasmim.dw, packed_dat)
-        unpack = structuring.Unpack(pack_factor, [("data", 32)])
+        unpack = structuring.Unpack(pack_factor, [("data", 32)], reverse=True)
 
 
         # Graph
