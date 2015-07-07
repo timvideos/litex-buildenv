@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <console.h>
+#include <time.h>
 
 #include "processor.h"
 #include "encoder.h"
@@ -130,6 +131,10 @@ void encoder_enable(char enable) {
 }
 
 void encoder_service(void) {
+
+	static int last_event;
+	static int frame_cnt;
+
 	if(encoder_enabled) {
 		if (encoder_done() == 1) {
 			encoder_init(luma_rom_50, chroma_rom_50);
@@ -137,6 +142,11 @@ void encoder_service(void) {
 			encoder_reader_dma_base_write(0);
 			encoder_reader_dma_length_write(processor_h_active*processor_v_active*4);
 			encoder_reader_dma_shoot_write(1);
+			frame_cnt++;
+		}
+		if(elapsed(&last_event, identifier_frequency_read())) {
+			printf("%dx%d @ %d fps\n", processor_h_active, processor_v_active, frame_cnt);
+			frame_cnt = 0;
 		}
 	}
 }
