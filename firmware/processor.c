@@ -251,6 +251,8 @@ void processor_start(int mode)
 {
 	const struct video_timing *m = &video_modes[mode];
 	processor_mode = mode;
+	processor_h_active = m->h_active;
+	processor_v_active = m->v_active;
 
 	fb_fi_enable_write(0);
 	fb_driver_clocking_pll_reset_write(1);
