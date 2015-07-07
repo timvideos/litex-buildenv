@@ -22,10 +22,14 @@ const char chroma_rom_85[64];
 const char chroma_rom_75[64];
 const char chroma_rom_50[64];
 
+char encoder_enabled;
+
 void encoder_write_reg(unsigned int adr, unsigned int value);
 unsigned int encoder_read_reg(unsigned int adr);
 void encoder_init(const char * luma_table, const char * chroma_table);
 void encoder_start(short resx, short resy);
 int encoder_done(void);
+void encoder_enable(char enable);
+void encoder_service(void);
 
 #endif

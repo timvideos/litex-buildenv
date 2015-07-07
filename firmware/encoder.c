@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <console.h>
 
+#include "processor.h"
 #include "encoder.h"
 
 void encoder_write_reg(unsigned int adr, unsigned int value) {
@@ -121,7 +122,23 @@ void encoder_start(short resx, short resy) {
 }
 
 int encoder_done(void) {
-	return encoder_read_reg(ENCODER_STS_REG) == 2;
+	return (encoder_read_reg(ENCODER_STS_REG) & 0x1) == 0;
+}
+
+void encoder_enable(char enable) {
+	encoder_enabled = enable;
+}
+
+void encoder_service(void) {
+	if(encoder_enabled) {
+		if (encoder_done() == 1) {
+			encoder_init(luma_rom_50, chroma_rom_50);
+			encoder_start(processor_h_active, processor_v_active);
+			encoder_reader_dma_base_write(0);
+			encoder_reader_dma_length_write(processor_h_active*processor_v_active*4);
+			encoder_reader_dma_shoot_write(1);
+		}
+	}
 }
 
 #endif

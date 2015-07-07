@@ -92,18 +92,13 @@ void ci_service(void)
 				printf("Video mode: %s\n", &mode_descriptors[processor_mode*PROCESSOR_MODE_DESCLEN]);
 				break;
 #ifdef ENCODER_BASE
+			case 'E':
+				encoder_enable(1);
+				printf("Encoder is ON\n");
+				break;
 			case 'e':
-				printf("Start Encoding video buffer...");
-				encoder_init(luma_rom_50, chroma_rom_50);
-				encoder_start(processor_h_active, processor_v_active);
-				encoder_reader_ev_pending_write(encoder_reader_ev_pending_read());
-				encoder_reader_ev_enable_write(1);
-				encoder_reader_dma_base_write(0);
-				encoder_reader_dma_length_write(processor_h_active*processor_v_active*4);
-				encoder_reader_dma_shoot_write(1);
-				while(encoder_reader_dma_busy_read()==1);
-				while(encoder_done()==0);
-				printf("done\n");
+				encoder_enable(0);
+				printf("Encoder is OFF\n");
 				break;
 #endif
 			case 'r':

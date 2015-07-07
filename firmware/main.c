@@ -33,6 +33,9 @@ int main(void)
 		processor_service();
 		ui_service();
 		ci_service();
+#ifdef ENCODER_BASE
+		encoder_service();
+#endif
 	}
 
 	return 0;
