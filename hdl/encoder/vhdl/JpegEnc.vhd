@@ -74,9 +74,9 @@ entity JpegEnc is
   (
         CLK                : in  std_logic;
         RST                : in  std_logic;
-        
+
         -- OPB
-        OPB_ABus           : in  std_logic_vector(31 downto 0);
+        OPB_ABus           : in  std_logic_vector(11 downto 0);
         OPB_BE             : in  std_logic_vector(3 downto 0);
         OPB_DBus_in        : in  std_logic_vector(31 downto 0);
         OPB_RNW            : in  std_logic;

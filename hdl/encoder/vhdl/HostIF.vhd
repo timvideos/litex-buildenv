@@ -56,7 +56,7 @@ entity HostIF is
         CLK                : in  std_logic;
         RST                : in  std_logic;
         -- OPB
-        OPB_ABus           : in  std_logic_vector(31 downto 0);
+        OPB_ABus           : in  std_logic_vector(11 downto 0);
         OPB_BE             : in  std_logic_vector(3 downto 0);
         OPB_DBus_in        : in  std_logic_vector(31 downto 0);
         OPB_RNW            : in  std_logic;
@@ -96,32 +96,23 @@ end entity HostIF;
 -------------------------------------------------------------------------------
 architecture RTL of HostIF is
 
-  constant C_ENC_START_REG        : std_logic_vector(31 downto 0) := X"0000_0000";
-  constant C_IMAGE_SIZE_REG       : std_logic_vector(31 downto 0) := X"0000_0004";
-  constant C_IMAGE_RAM_ACCESS_REG : std_logic_vector(31 downto 0) := X"0000_0008";
-  constant C_ENC_STS_REG          : std_logic_vector(31 downto 0) := X"0000_000C";
-  constant C_COD_DATA_ADDR_REG    : std_logic_vector(31 downto 0) := X"0000_0010";
-  constant C_ENC_LENGTH_REG       : std_logic_vector(31 downto 0) := X"0000_0014";
-  constant C_QUANTIZER_RAM_LUM    : std_logic_vector(31 downto 0) :=
-                                      X"0000_01" & "------00";
-  constant C_QUANTIZER_RAM_CHR    : std_logic_vector(31 downto 0) :=
-                                      X"0000_02" & "------00";
-  constant C_IMAGE_RAM            : std_logic_vector(31 downto 0) :=
-                                      X"001" & "------------------00";
-
-  constant C_IMAGE_RAM_BASE : unsigned(31 downto 0) := X"0010_0000";
+  constant C_ENC_START_REG          : std_logic_vector(11 downto 0) := X"000";
+  constant C_IMAGE_SIZE_REG         : std_logic_vector(11 downto 0) := X"004";
+  constant C_IMAGE_RAM_ACCESS_REG   : std_logic_vector(11 downto 0) := X"008";
+  constant C_ENC_STS_REG            : std_logic_vector(11 downto 0) := X"00C";
+  constant C_COD_DATA_ADDR_REG      : std_logic_vector(11 downto 0) := X"010";
+  constant C_ENC_LENGTH_REG         : std_logic_vector(11 downto 0) := X"014";
+  constant C_QUANTIZER_RAM_LUM_BASE : std_logic_vector(11 downto 0) := X"100";
+  constant C_QUANTIZER_RAM_CHR_BASE : std_logic_vector(11 downto 0) := X"200";
 
   signal enc_start_reg            : std_logic_vector(31 downto 0);
   signal image_size_reg           : std_logic_vector(31 downto 0);
   signal image_ram_access_reg     : std_logic_vector(31 downto 0);
   signal enc_sts_reg              : std_logic_vector(31 downto 0);
   signal cod_data_addr_reg        : std_logic_vector(31 downto 0);
-  signal enc_length_reg           : std_logic_vector(31 downto 0);
 
-  signal rd_dval                  : std_logic;
-  signal data_read                : std_logic_vector(31 downto 0);
-  signal write_done               : std_logic;
-  signal OPB_select_d             : std_logic;
+  signal read_ack                : std_logic;
+  signal write_ack               : std_logic;
 
 -------------------------------------------------------------------------------
 -- Architecture: begin
@@ -143,46 +134,31 @@ begin
   p_read : process(CLK, RST)
   begin
     if RST = '1' then
-      OPB_DBus_out <= (others => '0');
-      rd_dval      <= '0';
-      data_read    <= (others => '0');
+      read_ack       <= '0';
+      OPB_DBus_out    <= (others => '0');
     elsif CLK'event and CLK = '1' then
-      rd_dval <= '0';
-
-      OPB_DBus_out <= data_read;
-
-      if OPB_select = '1' and OPB_select_d = '0' then
+      read_ack <= '0';
+      if OPB_select = '1' and read_ack = '0' then
         -- only double word transactions are be supported
         if OPB_RNW = '1' and OPB_BE = X"F" then
+          read_ack <= '1';
           case OPB_ABus is
             when C_ENC_START_REG =>
-              data_read <= enc_start_reg;
-              rd_dval <= '1';
-
+              OPB_DBus_out <= enc_start_reg;
             when C_IMAGE_SIZE_REG =>
-              data_read <= image_size_reg;
-              rd_dval <= '1';
-
+              OPB_DBus_out <= image_size_reg;
             when C_IMAGE_RAM_ACCESS_REG =>
-              data_read <= image_ram_access_reg;
-              rd_dval <= '1';
-
+              OPB_DBus_out <= image_ram_access_reg;
             when C_ENC_STS_REG =>
-              data_read <= enc_sts_reg;
-              rd_dval <= '1';
-
+              OPB_DBus_out <= enc_sts_reg;
             when C_COD_DATA_ADDR_REG =>
-              data_read <= cod_data_addr_reg;
-              rd_dval <= '1';
-
+              OPB_DBus_out <= cod_data_addr_reg;
             when C_ENC_LENGTH_REG =>
-              data_read <= enc_length_reg;
-              rd_dval <= '1';
-
+              OPB_DBus_out(31 downto 24) <= (others => '0');
+              OPB_DBus_out(23 downto 0)  <= num_enc_bytes;
             when others =>
-              data_read <= (others => '0');
+              OPB_DBus_out <= (others => '0');
           end case;
-
         end if;
       end if;
     end if;
@@ -195,32 +171,29 @@ begin
   begin
     if RST = '1' then
       qwren                <= '0';
-      write_done           <= '0';
+      write_ack           <= '0';
       enc_start_reg        <= (others => '0');
       image_size_reg       <= (others => '0');
       image_ram_access_reg <= (others => '0');
       enc_sts_reg          <= (others => '0');
       cod_data_addr_reg    <= (others => '0');
-      enc_length_reg       <= (others => '0');
       qdata                <= (others => '0');
       qaddr                <= (others => '0');
-      OPB_select_d         <= '0';
       sof                  <= '0';
       img_size_wr          <= '0';
     elsif CLK'event and CLK = '1' then
-      qwren        <= '0';
-      write_done   <= '0';
-      sof          <= '0';
-      img_size_wr  <= '0';
-      OPB_select_d <= OPB_select;
+      qwren       <= '0';
+      write_ack   <= '0';
+      sof         <= '0';
+      img_size_wr <= '0';
 
-      if OPB_select = '1' and OPB_select_d = '0' then
+      if OPB_select = '1' and write_ack = '0' then
         -- only double word transactions are be supported
         if OPB_RNW = '0' and OPB_BE = X"F" then
+          write_ack <= '1';
           case OPB_ABus is
             when C_ENC_START_REG =>
               enc_start_reg <= OPB_DBus_in;
-              write_done <= '1';
               if OPB_DBus_in(0) = '1' then
                 sof <= '1';
               end if;
@@ -228,43 +201,33 @@ begin
             when C_IMAGE_SIZE_REG =>
               image_size_reg <= OPB_DBus_in;
               img_size_wr <= '1';
-              write_done <= '1';
 
             when C_IMAGE_RAM_ACCESS_REG =>
               image_ram_access_reg <= OPB_DBus_in;
-              write_done <= '1';
 
             when C_ENC_STS_REG =>
               enc_sts_reg <= (others => '0');
-              write_done <= '1';
 
             when C_COD_DATA_ADDR_REG =>
               cod_data_addr_reg <= OPB_DBus_in;
-              write_done <= '1';
 
             when C_ENC_LENGTH_REG =>
               --enc_length_reg <= OPB_DBus_in;
-              write_done <= '1';
 
             when others =>
-              null;
+              if OPB_ABus(11 downto 8) = C_QUANTIZER_RAM_LUM_BASE(11 downto 8) then
+                qwren      <= '1';
+                qaddr      <= '0' & OPB_ABus(qaddr'high+2-1 downto 2);
+              elsif OPB_ABus(11 downto 8) = C_QUANTIZER_RAM_CHR_BASE(11 downto 8) then
+                qwren      <= '1';
+                qaddr      <= '1' & OPB_ABus(qaddr'high+2-1 downto 2);
+              end if;
           end case;
 
-          if std_match(OPB_ABus, C_QUANTIZER_RAM_LUM) then
-            qdata      <= OPB_DBus_in(qdata'range);
-            qaddr      <= '0' & OPB_ABus(qaddr'high+2-1 downto 2);
-            qwren      <= '1';
-            write_done <= '1';
-          end if;
-
-          if std_match(OPB_ABus, C_QUANTIZER_RAM_CHR) then
-            qdata      <= OPB_DBus_in(qdata'range);
-            qaddr      <= '1' & OPB_ABus(qaddr'high+2-1 downto 2);
-            qwren      <= '1';
-            write_done <= '1';
-          end if;
-
         end if;
+
+        qdata      <= OPB_DBus_in(qdata'range);
+
       end if;
 
       -- special handling of status reg
@@ -274,24 +237,13 @@ begin
       end if;
       enc_sts_reg(0) <= jpeg_busy;
 
-      enc_length_reg <= (others => '0');
-      enc_length_reg(num_enc_bytes'range) <= num_enc_bytes;
-
     end if;
   end process;
 
   -------------------------------------------------------------------
   -- transfer ACK
   -------------------------------------------------------------------
-  p_ack : process(CLK, RST)
-  begin
-    if RST = '1' then
-      OPB_XferAck <= '0';
-    elsif CLK'event and CLK = '1' then
-      OPB_XferAck <= rd_dval or write_done;
-    end if;
-  end process;
-
+  OPB_XferAck <= read_ack or write_ack;
 
 end architecture RTL;
 -------------------------------------------------------------------------------
