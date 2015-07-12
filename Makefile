@@ -4,7 +4,7 @@ SERIAL ?= /dev/ttyVIZ0
 
 HDMI2USBDIR = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 PYTHON = python3
-SOC = VideostreamerSoC
+SOC = VideostreamerUSBSoC
 LOWER_SOC  = $(shell tr '[:upper:]' '[:lower:]' <<< $(SOC))
 
 CMD = $(PYTHON) make.py -X $(HDMI2USBDIR) -t atlys -s $(SOC) -Op programmer $(PROG)
@@ -29,6 +29,7 @@ help:
 gateware:
 	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv clean
 	cp hdl/encoder/vhdl/header.hex $(MSCDIR)/build/header.hex
+	cp hdl/stream/vhdl/*.ngc $(MSCDIR)/build/
 	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream load-bitstream
 
 load_gateware:

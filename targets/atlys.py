@@ -7,6 +7,8 @@ from migen.fhdl.specials import Keep
 from migen.genlib.resetsync import AsyncResetSynchronizer
 from migen.bus import wishbone
 
+from misoclib.com.uart.phy import UARTPHY
+from misoclib.com import uart
 from misoclib.mem.sdram.module import SDRAMModule
 from misoclib.mem.sdram.phy import s6ddrphy
 from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
@@ -22,7 +24,8 @@ from misoclib.com.liteeth.phy.mii import LiteEthPHYMII
 from misoclib.com.liteeth.core import LiteEthUDPIPCore
 from misoclib.com.liteeth.frontend.etherbone import LiteEthEtherbone
 
-from hdl.encoder import EncoderReader, Encoder, EncoderSender
+from hdl.encoder import EncoderReader, Encoder
+from hdl.stream import UDPStreamer, USBStreamer
 
 
 class P3R1GE4JGF(SDRAMModule):
@@ -265,14 +268,14 @@ TIMESPEC "TSise_sucks6" = FROM "GRPsys_clk" TO "GRPeth_rx_clk" TIG;
      eth_tx_clk=self.ethphy.crg.cd_eth_tx.clk)
 
 
-class FramebufferSoC(EtherboneSoC):
+class FramebufferSoC(BaseSoC):
     csr_map = {
         "fb": 19,
     }
-    csr_map.update(EtherboneSoC.csr_map)
+    csr_map.update(BaseSoC.csr_map)
 
     def __init__(self, platform, **kwargs):
-        EtherboneSoC.__init__(self, platform, **kwargs)
+        BaseSoC.__init__(self, platform, **kwargs)
 
         self.submodules.fb = framebuffer.Framebuffer(None, platform.request("dvi_out"),
                                                      self.sdram.crossbar.get_master())
@@ -304,10 +307,11 @@ class VideomixerSoC(FramebufferSoC):
     def __init__(self, platform, **kwargs):
         FramebufferSoC.__init__(self, platform, **kwargs)
         self.submodules.dvisampler = dvisampler.DVISampler(platform.request("dvi_in", 1),
-                                                           self.sdram.crossbar.get_master())
+                                                           self.sdram.crossbar.get_master(),
+                                                           fifo_depth=4096)
 
 
-class VideostreamerSoC(VideomixerSoC):
+class VideostreamerEthSoC(VideomixerSoC):
     csr_map = {
         "encoder_reader": 22
     }
@@ -323,16 +327,49 @@ class VideostreamerSoC(VideomixerSoC):
         self.submodules.encoder_reader = EncoderReader(self.sdram.crossbar.get_master())
         self.submodules.encoder = Encoder(platform)
         encoder_port = self.ethcore.udp.crossbar.get_port(8000, 8)
-        self.submodules.encoder_sender = EncoderSender(convert_ip("192.168.1.15"), 8000)
+        self.submodules.encoder_streamer = UDPStreamer(convert_ip("192.168.1.15"), 8000)
 
         self.comb += [
             platform.request("user_led", 0).eq(self.encoder_reader.source.stb),
             platform.request("user_led", 1).eq(self.encoder_reader.source.ack),
             Record.connect(self.encoder_reader.source, self.encoder.sink),
-            Record.connect(self.encoder.source, self.encoder_sender.sink),
-            Record.connect(self.encoder_sender.source, encoder_port.sink)
+            Record.connect(self.encoder.source, self.encoder_streamer.sink),
+            Record.connect(self.encoder_streamer.source, encoder_port.sink)
         ]
         self.add_wb_slave(mem_decoder(self.mem_map["encoder"]), self.encoder.bus)
         self.add_memory_region("encoder", self.mem_map["encoder"]+self.shadow_base, 0x2000)
+
+
+class VideostreamerUSBSoC(VideomixerSoC):
+    csr_map = {
+        "encoder_reader": 22
+    }
+    csr_map.update(VideomixerSoC.csr_map)
+    mem_map = {
+        "encoder": 0x30000000,  # (shadow @0xb0000000)
+    }
+    mem_map.update(VideomixerSoC.mem_map)
+
+    def __init__(self, platform, **kwargs):
+        VideomixerSoC.__init__(self, platform, **kwargs)
+
+        self.submodules.encoder_reader = EncoderReader(self.sdram.crossbar.get_master())
+        self.submodules.encoder = Encoder(platform)
+        self.submodules.usb_streamer = USBStreamer(platform, platform.request("fx2"))
+
+        self.comb += [
+            platform.request("user_led", 0).eq(self.encoder_reader.source.stb),
+            platform.request("user_led", 1).eq(self.encoder_reader.source.ack),
+            Record.connect(self.encoder_reader.source, self.encoder.sink),
+            Record.connect(self.encoder.source, self.usb_streamer.sink)
+        ]
+        self.add_wb_slave(mem_decoder(self.mem_map["encoder"]), self.encoder.bus)
+        self.add_memory_region("encoder", self.mem_map["encoder"]+self.shadow_base, 0x2000)
+
+        platform.add_platform_command("""
+NET "{usb_clk}" TNM_NET = "GRPusb_clk";
+TIMESPEC "TSise_sucks9" = FROM "GRPusb_clk" TO "GRPsys_clk" TIG;
+TIMESPEC "TSise_sucks10" = FROM "GRPsys_clk" TO "GRPusb_clk" TIG;
+""", usb_clk=platform.lookup_request("fx2").ifclk)
 
 default_subtarget = MiniSoC

@@ -70,6 +70,20 @@ _io = [
     #        Subsignal("adr", Pins("T11 H16")),
     #    ),
 
+    ("fx2", 0,
+        Subsignal("ifclk", Pins("C10"), IOStandard("LVCMOS33")),
+        Subsignal("data", Pins("A2 D6 C6 B3 A3 B4 A4 C5"), IOStandard("LVCMOS33")),
+        Subsignal("addr", Pins("A14 B14"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+        Subsignal("flaga", Pins("B9"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+        Subsignal("flagb", Pins("A9"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+        Subsignal("flagc", Pins("C15"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+        Subsignal("slrd", Pins("F13"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+        Subsignal("slwr", Pins("E13"), IOStandard("LVCMOS33")),
+        Subsignal("sloe", Pins("A15"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+        Subsignal("slcs", Pins("B2"), IOStandard("LVCMOS33")),
+        Subsignal("pktend", Pins("C4"), IOStandard("LVCMOS33"),  Misc("DRIVE=12")),
+    ),
+
     ## onBoard Quad-SPI Flash
     # 16Mbyte x4 SPI Flash for configuration & data storage. An FPGA
     # configuration file requires less than 12Mbits, leaving 116Mbits
@@ -586,4 +600,10 @@ class Platform(XilinxPlatform):
             self.add_period_constraint(self.lookup_request("eth_clocks").rx, 40.0)
         except ConstraintError:
             pass
+
+        try:
+            self.add_period_constraint(self.lookup_request("fx2").ifclk, 20.8)
+        except ConstraintError:
+            pass
+
 
