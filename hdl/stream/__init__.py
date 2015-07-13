@@ -70,15 +70,13 @@ class USBStreamer(Module):
 
         # # #
 
-        self.comb += pads.slcs.eq(0)
-
         self.clock_domains.cd_usb = ClockDomain()
         self.comb += [
           self.cd_usb.clk.eq(pads.ifclk),
           self.cd_usb.rst.eq(ResetSignal()) # XXX FIXME
         ]
 
-        async_fifo = RenameClockDomains(AsyncFIFO([("data", 8)], 1024), {"write": "sys", "read": "usb"})
+        async_fifo = RenameClockDomains(AsyncFIFO([("data", 8)], 4), {"write": "sys", "read": "usb"})
         self.submodules += async_fifo
 
         self.comb += Record.connect(sink, async_fifo.sink)
@@ -101,6 +99,7 @@ class USBStreamer(Module):
                                   i_flag_full=pads.flagb,
                                   i_flag_empty=pads.flagc,
                                   o_faddr=pads.addr,
+                                  o_slcs=pads.slcs,
                                   o_slwr=pads.slwr,
                                   o_slrd=pads.slrd,
                                   o_sloe=pads.sloe,

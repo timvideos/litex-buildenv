@@ -24,6 +24,7 @@ entity usb_streamer is
 	flag_full 	: in std_logic;
 	flag_empty 	: in std_logic;
 	faddr		: out std_logic_vector(1 downto 0);
+	slcs        : out std_logic;
 	slwr		: out std_logic;
 	slrd		: out std_logic;
 	sloe		: out std_logic;
@@ -53,6 +54,8 @@ signal fsm_state : fsm_states;
 signal prog_full : std_logic;
 
 begin
+
+slcs            <= '0';
 sloe 			<= '1';
 slrd		    <= '1';
 faddr 			<= "10";
@@ -88,7 +91,7 @@ elsif falling_edge(ifclk) then
 
 		if sink_stb = '1' and flag_full = '1' then
 
-			wrightcount <= wrightcount +1;
+			wrightcount <= wrightcount + 1;
 
 				if wrightcount = X"400" then
 						fsm_state <= uvc_wait;
