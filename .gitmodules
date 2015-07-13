@@ -1,0 +1,3 @@
+[submodule "firmware/fx2/fx2lib"]
+	path = firmware/fx2/fx2lib
+	url = https://github.com/timvideos/fx2lib
