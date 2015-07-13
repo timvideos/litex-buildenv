@@ -6,6 +6,7 @@ from migen.flow.actor import *
 from migen.actorlib.fifo import SyncFIFO, AsyncFIFO
 from migen.genlib.misc import WaitTimer
 
+from misoclib.com.liteeth.common import *
 
 class UDPStreamer(Module):
     def __init__(self, ip_address, udp_port, fifo_depth=1024):

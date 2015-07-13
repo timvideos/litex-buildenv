@@ -11,9 +11,6 @@ from migen.bank.eventmanager import *
 
 from misoclib.mem.sdram.frontend import dma_lasmi
 
-from misoclib.com.liteeth.common import *
-
-
 class EncoderReader(Module, AutoCSR):
     def __init__(self, lasmim):
         self.source = Source([("data", 32)])
