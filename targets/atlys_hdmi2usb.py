@@ -6,21 +6,21 @@ from misoclib.video import framebuffer
 from hdl.encoder import EncoderReader, Encoder
 from hdl.stream import USBStreamer
 
-class VideomixerSoC(BaseSoC):
+class VideomixerSoC(MiniSoC):
     csr_map = {
         "fb":                  19,
         "dvisampler":          20,
         "dvisampler_edid_mem": 21
     }
-    csr_map.update(BaseSoC.csr_map)
+    csr_map.update(MiniSoC.csr_map)
 
     interrupt_map = {
         "dvisampler": 3,
     }
-    interrupt_map.update(BaseSoC.interrupt_map)
+    interrupt_map.update(MiniSoC.interrupt_map)
 
     def __init__(self, platform, **kwargs):
-        BaseSoC.__init__(self, platform, **kwargs)
+        MiniSoC.__init__(self, platform, **kwargs)
         self.submodules.dvisampler = dvisampler.DVISampler(platform.request("dvi_in", 1),
                                                            self.sdram.crossbar.get_master(),
                                                            fifo_depth=4096)
@@ -40,7 +40,7 @@ class HDMI2USBSoC(VideomixerSoC):
     }
     csr_map.update(VideomixerSoC.csr_map)
     mem_map = {
-        "encoder": 0x30000000,  # (shadow @0xb0000000)
+        "encoder": 0x50000000,  # (shadow @0xd0000000)
     }
     mem_map.update(VideomixerSoC.mem_map)
 

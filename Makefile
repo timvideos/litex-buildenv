@@ -36,7 +36,7 @@ load-gateware:
 lm32-firmware:
 	$(MAKE) -C firmware/lm32 all
 
-load-lm32-firmware: firmware
+load-lm32-firmware: lm32-firmware
 	$(FLTERM) --port $(SERIAL) --kernel=firmware/lm32/firmware.bin --kernel-adr=0x20000000 --speed 115200
 
 clean:

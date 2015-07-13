@@ -12,6 +12,7 @@ all: firmware.bin
 %.bin: %.elf
 	$(OBJCOPY) -O binary $< $@
 	chmod -x $@
+	cp $@ boot.bin
 
 firmware.elf: $(OBJECTS) libs
 

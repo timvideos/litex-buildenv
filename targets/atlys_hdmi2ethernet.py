@@ -87,7 +87,7 @@ class HDMI2EthernetSoC(VideomixerSoC):
     }
     csr_map.update(VideomixerSoC.csr_map)
     mem_map = {
-        "encoder": 0x30000000,  # (shadow @0xb0000000)
+        "encoder": 0x50000000,  # (shadow @0xd0000000)
     }
     mem_map.update(VideomixerSoC.mem_map)
 
