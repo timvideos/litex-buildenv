@@ -112,9 +112,24 @@ static void encoder_config_table(unsigned int base, const char *table)
 		encoder_write_reg(base+4*i, table[i]);
 }
 
-void encoder_init(const char * luma_table, const char * chroma_table) {
-	encoder_config_table(ENCODER_QUANTIZER_RAM_LUMA_BASE, luma_table);
-	encoder_config_table(ENCODER_QUANTIZER_RAM_CHROMA_BASE, chroma_table);
+void encoder_init(int quality) {
+	if(quality == 100) {
+		encoder_config_table(ENCODER_QUANTIZER_RAM_LUMA_BASE, luma_rom_100);
+		encoder_config_table(ENCODER_QUANTIZER_RAM_CHROMA_BASE, chroma_rom_100);
+		encoder_quality = 100;
+	} else if (quality == 85) {
+		encoder_config_table(ENCODER_QUANTIZER_RAM_LUMA_BASE, luma_rom_85);
+		encoder_config_table(ENCODER_QUANTIZER_RAM_CHROMA_BASE, chroma_rom_85);
+		encoder_quality = 85;
+	} else if (quality == 75) {
+		encoder_config_table(ENCODER_QUANTIZER_RAM_LUMA_BASE, luma_rom_75);
+		encoder_config_table(ENCODER_QUANTIZER_RAM_CHROMA_BASE, chroma_rom_75);
+		encoder_quality = 75;
+	} else {
+		encoder_config_table(ENCODER_QUANTIZER_RAM_LUMA_BASE, luma_rom_50);
+		encoder_config_table(ENCODER_QUANTIZER_RAM_CHROMA_BASE, chroma_rom_50);
+		encoder_quality = 50;
+	}
 }
 
 void encoder_start(short resx, short resy) {
@@ -137,7 +152,7 @@ void encoder_service(void) {
 
 	if(encoder_enabled) {
 		if (encoder_done() == 1) {
-			encoder_init(luma_rom_50, chroma_rom_50);
+			encoder_init(encoder_quality);
 			encoder_start(processor_h_active, processor_v_active);
 			encoder_reader_dma_base_write(fb_fi_base0_read());
 			encoder_reader_dma_length_write(processor_h_active*processor_v_active*4);

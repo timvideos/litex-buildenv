@@ -78,7 +78,7 @@ static void system_status(void)
 		printf("dvi_out: OFF");
 	printf(" | ");
 	if(encoder_enabled)
-		printf("encoder: %d fps", encoder_fps);
+		printf("encoder: %d fps, q: %d", encoder_fps, encoder_quality);
 	else
 		printf("encoder: OFF");
 	printf("\n");
@@ -164,7 +164,24 @@ void ci_service(void)
 			case 'v':
 				version();
 				break;
-
+			case '+':
+				if(encoder_quality == 85)
+					encoder_quality = 100;
+				else if(encoder_quality == 75)
+					encoder_quality = 85;
+				else
+					encoder_quality = 75;
+				printf("Setting encoder quality to %d\n", encoder_quality);
+				break;
+			case '-':
+				if(encoder_quality == 100)
+					encoder_quality = 85;
+				else if(encoder_quality == 85)
+					encoder_quality = 75;
+				else
+					encoder_quality = 50;
+				printf("Setting encoder quality to %d\n", encoder_quality);
+				break;
 		}
 	}
 }
