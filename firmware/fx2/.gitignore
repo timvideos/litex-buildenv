@@ -1,0 +1,12 @@
+*.asm
+*.lst
+*.rel
+*.rst
+*.sym
+date.inc
+descriptors.a51
+hdmi2usb.hex
+hdmi2usb.lk
+hdmi2usb.map
+hdmi2usb.mem
+progOffsets.h

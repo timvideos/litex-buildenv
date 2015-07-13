@@ -30,18 +30,18 @@ gateware:
 	cp hdl/encoder/vhdl/header.hex $(MSCDIR)/build/header.hex
 	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream load-bitstream
 
-load_gateware:
+load-gateware:
 	cd $(MSCDIR) && $(CMD) load-bitstream
 
-firmware:
-	$(MAKE) -C firmware all
+lm32-firmware:
+	$(MAKE) -C firmware/lm32 all
 
-load_firmware: firmware
-	$(FLTERM) --port $(SERIAL) --kernel=firmware/firmware.bin --kernel-adr=0x20000000 --speed 115200
+load-lm32-firmware: firmware
+	$(FLTERM) --port $(SERIAL) --kernel=firmware/lm32/firmware.bin --kernel-adr=0x20000000 --speed 115200
 
 clean:
-	$(MAKE) -C firmware clean
+	$(MAKE) -C firmware/lm32 clean
 
-all: gateware load_gateware load_firmware
+all: gateware load-gateware load-lm32-firmware
 
-.PHONY: firmware load clean
+.PHONY: lm32-firmware load clean
