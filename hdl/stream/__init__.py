@@ -72,38 +72,35 @@ class USBStreamer(Module):
 
         self.clock_domains.cd_usb = ClockDomain()
         self.comb += [
-          self.cd_usb.clk.eq(pads.ifclk),
+          self.cd_usb.clk.eq(pads.clkout),
           self.cd_usb.rst.eq(ResetSignal()) # XXX FIXME
         ]
 
-        async_fifo = RenameClockDomains(AsyncFIFO([("data", 8)], 4), {"write": "sys", "read": "usb"})
-        self.submodules += async_fifo
+        self.submodules.fifo = fifo = RenameClockDomains(AsyncFIFO([("data", 8)], 4),
+                                          {"write": "sys", "read": "usb"})
+        self.comb += Record.connect(sink, fifo.sink)
 
-        self.comb += Record.connect(sink, async_fifo.sink)
 
-
-        # XXX for now use simplified usb_top from HDMI2USB
-        self.specials += Instance("usb_streamer",
+        self.specials += Instance("fx2_jpeg_streamer",
                                   # clk, rst
-                                  i_rst=ResetSignal(),
-                                  i_clk=ClockSignal(),
+                                  i_rst=ResetSignal("usb"),
+                                  i_clk=ClockSignal("usb"),
 
                                   # jpeg encoder interface
-                                  i_sink_stb=async_fifo.source.stb,
-                                  i_sink_data=async_fifo.source.data,
-                                  o_sink_ack=async_fifo.source.ack,
+                                  i_sink_stb=fifo.source.stb,
+                                  i_sink_data=fifo.source.data,
+                                  o_sink_ack=fifo.source.ack,
 
                                   # cypress fx2 slave fifo interface
-                                  i_ifclk=pads.ifclk,
-                                  io_fdata=pads.data,
-                                  i_flag_full=pads.flagb,
-                                  i_flag_empty=pads.flagc,
-                                  o_faddr=pads.addr,
-                                  o_slcs=pads.slcs,
-                                  o_slwr=pads.slwr,
-                                  o_slrd=pads.slrd,
-                                  o_sloe=pads.sloe,
-                                  o_pktend=pads.pktend
+                                  io_fx2_data=pads.data,
+                                  i_fx2_full_n=pads.flagb,
+                                  i_fx2_empty_n=pads.flagc,
+                                  o_fx2_addr=pads.addr,
+                                  o_fx2_cs_n=pads.cs_n,
+                                  o_fx2_wr_n=pads.wr_n,
+                                  o_fx2_rd_n=pads.rd_n,
+                                  o_fx2_oe_n=pads.oe_n,
+                                  o_fx2_pktend_n=pads.pktend_n
         )
 
         # add VHDL sources

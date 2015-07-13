@@ -33,55 +33,19 @@ _io = [
     # NET "EppDB<7>"  LOC = "C5";  # Bank = 0, Pin name = IO_L6P,         Sch name = U1-FD7
 
     # HDMI2USB configuration....
-    # NET "fdata<0>" IOSTANDARD = LVCMOS33 |LOC = "A2";
-    # NET "fdata<1>" IOSTANDARD = LVCMOS33 |LOC = "D6";
-    # NET "fdata<2>" IOSTANDARD = LVCMOS33 |LOC = "C6";
-    # NET "fdata<3>" IOSTANDARD = LVCMOS33 |LOC = "B3";
-    # NET "fdata<4>" IOSTANDARD = LVCMOS33 |LOC = "A3";
-    # NET "fdata<5>" IOSTANDARD = LVCMOS33 |LOC = "B4";
-    # NET "fdata<6>" IOSTANDARD = LVCMOS33 |LOC = "A4";
-    # NET "fdata<7>" IOSTANDARD = LVCMOS33 |LOC = "C5";
-    # NET "fdata<*>" DRIVE=16 |SLEW=SLOW;
-    # NET "flagA" IOSTANDARD = LVCMOS33 |LOC = "B9" |SLEW=SLOW |DRIVE=12;
-    # NET "flagB" IOSTANDARD = LVCMOS33 |LOC = "A9" |SLEW=SLOW |DRIVE=12;
-    # NET "flagC" IOSTANDARD = LVCMOS33 |LOC = "C15" |SLEW=SLOW |DRIVE=12;
-    # NET "faddr<0>" IOSTANDARD = LVCMOS33 |LOC = "A14" |DRIVE=12 |SLEW=SLOW;
-    # NET "faddr<1>" IOSTANDARD = LVCMOS33 |LOC = "B14" |DRIVE=12 |SLEW=SLOW;
-    # NET "ifclk" IOSTANDARD = LVCMOS33 |LOC = "C10" |SLEW=SLOW;
-    # NET "slrd" IOSTANDARD = LVCMOS33 |LOC = "F13" |DRIVE=12 |SLEW=SLOW ;
-    # NET "sloe" IOSTANDARD = LVCMOS33 |LOC = "A15" |DRIVE=12 |SLEW=SLOW ;
-    # NET "slwr" IOSTANDARD = LVCMOS33 |LOC = "E13" ;
-    # NET "slcs" IOSTANDARD = LVCMOS33 |LOC = "B2";
-    # NET "pktend" IOSTANDARD = LVCMOS33 |LOC = "c4" |DRIVE=12 |SLEW=SLOW;
-    # NET "ifclk" TNM_NET = ifclk;
-    # TIMESPEC TS_ifclk = PERIOD "ifclk" 48 MHz HIGH 50%;
-    #    ("fx2_ifclk", 0, Pins("T8")),
-    #    ("fx2_gpif", 0,
-    #        Subsignal("d", Pins("P8 P9 N9 T9 R9 P11 P13 N12 "
-    #                            "T3 R3 P5 N6 T6 T5 N8 P7")),
-    #        Subsignal("ctl", Pins("M7 M9 M11 P12")),
-    #        Subsignal("slwr", Pins("T4")), # rdy0
-    #        Subsignal("slrd", Pins("R5")), # rdy1
-    #        #Subsignal("rdy2", Pins("T10")),
-    #        #Subsignal("rdy3", Pins("N11")),
-    #        #Subsignal("cs", Pins("P12")),
-    #        Subsignal("sloe", Pins("R11")),
-    #        Subsignal("pktend", Pins("P10")),
-    #        Subsignal("adr", Pins("T11 H16")),
-    #    ),
-
     ("fx2", 0,
-        Subsignal("ifclk", Pins("C10"), IOStandard("LVCMOS33")),
-        Subsignal("data", Pins("A2 D6 C6 B3 A3 B4 A4 C5"), IOStandard("LVCMOS33")),
-        Subsignal("addr", Pins("A14 B14"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
-        Subsignal("flaga", Pins("B9"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
-        Subsignal("flagb", Pins("A9"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
-        Subsignal("flagc", Pins("C15"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
-        Subsignal("slrd", Pins("F13"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
-        Subsignal("slwr", Pins("E13"), IOStandard("LVCMOS33")),
-        Subsignal("sloe", Pins("A15"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
-        Subsignal("slcs", Pins("B2"), IOStandard("LVCMOS33")),
-        Subsignal("pktend", Pins("C4"), IOStandard("LVCMOS33"),  Misc("DRIVE=12")),
+        Subsignal("clkout", Pins("C10")),
+        Subsignal("data", Pins("A2 D6 C6 B3 A3 B4 A4 C5")),
+        Subsignal("addr", Pins("A14 B14"), Misc("DRIVE=12")),
+        Subsignal("flaga", Pins("B9"), Misc("DRIVE=12")),
+        Subsignal("flagb", Pins("A9"), Misc("DRIVE=12")),
+        Subsignal("flagc", Pins("C15"), Misc("DRIVE=12")),
+        Subsignal("rd_n", Pins("F13"), Misc("DRIVE=12")),
+        Subsignal("wr_n", Pins("E13")),
+        Subsignal("oe_n", Pins("A15"), Misc("DRIVE=12")),
+        Subsignal("cs_n", Pins("B2")),
+        Subsignal("pktend_n", Pins("C4"), Misc("DRIVE=12")),
+        IOStandard("LVCMOS33")
     ),
 
     ## onBoard Quad-SPI Flash
@@ -602,7 +566,7 @@ class Platform(XilinxPlatform):
             pass
 
         try:
-            self.add_period_constraint(self.lookup_request("fx2").ifclk, 20.8)
+            self.add_period_constraint(self.lookup_request("fx2").clkout, 20.8)
         except ConstraintError:
             pass
 
