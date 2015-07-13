@@ -1,4 +1,4 @@
-from atlys_base import *
+from targets.atlys_base import *
 
 from misoclib.video import dvisampler
 from misoclib.video import framebuffer
