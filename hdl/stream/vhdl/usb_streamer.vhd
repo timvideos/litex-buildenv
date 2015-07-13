@@ -61,49 +61,158 @@ end entity usb_streamer;
 
 architecture rtl of usb_streamer is
 
+signal jpeg_rd_en : std_logic;
+signal jpeg_fifo_empty : std_logic;
+signal pkt_sent : std_logic;
+signal fid : std_logic;
 
------------ signals
-signal slwr_jpg_uvc : std_logic;
-signal pktend_jpg_uvc : std_logic;
-signal fdataout : std_logic_vector(7 downto 0);
-signal fdataout_jpg_uvc : std_logic_vector(7 downto 0);
+signal jpeg_fdata: std_logic_vector(7 downto 0);
+signal temp: std_logic_vector(7 downto 0);
 
--- components signals
+signal wrightcount: std_logic_vector(11 downto 0);
+
+type states is (uvc_wait,uvc_in_pktend,uvc_send_data,s_reset,free_uvc,s_skip);
+signal ps : states;
+
 
 begin  -- architecture
 sloe 			<= '1';
+slrd		    <= '1';
 faddr 			<= "10";
 
-fdata <= fdataout;
-
-syncProc: process(rst,ifclk) -- usb process
-begin -- process
+syncProc: process(rst,ifclk)
+begin
 
 if rst = '1' then
 	slwr		<= '1';
-	slrd		<= '1';
 	pktend		<= '1';
-	fdataout    <= (others => '0');
+	jpeg_rd_en	<= '0';
+	fid			<= '0';
+	pkt_sent 	<= '0';
+	wrightcount <= (others => '0');
+	temp <= (others => '0');
+	ps <= s_reset;
 elsif falling_edge(ifclk) then
-	slrd		<= '1';
-	slwr		<= slwr_jpg_uvc;
-	pktend		<= pktend_jpg_uvc;
-	fdataout	<= fdataout_jpg_uvc;
+
+	slwr		<= '1';
+	pktend		<= '1';
+	jpeg_rd_en 	<= '0';
+
+	case ps is
+	when s_reset =>
+		slwr		<= '1';
+		pktend		<= '1';
+		jpeg_rd_en	<= '0';
+		fid			<= '0';
+		pkt_sent 	<= '0';
+		ps 			<= uvc_wait;
+		fdata 	<= (others => '0');
+		temp 	<= (others => '0');
+		wrightcount <= (others => '0');
+
+	when uvc_send_data =>
+
+		if jpeg_fifo_empty = '0' and flag_full = '1' then
+
+			wrightcount <= wrightcount +1;
+
+				if wrightcount = X"400" then
+						ps <= uvc_wait;
+						wrightcount <= (others => '0');
+				elsif wrightcount = X"000" then
+					slwr		<= '0';
+					fdata <= X"0C"; -- header length
+					pkt_sent <= '0';
+
+				elsif wrightcount = X"001" then
+					slwr		<= '0';
+					fdata <= ( "100" & "000" & "0" & fid ); -- EOH  ERR  STI  RES  SCR  PTS  EOF  FID
+
+				elsif wrightcount = X"002" then
+					slwr		<= '0';
+					fdata <= X"00";
+
+				elsif wrightcount = X"003" then
+					slwr		<= '0';
+					fdata <= X"00";
+
+				elsif wrightcount = X"004" then
+					slwr		<= '0';
+					fdata <= X"00";
+
+				elsif wrightcount = X"005" then
+					slwr		<= '0';
+					fdata <= X"00";
+
+				elsif wrightcount = X"006" then
+					slwr		<= '0';
+					fdata <= X"00";
+
+				elsif wrightcount = X"007" then
+					slwr		<= '0';
+					fdata <= X"00";
+
+				elsif wrightcount = X"008" then
+					slwr		<= '0';
+					fdata <= X"00";
+
+				elsif wrightcount = X"009" then
+					slwr		<= '0';
+					fdata <= X"00";
+
+				elsif wrightcount = X"00A" then
+					slwr		<= '0';
+					fdata <= X"00";
+
+
+				elsif wrightcount = X"00B" then
+					slwr		<= '0';
+					fdata <= X"00";
+
+				else
+					slwr		<= '0';
+					jpeg_rd_en	<= '1';
+					temp <= jpeg_fdata;
+					fdata <= jpeg_fdata;
+					if temp = X"FF" and jpeg_fdata = X"D9" then
+						fid 	<= not fid;
+						ps <= uvc_in_pktend;
+						pkt_sent <= '1';
+						wrightcount <= (others => '0');
+					end if;
+
+				end if;
+		end if;
+
+	when uvc_wait =>
+		if flag_full = '1' then
+			ps 	<= uvc_send_data;
+		end if;
+
+	when uvc_in_pktend =>
+		pktend	<= '0';
+		ps 		<= uvc_wait;
+
+	when others =>
+		ps <= s_reset;
+	end case;
+
 end if;
 
 end process;
 
----------------------- components
-jpg_uvc_comp: entity work.jpg_uvc
-	port map(jpeg_en        => jpeg_en,
-		     jpeg_byte      => jpeg_byte,
-		     jpeg_fifo_full => jpeg_fifo_full,
-		     jpeg_clk       => jpeg_clk,
-		     slwr           => slwr_jpg_uvc,
-		     pktend         => pktend_jpg_uvc,
-		     fdata          => fdataout_jpg_uvc,
-		     flag_full      => flag_full,
-		     ifclk          => ifclk,
-		     uvc_rst        => rst);
+bytefifo_usb: entity work.bytefifo port map(
+rst => rst,
+wr_clk => jpeg_clk,
+rd_clk => ifclk,
+din => jpeg_byte,
+wr_en => jpeg_en,
+rd_en => jpeg_rd_en,
+dout => jpeg_fdata,
+empty => jpeg_fifo_empty,
+prog_full => jpeg_fifo_full,
+overflow => open,
+underflow => open
+);
 
 end architecture;
