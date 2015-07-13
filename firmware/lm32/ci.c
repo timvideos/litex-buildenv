@@ -28,16 +28,38 @@ static void print_mem_bandwidth(void)
 }
 #endif
 
+static void help(void)
+{
+    puts("Available commands:");
+    puts("h               - this message");
+    puts("D/d             - enable/disable DVI debug");
+    puts("E/e             - enable/disable Encoder");
+    puts("F/f             - enable/disable Framebuffer");
+    puts("m               - show memory bandwidth");
+    puts("p               - dump plls configuration");
+    puts("r               - reboot CPU");
+    puts("v               - show gateware/firmware versions");
+    puts("");
+}
+
 static void list_video_modes(void)
 {
 	char mode_descriptors[PROCESSOR_MODE_COUNT*PROCESSOR_MODE_DESCLEN];
 	int i;
 
 	processor_list_modes(mode_descriptors);
-	printf("==== Available video modes ====\n");
+	printf("Available video modes:\n");
 	for(i=0;i<PROCESSOR_MODE_COUNT;i++)
-		printf(" %d: %s\n", i, &mode_descriptors[i*PROCESSOR_MODE_DESCLEN]);
-	printf("===============================\n");
+		printf("mode %d: %s\n", i, &mode_descriptors[i*PROCESSOR_MODE_DESCLEN]);
+	printf("\n");
+}
+
+static void version(void)
+{
+	printf("Gateware:\n");
+	printf("  revision %08x\n", identifier_revision_read());
+	printf("Firmware:\n");
+	printf("  revision %08x built "__DATE__" "__TIME__"\n", MSC_GIT_ID);
 }
 
 void ci_service(void)
@@ -70,27 +92,6 @@ void ci_service(void)
 				dvisampler_debug = 0;
 				printf("DVI sampler debug is OFF\n");
 				break;
-			case 'F':
-				fb_fi_enable_write(1);
-				printf("framebuffer is ON\n");
-				break;
-			case 'f':
-				fb_fi_enable_write(0);
-				printf("framebuffer is OFF\n");
-				break;
-#ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
-			case 'm':
-				print_mem_bandwidth();
-				break;
-#endif
-			case 'p':
-				pll_dump();
-				break;
-			case 's':
-				processor_list_modes(mode_descriptors);
-				printf("Revision %08x built "__DATE__" "__TIME__"\n", MSC_GIT_ID);
-				printf("Video mode: %s\n", &mode_descriptors[processor_mode*PROCESSOR_MODE_DESCLEN]);
-				break;
 #ifdef ENCODER_BASE
 			case 'E':
 				encoder_enable(1);
@@ -101,9 +102,32 @@ void ci_service(void)
 				printf("Encoder is OFF\n");
 				break;
 #endif
-			case 'r':
-			    asm("call r0");
+			case 'F':
+				fb_fi_enable_write(1);
+				printf("framebuffer is ON\n");
 				break;
+			case 'f':
+				fb_fi_enable_write(0);
+				printf("framebuffer is OFF\n");
+				break;
+			case 'h':
+				help();
+				break;
+#ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
+			case 'm':
+				print_mem_bandwidth();
+				break;
+#endif
+			case 'p':
+				pll_dump();
+				break;
+			case 'r':
+				asm("call r0");
+				break;
+			case 'v':
+				version();
+				break;
+
 		}
 	}
 }

@@ -24,7 +24,8 @@ int main(void)
 	irq_setie(1);
 	uart_init();
 
-	printf("HDMI2USB software rev. %08x built "__DATE__" "__TIME__"\n\n", MSC_GIT_ID);
+	puts("\nHDMI2USB firmware  http://timvideos.us/\n");
+	printf("Revision %08x built "__DATE__" "__TIME__"\n\n", MSC_GIT_ID);
 
 	config_init();
 	time_init();
