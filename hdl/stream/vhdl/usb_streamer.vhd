@@ -1,32 +1,5 @@
--- //////////////////////////////////////////////////////////////////////////////
--- /// Copyright (c) 2013, Jahanzeb Ahmad
--- /// All rights reserved.
--- ///
--- // Redistribution and use in source and binary forms, with or without modification,
--- /// are permitted provided that the following conditions are met:
--- ///
--- ///  * Redistributions of source code must retain the above copyright notice,
--- ///    this list of conditions and the following disclaimer.
--- ///  * Redistributions in binary form must reproduce the above copyright notice,
--- ///    this list of conditions and the following disclaimer in the documentation and/or
--- ///    other materials provided with the distribution.
--- ///
--- ///    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
--- ///    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
--- ///    OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
--- ///    SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
--- ///    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
--- ///    LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
--- ///    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
--- ///    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
--- ///    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
--- ///   POSSIBILITY OF SUCH DAMAGE.
--- ///
--- ///
--- ///  * http://opensource.org/licenses/MIT
--- ///  * http://copyfree.org/licenses/mit/license.txt
--- ///
--- //////////////////////////////////////////////////////////////////////////////
+-- Copyright (c) 2013, Jahanzeb Ahmad
+-- Copyright (c) 2015, Florent Kermarrec
 
 LIBRARY IEEE;
 USE ieee.std_logic_1164.all;
@@ -36,13 +9,17 @@ USE ieee.std_logic_unsigned.all;
 entity usb_streamer is
   port
   (
-	-- jpeg encoder
-	jpeg_byte	: in std_logic_vector(7 downto 0);
-	jpeg_clk 	: in std_logic;
-	jpeg_en		: in std_logic;
-	jpeg_fifo_full : out std_logic;
+ 	-- Clock / Reset
+	rst 		: in std_logic;
+	clk 		: in std_logic;
 
-	-- cypress chip signals
+	-- Sink
+	sink_stb	: in std_logic;
+	sink_ack    : out std_logic;
+	sink_data	: in std_logic_vector(7 downto 0);
+
+	-- Cypress FX2 slave fifo interface
+	ifclk		: in std_logic;
 	fdata		: inout std_logic_vector(7 downto 0);
 	flag_full 	: in std_logic;
 	flag_empty 	: in std_logic;
@@ -50,12 +27,7 @@ entity usb_streamer is
 	slwr		: out std_logic;
 	slrd		: out std_logic;
 	sloe		: out std_logic;
-	pktend		: out std_logic;
-	ifclk		: in std_logic;
-
-	-- clk,rst
-	rst 		: in std_logic;
-	clk 		: in std_logic
+	pktend		: out std_logic
   );
 end entity usb_streamer;
 
@@ -66,58 +38,60 @@ signal jpeg_fifo_empty : std_logic;
 signal pkt_sent : std_logic;
 signal fid : std_logic;
 
-signal jpeg_fdata: std_logic_vector(7 downto 0);
-signal temp: std_logic_vector(7 downto 0);
+signal sink_data_d: std_logic_vector(7 downto 0);
 
 signal wrightcount: std_logic_vector(11 downto 0);
 
-type states is (uvc_wait,uvc_in_pktend,uvc_send_data,s_reset,free_uvc,s_skip);
-signal ps : states;
+type fsm_states is (uvc_wait,
+	                uvc_in_pktend,
+	                uvc_send_data,
+	                s_reset,
+	                free_uvc,
+	                s_skip);
+signal fsm_state : fsm_states;
 
+signal prog_full : std_logic;
 
-begin  -- architecture
+begin
 sloe 			<= '1';
 slrd		    <= '1';
 faddr 			<= "10";
 
-syncProc: process(rst,ifclk)
+syncProc: process(rst, ifclk)
 begin
 
 if rst = '1' then
 	slwr		<= '1';
 	pktend		<= '1';
-	jpeg_rd_en	<= '0';
 	fid			<= '0';
 	pkt_sent 	<= '0';
 	wrightcount <= (others => '0');
-	temp <= (others => '0');
-	ps <= s_reset;
+	sink_data_d <= (others => '0');
+	fsm_state <= s_reset;
 elsif falling_edge(ifclk) then
 
 	slwr		<= '1';
 	pktend		<= '1';
-	jpeg_rd_en 	<= '0';
 
-	case ps is
+	case fsm_state is
 	when s_reset =>
 		slwr		<= '1';
 		pktend		<= '1';
-		jpeg_rd_en	<= '0';
 		fid			<= '0';
 		pkt_sent 	<= '0';
-		ps 			<= uvc_wait;
+		fsm_state 			<= uvc_wait;
 		fdata 	<= (others => '0');
-		temp 	<= (others => '0');
+		sink_data_d 	<= (others => '0');
 		wrightcount <= (others => '0');
 
 	when uvc_send_data =>
 
-		if jpeg_fifo_empty = '0' and flag_full = '1' then
+		if sink_stb = '1' and flag_full = '1' then
 
 			wrightcount <= wrightcount +1;
 
 				if wrightcount = X"400" then
-						ps <= uvc_wait;
+						fsm_state <= uvc_wait;
 						wrightcount <= (others => '0');
 				elsif wrightcount = X"000" then
 					slwr		<= '0';
@@ -128,55 +102,17 @@ elsif falling_edge(ifclk) then
 					slwr		<= '0';
 					fdata <= ( "100" & "000" & "0" & fid ); -- EOH  ERR  STI  RES  SCR  PTS  EOF  FID
 
-				elsif wrightcount = X"002" then
-					slwr		<= '0';
-					fdata <= X"00";
-
-				elsif wrightcount = X"003" then
-					slwr		<= '0';
-					fdata <= X"00";
-
-				elsif wrightcount = X"004" then
-					slwr		<= '0';
-					fdata <= X"00";
-
-				elsif wrightcount = X"005" then
-					slwr		<= '0';
-					fdata <= X"00";
-
-				elsif wrightcount = X"006" then
-					slwr		<= '0';
-					fdata <= X"00";
-
-				elsif wrightcount = X"007" then
-					slwr		<= '0';
-					fdata <= X"00";
-
-				elsif wrightcount = X"008" then
-					slwr		<= '0';
-					fdata <= X"00";
-
-				elsif wrightcount = X"009" then
-					slwr		<= '0';
-					fdata <= X"00";
-
-				elsif wrightcount = X"00A" then
-					slwr		<= '0';
-					fdata <= X"00";
-
-
-				elsif wrightcount = X"00B" then
+				elsif wrightcount <= X"00B" then
 					slwr		<= '0';
 					fdata <= X"00";
 
 				else
 					slwr		<= '0';
-					jpeg_rd_en	<= '1';
-					temp <= jpeg_fdata;
-					fdata <= jpeg_fdata;
-					if temp = X"FF" and jpeg_fdata = X"D9" then
+					sink_data_d <= sink_data;
+					fdata <= sink_data;
+					if sink_data_d = X"FF" and sink_data = X"D9" then
 						fid 	<= not fid;
-						ps <= uvc_in_pktend;
+						fsm_state <= uvc_in_pktend;
 						pkt_sent <= '1';
 						wrightcount <= (others => '0');
 					end if;
@@ -186,33 +122,21 @@ elsif falling_edge(ifclk) then
 
 	when uvc_wait =>
 		if flag_full = '1' then
-			ps 	<= uvc_send_data;
+			fsm_state 	<= uvc_send_data;
 		end if;
 
 	when uvc_in_pktend =>
 		pktend	<= '0';
-		ps 		<= uvc_wait;
+		fsm_state 		<= uvc_wait;
 
 	when others =>
-		ps <= s_reset;
+		fsm_state <= s_reset;
 	end case;
 
 end if;
 
 end process;
 
-bytefifo_usb: entity work.bytefifo port map(
-rst => rst,
-wr_clk => jpeg_clk,
-rd_clk => ifclk,
-din => jpeg_byte,
-wr_en => jpeg_en,
-rd_en => jpeg_rd_en,
-dout => jpeg_fdata,
-empty => jpeg_fifo_empty,
-prog_full => jpeg_fifo_full,
-overflow => open,
-underflow => open
-);
+sink_ack <= (sink_stb and flag_full) when ((fsm_state = uvc_send_data) and (wrightcount > X"00B" and wrightcount < X"400")) else '0';
 
 end architecture;

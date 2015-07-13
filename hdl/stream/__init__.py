@@ -3,7 +3,7 @@ import os
 from migen.fhdl.std import *
 from migen.genlib.record import *
 from migen.flow.actor import *
-from migen.actorlib.fifo import SyncFIFO
+from migen.actorlib.fifo import SyncFIFO, AsyncFIFO
 from migen.genlib.misc import WaitTimer
 
 
@@ -72,8 +72,17 @@ class USBStreamer(Module):
 
         self.comb += pads.slcs.eq(0)
 
-        jpeg_fifo_full = Signal()
-        self.comb += self.sink.ack.eq(~jpeg_fifo_full)
+        self.clock_domains.cd_usb = ClockDomain()
+        self.comb += [
+          self.cd_usb.clk.eq(pads.ifclk),
+          self.cd_usb.rst.eq(ResetSignal()) # XXX FIXME
+        ]
+
+        async_fifo = RenameClockDomains(AsyncFIFO([("data", 8)], 1024), {"write": "sys", "read": "usb"})
+        self.submodules += async_fifo
+
+        self.comb += Record.connect(sink, async_fifo.sink)
+
 
         # XXX for now use simplified usb_top from HDMI2USB
         self.specials += Instance("usb_streamer",
@@ -82,10 +91,9 @@ class USBStreamer(Module):
                                   i_clk=ClockSignal(),
 
                                   # jpeg encoder interface
-                                  i_jpeg_byte=self.sink.data,
-                                  i_jpeg_clk=ClockSignal(),
-                                  i_jpeg_en=self.sink.stb & self.sink.ack,
-                                  o_jpeg_fifo_full=jpeg_fifo_full,
+                                  i_sink_stb=async_fifo.source.stb,
+                                  i_sink_data=async_fifo.source.data,
+                                  o_sink_ack=async_fifo.source.ack,
 
                                   # cypress fx2 slave fifo interface
                                   i_ifclk=pads.ifclk,
