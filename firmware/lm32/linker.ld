@@ -46,9 +46,8 @@ SECTIONS
 		*(COMMON)
 		. = ALIGN(4);
 		_ebss = .;
-		. = ALIGN(8);
-		_heapstart = .;
-	} > firmware_ram
+		_end = .;
+	} > sram
 }
 
-PROVIDE(_fstack = ORIGIN(firmware_ram) + LENGTH(firmware_ram) - 4);
+PROVIDE(_fstack = ORIGIN(sram) + LENGTH(sram) - 4);
