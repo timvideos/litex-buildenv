@@ -3,6 +3,7 @@
 #include <console.h>
 #include <generated/csr.h>
 #include <generated/mem.h>
+#include <time.h>
 
 #include "config.h"
 #include "dvisampler.h"
@@ -10,6 +11,8 @@
 #include "pll.h"
 #include "ci.h"
 #include "encoder.h"
+
+int system_status_enabled;
 
 #ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
 static void print_mem_bandwidth(void)
@@ -38,6 +41,7 @@ static void help(void)
     puts("m               - show memory bandwidth");
     puts("p               - dump plls configuration");
     puts("r               - reboot CPU");
+    puts("S/s             - enable/disable system status");
     puts("v               - show gateware/firmware versions");
     puts("");
 }
@@ -62,10 +66,35 @@ static void version(void)
 	printf("  revision %08x built "__DATE__" "__TIME__"\n", MSC_GIT_ID);
 }
 
+static void system_status(void)
+{
+	printf("dvi_in: %dx%d",	dvisampler_resdetection_hres_read(),
+							dvisampler_resdetection_vres_read());
+	printf(" | ");
+	if(fb_fi_enable_read())
+		printf("dvi_out: %dx%d", processor_h_active,
+		    						processor_v_active);
+	else
+		printf("dvi_out: OFF");
+	printf(" | ");
+	if(encoder_enabled)
+		printf("encoder: %d fps", encoder_fps);
+	else
+		printf("encoder: OFF");
+	printf("\n");
+}
+
 void ci_service(void)
 {
 	int c;
 	char mode_descriptors[PROCESSOR_MODE_COUNT*PROCESSOR_MODE_DESCLEN];
+
+	static int last_event;
+
+	if(elapsed(&last_event, identifier_frequency_read())) {
+		if(system_status_enabled)
+			system_status();
+	}
 
 	if(readchar_nonblock()) {
 		c = readchar();
@@ -123,6 +152,14 @@ void ci_service(void)
 				break;
 			case 'r':
 				asm("call r0");
+				break;
+			case 'S':
+				system_status_enabled = 1;
+				printf("Status is ON\n");
+				break;
+			case 's':
+				system_status_enabled = 0;
+				printf("Status is OFF\n");
 				break;
 			case 'v':
 				version();

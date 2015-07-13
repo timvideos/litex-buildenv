@@ -23,6 +23,7 @@ const char chroma_rom_75[64];
 const char chroma_rom_50[64];
 
 char encoder_enabled;
+int encoder_fps;
 
 void encoder_write_reg(unsigned int adr, unsigned int value);
 unsigned int encoder_read_reg(unsigned int adr);

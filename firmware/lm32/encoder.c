@@ -145,7 +145,7 @@ void encoder_service(void) {
 			frame_cnt++;
 		}
 		if(elapsed(&last_event, identifier_frequency_read())) {
-			printf("%dx%d @ %d fps\n", processor_h_active, processor_v_active, frame_cnt);
+			encoder_fps = frame_cnt;
 			frame_cnt = 0;
 		}
 	}
