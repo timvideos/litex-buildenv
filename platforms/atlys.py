@@ -1,3 +1,5 @@
+# Support for the Digilent Atlys (http://digilentinc.com/atlys/) - The board used for HDMI2USB prototyping.
+
 from mibuild.generic_platform import *
 from mibuild.xilinx import XilinxPlatform
 from mibuild.xilinx import XC3SProg, iMPACT, Adept, UrJTAG
