@@ -9,6 +9,19 @@
 
     Alternative HDMI2USB gateware and firmware based on Migen/MiSoC
 
+[> Supported Boards
+------------------
+
+This firmware is supported on the following to boards;
+
+ * Digilent Atlys - http://digilentinc.com/atlys/
+   The original board used for HDMI2USB prototyping.
+   Use `BOARD=atlys` with this board.
+
+ * Numato Opsis
+   The first production board made in conjunction with TimVideos.us project.
+   Use `BOARD=opsis` with this board.
+
 [> Getting started
 ------------------
 1. Follow MiSoC Quick start guide
@@ -24,6 +37,10 @@
 atlys_base:
 * BaseSoC working (CPU + DDR2 + UART)
 * MiniSoC working (BaseSoC + 10/100Mbps Ethernet MAC handled by the CPU)
+
+opsis_base:
+* BaseSoC in progress (CPU + DDR3 + UART)
+* MiniSoC not working
 
 atlys_hdmi2ethernet:
 * EtherboneSoC working (BaseSoC + 10/100Mbps HW Ethernet UDP/IP stack and Etherbone)
