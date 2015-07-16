@@ -18,7 +18,7 @@ _io = [
     ## SW_PUSH - component SW1
     # Connected to Bank 3 - 1.5V bank
     #NET "???"                  LOC =     "Y3"       |IOSTANDARD =            None;     #                      (/FPGA_Bank_0_3/SWITCH | Net-(R54-Pad2))
-    ("cpu_reset", 0, Pins("Y3"), IOStandard("LVCMOS15")),
+    ("cpu_reset", 0, Pins("Y3"), IOStandard("LVCMOS15"), Misc("PULLUP")),
 
     # CY7C68013A_100AC - component U2
     ("fx2", 0,
@@ -130,7 +130,7 @@ _io = [
 
     ## onBoard Leds
     # NET "Led<0>" LOC = "U18"; # Bank = 1, Pin name = IO_L52N_M1DQ15,       Sch name = LD0
-    ("user_led", 0, Pins("U18")),
+    #("user_led", 0, Pins("U18")),
 
     ## TEMAC Ethernet MAC - FIXME
     # 10/100/1000 Ethernet PHY
@@ -173,8 +173,8 @@ _io = [
     #NET "mcb3_dram_ck"         LOC =     "K3"       |IOSTANDARD =  DIFF_SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_CK_N | /DDR3/DDR0_CK_P)
     #NET "mcb3_dram_ck"         LOC =     "K4"       |IOSTANDARD =  DIFF_SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_CK_N | /DDR3/DDR0_CK_P)
     ("ddram_clock", 0,
-        Subsignal("p", Pins("K3")),
-        Subsignal("n", Pins("K4")),
+        Subsignal("p", Pins("K4")),
+        Subsignal("n", Pins("K3")),
         IOStandard("DIFF_SSTL15_II"), Misc("IN_TERM=NONE")
     ),
     ("ddram", 0,
@@ -320,12 +320,15 @@ _io = [
     ),
 
     ## USB UART Connector
-    # Debug Header
-    #("serial", 0,
-    #    Subsignal("rx", Pins("A16"), IOStandard("LVCMOS15")),
-    #    Subsignal("tx", Pins("B16"), IOStandard("LVCMOS15")),
-    #),
     # To Cypress FX2 UART0
+    ("debug", 0, Pins("AA2"), IOStandard("LVCMOS15")), # (/FPGA_Bank_0_3/DEBUG_IO0)
+
+    ("serial", 0,
+        # CY_RXD1 - P18 - Cypress RXD0
+        Subsignal("tx", Pins("P18"), IOStandard("LVCMOS33")),
+        # CY_TXD1 - T17 - Cypress TXD0
+        Subsignal("rx", Pins("T17"), IOStandard("LVCMOS33")), 
+    ),
     #("serial", 1,
     #    Subsignal("rx", Pins("A16"), IOStandard("LVCMOS33")),
     #    Subsignal("tx", Pins("B16"), IOStandard("LVCMOS33")),
@@ -433,6 +436,19 @@ class Platform(XilinxPlatform):
     def __init__(self, programmer="xc3sprog"):
         # XC6SLX45T-3FGG484C
         XilinxPlatform.__init__(self,  "xc6slx45t-fgg484-3", _io, _connectors)
+
+        pins = {
+          'ProgPin': 'PullUp',
+          'DonePin': 'PullUp',
+          'TckPin': 'PullNone', 
+          'TdiPin': 'PullNone',
+          'TdoPin': 'PullNone',
+          'TmsPin': 'PullNone',
+          'UnusedPin': 'PullNone',
+          }
+        for pin, config in pins.items():
+            self.toolchain.bitgen_opt += " -g %s:%s " % (pin, config)
+
         self.programmer = programmer
 
         # FPGA AUX is connected to the 3.3V supply

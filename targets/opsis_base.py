@@ -32,6 +32,7 @@ class MT41J128M16(SDRAMModule):
     # |    -125     |     1600         |      11-11-11      |   13.75   |  13.75   |  13.75  |
     # |    -15E     |     1333         |       9-9-9        |   13.5    |  13.5    |  13.5   |
     # |    -187E    |     1066         |       7-7-7        |   13.1    |  13.1    |  13.1   |
+    # |    -25E     |      800         |       5-5-5        |   ????    |  ????    |  ????   |
     # +-------------+------------------+--------------------+-----------+----------+---------+
     #  * Faster parts are compatible with slower speeds, IE -093 can run at -187E speeds.
     #
@@ -141,7 +142,6 @@ class _CRG(Module):
                                   o_Q=output_clk)
         self.specials += Instance("OBUFDS", i_I=output_clk, o_O=clk.p, o_OB=clk.n)
 
-
         dcm_base50_locked = Signal()
         self.specials += Instance("DCM_CLKGEN",
                                   p_CLKFXDV_DIVIDE=2, p_CLKFX_DIVIDE=4, p_CLKFX_MD_MAX=1.0, p_CLKFX_MULTIPLY=2,
@@ -155,7 +155,7 @@ class _CRG(Module):
 
 
 class BaseSoC(SDRAMSoC):
-    default_platform = "atlys"
+    default_platform = "opsis"
 
     csr_map = {
         "ddrphy":   16,
@@ -170,6 +170,7 @@ class BaseSoC(SDRAMSoC):
     def __init__(self, platform, firmware_ram_size=0x8000, **kwargs):
         clk_freq = 75*1000000
         SDRAMSoC.__init__(self, platform, clk_freq,
+#                          uart_baudrate=9600,
                           integrated_rom_size=0x8000,
                           sdram_controller_settings=LASMIconSettings(l2_size=128),
                           **kwargs)
@@ -181,7 +182,7 @@ class BaseSoC(SDRAMSoC):
 
         if not self.integrated_main_ram_size:
             self.submodules.ddrphy = s6ddrphy.S6DDRPHY(platform.request("ddram"),
-                                                       P3R1GE4JGF(self.clk_freq),
+                                                       MT41J128M16(self.clk_freq),
                                                        rd_bitslip=0,
                                                        wr_bitslip=4,
                                                        dqs_ddr_alignment="C0")
@@ -195,6 +196,8 @@ class BaseSoC(SDRAMSoC):
         platform.add_platform_command("""
 NET "{sys_clk}" TNM_NET = "GRPsys_clk";
 """, sys_clk=self.crg.cd_sys.clk)
+
+        self.comb += [platform.request("debug").eq(platform.lookup_request("serial").tx)]
 
 
 class MiniSoC(BaseSoC):
@@ -239,4 +242,4 @@ TIMESPEC "TSise_sucks4" = FROM "GRPsys_clk" TO "GRPeth_rx_clk" TIG;
      eth_tx_clk=self.ethphy.crg.cd_eth_tx.clk)
 
 
-default_subtarget = MiniSoC
+default_subtarget = BaseSoC
