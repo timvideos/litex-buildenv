@@ -145,6 +145,24 @@ void encoder_enable(char enable) {
 	encoder_enabled = enable;
 }
 
+void encoder_increase_quality(void) {
+	if(encoder_quality == 85)
+		encoder_quality = 100;
+	else if(encoder_quality == 75)
+		encoder_quality = 85;
+	else
+		encoder_quality = 100;
+}
+
+void encoder_decrease_quality(void) {
+	if(encoder_quality == 100)
+		encoder_quality = 85;
+	else if(encoder_quality == 85)
+		encoder_quality = 75;
+	else
+		encoder_quality = 50;
+}
+
 void encoder_service(void) {
 
 	static int last_event;

@@ -165,21 +165,11 @@ void ci_service(void)
 				version();
 				break;
 			case '+':
-				if(encoder_quality == 85)
-					encoder_quality = 100;
-				else if(encoder_quality == 75)
-					encoder_quality = 85;
-				else
-					encoder_quality = 75;
+				encoder_increase_quality();
 				printf("Setting encoder quality to %d\n", encoder_quality);
 				break;
 			case '-':
-				if(encoder_quality == 100)
-					encoder_quality = 85;
-				else if(encoder_quality == 85)
-					encoder_quality = 75;
-				else
-					encoder_quality = 50;
+				encoder_decrease_quality();
 				printf("Setting encoder quality to %d\n", encoder_quality);
 				break;
 		}
