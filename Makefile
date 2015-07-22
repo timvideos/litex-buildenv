@@ -6,7 +6,7 @@ HDMI2USBDIR = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 PYTHON = python3
 TARGET = atlys_hdmi2usb
 
-CMD = $(PYTHON) make.py -X $(HDMI2USBDIR) -t $(TARGET) -Op programmer $(PROG)
+CMD = $(PYTHON) make.py -X $(HDMI2USBDIR) -t $(TARGET) -Ot firmware_filename $(HDMI2USBDIR)/firmware/lm32/firmware.bin -Op programmer $(PROG)
 
 ifeq ($(OS),Windows_NT)
 	FLTERM = $(PYTHON) $(MSCDIR)/tools/flterm.py
@@ -25,7 +25,8 @@ help:
 	@echo " MSCDIR=misoc directory (current: $(MSCDIR))"
 	@echo "   PROG=programmer      (current: $(PROG))"
 	@echo " SERIAL=serial port     (current: $(SERIAL))"
-gateware:
+
+gateware: lm32-firmware
 	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv clean
 	cp hdl/encoder/vhdl/header.hex $(MSCDIR)/build/header.hex
 	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream load-bitstream
@@ -34,6 +35,7 @@ load-gateware:
 	cd $(MSCDIR) && $(CMD) load-bitstream
 
 lm32-firmware:
+	cd $(MSCDIR) && $(CMD) build-headers
 	$(MAKE) -C firmware/lm32 all
 
 load-lm32-firmware: lm32-firmware

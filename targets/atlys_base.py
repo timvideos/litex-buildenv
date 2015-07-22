@@ -1,5 +1,5 @@
 # Support for the Digilent Atlys board - digilentinc.com/atlys/
-
+import struct
 from fractions import Fraction
 
 from migen.fhdl.std import *
@@ -17,6 +17,7 @@ from misoclib.soc.sdram import SDRAMSoC
 from misoclib.com.liteeth.common import *
 from misoclib.com.liteeth.phy.mii import LiteEthPHYMII
 from misoclib.com.liteeth.core.mac import LiteEthMAC
+
 
 class P3R1GE4JGF(SDRAMModule):
     # MIRA P3R1GE4JGF
@@ -132,6 +133,20 @@ class _CRG(Module):
         platform.add_period_constraint(self.cd_base50.clk, 20)
 
 
+def _get_firmware_data(firmware_filename):
+    data = []
+    try:
+        with open(firmware_filename, "rb") as firmware_file:
+            while True:
+                w = firmware_file.read(4)
+                if not w:
+                    break
+                data.append(struct.unpack(">I", w)[0])
+    except:
+        pass
+    return data
+
+
 class BaseSoC(SDRAMSoC):
     default_platform = "atlys"
 
@@ -145,7 +160,10 @@ class BaseSoC(SDRAMSoC):
     }
     mem_map.update(SDRAMSoC.mem_map)
 
-    def __init__(self, platform, firmware_ram_size=0x8000, **kwargs):
+    def __init__(self, platform,
+                 firmware_ram_size=0x8000,
+                 firmware_filename=None,
+                 **kwargs):
         clk_freq = 75*1000000
         SDRAMSoC.__init__(self, platform, clk_freq,
                           integrated_rom_size=0x8000,
@@ -154,8 +172,9 @@ class BaseSoC(SDRAMSoC):
 
         self.submodules.crg = _CRG(platform, clk_freq)
 
-        self.submodules.firmware_ram = wishbone.SRAM(firmware_ram_size)
+        self.submodules.firmware_ram = wishbone.SRAM(firmware_ram_size, init=_get_firmware_data(firmware_filename))
         self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
+        self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
 
         if not self.integrated_main_ram_size:
             self.submodules.ddrphy = s6ddrphy.S6DDRPHY(platform.request("ddram"),
