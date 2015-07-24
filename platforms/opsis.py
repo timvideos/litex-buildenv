@@ -50,17 +50,16 @@ _io = [
         Subsignal("flaga", Pins("N16"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
         Subsignal("flagb", Pins("P16"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
         Subsignal("flagc", Pins("R15"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+        #NET "fx2_flagd/slcs_n"     LOC =    "J17"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PA7)
+        Subsignal("cs_n", Pins("J17"), IOStandard("LVCMOS33"),  Misc("DRIVE=12")),
         #NET "fx2_slrd"             LOC =    "P19"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_RD0)
-        Subsignal("slrd", Pins("P19"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+        Subsignal("rd_n", Pins("P19"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
         #NET "fx2_slwr"             LOC =    "R19"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_RD1)
-        Subsignal("slwr", Pins("R19"), IOStandard("LVCMOS33")),
+        Subsignal("wr_n", Pins("R19"), IOStandard("LVCMOS33")),
         #NET "fx2_sloe"             LOC =    "H16"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PA2)
-        Subsignal("sloe", Pins("H16"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
-        ## \/ Strongly pulled (2k) to VCC3V3 via R34
-        #NET "fx2_scl"              LOC =     "G6"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/Ethernet/MAC_SCL)
-        Subsignal("slcs", Pins("G6"), IOStandard("LVCMOS33")),
+        Subsignal("oe_n", Pins("H16"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
         #NET "fx2_pktend"           LOC =    "J16"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PA6)
-        Subsignal("pktend", Pins("J16"), IOStandard("LVCMOS33"),  Misc("DRIVE=12")),
+        Subsignal("pktend_n", Pins("J16"), IOStandard("LVCMOS33"),  Misc("DRIVE=12")),
 
         #NET "fx2_ctl<3>"           LOC =    "M18"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_CTL3)
         #NET "fx2_ctl<4>"           LOC =    "M17"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_CTL4)
@@ -69,7 +68,6 @@ _io = [
         #NET "fx2_int<0>"           LOC =    "F18"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PA0)
         #NET "fx2_int<1>"           LOC =    "F19"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PA1)
         #NET "fx2_wu<2>"            LOC =    "H17"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PA3)
-        #NET "fx2_flagd/slcs_n"     LOC =    "J17"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PA7)
         #NET "fx2_gpifadr<0>"       LOC =    "U20"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PC0)
         #NET "fx2_gpifadr<1>"       LOC =    "U22"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PC1)
         #NET "fx2_gpifadr<2>"       LOC =    "V21"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PC2)
@@ -96,7 +94,6 @@ _io = [
         #NET "fx2_rxd1"             LOC =    "P17"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_RXD0)
         #NET "fx2_txd1"             LOC =    "R17"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_TXD0)
         #
-        #NET "fx2_scl"              LOC =     "G6"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/Ethernet/MAC_SCL)
         #NET "fx2_t0"               LOC =    "G20"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_T0)
         #NET "fx2_wr_n"             LOC =    "K18"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_WR)
 	# JTAG
@@ -106,6 +103,13 @@ _io = [
         #NET "fx2_rxd<1>"           LOC =    "A21"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Power/TCK | Net-(P3-Pad6) | Net-(R26-Pad1))
         ## \/ Strongly pulled (4k) to VCC3V3 via R52
         #NET "fx2_t<2>"             LOC =     "Y4"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/INIT_B | Net-(R27-Pad1))
+
+        ## Same pins as the EEPROM
+        ## \/ Strongly pulled (2k) to VCC3V3 via R34
+        #NET "fx2_scl"              LOC =     "G6"       |IOSTANDARD =             I2C;     #                      (/Ethernet/MAC_SCL)
+        #Subsignal("scl", Pins("G6"), IOStandard("I2C")),
+        #NET "fx2_sda"              LOC =     "C1"       |IOSTANDARD =             I2C;     #                      (/Ethernet/MAC_SDA)
+        #Subsignal("sda", Pins("C1"), IOStandard("I2C")),
     ),
 
     ## onBoard Quad-SPI Flash
@@ -481,7 +485,7 @@ class Platform(XilinxPlatform):
             pass
 
         try:
-            self.add_period_constraint(self.lookup_request("fx2").clkout, 20.8)
+            self.add_period_constraint(self.lookup_request("fx2").ifclk, 20.8)
         except ConstraintError:
             pass
 
