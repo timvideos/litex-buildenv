@@ -1,7 +1,8 @@
 test/csr.csv
-firmware/*.o
-firmware/*.d
-firmware/firmware.bin
-firmware/firmware.elf
-firmware/version.h
+firmware/lm32/*.d
+firmware/lm32/*.o
+firmware/lm32/boot.bin
+firmware/lm32/firmware.bin
+firmware/lm32/firmware.elf
+firmware/lm32/version.h
 test/dump.png
