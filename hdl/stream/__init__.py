@@ -73,7 +73,7 @@ class USBStreamer(Module):
 
         self.clock_domains.cd_usb = ClockDomain()
         self.comb += [
-          self.cd_usb.clk.eq(pads.clkout),
+          self.cd_usb.clk.eq(pads.ifclk),
           self.cd_usb.rst.eq(ResetSignal()) # XXX FIXME
         ]
 

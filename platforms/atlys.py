@@ -34,7 +34,7 @@ _io = [
 
     # HDMI2USB configuration....
     ("fx2", 0,
-        Subsignal("clkout", Pins("C10")),
+        Subsignal("ifclk", Pins("C10")),
         Subsignal("data", Pins("A2 D6 C6 B3 A3 B4 A4 C5")),
         Subsignal("addr", Pins("A14 B14"), Misc("DRIVE=12")),
         Subsignal("flaga", Pins("B9"), Misc("DRIVE=12")),
@@ -566,7 +566,7 @@ class Platform(XilinxPlatform):
             pass
 
         try:
-            self.add_period_constraint(self.lookup_request("fx2").clkout, 20.8)
+            self.add_period_constraint(self.lookup_request("fx2").ifclk, 20.8)
         except ConstraintError:
             pass
 
