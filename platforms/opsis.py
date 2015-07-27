@@ -270,7 +270,7 @@ _io = [
         ## \/ Weakly pulled (47k) to VCC3V3 via R135
         ## \/ Strongly pulled (1k) to /HDMI/HDMI_VCC5V0 via R142
         #NET "hdmi_j4_scl"          LOC =    "L17"       |IOSTANDARD =        LVCMOS33;     #                      (/HDMI/P1-SCL | /HDMI/TMDS-RX1-SCL)
-        Subsignal("scl", Pins("L17"), IOStandard("LVCMOS25")),
+        Subsignal("scl", Pins("L17"), IOStandard("LVCMOS33")),
         ## \/ Weakly pulled (47k) to VCC3V3 via R136
         ## \/ Strongly pulled (1k) to /HDMI/HDMI_VCC5V0 via R141
         #NET "hdmi_j4_sda"          LOC =    "T18"       |IOSTANDARD =        LVCMOS33;     #                      (/HDMI/P1-SDA | /HDMI/TMDS-RX1-SDA)
@@ -307,13 +307,13 @@ _io = [
         ## \/ Weakly pulled (47k) to VCC3V3 via R193
         ## \/ Strongly pulled (1k) to /HDMI/HDMI_VCC5V0 via R197
         #NET "hdmi_j5_scl"          LOC =    "T21"       |IOSTANDARD =        LVCMOS33;     #                      (/HDMI/P3-SCL | /HDMI/TMDS-RX2-SCL)
-        Subsignal("scl", Pins("T21"), IOStandard("LVCMOS25")),
+        Subsignal("scl", Pins("T21"), IOStandard("LVCMOS33")),
         ## \/ Strongly pulled (1k) to /HDMI/HDMI_VCC5V0 via R196
         ## \/ Weakly pulled (47k) to VCC3V3 via R194
         #NET "hdmi_j5_sda"          LOC =    "R22"       |IOSTANDARD =        LVCMOS33;     #                      (/HDMI/P3-SDA | /HDMI/TMDS-RX2-SDA)
-        Subsignal("sda", Pins("R22"), IOStandard("LVCMOS25")),
+        Subsignal("sda", Pins("R22"), IOStandard("LVCMOS33")),
         ## \/ Weakly pulled (15k) to GND via R204
-        ## \/ Strongly pulled (1k) to /HDMI/HDMI_VCC5V0 via R205
+        ## \/ Strongly pulled (1k) to /HDMI/HDMI_VCC5V0 via R215
         #NET "hdmi_j5_hpd"          LOC =    "R20"       |IOSTANDARD =        LVCMOS33;     #                      (/HDMI/P3-HOT | /HDMI/TMDS-RX2-HOT)
         Subsignal("hpd_notif", Pins("R20"), IOStandard("LVCMOS33")),
         #Subsignal("hpd_en", Pins("B20"), IOStandard("LVCMOS33"))
