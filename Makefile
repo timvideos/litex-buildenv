@@ -48,6 +48,7 @@ load-fx2-firmware: fx2-firmware
 	firmware/fx2/download.sh firmware/fx2/hdmi2usb.hex
 
 clean:
+	cd $(MSCDIR) && $(CMD) clean
 	$(MAKE) -C firmware/lm32 clean
 	$(MAKE) -C firmware/fx2 clean
 
