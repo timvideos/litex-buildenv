@@ -41,8 +41,15 @@ lm32-firmware:
 load-lm32-firmware: lm32-firmware
 	$(FLTERM) --port $(SERIAL) --kernel=firmware/lm32/firmware.bin --kernel-adr=0x20000000 --speed 115200
 
+fx2-firmware:
+	$(MAKE) -C firmware/fx2
+
+load-fx2-firmware: fx2-firmware
+	firmware/fx2/download.sh firmware/fx2/hdmi2usb.hex
+
 clean:
 	$(MAKE) -C firmware/lm32 clean
+	$(MAKE) -C firmware/fx2 clean
 
 all: gateware load-gateware load-lm32-firmware
 
