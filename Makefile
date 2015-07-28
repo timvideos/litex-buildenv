@@ -52,6 +52,8 @@ clean:
 	$(MAKE) -C firmware/lm32 clean
 	$(MAKE) -C firmware/fx2 clean
 
+load: load-gateware load-lm32-firmware load-fx2-firmware
+
 all: gateware load-gateware load-lm32-firmware
 
 .PHONY: lm32-firmware load clean
