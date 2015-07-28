@@ -35,6 +35,8 @@ static void help(void)
 {
     puts("Available commands:");
     puts("h               - this message");
+    puts("l               - list resolutions");
+    puts("0-9             - set resolution");
     puts("D/d             - enable/disable DVI debug");
     puts("E/e             - enable/disable Encoder");
     puts("F/f             - enable/disable Framebuffer");
