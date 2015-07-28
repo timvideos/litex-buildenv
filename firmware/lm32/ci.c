@@ -38,7 +38,9 @@ static void help(void)
     puts("D/d             - enable/disable DVI debug");
     puts("E/e             - enable/disable Encoder");
     puts("F/f             - enable/disable Framebuffer");
+#ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
     puts("m               - show memory bandwidth");
+#endif
     puts("p               - dump plls configuration");
     puts("r               - reboot CPU");
     puts("S/s             - enable/disable system status");
