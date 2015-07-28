@@ -54,6 +54,9 @@ clean:
 
 load: load-gateware load-lm32-firmware load-fx2-firmware
 
+view:
+	guvcview --device=/dev/video0 --show_fps=1 --size=1024X768
+
 all: gateware load-gateware load-lm32-firmware
 
 .PHONY: lm32-firmware load clean
