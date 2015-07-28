@@ -35,10 +35,14 @@ static void help(void)
 {
     puts("Available commands:");
     puts("h               - this message");
+    puts("l               - list resolutions");
+    puts("0-9             - set resolution");
     puts("D/d             - enable/disable DVI debug");
     puts("E/e             - enable/disable Encoder");
     puts("F/f             - enable/disable Framebuffer");
+#ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
     puts("m               - show memory bandwidth");
+#endif
     puts("p               - dump plls configuration");
     puts("r               - reboot CPU");
     puts("S/s             - enable/disable system status");
