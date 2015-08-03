@@ -7,7 +7,8 @@ BINUTILS_URL=http://ftp.gnu.org/gnu/binutils/binutils-2.25.tar.gz
 GCC_URL=http://mirrors-usa.go-parts.com/gcc/releases/gcc-4.9.3/gcc-4.9.3.tar.bz2
 TARGET=lm32-elf
 
-GNU_DIR=$SETUP_DIR/../build/gnu
+BUILD_DIR=$SETUP_DIR/../build
+GNU_DIR=$BUILD_DIR/gnu
 OUTPUT_DIR=$GNU_DIR/output
 mkdir -p $OUTPUT_DIR
 
@@ -61,6 +62,7 @@ sudo apt-get install -y build-essential
 
 # Get migen
 (
+	cd $BUILD_DIR
 	if [ -e migen ]; then
 	  cd migen
 	  git pull
@@ -75,6 +77,7 @@ sudo apt-get install -y build-essential
 
 # Get misoc
 (
+	cd $BUILD_DIR
 	git clone https://github.com/m-labs/misoc.git
 	cd misoc
 	git submodule init
@@ -83,6 +86,7 @@ sudo apt-get install -y build-essential
 
 # Get libfpgalink
 (
+	cd $BUILD_DIR
 	sudo apt-get install -y libreadline-dev libusb-1.0-0-dev python-yaml
 	wget -qO- http://tiny.cc/msbil | tar zxf -
 
