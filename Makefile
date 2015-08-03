@@ -17,9 +17,13 @@ endif
 help:
 	@echo "Targets avaliable:"
 	@echo " make gateware"
+	@echo " make lm32-firmware"
+	@echo " make fx2-firmware"
 	@echo " make load-gateware"
 	@echo " make load-lm32-firmware"
+	@echo " make load-fx2-firmware"
 	@echo " make clean"
+	@echo " make all"
 	@echo ""
 	@echo "Environment:"
 	@echo " MSCDIR=misoc directory (current: $(MSCDIR))"
@@ -51,6 +55,6 @@ clean:
 	$(MAKE) -C firmware/lm32 clean
 	$(MAKE) -C firmware/fx2 clean
 
-all: gateware load-gateware load-lm32-firmware
+all: gateware load-gateware load-fx2-firmware
 
 .PHONY: lm32-firmware load clean
