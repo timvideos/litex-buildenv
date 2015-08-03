@@ -1,13 +1,14 @@
 #! /bin/bash
 
-SETUP_SRC=$(realpath ${BASH_SOURCE[@]})
+SETUP_SRC=$(realpath ${BASH_SOURCE[0]})
 SETUP_DIR=$(dirname $SETUP_SRC)
 
 BINUTILS_URL=http://ftp.gnu.org/gnu/binutils/binutils-2.25.tar.gz
 GCC_URL=http://mirrors-usa.go-parts.com/gcc/releases/gcc-4.9.3/gcc-4.9.3.tar.bz2
 TARGET=lm32-elf
 
-OUTPUT_DIR=$SETUP_DIR/gnu/output
+GNU_DIR=$SETUP_DIR/gnu
+OUTPUT_DIR=$GNU_DIR/output
 mkdir -p $OUTPUT_DIR
 
 export PATH=$OUTPUT_DIR/bin:$PATH
@@ -15,13 +16,13 @@ export PATH=$OUTPUT_DIR/bin:$PATH
 set -x
 set -e
 
+sudo apt-get install -y build-essential
+
 # Get and build gcc+binutils for the target
 (
-	sudo apt-get install -y build-essential
-
-	cd gnu
+	cd $GNU_DIR
 	# Download binutils + gcc
-	(
+(
 		mkdir -p download
 		cd download
 		wget -c $BINUTILS_URL
@@ -44,7 +45,6 @@ set -e
 	(
 		tar -jxvf ./download/gcc-*.tar.bz2
 		cd gcc-*
-		rm -rf libstdc++-v3
 		mkdir -p build && cd build
 		../configure --prefix=$OUTPUT_DIR --target=$TARGET --enable-languages="c,c++" --disable-libgcc --disable-libssp
 		make
@@ -52,10 +52,21 @@ set -e
 	)
 )
 
+# Get verilog
+(
+	sudo apt-get install -y iverilog	
+)
+
+
 # Get migen
 (
-	git clone https://github.com/m-labs/migen.git
-	cd migen
+	if [ -e migen ]; then
+	  cd migen
+	  git pull
+	else
+	  git clone https://github.com/m-labs/migen.git
+	  cd migen
+	fi
 	cd vpi
 	make all
 	sudo make install
@@ -66,7 +77,7 @@ git clone https://github.com/m-labs/misoc.git
 
 # Get libfpgalink
 (
-	sudo apt-get install build-essential libreadline-dev libusb-1.0-0-dev python-yaml
+	sudo apt-get install -y libreadline-dev libusb-1.0-0-dev python-yaml
 	wget -qO- http://tiny.cc/msbil | tar zxf -
 
 	cd makestuff/libs
@@ -75,7 +86,7 @@ git clone https://github.com/m-labs/misoc.git
 	make deps
 )
 
-# Get the HDMI2USB-misoc-firmware
-git clone https://github.com/timvideos/HDMI2USB-misoc-firmware.git
+sudo apt-get install -y gtkwave
 
-sudo apt-get install -y iverilog gtkwave
+echo "Completed!"
+
