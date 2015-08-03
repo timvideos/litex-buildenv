@@ -1,4 +1,4 @@
-MSCDIR ?= ../misoc
+MSCDIR ?= misoc
 PROG ?= impact
 SERIAL ?= /dev/ttyVIZ0
 

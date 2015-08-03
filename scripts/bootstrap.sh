@@ -19,5 +19,5 @@ else
 fi
 
 git checkout $GIT_BRANCH
-source ./scripts/get-env.sh 
+./scripts/get-env.sh 
 

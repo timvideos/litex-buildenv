@@ -1,5 +1,5 @@
 # XXX remove this
-MSCDIR=../../../misoc
+MSCDIR=../../misoc
 include $(MSCDIR)/software/common.mak
 
 OBJECTS=isr.o processor.o dvisampler.o edid.o pll.o ci.o config.o encoder.o main.o

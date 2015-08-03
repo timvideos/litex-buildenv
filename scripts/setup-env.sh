@@ -3,9 +3,9 @@
 CALLED=$_
 [[ $CALLED != $0 ]] && SOURCED=1 || SOURCED=0
 
-SETUP_SRC=$(realpath ${BASH_SOURCE[0]})
+SETUP_SRC=$(realpath ${BASH_SOURCE[@]})
 SETUP_DIR=$(dirname $SETUP_SRC)
-TOP_DIR=$(realpath $SETUP_DIR/../..)
+TOP_DIR=$(realpath $SETUP_DIR/../build)
 
 echo $TOP_DIR
 

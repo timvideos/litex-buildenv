@@ -1,13 +1,13 @@
 #! /bin/bash
 
-SETUP_SRC=$(realpath ${BASH_SOURCE[0]})
+SETUP_SRC=$(realpath ${BASH_SOURCE[@]})
 SETUP_DIR=$(dirname $SETUP_SRC)
 
 BINUTILS_URL=http://ftp.gnu.org/gnu/binutils/binutils-2.25.tar.gz
 GCC_URL=http://mirrors-usa.go-parts.com/gcc/releases/gcc-4.9.3/gcc-4.9.3.tar.bz2
 TARGET=lm32-elf
 
-GNU_DIR=$SETUP_DIR/gnu
+GNU_DIR=$SETUP_DIR/../build/gnu
 OUTPUT_DIR=$GNU_DIR/output
 mkdir -p $OUTPUT_DIR
 
@@ -22,7 +22,7 @@ sudo apt-get install -y build-essential
 (
 	cd $GNU_DIR
 	# Download binutils + gcc
-(
+	(
 		mkdir -p download
 		cd download
 		wget -c $BINUTILS_URL
@@ -45,6 +45,7 @@ sudo apt-get install -y build-essential
 	(
 		tar -jxvf ./download/gcc-*.tar.bz2
 		cd gcc-*
+		rm -rf libstdc++-v3
 		mkdir -p build && cd build
 		../configure --prefix=$OUTPUT_DIR --target=$TARGET --enable-languages="c,c++" --disable-libgcc --disable-libssp
 		make
@@ -52,7 +53,7 @@ sudo apt-get install -y build-essential
 	)
 )
 
-# Get verilog
+# Get iverilog
 (
 	sudo apt-get install -y iverilog	
 )
@@ -88,5 +89,5 @@ git clone https://github.com/m-labs/misoc.git
 
 sudo apt-get install -y gtkwave
 
-echo "Completed!"
+echo "Completed.  Run scripts/setup-env.sh to load environment"
 
