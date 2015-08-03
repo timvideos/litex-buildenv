@@ -17,8 +17,8 @@ endif
 help:
 	@echo "Targets avaliable:"
 	@echo " make gateware"
-	@echo " make load_gateware"
-	@echo " make load_firmware (OR) make load_firmware_alt"
+	@echo " make load-gateware"
+	@echo " make load-lm32-firmware"
 	@echo " make clean"
 	@echo ""
 	@echo "Environment:"

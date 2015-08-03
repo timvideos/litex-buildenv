@@ -12,4 +12,4 @@ makestuff
 migen
 misoc
 *.pyc
-
+*.pnm
