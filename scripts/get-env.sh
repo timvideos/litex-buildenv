@@ -74,7 +74,12 @@ sudo apt-get install -y build-essential
 )
 
 # Get misoc
-git clone https://github.com/m-labs/misoc.git
+(
+	git clone https://github.com/m-labs/misoc.git
+	cd misoc
+	git submodule init
+	git submodule update
+)
 
 # Get libfpgalink
 (
@@ -89,5 +94,6 @@ git clone https://github.com/m-labs/misoc.git
 
 sudo apt-get install -y gtkwave
 
-echo "Completed.  Run scripts/setup-env.sh to load environment"
+echo "Completed.  To load environment:"
+echo "source HDMI2USB-misoc-firmware/scripts/setup-env.sh"
 

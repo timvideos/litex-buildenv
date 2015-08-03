@@ -20,8 +20,8 @@ if [ ! -z $MISOC_ENV ]; then
   exit 1
 fi
 
-export LD_LIBRARY_PATH=$TOP_DIR/makestuff/libs/libfpgalink/lin.x64/rel:$LD_LIBRARY_PATH
-export PYTHONPATH=$TOP_DIR/migen:$TOP_DIR/misoc:$TOP_DIR/makestuff/libs/libfpgalink/examples/python/:$PYTHONPATH
+export LD_LIBRARY_PATH=$TOP_DIR/../makestuff/libs/libfpgalink/lin.x64/rel:$LD_LIBRARY_PATH
+export PYTHONPATH=$TOP_DIR/migen:$TOP_DIR/misoc:$TOP_DIR/../makestuff/libs/libfpgalink/examples/python/:$PYTHONPATH
 export PATH=$TOP_DIR/gnu/output/bin:$PATH
 
 alias python=python3
