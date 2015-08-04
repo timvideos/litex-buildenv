@@ -2,12 +2,12 @@ BOARD ?= opsis
 MSCDIR ?= ../misoc
 PROG ?= impact
 SERIAL ?= /dev/ttyVIZ0
-TARGET ?= base
+TARGET ?= hdmi2usb
 
 HDMI2USBDIR = ../HDMI2USB-misoc-firmware
 PYTHON = python3
 
-CMD = $(PYTHON) make.py -X $(HDMI2USBDIR) -t $(BOARD)_$(TARGET) -Op programmer $(PROG)
+CMD = $(PYTHON) make.py -X $(HDMI2USBDIR) -t $(BOARD)_$(TARGET) -Ot firmware_filename $(HDMI2USBDIR)/firmware/lm32/firmware.bin -Op programmer $(PROG)
 
 ifeq ($(OS),Windows_NT)
 	FLTERM = $(PYTHON) $(MSCDIR)/tools/flterm.py
@@ -30,7 +30,7 @@ help:
 	@echo "   PROG=programmer      (current: $(PROG))"
 	@echo " SERIAL=serial port     (current: $(SERIAL))"
 
-gateware:
+gateware: lm32-firmware
 	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv clean
 	cp hdl/encoder/vhdl/header.hex $(MSCDIR)/build/header.hex
 	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream

@@ -71,6 +71,7 @@ class _CRG(Module):
         self.clock_domains.cd_sdram_half = ClockDomain()
         self.clock_domains.cd_sdram_full_wr = ClockDomain()
         self.clock_domains.cd_sdram_full_rd = ClockDomain()
+        self.clock_domains.cd_base50 = ClockDomain()
 
         self.clk4x_wr_strb = Signal()
         self.clk4x_rd_strb = Signal()
@@ -141,6 +142,32 @@ class _CRG(Module):
         self.specials += Instance("OBUFDS", i_I=output_clk, o_O=clk.p, o_OB=clk.n)
 
 
+        dcm_base50_locked = Signal()
+        self.specials += Instance("DCM_CLKGEN",
+                                  p_CLKFXDV_DIVIDE=2, p_CLKFX_DIVIDE=4, p_CLKFX_MD_MAX=1.0, p_CLKFX_MULTIPLY=2,
+                                  p_CLKIN_PERIOD=10.0, p_SPREAD_SPECTRUM="NONE", p_STARTUP_WAIT="FALSE",
+
+                                  i_CLKIN=clk100a, o_CLKFX=self.cd_base50.clk,
+                                  o_LOCKED=dcm_base50_locked,
+                                  i_FREEZEDCM=0, i_RST=ResetSignal())
+        self.specials += AsyncResetSynchronizer(self.cd_base50, self.cd_sys.rst | ~dcm_base50_locked)
+        platform.add_period_constraint(self.cd_base50.clk, 20)
+
+
+def _get_firmware_data(firmware_filename):
+    data = []
+    try:
+        with open(firmware_filename, "rb") as firmware_file:
+            while True:
+                w = firmware_file.read(4)
+                if not w:
+                    break
+                data.append(struct.unpack(">I", w)[0])
+    except:
+        pass
+    return data
+
+
 class BaseSoC(SDRAMSoC):
     default_platform = "opsis"
 
@@ -149,7 +176,15 @@ class BaseSoC(SDRAMSoC):
     }
     csr_map.update(SDRAMSoC.csr_map)
 
-    def __init__(self, platform, **kwargs):
+    mem_map = {
+        "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
+    }
+    mem_map.update(SDRAMSoC.mem_map)
+
+    def __init__(self, platform,
+                 firmware_ram_size=0x8000,
+                 firmware_filename=None,
+                 **kwargs):
         clk_freq = 75*1000000
         SDRAMSoC.__init__(self, platform, clk_freq,
                           integrated_rom_size=0x8000,
@@ -158,6 +193,9 @@ class BaseSoC(SDRAMSoC):
 
         self.submodules.crg = _CRG(platform, clk_freq)
 
+        self.submodules.firmware_ram = wishbone.SRAM(firmware_ram_size, init=_get_firmware_data(firmware_filename))
+        self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
+        self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
         if not self.integrated_main_ram_size:
             self.submodules.ddrphy = s6ddrphy.S6DDRPHY(platform.request("ddram"),
                                                        MT41J128M16(self.clk_freq),
@@ -197,7 +235,7 @@ class MiniSoC(BaseSoC):
         BaseSoC.__init__(self, platform, **kwargs)
 
         self.submodules.ethphy = LiteEthPHY(platform.request("eth_clocks"), platform.request("eth"))
-        self.submodules.ethmac = LiteEthMAC(phy=self.ethphy, dw=32, interface="wishbone", with_preamble_crc=True)
+        self.submodules.ethmac = LiteEthMAC(phy=self.ethphy, dw=32, interface="wishbone")
         self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)
         self.add_memory_region("ethmac", self.mem_map["ethmac"]+self.shadow_base, 0x2000)
 
