@@ -271,12 +271,21 @@ _io = [
     # To Cypress FX2 UART0
     ("debug", 0, Pins("AA2"), IOStandard("LVCMOS15")), # (/FPGA_Bank_0_3/DEBUG_IO0)
 
+
+    ## UART (requires desoldering 2 resistors on the SD card connector)
     ("serial", 0,
-        # CY_RXD1 - P18 - Cypress RXD0
-        Subsignal("tx", Pins("P18"), IOStandard("LVCMOS33")),
-        # CY_TXD1 - T17 - Cypress TXD0
-        Subsignal("rx", Pins("T17"), IOStandard("LVCMOS33")),
+        # SD_CMD
+        Subsignal("tx", Pins("U6"), IOStandard("LVCMOS33")),
+        # SD_DAT0
+        Subsignal("rx", Pins("AA4"), IOStandard("LVCMOS33")),
     ),
+
+    #("serial", 0,
+    #    # CY_RXD1 - P18 - Cypress RXD0
+    #    Subsignal("tx", Pins("P18"), IOStandard("LVCMOS33")),
+    #    # CY_TXD1 - T17 - Cypress TXD0
+    #    Subsignal("rx", Pins("T17"), IOStandard("LVCMOS33")),
+    #),
     #("serial", 1,
     #    Subsignal("rx", Pins("A16"), IOStandard("LVCMOS33")),
     #    Subsignal("tx", Pins("B16"), IOStandard("LVCMOS33")),
