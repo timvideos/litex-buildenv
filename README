@@ -39,8 +39,8 @@ atlys_base:
 * MiniSoC working (BaseSoC + 10/100Mbps Ethernet MAC handled by the CPU)
 
 opsis_base:
-* BaseSoC in progress (CPU + DDR3 + UART)
-* MiniSoC not working
+* BaseSoC working (CPU + DDR3 + UART)
+* MiniSoC working (BaseSoC + 1Gbps Ethernet MAC handled by the CPU)
 
 atlys_hdmi2ethernet:
 * EtherboneSoC working (BaseSoC + 10/100Mbps HW Ethernet UDP/IP stack and Etherbone)
