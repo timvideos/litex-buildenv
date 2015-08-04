@@ -139,30 +139,24 @@ _io = [
     ## TEMAC Ethernet MAC - FIXME
     # 10/100/1000 Ethernet PHY
     ## RTL8211E-VL - component U20 - RGMII
-    #NET "eth_intb"             LOC =     "V9"       |IOSTANDARD =        LVCMOS33;     #                      (/Ethernet/ETH_INT_B)
-    #NET "eth_mdc"              LOC =     "V7"       |IOSTANDARD =             I2C;     #                      (/Ethernet/ETH_MDC)
-    ## \/ Strongly pulled (1k) to /Ethernet/ETH_VCC3V3 via R50
-    #NET "eth_mdio"             LOC =     "T8"       |IOSTANDARD =             I2C;     #                      (/Ethernet/ETH_MDIO)
-    ## \/ Strongly pulled (4k) to VCC3V3 via R51
-    #NET "eth_phyrstb"          LOC =     "U8"       |IOSTANDARD =        LVCMOS33;     #                      (/Ethernet/ETH_RESET_B)
-    #NET "eth_rxc"              LOC =   "AA12"       |IOSTANDARD =        LVCMOS33;     #                      (/Ethernet/ETH_RXCLK)
-    ## \/ Strongly pulled (4k) to GND via R48
-    #NET "eth_rxctl"            LOC =     "U9"       |IOSTANDARD =        LVCMOS33;     #                      (/Ethernet/ETH_RXCTL)
-    ## \/ Strongly pulled (4k) to /Ethernet/ETH_VCC3V3 via R49
-    #NET "eth_rxd[0]"           LOC =     "R9"       |IOSTANDARD =        LVCMOS33;     #                      (/Ethernet/ETH_RXD0)
-    ## \/ Strongly pulled (4k) to /Ethernet/ETH_VCC3V3 via R65
-    #NET "eth_rxd[1]"           LOC =     "R8"       |IOSTANDARD =        LVCMOS33;     #                      (/Ethernet/ETH_RXD1)
-    ## \/ Strongly pulled (4k) to /Ethernet/ETH_VCC3V3 via R66
-    #NET "eth_rxd[2]"           LOC =     "W6"       |IOSTANDARD =        LVCMOS33;     #                      (/Ethernet/ETH_RXD2)
-    ## \/ Strongly pulled (4k) to /Ethernet/ETH_VCC3V3 via R67
-    #NET "eth_rxd[3]"           LOC =     "Y6"       |IOSTANDARD =        LVCMOS33;     #                      (/Ethernet/ETH_RXD3)
-    #NET "eth_txc"              LOC =   "AB12"       |IOSTANDARD =        LVCMOS33;     #                      (/Ethernet/ETH_TXCLK)
-    #NET "eth_txctl"            LOC =     "W8"       |IOSTANDARD =        LVCMOS33;     #                      (/Ethernet/ETH_TXCTL)
-    #NET "eth_txd[0]"           LOC =     "W9"       |IOSTANDARD =        LVCMOS33;     #                      (/Ethernet/ETH_TXD0)
-    #NET "eth_txd[1]"           LOC =     "Y8"       |IOSTANDARD =        LVCMOS33;     #                      (/Ethernet/ETH_TXD1)
-    #NET "eth_txd[2]"           LOC =    "AA6"       |IOSTANDARD =        LVCMOS33;     #                      (/Ethernet/ETH_TXD2)
-    #NET "eth_txd[3]"           LOC =    "AB6"       |IOSTANDARD =        LVCMOS33;     #                      (/Ethernet/ETH_TXD3)
-    ## 24AA02E48 - component U23
+    ("eth_clocks", 0,
+        Subsignal("tx", Pins("AB12")),
+        Subsignal("rx", Pins("AA12")),
+        IOStandard("LVCMOS33")
+    ),
+    ("eth", 0,
+        Subsignal("rst_n", Pins("U8")),
+        Subsignal("int_n", Pins("V9")),
+        Subsignal("mdio", Pins("T8")),
+        Subsignal("mdc", Pins("V7")),
+        Subsignal("rx_ctl", Pins("U9")),
+        Subsignal("rx_data", Pins("R9 R8 W6 Y6")),
+        Subsignal("tx_ctl", Pins("W8")),
+        Subsignal("tx_data", Pins("W9 Y8 AA6 AB6")),
+        IOStandard("LVCMOS33")
+    ),
+
+	## 24AA02E48 - component U23
     ## 2 Kbit Electrically Erasable PROM
     ## Pre-programmed Globally Unique, 48-bit Node Address
     ## The device is organized as two blocks of 128 x 8-bit memory with a 2-wire serial interface.
@@ -281,7 +275,7 @@ _io = [
         # CY_RXD1 - P18 - Cypress RXD0
         Subsignal("tx", Pins("P18"), IOStandard("LVCMOS33")),
         # CY_TXD1 - T17 - Cypress TXD0
-        Subsignal("rx", Pins("T17"), IOStandard("LVCMOS33")), 
+        Subsignal("rx", Pins("T17"), IOStandard("LVCMOS33")),
     ),
     #("serial", 1,
     #    Subsignal("rx", Pins("A16"), IOStandard("LVCMOS33")),
@@ -394,7 +388,7 @@ class Platform(XilinxPlatform):
         pins = {
           'ProgPin': 'PullUp',
           'DonePin': 'PullUp',
-          'TckPin': 'PullNone', 
+          'TckPin': 'PullNone',
           'TdiPin': 'PullNone',
           'TdoPin': 'PullNone',
           'TmsPin': 'PullNone',
