@@ -11,13 +11,8 @@ from migen.genlib.record import Record
 from misoclib.mem.sdram.module import SDRAMModule
 from misoclib.mem.sdram.phy import s6ddrphy
 from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
-from misoclib.mem.flash import spiflash
 from misoclib.soc import mem_decoder
 from misoclib.soc.sdram import SDRAMSoC
-from misoclib.com.liteeth.common import *
-from misoclib.com.liteeth.phy.mii import LiteEthPHYMII
-from misoclib.com.liteeth.core.mac import LiteEthMAC
-
 # DDR3
 class MT41J128M16(SDRAMModule):
     # MT41J128M16 - 16 Meg x 16 x 8 Banks
@@ -72,7 +67,6 @@ class _CRG(Module):
         self.clock_domains.cd_sdram_half = ClockDomain()
         self.clock_domains.cd_sdram_full_wr = ClockDomain()
         self.clock_domains.cd_sdram_full_rd = ClockDomain()
-        self.clock_domains.cd_base50 = ClockDomain()
 
         self.clk4x_wr_strb = Signal()
         self.clk4x_rd_strb = Signal()
@@ -143,32 +137,6 @@ class _CRG(Module):
         self.specials += Instance("OBUFDS", i_I=output_clk, o_O=clk.p, o_OB=clk.n)
 
 
-        dcm_base50_locked = Signal()
-        self.specials += Instance("DCM_CLKGEN",
-                                  p_CLKFXDV_DIVIDE=2, p_CLKFX_DIVIDE=4, p_CLKFX_MD_MAX=1.0, p_CLKFX_MULTIPLY=2,
-                                  p_CLKIN_PERIOD=10.0, p_SPREAD_SPECTRUM="NONE", p_STARTUP_WAIT="FALSE",
-
-                                  i_CLKIN=clk100a, o_CLKFX=self.cd_base50.clk,
-                                  o_LOCKED=dcm_base50_locked,
-                                  i_FREEZEDCM=0, i_RST=ResetSignal())
-        self.specials += AsyncResetSynchronizer(self.cd_base50, self.cd_sys.rst | ~dcm_base50_locked)
-        platform.add_period_constraint(self.cd_base50.clk, 20)
-
-
-def _get_firmware_data(firmware_filename):
-    data = []
-    try:
-        with open(firmware_filename, "rb") as firmware_file:
-            while True:
-                w = firmware_file.read(4)
-                if not w:
-                    break
-                data.append(struct.unpack(">I", w)[0])
-    except:
-        pass
-    return data
-
-
 class BaseSoC(SDRAMSoC):
     default_platform = "opsis"
 
@@ -177,34 +145,21 @@ class BaseSoC(SDRAMSoC):
     }
     csr_map.update(SDRAMSoC.csr_map)
 
-    mem_map = {
-        "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
-    }
-    mem_map.update(SDRAMSoC.mem_map)
-
-    def __init__(self, platform,
-                 firmware_ram_size=0x8000,
-                 firmware_filename=None,
-                 **kwargs):
+    def __init__(self, platform, **kwargs):
         clk_freq = 75*1000000
         SDRAMSoC.__init__(self, platform, clk_freq,
-#                          uart_baudrate=9600,
                           integrated_rom_size=0x8000,
-                          sdram_controller_settings=LASMIconSettings(l2_size=128),
+                          sdram_controller_settings=LASMIconSettings(l2_size=16),
                           **kwargs)
 
         self.submodules.crg = _CRG(platform, clk_freq)
 
-        self.submodules.firmware_ram = wishbone.SRAM(firmware_ram_size, init=_get_firmware_data(firmware_filename))
-        self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
-        self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
-
         if not self.integrated_main_ram_size:
             self.submodules.ddrphy = s6ddrphy.S6DDRPHY(platform.request("ddram"),
                                                        MT41J128M16(self.clk_freq),
-                                                       rd_bitslip=1,
-                                                       wr_bitslip=3,
-                                                       dqs_ddr_alignment="C1")
+                                                       rd_bitslip=0,
+                                                       wr_bitslip=4,
+                                                       dqs_ddr_alignment="C0")
             self.comb += [
                 self.ddrphy.clk4x_wr_strb.eq(self.crg.clk4x_wr_strb),
                 self.ddrphy.clk4x_rd_strb.eq(self.crg.clk4x_rd_strb),
@@ -216,47 +171,6 @@ class BaseSoC(SDRAMSoC):
 NET "{sys_clk}" TNM_NET = "GRPsys_clk";
 """, sys_clk=self.crg.cd_sys.clk)
 
-
-class MiniSoC(BaseSoC):
-    csr_map = {
-        "ethphy": 17,
-        "ethmac": 18,
-    }
-    csr_map.update(BaseSoC.csr_map)
-
-    interrupt_map = {
-        "ethmac": 2,
-    }
-    interrupt_map.update(BaseSoC.interrupt_map)
-
-    mem_map = {
-        "ethmac": 0x30000000,  # (shadow @0xb0000000)
-    }
-    mem_map.update(BaseSoC.mem_map)
-
-    def __init__(self, platform, **kwargs):
-        BaseSoC.__init__(self, platform, **kwargs)
-
-        self.submodules.ethphy = LiteEthPHYMII(platform.request("eth_clocks"), platform.request("eth"))
-        self.submodules.ethmac = LiteEthMAC(phy=self.ethphy, dw=32, interface="wishbone")
-        self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)
-        self.add_memory_region("ethmac", self.mem_map["ethmac"]+self.shadow_base, 0x2000)
-
-        self.specials += [
-            Keep(self.ethphy.crg.cd_eth_rx.clk),
-            Keep(self.ethphy.crg.cd_eth_tx.clk)
-        ]
-        platform.add_platform_command("""
-NET "{eth_clocks_rx}" CLOCK_DEDICATED_ROUTE = FALSE;
-NET "{eth_rx_clk}" TNM_NET = "GRPeth_rx_clk";
-NET "{eth_tx_clk}" TNM_NET = "GRPeth_tx_clk";
-TIMESPEC "TSise_sucks1" = FROM "GRPeth_tx_clk" TO "GRPsys_clk" TIG;
-TIMESPEC "TSise_sucks2" = FROM "GRPsys_clk" TO "GRPeth_tx_clk" TIG;
-TIMESPEC "TSise_sucks3" = FROM "GRPeth_rx_clk" TO "GRPsys_clk" TIG;
-TIMESPEC "TSise_sucks4" = FROM "GRPsys_clk" TO "GRPeth_rx_clk" TIG;
-""", eth_clocks_rx=platform.lookup_request("eth_clocks").rx,
-     eth_rx_clk=self.ethphy.crg.cd_eth_rx.clk,
-     eth_tx_clk=self.ethphy.crg.cd_eth_tx.clk)
 
 
 default_subtarget = BaseSoC
