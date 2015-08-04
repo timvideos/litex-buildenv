@@ -24,7 +24,7 @@ class VideomixerSoC(MiniSoC):
         self.submodules.dvisampler = dvisampler.DVISampler(platform.request("dvi_in", 1),
                                                            self.sdram.crossbar.get_master(),
                                                            fifo_depth=4096)
-        self.submodules.fb = framebuffer.Framebuffer(None, platform.request("dvi_out"),
+        self.submodules.fb = framebuffer.Framebuffer(None, platform.request("dvi_out", 0),
                                                      self.sdram.crossbar.get_master())
         platform.add_platform_command("""PIN "dviout_pix_bufg.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
         platform.add_platform_command("""

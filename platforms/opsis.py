@@ -193,78 +193,35 @@ _io = [
     ),
 
     ## onboard HDMI IN1
-    ## HDMI - connector J4 - Direction RX
+    ## HDMI - connector J5 - Direction RX
     ("dvi_in", 0,
-        #NET "j4_TMDS(3)"           LOC =    "M20"       |IOSTANDARD =         TMDS_33;     #                  CLK (/HDMI/TMDS-RX1-CLK_P)
-        #NET "j4_TMDSB(3)"          LOC =    "M19"       |IOSTANDARD =         TMDS_33;     #                      (/HDMI/TMDS-RX1-CLK_N)
-        Subsignal("clk_p", Pins("M20")),
-        Subsignal("clk_n", Pins("M19")),
-        #NET "j4_TMDS(0)"           LOC =    "J20"       |IOSTANDARD =         TMDS_33;     #                 Blue (/HDMI/TMDS-RX1-0_P)
-        #NET "j4_TMDSB(0)"          LOC =    "J22"       |IOSTANDARD =         TMDS_33;     #                      (/HDMI/TMDS-RX1-0_N)
-        Subsignal("data0_p", Pins("J20")),
-        Subsignal("data0_n", Pins("J22")),
-        #NET "j4_TMDS(1)"           LOC =    "H21"       |IOSTANDARD =         TMDS_33;     #                Green (/HDMI/TMDS-RX1-1_P)
-        #NET "j4_TMDSB(1)"          LOC =    "H22"       |IOSTANDARD =         TMDS_33;     #                      (/HDMI/TMDS-RX1-1_N)
-        Subsignal("data1_p", Pins("B11")),
-        Subsignal("data1_n", Pins("A11")),
-        #NET "j4_TMDS(2)"           LOC =    "K20"       |IOSTANDARD =         TMDS_33;     #                  Red (/HDMI/TMDS-RX1-2_P)
-        #NET "j4_TMDSB(2)"          LOC =    "L19"       |IOSTANDARD =         TMDS_33;     #                      (/HDMI/TMDS-RX1-2_N)
-        Subsignal("data2_p", Pins("B12")),
-        Subsignal("data2_n", Pins("A12")),
-        ## \/ Weakly pulled (47k) to VCC3V3 via R135
-        ## \/ Strongly pulled (1k) to /HDMI/HDMI_VCC5V0 via R142
-        #NET "hdmi_j4_scl"          LOC =    "L17"       |IOSTANDARD =        LVCMOS33;     #                      (/HDMI/P1-SCL | /HDMI/TMDS-RX1-SCL)
-        Subsignal("scl", Pins("L17"), IOStandard("LVCMOS33")),
-        ## \/ Weakly pulled (47k) to VCC3V3 via R136
-        ## \/ Strongly pulled (1k) to /HDMI/HDMI_VCC5V0 via R141
-        #NET "hdmi_j4_sda"          LOC =    "T18"       |IOSTANDARD =        LVCMOS33;     #                      (/HDMI/P1-SDA | /HDMI/TMDS-RX1-SDA)
-        Subsignal("sda", Pins("T18"), IOStandard("LVCMOS33")),
-        ## \/ Strongly pulled (1k) to /HDMI/HDMI_VCC5V0 via R153
-        ## \/ Weakly pulled (15k) to GND via R151
-        #NET "hdmi_j4_hpd"          LOC =    "V19"       |IOSTANDARD =        LVCMOS33;     #                      (/HDMI/P1-HOT | /HDMI/TMDS-RX1-HOT)
-        Subsignal("hpd_notif", Pins("V19"), IOStandard("LVCMOS33")),
-        #Subsignal("hpd_en", Pins("G17"), IOStandard("LVCMOS33")),
-        ## \/ Weakly pulled (100k) to VCC3V3 via R132
-        ## \/ Weakly pulled (27k) to VCC3V3 via R146
-        #NET "hdmi_j4_cec"          LOC =    "K17"       |IOSTANDARD =        LVCMOS33;     #                      (/HDMI/P1-CEC | /HDMI/TMDS-RX1-CEC)
+        Subsignal("clk_p", Pins("L20")),
+        Subsignal("clk_n", Pins("L22")),
+        Subsignal("data0_p", Pins("M21")),
+        Subsignal("data0_n", Pins("M22")),
+        Subsignal("data1_p", Pins("N20")),
+        Subsignal("data1_n", Pins("N22")),
+        Subsignal("data2_p", Pins("P21")),
+        Subsignal("data2_n", Pins("P22")),
+        Subsignal("scl", Pins("T21"), IOStandard("LVCMOS33")),
+        Subsignal("sda", Pins("R22"), IOStandard("LVCMOS33")),
+        Subsignal("hpd_notif", Pins("R20"), IOStandard("LVCMOS33"))
     ),
 
     ## onboard HDMI IN2
-    ## HDMI - connector J5 - Direction RX
+    ## HDMI - connector J4 - Direction RX
     ("dvi_in", 1,
-        #NET "j5_TMDS(3)"           LOC =    "L20"       |IOSTANDARD =         TMDS_33;     #                  CLK (/HDMI/TMDS-RX2-CLK_P)
-        #NET "j5_TMDSB(3)"          LOC =    "L22"       |IOSTANDARD =         TMDS_33;     #                      (/HDMI/TMDS-RX2-CLK_N)
-        Subsignal("clk_p", Pins("L20")),
-        Subsignal("clk_n", Pins("L22")),
-        #NET "j5_TMDS(0)"           LOC =    "M21"       |IOSTANDARD =         TMDS_33;     #                 Blue (/HDMI/TMDS-RX2-0_P)
-        #NET "j5_TMDSB(0)"          LOC =    "M22"       |IOSTANDARD =         TMDS_33;     #                      (/HDMI/TMDS-RX2-0_N)
-        Subsignal("data0_p", Pins("M21")),
-        Subsignal("data0_n", Pins("M22")),
-        #NET "j5_TMDS(1)"           LOC =    "N20"       |IOSTANDARD =         TMDS_33;     #                Green (/HDMI/TMDS-RX2-1_P)
-        #NET "j5_TMDSB(1)"          LOC =    "N22"       |IOSTANDARD =         TMDS_33;     #                      (/HDMI/TMDS-RX2-1_N)
-        Subsignal("data1_p", Pins("N20")),
-        Subsignal("data1_n", Pins("N22")),
-        #NET "j5_TMDS(2)"           LOC =    "P21"       |IOSTANDARD =         TMDS_33;     #                  Red (/HDMI/TMDS-RX2-2_P)
-        #NET "j5_TMDSB(2)"          LOC =    "P22"       |IOSTANDARD =         TMDS_33;     #                      (/HDMI/TMDS-RX2-2_N)
-        Subsignal("data2_p", Pins("P21")),
-        Subsignal("data2_n", Pins("P22")),
-        ## \/ Weakly pulled (47k) to VCC3V3 via R193
-        ## \/ Strongly pulled (1k) to /HDMI/HDMI_VCC5V0 via R197
-        #NET "hdmi_j5_scl"          LOC =    "T21"       |IOSTANDARD =        LVCMOS33;     #                      (/HDMI/P3-SCL | /HDMI/TMDS-RX2-SCL)
-        Subsignal("scl", Pins("T21"), IOStandard("LVCMOS33")),
-        ## \/ Strongly pulled (1k) to /HDMI/HDMI_VCC5V0 via R196
-        ## \/ Weakly pulled (47k) to VCC3V3 via R194
-        #NET "hdmi_j5_sda"          LOC =    "R22"       |IOSTANDARD =        LVCMOS33;     #                      (/HDMI/P3-SDA | /HDMI/TMDS-RX2-SDA)
-        Subsignal("sda", Pins("R22"), IOStandard("LVCMOS33")),
-        ## \/ Weakly pulled (15k) to GND via R204
-        ## \/ Strongly pulled (1k) to /HDMI/HDMI_VCC5V0 via R215
-        #NET "hdmi_j5_hpd"          LOC =    "R20"       |IOSTANDARD =        LVCMOS33;     #                      (/HDMI/P3-HOT | /HDMI/TMDS-RX2-HOT)
-        Subsignal("hpd_notif", Pins("R20"), IOStandard("LVCMOS33")),
-        #Subsignal("hpd_en", Pins("B20"), IOStandard("LVCMOS33"))
-        ## HDMI - connector J5 - Direction RX
-        ## \/ Weakly pulled (100k) to VCC3V3 via R192
-        ## \/ Weakly pulled (27k) to VCC3V3 via R199
-        #NET "hdmi_j5_cec"          LOC =    "T22"       |IOSTANDARD =        LVCMOS33;     #                      (/HDMI/P3-CEC | /HDMI/TMDS-RX2-CEC)
+        Subsignal("clk_p", Pins("M20")),
+        Subsignal("clk_n", Pins("M19")),
+        Subsignal("data0_p", Pins("J20")),
+        Subsignal("data0_n", Pins("J22")),
+        Subsignal("data1_p", Pins("B11")),
+        Subsignal("data1_n", Pins("A11")),
+        Subsignal("data2_p", Pins("B12")),
+        Subsignal("data2_n", Pins("A12")),
+        Subsignal("scl", Pins("L17"), IOStandard("LVCMOS33")),
+        Subsignal("sda", Pins("T18"), IOStandard("LVCMOS33")),
+        Subsignal("hpd_notif", Pins("V19"), IOStandard("LVCMOS33"))
     ),
 
     ## USB UART Connector
@@ -297,75 +254,37 @@ _io = [
     #),
 
     ## onboard HDMI OUT
-    ## HDMI - connector J2 - Direction TX
-    ("dvi_out", 0,
-        #NET "j2_TMDS(3)"           LOC =    "T12"       |IOSTANDARD =         TMDS_33;     #                  CLK (/HDMI/TMDS-TX2-CLK_P)
-        #NET "j2_TMDSB(3)"          LOC =    "U12"       |IOSTANDARD =         TMDS_33;     #                      (/HDMI/TMDS-TX2-CLK_N)
-        Subsignal("clk_p", Pins("T12"), IOStandard("TMDS_33")),
-        Subsignal("clk_n", Pins("U12"), IOStandard("TMDS_33")),
-        #NET "j2_TMDS(2)"           LOC =    "U14"       |IOSTANDARD =         TMDS_33;     #                  Red (/HDMI/TMDS-TX2-2_P)
-        #NET "j2_TMDSB(2)"          LOC =    "U13"       |IOSTANDARD =         TMDS_33;     #                      (/HDMI/TMDS-TX2-2_N)
-        Subsignal("data2_p", Pins("U14"), IOStandard("TMDS_33")),
-        Subsignal("data2_n", Pins("U13"), IOStandard("TMDS_33")),
-        #NET "j2_TMDS(1)"           LOC =   "AA16"       |IOSTANDARD =         TMDS_33;     #                Green (/HDMI/TMDS-TX2-1_P)
-        #NET "j2_TMDSB(1)"          LOC =   "AB16"       |IOSTANDARD =         TMDS_33;     #                      (/HDMI/TMDS-TX2-1_N)
-        Subsignal("data1_p", Pins("AA16"), IOStandard("TMDS_33")),
-        Subsignal("data1_n", Pins("AB16"), IOStandard("TMDS_33")),
-        #NET "j2_TMDS(0)"           LOC =    "Y15"       |IOSTANDARD =         TMDS_33;     #                 Blue (/HDMI/TMDS-TX2-0_P)
-        #NET "j2_TMDSB(0)"          LOC =   "AB15"       |IOSTANDARD =         TMDS_33;     #                      (/HDMI/TMDS-TX2-0_N)
-        Subsignal("data0_p", Pins("Y15"), IOStandard("TMDS_33")),
-        Subsignal("data0_n", Pins("AB15"), IOStandard("TMDS_33")),
-        ## \/ Weakly pulled (47k) to VCC3V3 via R129
-        ## \/ Strongly pulled (1k) to /HDMI/HDMI_VCC5V0 via R140
-        #NET "hdmi_j2_scl"          LOC =    "Y17"       |IOSTANDARD =        LVCMOS33;     #                      (/HDMI/P4-SCL | /HDMI/TMDS-TX2-SCL)
-        Subsignal("scl", Pins("Y17"), IOStandard("LVCMOS33")),
-        ## \/ Strongly pulled (1k) to /HDMI/HDMI_VCC5V0 via R138
-        ## \/ Weakly pulled (47k) to VCC3V3 via R133
-        #NET "hdmi_j2_sda"          LOC =   "AB17"       |IOSTANDARD =        LVCMOS33;     #                      (/HDMI/P4-SDA | /HDMI/TMDS-TX2-SDA)
-        Subsignal("sda", Pins("AB17"), IOStandard("LVCMOS33")),
-        ## \/ Weakly pulled (15k) to GND via R149
-        #NET "hdmi_j2_hpd"          LOC =   "AB18"       |IOSTANDARD =        LVCMOS33;     #                      (/HDMI/P4-HOT | /HDMI/TMDS-TX2-HOT)
-        Subsignal("hpd_notif", Pins("AB18"), IOStandard("LVCMOS33")),
-        #Subsignal("hpd_en", Pins("B20"), IOStandard("LVCMOS33"))
-        ## \/ Weakly pulled (27k) to VCC3V3 via R144
-        ## \/ Weakly pulled (100k) to VCC3V3 via R126
-        #NET "hdmi_j2_cec"          LOC =   "AA18"       |IOSTANDARD =        LVCMOS33;     #                      (/HDMI/P4-CEC | /HDMI/TMDS-TX2-CEC)
-    ),
 
     ## HDMI - connector J3 - Direction TX
-    ("dvi_out", 1,
-        #NET "j3_TMDS(3)"           LOC =    "Y11"       |IOSTANDARD =         TMDS_33;     #                  CLK (/HDMI/TMDS-TX1-CLK_P)
-        #NET "j3_TMDSB(3)"          LOC =   "AB11"       |IOSTANDARD =         TMDS_33;     #                      (/HDMI/TMDS-TX1-CLK_N)
+    ("dvi_out", 0,
         Subsignal("clk_p", Pins("Y11"), IOStandard("TMDS_33")),
         Subsignal("clk_n", Pins("AB11"), IOStandard("TMDS_33")),
-        #NET "j3_TMDS(0)"           LOC =    "W12"       |IOSTANDARD =         TMDS_33;     #                 Blue (/HDMI/TMDS-TX1-0_P)
-        #NET "j3_TMDSB(0)"          LOC =    "Y12"       |IOSTANDARD =         TMDS_33;     #                      (/HDMI/TMDS-TX1-0_N)
         Subsignal("data0_p", Pins("W12"), IOStandard("TMDS_33")),
         Subsignal("data0_n", Pins("Y12"), IOStandard("TMDS_33")),
-        #NET "j3_TMDS(1)"           LOC =   "AA10"       |IOSTANDARD =         TMDS_33;     #                Green (/HDMI/TMDS-TX1-1_P)
-        #NET "j3_TMDSB(1)"          LOC =   "AB10"       |IOSTANDARD =         TMDS_33;     #                      (/HDMI/TMDS-TX1-1_N)
         Subsignal("data1_p", Pins("AA10"), IOStandard("TMDS_33")),
         Subsignal("data1_n", Pins("AB10"), IOStandard("TMDS_33")),
-        #NET "j3_TMDS(2)"           LOC =     "Y9"       |IOSTANDARD =         TMDS_33;     #                  Red (/HDMI/TMDS-TX1-2_P)
-        #NET "j3_TMDSB(2)"          LOC =    "AB9"       |IOSTANDARD =         TMDS_33;     #                      (/HDMI/TMDS-TX1-2_N)
         Subsignal("data2_p", Pins("Y9"), IOStandard("TMDS_33")),
         Subsignal("data2_n", Pins("AB9"), IOStandard("TMDS_33")),
-        ## \/ Strongly pulled (1k) to /HDMI/HDMI_VCC5V0 via R139
-        ## \/ Weakly pulled (47k) to VCC3V3 via R134
-        #NET "hdmi_j3_scl"          LOC =     "Y7"       |IOSTANDARD =        LVCMOS33;     #                      (/HDMI/P2-SCL | /HDMI/TMDS-TX1-SCL)
         Subsignal("scl", Pins("Y7"), IOStandard("LVCMOS33")),
-        ## \/ Weakly pulled (47k) to VCC3V3 via R130
-        ## \/ Strongly pulled (1k) to /HDMI/HDMI_VCC5V0 via R137
-        #NET "hdmi_j3_sda"          LOC =    "Y10"       |IOSTANDARD =        LVCMOS33;     #                      (/HDMI/P2-SDA | /HDMI/TMDS-TX1-SDA)
         Subsignal("sda", Pins("Y10"), IOStandard("LVCMOS33")),
-        ## \/ Weakly pulled (15k) to GND via R148
-        #NET "hdmi_j3_hpd"          LOC =    "AB7"       |IOSTANDARD =        LVCMOS33;     #                      (/HDMI/P2-HOT | /HDMI/TMDS-TX1-HOT)
-        Subsignal("hpd_notif", Pins("AB7"), IOStandard("LVCMOS33")),
-        #Subsignal("hpd_en", Pins("B20"), IOStandard("LVCMOS33"))
-        ## \/ Weakly pulled (27k) to VCC3V3 via R143
-        ## \/ Weakly pulled (100k) to VCC3V3 via R127
-        #NET "hdmi_j3_cec"          LOC =    "W10"       |IOSTANDARD =        LVCMOS33;     #                      (/HDMI/P2-CEC | /HDMI/TMDS-TX1-CEC)
+        Subsignal("hpd_notif", Pins("AB7"), IOStandard("LVCMOS33"))
     ),
+
+    ## HDMI - connector J2 - Direction TX
+    ("dvi_out", 1,
+        Subsignal("clk_p", Pins("T12"), IOStandard("TMDS_33")),
+        Subsignal("clk_n", Pins("U12"), IOStandard("TMDS_33")),
+        Subsignal("data2_p", Pins("U14"), IOStandard("TMDS_33")),
+        Subsignal("data2_n", Pins("U13"), IOStandard("TMDS_33")),
+        Subsignal("data1_p", Pins("AA16"), IOStandard("TMDS_33")),
+        Subsignal("data1_n", Pins("AB16"), IOStandard("TMDS_33")),
+        Subsignal("data0_p", Pins("Y15"), IOStandard("TMDS_33")),
+        Subsignal("data0_n", Pins("AB15"), IOStandard("TMDS_33")),
+        Subsignal("scl", Pins("Y17"), IOStandard("LVCMOS33")),
+        Subsignal("sda", Pins("AB17"), IOStandard("LVCMOS33")),
+        Subsignal("hpd_notif", Pins("AB18"), IOStandard("LVCMOS33"))
+    ),
+
 
 #        ("fpga_cfg",
 #            Subsignal("din", Pins("T14")),
