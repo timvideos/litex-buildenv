@@ -174,78 +174,28 @@ _io = [
     ## DDR3
     # MT41J128M16JT-125:K - 16 Meg x 16 x 8 Banks - DDR3-1600 11-11-11
     # FBGA Code: D9PSL, Part Number: MT41J128M16 - http://www.micron.com/support/fbga
-    #NET "mcb3_dram_ck"         LOC =     "K3"       |IOSTANDARD =  DIFF_SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_CK_N | /DDR3/DDR0_CK_P)
-    #NET "mcb3_dram_ck"         LOC =     "K4"       |IOSTANDARD =  DIFF_SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_CK_N | /DDR3/DDR0_CK_P)
     ("ddram_clock", 0,
         Subsignal("p", Pins("K4")),
         Subsignal("n", Pins("K3")),
         IOStandard("DIFF_SSTL15_II"), Misc("IN_TERM=NONE")
     ),
     ("ddram", 0,
-        ## \/ Strongly pulled (4k) to GND via R7
-        #NET "mcb3_dram_cke"        LOC =     "F2"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_CKE)
         Subsignal("cke", Pins("F2"), IOStandard("SSTL15_II")),
-
-        #NET "mcb3_dram_ras_n"      LOC =     "M5"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_RAS_N)
         Subsignal("ras_n", Pins("M5"), IOStandard("SSTL15_II")),
-        #NET "mcb3_dram_cas_n"      LOC =     "M4"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_CAS_N)
         Subsignal("cas_n", Pins("M4"), IOStandard("SSTL15_II")),
-	#NET "mcb3_dram_we_n"       LOC =     "H2"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_WE_N)
         Subsignal("we_n", Pins("H2"), IOStandard("SSTL15_II")),
-
-        #NET "mcb3_dram_ba<0>"      LOC =     "J3"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_BA0)
-        #NET "mcb3_dram_ba<1>"      LOC =     "J1"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_BA1)
-        #NET "mcb3_dram_ba<2>"      LOC =     "H1"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_BA2)
         Subsignal("ba", Pins("J3 J1 H1"), IOStandard("SSTL15_II")),
-
-        #NET "mcb3_dram_a<0>"       LOC =     "K2"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_A0)
-        #NET "mcb3_dram_a<1>"       LOC =     "K1"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_A1)
-        #NET "mcb3_dram_a<2>"       LOC =     "K5"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_A2)
-        #NET "mcb3_dram_a<3>"       LOC =     "M6"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_A3)
-        #NET "mcb3_dram_a<4>"       LOC =     "H3"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_A4)
-        #NET "mcb3_dram_a<5>"       LOC =     "M3"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_A5)
-        #NET "mcb3_dram_a<6>"       LOC =     "L4"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_A6)
-        #NET "mcb3_dram_a<7>"       LOC =     "K6"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_A7)
-        #NET "mcb3_dram_a<8>"       LOC =     "G3"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_A8)
-        #NET "mcb3_dram_a<9>"       LOC =     "G1"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_A9)
-        #NET "mcb3_dram_a<10>"      LOC =     "J4"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_A10)
-        #NET "mcb3_dram_a<11>"      LOC =     "E1"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_A11)
-        #NET "mcb3_dram_a<12>"      LOC =     "F1"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_A12)
-        ## \/ Strongly pulled (0.0) to VTTDDR0 via R1
-        #NET "mcb3_dram_a<13>"      LOC =     "J6"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_A13)
-        #NET "mcb3_dram_a<14>"      LOC =     "H5"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_A14)
-        Subsignal("a", Pins("K2 K1 K5 M6 H3 M3 L4 K6 G3 G1 J4 E1 F1 J6 H5"), IOStandard("SSTL15_II")),
-        #NET "mcb3_dram_dq<0>"      LOC =     "R3"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_DQ0)
-        #NET "mcb3_dram_dq<1>"      LOC =     "R1"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_DQ1)
-        #NET "mcb3_dram_dq<10>"     LOC =     "U3"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_DQ10)
-        #NET "mcb3_dram_dq<11>"     LOC =     "U1"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_DQ11)
-        #NET "mcb3_dram_dq<12>"     LOC =     "W3"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_DQ12)
-        #NET "mcb3_dram_dq<13>"     LOC =     "W1"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_DQ13)
-        #NET "mcb3_dram_dq<14>"     LOC =     "Y2"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_DQ14)
-        #NET "mcb3_dram_dq<15>"     LOC =     "Y1"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_DQ15)
-        #NET "mcb3_dram_dq<2>"      LOC =     "P2"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_DQ2)
-        #NET "mcb3_dram_dq<3>"      LOC =     "P1"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_DQ3)
-        #NET "mcb3_dram_dq<4>"      LOC =     "L3"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_DQ4)
-        #NET "mcb3_dram_dq<5>"      LOC =     "L1"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_DQ5)
-        #NET "mcb3_dram_dq<6>"      LOC =     "M2"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_DQ6)
-        #NET "mcb3_dram_dq<7>"      LOC =     "M1"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_DQ7)
-        #NET "mcb3_dram_dq<8>"      LOC =     "T2"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_DQ8)
-        #NET "mcb3_dram_dq<9>"      LOC =     "T1"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_DQ9)
+        Subsignal("a", Pins("K2 K1 K5 M6 H3 L4 M3 K6 G3 G1 J4 E1 F1 J6 H5"), IOStandard("SSTL15_II")),
         Subsignal("dq", Pins(
-                    "R3 R1 U3 U1 W3 W1 Y2 Y1",
-                    "P2 P1 L3 L1 M2 M1 T2 T1"), IOStandard("SSTL15_II")),
-        # U == Upper, L == Lower
-        #NET "mcb3_dram_udqs"       LOC =     "V2"       |IOSTANDARD =  DIFF_SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_UDQS_P)
-        #NET "mcb3_dram_udqs_n"     LOC =     "V1"       |IOSTANDARD =  DIFF_SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_UDQS_N)
-        #NET "mcb3_dram_ldqs"       LOC =     "N3"       |IOSTANDARD =  DIFF_SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_LDQS_P)
-        #NET "mcb3_dram_ldqs_n"     LOC =     "N1"       |IOSTANDARD =  DIFF_SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_LDQS_N)
-        Subsignal("dqs", Pins("V2 N3"), IOStandard("DIFF_SSTL15_II")),
-        Subsignal("dqs_n", Pins("V1 N1"), IOStandard("DIFF_SSTL15_II")),
-        #NET "mcb3_dram_udm"        LOC =     "P3"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_UDM)
-        #NET "mcb3_dram_ldm"        LOC =     "N4"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_LDM)
-        Subsignal("dm", Pins("P3 N4"), IOStandard("SSTL15_II")),
-        #NET "mcb3_dram_odt"        LOC =     "L6"       |IOSTANDARD =       SSTL15_II |OUT_TERM = UNTUNED_50;     #                      (/DDR3/DDR0_ODT)
-        Subsignal("odt", Pins("L6"), IOStandard("SSTL15_II"))
+                    "R3 R1 P2 P1 L3 L1 M2 M1",
+                    "T2 T1 U3 U1 W3 W1 Y2 Y1"), IOStandard("SSTL15_II")),
+        Subsignal("dqs", Pins("N3 V2"), IOStandard("DIFF_SSTL15_II")),
+        Subsignal("dqs_n", Pins("N1 V1"), IOStandard("DIFF_SSTL15_II")),
+        Subsignal("dm", Pins("N4 P3"), IOStandard("SSTL15_II")),
+        Subsignal("odt", Pins("L6"), IOStandard("SSTL15_II")),
+        Subsignal("reset_n", Pins("E3"), IOStandard("LVCMOS15")),
+        Misc("SLEW=FAST"),
+        Misc("VCCAUX_IO=HIGH")
     ),
 
     ## onboard HDMI IN1
