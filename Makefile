@@ -1,4 +1,4 @@
-BOARD ?= opsis
+BOARD ?= atlys
 MSCDIR ?= ../misoc
 PROG ?= impact
 SERIAL ?= /dev/ttyVIZ0
