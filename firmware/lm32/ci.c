@@ -38,7 +38,9 @@ static void help(void)
     puts("l               - list resolutions");
     puts("0-9             - set resolution");
     puts("D/d             - enable/disable DVI debug");
+#ifdef ENCODER_BASE
     puts("E/e             - enable/disable Encoder");
+#endif
     puts("F/f             - enable/disable Framebuffer");
 #ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
     puts("m               - show memory bandwidth");
@@ -81,10 +83,12 @@ static void system_status(void)
 	else
 		printf("dvi_out: OFF");
 	printf(" | ");
+#ifdef ENCODER_BASE
 	if(encoder_enabled)
 		printf("encoder: %d fps, q: %d", encoder_fps, encoder_quality);
 	else
 		printf("encoder: OFF");
+#endif
 	printf("\n");
 }
 
@@ -168,6 +172,7 @@ void ci_service(void)
 			case 'v':
 				version();
 				break;
+#ifdef ENCODER_BASE
 			case '+':
 				encoder_increase_quality();
 				printf("Setting encoder quality to %d\n", encoder_quality);
@@ -176,6 +181,7 @@ void ci_service(void)
 				encoder_decrease_quality();
 				printf("Setting encoder quality to %d\n", encoder_quality);
 				break;
+#endif
 		}
 	}
 }
