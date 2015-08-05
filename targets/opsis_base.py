@@ -20,32 +20,6 @@ from misoclib.com.liteeth.core.mac import LiteEthMAC
 # DDR3
 class MT41J128M16(SDRAMModule):
     # MT41J128M16 - 16 Meg x 16 x 8 Banks
-    # Clock Rate - 800 MHz
-    # Decode the chip markings using http://www.micron.com/support/fbga
-    #
-    # +-------------+------------------+--------------------+-----------+----------+---------+
-    # | Speed Grade | Data Rate (MT/s) | Target tRCD-tRP-CL | tRCD (ns) | tRP (ns) | CL (ns) |
-    # +-------------+------------------+--------------------+-----------+----------+---------+
-    # |    -093     |     2133         |      14-14-14      |   13.13   |  13.13   |  13.13  |
-    # |    -107     |     1866         |      13-13-13      |   13.91   |  13.91   |  13.91  |
-    # |    -125     |     1600         |      11-11-11      |   13.75   |  13.75   |  13.75  |
-    # |    -15E     |     1333         |       9-9-9        |   13.5    |  13.5    |  13.5   |
-    # |    -187E    |     1066         |       7-7-7        |   13.1    |  13.1    |  13.1   |
-    # |    -25E     |      800         |       5-5-5        |   ????    |  ????    |  ????   |
-    # +-------------+------------------+--------------------+-----------+----------+---------+
-    #  * Faster parts are compatible with slower speeds, IE -093 can run at -187E speeds.
-    #
-    # +-------------------+----------------------+----------------------+-----------------------+
-    # |         Parameter |     512 Meg x 4      |     256 Meg x 8      |     128 Meg x 16      |
-    # +-------------------+----------------------+----------------------+-----------------------+
-    # |           Marking |        512M4         |        256M8         |         128M16        |
-    # |     Configuration | 64 Meg x 4 x 8 banks | 32 Meg x 8 x 8 banks | 16 Meg x 16 x 8 banks |
-    # |     Refresh count |         8K           |          8K          |          8K           |
-    # |    Row addressing |    32K (A[14:0])     |     32K (A[14:0])    |     16K (A[13:0])     |
-    # |   Bank addressing |     8 (BA[2:0])      |      8 (BA[2:0])     |      8 (BA[2:0])      |
-    # | Column addressing |    2K (A[11, 9:0])   |      1K (A[9:0])     |      1K (A[9:0])      |
-    # |         Page size |         1KB          |          1KB         |          2KB          |
-    # +-------------------+----------------------+----------------------+-----------------------+
     geom_settings = {
         "nbanks":   8,      #   8 banks
         "nrows":    16384,  # 16K (A[13:0])
@@ -56,8 +30,8 @@ class MT41J128M16(SDRAMModule):
         "tRCD":       15,
         "tWR":        15,
         "tWTR":        2,
-        "tREFI":    7800,
-        "tRFC":       70,
+        "tREFI":     64*1000*1000/16384,
+        "tRFC":      160,
     }
 
     def __init__(self, clk_freq):
@@ -188,7 +162,7 @@ class BaseSoC(SDRAMSoC):
         clk_freq = 75*1000000
         SDRAMSoC.__init__(self, platform, clk_freq,
                           integrated_rom_size=0x8000,
-                          sdram_controller_settings=LASMIconSettings(l2_size=16),
+                          sdram_controller_settings=LASMIconSettings(l2_size=16, with_refresh=False),
                           **kwargs)
 
         self.submodules.crg = _CRG(platform, clk_freq)
