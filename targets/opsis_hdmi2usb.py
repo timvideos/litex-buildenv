@@ -24,7 +24,7 @@ class VideomixerSoC(BaseSoC):
         self.submodules.dvisampler = dvisampler.DVISampler(platform.request("dvi_in", 1),
                                                            self.sdram.crossbar.get_master(),
                                                            fifo_depth=4096)
-        self.submodules.fb = framebuffer.Framebuffer(None, platform.request("dvi_out", 0),
+        self.submodules.fb = framebuffer.Framebuffer(None, platform.request("dvi_out", 1),
                                                      self.sdram.crossbar.get_master())
         platform.add_platform_command("""PIN "dviout_pix_bufg.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
         platform.add_platform_command("""
@@ -64,4 +64,4 @@ TIMESPEC "TSise_sucks9" = FROM "GRPusb_clk" TO "GRPsys_clk" TIG;
 TIMESPEC "TSise_sucks10" = FROM "GRPsys_clk" TO "GRPusb_clk" TIG;
 """, usb_clk=platform.lookup_request("fx2").ifclk)
 
-default_subtarget = VideomixerSoC
+default_subtarget = HDMI2USBSoC
