@@ -14,7 +14,7 @@ from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
 from misoclib.soc import mem_decoder
 from misoclib.soc.sdram import SDRAMSoC
 
-from misoclib.com.liteeth.phy import LiteEthPHY
+from misoclib.com.liteeth.phy.s6rgmii import LiteEthPHYRGMII
 from misoclib.com.liteeth.core.mac import LiteEthMAC
 
 # DDR3
@@ -234,7 +234,7 @@ class MiniSoC(BaseSoC):
     def __init__(self, platform, **kwargs):
         BaseSoC.__init__(self, platform, **kwargs)
 
-        self.submodules.ethphy = LiteEthPHY(platform.request("eth_clocks"), platform.request("eth"))
+        self.submodules.ethphy = LiteEthPHYRGMII(platform.request("eth_clocks"), platform.request("eth"))
         self.submodules.ethmac = LiteEthMAC(phy=self.ethphy, dw=32, interface="wishbone")
         self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)
         self.add_memory_region("ethmac", self.mem_map["ethmac"]+self.shadow_base, 0x2000)
