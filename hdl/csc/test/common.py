@@ -221,6 +221,27 @@ class RAWImage:
         return self.data
 
 
+    def pack_ycbcr(self):
+        self.data = []
+        for i in range(self.length):
+            data = (self.y[i] & 0xff) << 16
+            data |= (self.cb[i] & 0xff) << 8
+            data |= (self.cr[i] & 0xff) << 0
+            self.data.append(data)
+        return self.data
+
+
+    def unpack_rgb(self):
+        self.r = []
+        self.g = []
+        self.b = []
+        for data in self.data:
+            self.r.append((data >> 16) & 0xff)
+            self.g.append((data >> 8) & 0xff)
+            self.b.append((data >> 0) & 0xff)
+        return self.r, self.g, self.b
+
+
     def unpack_ycbcr(self):
         self.y = []
         self.cb = []
