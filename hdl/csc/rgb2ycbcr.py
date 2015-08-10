@@ -6,6 +6,10 @@ from migen.flow.actor import *
 
 from hdl.csc.common import *
 
+# TODO:
+# - see if we can regroup some stages without impacting timings (would reduce latency and registers).
+# - do more tests.
+
 
 def rgb2ycbcr_coefs(dw, cw=None):
     return {
@@ -49,7 +53,7 @@ class RGB2YCbCrDatapath(Module):
         #   cb = cc*(r-y) + coffset
         #   cr = cd*(b-y) + coffset
 
-        # clk 0
+        # stage 1
         # (r-g) & (b-g)
         r_minus_g = Signal((rgb_w + 1, True))
         b_minus_g = Signal((rgb_w + 1, True))
@@ -58,7 +62,7 @@ class RGB2YCbCrDatapath(Module):
             b_minus_g.eq(sink.b - sink.g)
         ]
 
-        # clk 1
+        # stage 2
         # ca*(r-g) & cb*(b-g)
         ca_mult_rg = Signal((rgb_w + coef_w + 1, True))
         cb_mult_bg = Signal((rgb_w + coef_w + 1, True))
@@ -67,21 +71,21 @@ class RGB2YCbCrDatapath(Module):
             cb_mult_bg.eq(b_minus_g * coefs["cb"])
         ]
 
-        # clk 2
+        # stage 3
         # ca*(r-g) + cb*(b-g)
         carg_plus_cbbg = Signal((rgb_w + coef_w + 2, True))
         self.sync += [
             carg_plus_cbbg.eq(ca_mult_rg + cb_mult_bg)
         ]
 
-        # clk 3
+        # stage 4
         # yraw = ca*(r-g) + cb*(b-g) + g
         yraw = Signal((rgb_w + 3, True))
         self.sync += [
             yraw.eq(carg_plus_cbbg[coef_w:] + rgb_delayed[3].g)
         ]
 
-        # clk 4
+        # stage 5
         # r - yraw
         # b - yraw
         b_minus_yraw = Signal((rgb_w + 4, True))
@@ -93,7 +97,7 @@ class RGB2YCbCrDatapath(Module):
             yraw_r0.eq(yraw)
         ]
 
-        # clk 5
+        # stage 6
         # cc*yraw
         # cd*yraw
         cc_mult_ryraw = Signal((rgb_w + coef_w + 4, True))
@@ -105,7 +109,7 @@ class RGB2YCbCrDatapath(Module):
             yraw_r1.eq(yraw_r0)
         ]
 
-        # clk 6
+        # stage 7
         # y = (yraw + yoffset)
         # cb = (cc*(r - yraw) + coffset)
         # cr = (cd*(b - yraw) + coffset)
@@ -118,7 +122,7 @@ class RGB2YCbCrDatapath(Module):
             cr.eq(cd_mult_byraw[coef_w:] + coefs["coffset"])
         ]
 
-        # clk 7
+        # stage 8
         # saturate
         self.sync += [
             saturate(y, source.y, coefs["ymin"], coefs["ymax"]),
