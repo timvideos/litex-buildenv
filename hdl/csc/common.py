@@ -1,5 +1,6 @@
 from migen.fhdl.std import *
 
+
 def saturate(i, o, minimum, maximum):
     return [
         If(i > maximum,
@@ -13,6 +14,7 @@ def saturate(i, o, minimum, maximum):
 
 def coef(value, cw=None):
     return int(value * 2**cw) if cw is not None else value
+
 
 def sd_ntsc_coefs(dw, cw=None):
     return {
@@ -28,6 +30,7 @@ def sd_ntsc_coefs(dw, cw=None):
         "cmin" : 2**dw-1
     }
 
+
 def hd_pal_coefs(dw, cw=None):
     return {
         "ca" : coef(0.1819, cw),
@@ -42,6 +45,7 @@ def hd_pal_coefs(dw, cw=None):
         "cmin" : 0
     }
 
+
 def yuv_coefs(dw, cw=None):
     return {
         "ca" : coef(0.299, cw),
@@ -50,14 +54,16 @@ def yuv_coefs(dw, cw=None):
         "cd" : coef(0.492111, cw),
         "yoffset" : 2**(dw-4),
         "coffset" : 2**(dw-1),
-        "ymax" : 2**(dw)-1,
-        "cmax" : 2**(dw)-1,
+        "ymax" : 2**dw-1,
+        "cmax" : 2**dw-1,
         "ymin" : 0,
         "cmin" : 0
     }
 
-def ycbcr_layout(dw):
-    return [("y", dw), ("cb", dw), ("cr", dw)]
 
 def rgb_layout(dw):
     return [("r", dw), ("g", dw), ("b", dw)]
+
+
+def ycbcr_layout(dw):
+    return [("y", dw), ("cb", dw), ("cr", dw)]

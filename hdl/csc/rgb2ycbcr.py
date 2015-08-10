@@ -8,7 +8,7 @@ from migen.flow.actor import *
 from hdl.csc.common import *
 
 
-datapath_latency = 7
+datapath_latency = 8
 
 
 @DecorateModule(InsertCE)
@@ -20,17 +20,17 @@ class RGB2YCbCrDatapath(Module):
         # # #
 
         # delay rgb signals
-        rgb_delayed = [Sink(rgb_layout(rgb_w))]
+        rgb_delayed = [sink]
         for i in range(datapath_latency):
             rgb_n = Record(rgb_layout(rgb_w))
             for name in ["r", "g", "b"]:
-                self.comb += getattr(rgb_n, name).eq(getattr(rgb_delayed[-1], name))
+                self.sync += getattr(rgb_n, name).eq(getattr(rgb_delayed[-1], name))
             rgb_delayed.append(rgb_n)
 
         # Hardware implementation:
         #    y = ca*(r-g) + g + cb*(b-g) + yoffset
-        #    cb = cc*(r-y) + coffset
-        #    cr = cd*(b-y) + coffset
+        #   cb = cc*(r-y) + coffset
+        #   cr = cd*(b-y) + coffset
 
         # clk 0
         # (r-g) & (b-g)
@@ -61,7 +61,7 @@ class RGB2YCbCrDatapath(Module):
         # yraw = ca*(r-g) + cb*(b-g) + g
         yraw = Signal((rgb_w + 3, True))
         self.sync += [
-            yraw.eq(carg_plus_cbbg[coef_w:] + rgb_delayed[2].g)
+            yraw.eq(carg_plus_cbbg[coef_w:] + rgb_delayed[3].g)
         ]
 
         # clk 4
@@ -71,8 +71,8 @@ class RGB2YCbCrDatapath(Module):
         r_minus_yraw = Signal((rgb_w + 4, True))
         yraw_r0 = Signal((rgb_w + 3, True))
         self.sync += [
-            b_minus_yraw.eq(rgb_delayed[3].b - yraw),
-            r_minus_yraw.eq(rgb_delayed[3].r - yraw),
+            b_minus_yraw.eq(rgb_delayed[4].b - yraw),
+            r_minus_yraw.eq(rgb_delayed[4].r - yraw),
             yraw_r0.eq(yraw)
         ]
 
@@ -112,8 +112,8 @@ class RGB2YCbCrDatapath(Module):
 
 class RGB2YCbCr(PipelinedActor, Module):
     def __init__(self, rgb_w=8, ycbcr_w=8, coef_w=8, mode="HD"):
-        self.sink = sink = Sink(rgb_layout(rgb_w))
-        self.source = source = Source(ycbcr_layout(ycbcr_w))
+        self.sink = sink = Sink(EndpointDescription(rgb_layout(rgb_w), packetized=True))
+        self.source = source = Source(EndpointDescription(ycbcr_layout(ycbcr_w), packetized=True))
         PipelinedActor.__init__(self, datapath_latency)
 
         # # #
