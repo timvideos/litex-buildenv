@@ -10,7 +10,7 @@ from misoclib.com.liteeth.core import LiteEthUDPIPCore
 from misoclib.com.liteeth.frontend.etherbone import LiteEthEtherbone
 
 from hdl.encoder import EncoderReader, Encoder
-from hdl.stream import UDPStreamer
+from hdl.streamer import UDPStreamer
 
 class EtherboneSoC(BaseSoC):
     csr_map = {

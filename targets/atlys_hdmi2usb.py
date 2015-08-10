@@ -4,7 +4,7 @@ from misoclib.video import dvisampler
 from misoclib.video import framebuffer
 
 from hdl.encoder import EncoderReader, Encoder
-from hdl.stream import USBStreamer
+from hdl.streamer import USBStreamer
 
 class VideomixerSoC(MiniSoC):
     csr_map = {
