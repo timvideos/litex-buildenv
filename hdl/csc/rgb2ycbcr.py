@@ -1,5 +1,4 @@
-#           rgb2ycbcr
-# (XAPP930 migen implementation)
+# rgb2ycbcr
 
 from migen.fhdl.std import *
 from migen.genlib.record import *
@@ -8,16 +7,33 @@ from migen.flow.actor import *
 from hdl.csc.common import *
 
 
+def rgb2ycbcr_coefs(dw, cw=None):
+    return {
+        "ca" : coef(0.1819, cw),
+        "cb" : coef(0.0618, cw),
+        "cc" : coef(0.6495, cw),
+        "cd" : coef(0.5512, cw),
+        "yoffset" : 2**(dw-4),
+        "coffset" : 2**(dw-1),
+        "ymax" : 2**dw-1,
+        "cmax" : 2**dw-1,
+        "ymin" : 0,
+        "cmin" : 0
+    }
+
+
 datapath_latency = 8
 
 
 @DecorateModule(InsertCE)
 class RGB2YCbCrDatapath(Module):
-    def __init__(self, rgb_w, ycbcr_w, coef_w, coefs):
+    def __init__(self, rgb_w, ycbcr_w, coef_w):
         self.sink = sink = Record(rgb_layout(rgb_w))
         self.source = source = Record(ycbcr_layout(ycbcr_w))
 
         # # #
+
+        coefs = rgb2ycbcr_coefs(ycbcr_w, coef_w)
 
         # delay rgb signals
         rgb_delayed = [sink]
@@ -28,6 +44,7 @@ class RGB2YCbCrDatapath(Module):
             rgb_delayed.append(rgb_n)
 
         # Hardware implementation:
+        # (Equation from XAPP930)
         #    y = ca*(r-g) + g + cb*(b-g) + yoffset
         #   cb = cc*(r-y) + coffset
         #   cr = cd*(b-y) + coffset
@@ -118,17 +135,7 @@ class RGB2YCbCr(PipelinedActor, Module):
 
         # # #
 
-        if mode in ["SD", "NTSC"]:
-            coefs = sd_ntsc_coefs(ycbcr_w, coef_w)
-        elif mode in ["HD", "PAL"]:
-            coefs = hd_pal_coefs(ycbcr_w, coef_w)
-        elif mode in ["YUV"]:
-            coefs = yuv_coefs(ycbcr_w, coef_w)
-        else:
-            ValueError
-
-        # datapath
-        self.submodules.datapath = RGB2YCbCrDatapath(rgb_w, ycbcr_w, coef_w, coefs)
+        self.submodules.datapath = RGB2YCbCrDatapath(rgb_w, ycbcr_w, coef_w)
         self.comb += self.datapath.ce.eq(self.pipe_ce)
         for name in ["r", "g", "b"]:
             self.comb += getattr(self.datapath.sink, name).eq(getattr(sink, name))

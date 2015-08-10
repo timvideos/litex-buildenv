@@ -1,3 +1,5 @@
+from PIL import Image
+
 import random
 import copy
 
@@ -156,3 +158,100 @@ class AckRandomizer(Module):
         else:
             selfp.run = 1
 
+
+class RAWImage:
+    def __init__(self, coefs, filename=None, size=None):
+        self.r = None
+        self.g = None
+        self.b = None
+
+        self.y = None
+        self.cb = None
+        self.cr = None
+
+        self.data = []
+
+        self.coefs = coefs
+        self.size = size
+        self.length = None
+
+        if filename is not None:
+            self.open(filename)
+
+
+    def open(self, filename):
+        img = Image.open(filename)
+        if self.size is not None:
+            img = img.resize((self.size, self.size), Image.ANTIALIAS)
+        r, g, b = zip(*list(img.getdata()))
+        self.set_rgb(r, g, b)
+
+
+    def save(self, filename):
+        img = Image.new("RGB" ,(self.size, self.size))
+        img.putdata(list(zip(self.r, self.g, self.b)))
+        img.save(filename)
+
+
+    def set_rgb(self, r, g, b):
+        self.r = r
+        self.g = g
+        self.b = b
+        self.length = len(r)
+
+
+    def set_ycbcr(self, y, cb, cr):
+        self.y = y
+        self.cb = cb
+        self.cr = cr
+        self.length = len(y)
+
+
+    def set_data(self, data):
+        self.data = data
+
+
+    def pack_rgb(self):
+        self.data = []
+        for i in range(self.length):
+            data = (self.r[i] & 0xff) << 16
+            data |= (self.g[i] & 0xff) << 8
+            data |= (self.b[i] & 0xff) << 0
+            self.data.append(data)
+        return self.data
+
+
+    def unpack_ycbcr(self):
+        self.y = []
+        self.cb = []
+        self.cr = []
+        for data in self.data:
+            self.y.append((data >> 16) & 0xff)
+            self.cb.append((data >> 8) & 0xff)
+            self.cr.append((data >> 0) & 0xff)
+        return self.y, self.cb, self.cr
+
+
+    # Model for our implementation
+    def rgb2ycbcr_model(self):
+        self.y  = []
+        self.cb = []
+        self.cr = []
+        for r, g, b in zip(self.r, self.g, self.b):
+            yraw = self.coefs["ca"]*(r-g) + self.coefs["cb"]*(b-g) + g
+            self.y.append(yraw + self.coefs["yoffset"])
+            self.cb.append(self.coefs["cc"]*(b-yraw) + self.coefs["coffset"])
+            self.cr.append(self.coefs["cd"]*(r-yraw) + self.coefs["coffset"])
+        return self.y, self.cb, self.cr
+
+
+    # Wikipedia implementation used as reference
+    def ycbcr2rgb(self):
+        self.r = []
+        self.g = []
+        self.b = []
+        for y, cb, cr in zip(self.y, self.cb, self.cr):
+            self.r.append(int(y + (cr - 128) *  1.40200))
+            self.g.append(int(y + (cb - 128) * -0.34414 + (cr - 128) * -0.71414))
+            self.b.append(int(y + (cb - 128) *  1.77200))
+        return self.r, self.g, self.b
