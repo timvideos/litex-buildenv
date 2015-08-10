@@ -1,24 +1,12 @@
 from PIL import Image
 
+from migen.fhdl.std import *
+from migen.sim.generic import run_simulation
 
-def coef(value, cw=None):
-    return int(value * 2**cw) if cw is not None else value
+from hdl.csc.common import *
+from hdl.csc.rgb2ycbcr import RGB2YCbCr
 
-
-def hd_pal_coefs(dw, cw=None):
-    d = {
-        "ca"      : coef(0.1819, cw),
-        "cb"      : coef(0.0618, cw),
-        "cc"      : coef(0.6495, cw),
-        "cd"      : coef(0.5512, cw),
-        "yoffset" : 2**(dw-4),
-        "coffset" : 2**(dw-1),
-        "ymax"    : 2**dw-1,
-        "cmax"    : 2**dw-1,
-        "ymin"    : 0,
-        "cmin"    : 0
-    }
-    return d
+from hdl.csc.test.common import *
 
 coefs = hd_pal_coefs(8)
 
@@ -48,6 +36,29 @@ def ycbcr2rgb(y, cb, cr):
     return r, g, b
 
 
+class TB(Module):
+    def __init__(self):
+        self.submodules.streamer = PacketStreamer([("data", 24)])
+        self.submodules.rgb2ycbcr = RGB2YCbCr() # XXX use params
+        self.submodules.logger = PacketLogger([("data", 24)])
+
+        self.comb += [
+            self.rgb2ycbcr.sink.stb.eq(self.streamer.source.stb),
+            self.rgb2ycbcr.sink.payload.raw_bits().eq(self.streamer.source.raw_bits()),
+            self.streamer.source.ack.eq(self.rgb2ycbcr.sink.ack),
+
+            self.logger.sink.stb.eq(self.rgb2ycbcr.source.stb),
+            self.logger.sink.payload.raw_bits().eq(self.rgb2ycbcr.source.raw_bits()),
+            self.rgb2ycbcr.source.ack.eq(self.logger.sink.ack)
+        ]
+
+    def gen_simulation(self, selfp):
+        for i in range(16):
+            packet = Packet([randn(2**24) for i in range(128)])
+            self.streamer.send(packet)
+            yield from self.logger.receive()
+
+
 if __name__ == "__main__":
     img_size = 128
     img = Image.open("lena.png")
@@ -60,3 +71,6 @@ if __name__ == "__main__":
     img = Image.new("RGB" ,(img_size, img_size))
     img.putdata(list(zip(r,g,b)))
     img.save("lena_tb_model.png")
+
+    run_simulation(TB(), ncycles=4096, vcd_name="my.vcd", keep_files=True)
+
