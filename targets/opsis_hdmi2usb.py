@@ -1,7 +1,7 @@
 from targets.opsis_base import *
 
-from misoclib.video import dvisampler
-from misoclib.video import framebuffer
+from hdl import dvisampler
+from hdl import framebuffer
 
 from hdl.encoder import EncoderReader, Encoder
 from hdl.streamer import USBStreamer

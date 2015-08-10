@@ -1,7 +1,7 @@
 from targets.atlys_base import *
 
-from misoclib.video import dvisampler
-from misoclib.video import framebuffer
+from hdl import dvisampler
+from hdl import framebuffer
 
 from misoclib.com.liteeth.common import *
 from misoclib.com.liteeth.phy import LiteEthPHY
