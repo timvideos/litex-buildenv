@@ -239,10 +239,34 @@ class RAWImage:
         self.cr = []
         for r, g, b in zip(self.r, self.g, self.b):
             yraw = self.coefs["ca"]*(r-g) + self.coefs["cb"]*(b-g) + g
-            self.y.append(yraw + self.coefs["yoffset"])
-            self.cb.append(self.coefs["cc"]*(b-yraw) + self.coefs["coffset"])
-            self.cr.append(self.coefs["cd"]*(r-yraw) + self.coefs["coffset"])
+            self.y.append(int(yraw + self.coefs["yoffset"]))
+            self.cb.append(int(self.coefs["cc"]*(b-yraw) + self.coefs["coffset"]))
+            self.cr.append(int(self.coefs["cd"]*(r-yraw) + self.coefs["coffset"]))
         return self.y, self.cb, self.cr
+
+
+    # Wikipedia implementation used as reference
+    def rgb2ycbcr(self):
+        self.y = []
+        self.cb = []
+        self.cr = []
+        for r, g, b in zip(self.r, self.g, self.b):
+            self.y.append(int(0.299*r + 0.587*g + 0.114*b))
+            self.cb.append(int(-0.1687*r - 0.3313*g + 0.5*b + 128))
+            self.cr.append(int(0.5*r - 0.4187*g - 0.0813*b + 128))
+        return self.y, self.cb, self.cr
+
+
+    # Model for our implementation
+    def ycbcr2rgb_model(self):
+        self.r = []
+        self.g = []
+        self.b = []
+        for y, cb, cr in zip(self.y, self.cb, self.cr):
+            self.r.append(int(y - self.coefs["yoffset"] + (cr - self.coefs["coffset"])*self.coefs["acoef"]))
+            self.g.append(int(y - self.coefs["yoffset"] + (cb - self.coefs["coffset"])*self.coefs["bcoef"] + (cr - self.coefs["coffset"])*self.coefs["ccoef"]))
+            self.b.append(int(y - self.coefs["yoffset"] + (cb - self.coefs["coffset"])*self.coefs["dcoef"]))
+        return self.r, self.g, self.b
 
 
     # Wikipedia implementation used as reference
@@ -251,7 +275,9 @@ class RAWImage:
         self.g = []
         self.b = []
         for y, cb, cr in zip(self.y, self.cb, self.cr):
-            self.r.append(int(y + (cr - 128) *  1.40200))
+            self.r.append(int(y + (cr - 128) *  1.402))
             self.g.append(int(y + (cb - 128) * -0.34414 + (cr - 128) * -0.71414))
-            self.b.append(int(y + (cb - 128) *  1.77200))
+            self.b.append(int(y + (cb - 128) *  1.772))
         return self.r, self.g, self.b
+
+

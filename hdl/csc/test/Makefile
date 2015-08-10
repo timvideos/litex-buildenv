@@ -5,3 +5,6 @@ CMD = PYTHONPATH=$(HDLDIR) $(PYTHON)
 
 rgb2ycbcr_tb:
 	$(CMD) rgb2ycbcr_tb.py
+
+ycbcr2rgb_tb:
+	$(CMD) ycbcr2rgb_tb.py
