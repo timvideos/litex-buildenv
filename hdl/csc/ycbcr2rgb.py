@@ -15,6 +15,7 @@ def ycbcr2rgb_coefs(dw, cw=None):
     cb = 0.0618
     cc = 0.5512
     cd = 0.6495
+    xcoef_w = None if cw is None else cw-2
     return {
         "ca" : coef(ca, cw),
         "cb" : coef(cb, cw),
@@ -26,10 +27,10 @@ def ycbcr2rgb_coefs(dw, cw=None):
         "cmax" : 2**dw-1,
         "ymin" : 0,
         "cmin" : 0,
-        "acoef": coef(1/cd, cw),
-        "bcoef": coef(-cb/(cc*(1-ca-cb)), cw),
-        "ccoef": coef(-ca/(cd*(1-ca-cb)), cw),
-        "dcoef": coef(1/cc, cw)
+        "acoef": coef(1/cd, xcoef_w),
+        "bcoef": coef(-cb/(cc*(1-ca-cb)), xcoef_w),
+        "ccoef": coef(-ca/(cd*(1-ca-cb)), xcoef_w),
+        "dcoef": coef(1/cc, xcoef_w)
     }
 
 datapath_latency = 5
@@ -93,17 +94,17 @@ class YCbCr2RGBDatapath(Module):
         g = Signal((ycbcr_w + 4, True))
         b = Signal((ycbcr_w + 4, True))
         self.sync += [
-            r.eq(y_minus_yoffset + cr_minus_coffset_mult_acoef[coef_w:]),
-            g.eq(y_minus_yoffset + cb_minus_coffset_mult_bcoef[coef_w:] + cr_minus_coffset_mult_ccoef[coef_w:]),
-            b.eq(y_minus_yoffset + cb_minus_coffset_mult_dcoef[coef_w:])
+            r.eq(y_minus_yoffset + cr_minus_coffset_mult_acoef[coef_w-2:]),
+            g.eq(y_minus_yoffset + cb_minus_coffset_mult_bcoef[coef_w-2:] + cr_minus_coffset_mult_ccoef[coef_w-2:]),
+            b.eq(y_minus_yoffset + cb_minus_coffset_mult_dcoef[coef_w-2:])
         ]
 
         # stage 5
         # saturate
         self.sync += [
-            saturate(r, source.r, 0, 255),
-            saturate(g, source.g, 0, 255),
-            saturate(b, source.b, 0, 255)
+            saturate(r, source.r, 0, 2**rgb_w-1),
+            saturate(g, source.g, 0, 2**rgb_w-1),
+            saturate(b, source.b, 0, 2**rgb_w-1)
         ]
 
 
