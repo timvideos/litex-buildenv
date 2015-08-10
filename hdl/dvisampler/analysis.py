@@ -5,7 +5,7 @@ from migen.genlib.record import Record
 from migen.bank.description import *
 from migen.flow.actor import *
 
-from hdl..dvisampler.common import channel_layout
+from hdl.dvisampler.common import channel_layout
 
 
 class SyncPolarity(Module):

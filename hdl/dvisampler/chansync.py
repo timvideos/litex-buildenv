@@ -5,7 +5,7 @@ from migen.genlib.record import Record, layout_len
 from migen.genlib.misc import optree
 from migen.bank.description import *
 
-from hdl..dvisampler.common import channel_layout
+from hdl.dvisampler.common import channel_layout
 
 
 class _SyncBuffer(Module):

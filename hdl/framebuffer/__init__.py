@@ -5,8 +5,8 @@ from migen.bank.description import AutoCSR
 from migen.actorlib import structuring, misc
 
 from misoclib.mem.sdram.frontend import dma_lasmi
-from hdl..framebuffer.format import bpp, pixel_layout, FrameInitiator, VTG
-from hdl..framebuffer.phy import Driver
+from hdl.framebuffer.format import bpp, pixel_layout, FrameInitiator, VTG
+from hdl.framebuffer.phy import Driver
 
 
 class Framebuffer(Module, AutoCSR):

@@ -1,15 +1,15 @@
 from migen.fhdl.std import *
 from migen.bank.description import AutoCSR
 
-from hdl..dvisampler.edid import EDID
-from hdl..dvisampler.clocking import Clocking
-from hdl..dvisampler.datacapture import DataCapture
-from hdl..dvisampler.charsync import CharSync
-from hdl..dvisampler.wer import WER
-from hdl..dvisampler.decoding import Decoding
-from hdl..dvisampler.chansync import ChanSync
-from hdl..dvisampler.analysis import SyncPolarity, ResolutionDetection, FrameExtraction
-from hdl..dvisampler.dma import DMA
+from hdl.dvisampler.edid import EDID
+from hdl.dvisampler.clocking import Clocking
+from hdl.dvisampler.datacapture import DataCapture
+from hdl.dvisampler.charsync import CharSync
+from hdl.dvisampler.wer import WER
+from hdl.dvisampler.decoding import Decoding
+from hdl.dvisampler.chansync import ChanSync
+from hdl.dvisampler.analysis import SyncPolarity, ResolutionDetection, FrameExtraction
+from hdl.dvisampler.dma import DMA
 
 
 class DVISampler(Module, AutoCSR):

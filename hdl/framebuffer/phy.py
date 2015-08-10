@@ -4,8 +4,8 @@ from migen.genlib.cdc import MultiReg
 from migen.bank.description import *
 from migen.flow.actor import *
 
-from hdl..framebuffer.format import bpc_phy, phy_layout
-from hdl..framebuffer import dvi
+from hdl.framebuffer.format import bpc_phy, phy_layout
+from hdl.framebuffer import dvi
 
 
 class _FIFO(Module):
