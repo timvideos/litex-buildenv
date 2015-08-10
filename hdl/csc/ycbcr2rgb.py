@@ -33,7 +33,7 @@ def ycbcr2rgb_coefs(dw, cw=None):
         "dcoef": coef(1/cc, xcoef_w)
     }
 
-datapath_latency = 5
+datapath_latency = 4
 
 
 @DecorateModule(InsertCE)
@@ -76,10 +76,10 @@ class YCbCr2RGBDatapath(Module):
         # (cr - coffset)*ccoef
         # (cb - coffset)*dcoef
         y_minus_yoffset = Signal((ycbcr_w + 1, True))
-        cr_minus_coffset_mult_acoef = Signal((ycbcr_w + coef_w + 1, True))
-        cb_minus_coffset_mult_bcoef = Signal((ycbcr_w + coef_w + 1, True))
-        cr_minus_coffset_mult_ccoef = Signal((ycbcr_w + coef_w + 1, True))
-        cb_minus_coffset_mult_dcoef = Signal((ycbcr_w + coef_w + 1, True))
+        cr_minus_coffset_mult_acoef = Signal((ycbcr_w + coef_w + 4, True))
+        cb_minus_coffset_mult_bcoef = Signal((ycbcr_w + coef_w + 4, True))
+        cr_minus_coffset_mult_ccoef = Signal((ycbcr_w + coef_w + 4, True))
+        cb_minus_coffset_mult_dcoef = Signal((ycbcr_w + coef_w + 4, True))
         self.sync += [
             y_minus_yoffset.eq(ycbcr_delayed[1].y - coefs["yoffset"]),
             cr_minus_coffset_mult_acoef.eq(cr_minus_coffset * coefs["acoef"]),
@@ -88,7 +88,7 @@ class YCbCr2RGBDatapath(Module):
             cb_minus_coffset_mult_dcoef.eq(cb_minus_coffset * coefs["dcoef"])
         ]
 
-        # stage 4
+        # stage 3
         # line addition for all component
         r = Signal((ycbcr_w + 4, True))
         g = Signal((ycbcr_w + 4, True))
@@ -99,7 +99,7 @@ class YCbCr2RGBDatapath(Module):
             b.eq(y_minus_yoffset + cb_minus_coffset_mult_dcoef[coef_w-2:])
         ]
 
-        # stage 5
+        # stage 4
         # saturate
         self.sync += [
             saturate(r, source.r, 0, 2**rgb_w-1),
