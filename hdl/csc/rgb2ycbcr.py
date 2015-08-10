@@ -74,7 +74,7 @@ class RGB2YCbCrDatapath(Module):
 
         # stage 3
         # ca*(r-g) + cb*(b-g)
-        carg_plus_cbbg = Signal((rgb_w + coef_w + 2, True))
+        carg_plus_cbbg = Signal((rgb_w + coef_w + 9, True)) # XXX
         self.sync += [
             carg_plus_cbbg.eq(ca_mult_rg + cb_mult_bg)
         ]
