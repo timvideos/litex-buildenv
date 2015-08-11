@@ -95,16 +95,15 @@ class DMA(Module):
             )
         ]
 
-        # 24bpp -> 32bpp
+        # pack 24bits pixels in 32bits words
         memory_word = Signal(bus_dw)
         pixbits = []
         for i in range(bus_dw//32):
             for j in range(3):
                 b = (i*3+j)*8
-                pixbits.append(self.frame.pixels[b+6:b+8])
                 pixbits.append(self.frame.pixels[b:b+8])
-            pixbits.append(0)
-            pixbits.append(0)
+            for j in range(8):
+            	pixbits.append(0)
         self.comb += memory_word.eq(Cat(*pixbits))
 
         # bus accessor

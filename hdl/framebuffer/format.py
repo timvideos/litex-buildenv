@@ -9,7 +9,7 @@ _hbits = 12
 _vbits = 12
 
 bpp = 32
-bpc = 10
+bpc = 8
 pixel_layout_s = [
     ("pad", bpp-3*bpc),
     ("r", bpc),

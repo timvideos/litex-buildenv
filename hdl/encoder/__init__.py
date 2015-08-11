@@ -15,7 +15,7 @@ from hdl.csc.rgb2ycbcr import RGB2YCbCr
 
 class EncoderReader(Module, AutoCSR):
     def __init__(self, lasmim):
-        self.source = Source([("data", 32)])
+        self.source = Source([("data", 24)])
 
         reader = dma_lasmi.Reader(lasmim)
         self.dma = spi.DMAReadController(reader, mode=spi.MODE_SINGLE_SHOT)
@@ -41,7 +41,7 @@ class EncoderReader(Module, AutoCSR):
 
 class Encoder(Module):
     def __init__(self, platform):
-        self.sink = Sink([("data", 30)])
+        self.sink = Sink([("data", 24)])
         self.source = Source([("data", 8)])
         self.bus = wishbone.Interface()
 
@@ -51,9 +51,9 @@ class Encoder(Module):
         self.comb += [
           self.rgb2ycbcr.sink.stb.eq(self.sink.stb),
           self.sink.ack.eq(self.rgb2ycbcr.sink.ack),
-          self.rgb2ycbcr.sink.r.eq(self.sink.data[22:30]),
-          self.rgb2ycbcr.sink.g.eq(self.sink.data[12:20]),
-          self.rgb2ycbcr.sink.b.eq(self.sink.data[2:10])
+          self.rgb2ycbcr.sink.r.eq(self.sink.data[16:24]),
+          self.rgb2ycbcr.sink.g.eq(self.sink.data[8:16]),
+          self.rgb2ycbcr.sink.b.eq(self.sink.data[0:8])
         ]
 
         data = Signal(24)
