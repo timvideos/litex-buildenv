@@ -145,6 +145,7 @@ architecture RTL of FDCT is
   signal cur_cmp_idx_d5    : unsigned(2 downto 0):=(others=>'0');
   signal cur_cmp_idx_d6    : unsigned(2 downto 0):=(others=>'0');
   signal cur_cmp_idx_d7    : unsigned(2 downto 0):=(others=>'0');
+  signal cur_cmp_idx_d8    : unsigned(2 downto 0):=(others=>'0');
   signal fifo1_rd          : std_logic:='0';
   signal fifo1_wr          : std_logic:='0';
   signal fifo1_q           : std_logic_vector(11 downto 0):=(others=>'0');
@@ -243,6 +244,7 @@ begin
       cur_cmp_idx_d5  <= (others => '0');
       cur_cmp_idx_d6  <= (others => '0');
       cur_cmp_idx_d7  <= (others => '0');
+      cur_cmp_idx_d8  <= (others => '0');
       eoi_fdct        <= '0';
       start_int       <= '0';
       bf_fifo_rd_s    <= '0';
@@ -265,6 +267,7 @@ begin
       cur_cmp_idx_d5 <= cur_cmp_idx_d4;
       cur_cmp_idx_d6 <= cur_cmp_idx_d5;
       cur_cmp_idx_d7 <= cur_cmp_idx_d6;
+      cur_cmp_idx_d8 <= cur_cmp_idx_d7;
 
       start_int      <= '0';
       bf_dval_m3     <= bf_fifo_rd_s;
@@ -420,11 +423,18 @@ begin
     dcto1        => dcto1
         );
 
-  mdct_idval   <= fram1_rd_d(6);
+  mdct_idval   <= fram1_rd_d(7);
 
-  Y_8bit  <= fram1_q(7 downto 0);
-  Cb_8bit <= fram1_q(15 downto 8);
-  Cr_8bit <= fram1_q(23 downto 16);
+  p_pipe : process(CLK)
+  begin
+    if CLK'event and CLK = '1' then
+      Y_8bit  <= unsigned(fram1_q(7 downto 0));
+      Cb_8bit <= unsigned(fram1_q(15 downto 8));
+      Cr_8bit <= unsigned(fram1_q(23 downto 16));
+    end if;
+  end process;
+
+
 
   -------------------------------------------------------------------
   -- Mux1
@@ -434,7 +444,7 @@ begin
     if RST = '1' then
       mdct_data_in <= (others => '0');
     elsif CLK'event and CLK = '1' then
-      case cur_cmp_idx_d7 is
+      case cur_cmp_idx_d8 is
         when "000" | "001" =>
           mdct_data_in <= std_logic_vector(Y_8bit);
         when "010" =>
