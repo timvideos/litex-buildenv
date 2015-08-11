@@ -9,6 +9,7 @@ from hdl.framebuffer import dvi
 
 from hdl.csc.ycbcr2rgb import YCbCr2RGB
 from hdl.csc.ycbcr422to444 import YCbCr422to444
+from hdl.csc.ymodulator import YModulator
 
 class _FIFO(Module):
     def __init__(self, pack_factor):
@@ -213,10 +214,13 @@ class Driver(Module, AutoCSR):
           chroma_upsampler.sink.cb_cr.eq(fifo.pix_cb_cr)
         ]
 
+        self.submodules.luma_modulator = RenameClockDomains(YModulator(), "pix")
+        self.comb += Record.connect(chroma_upsampler.source, self.luma_modulator.sink)
+
         ycbcr2rgb = YCbCr2RGB()
         self.submodules += RenameClockDomains(ycbcr2rgb, "pix")
         self.comb += [
-            Record.connect(chroma_upsampler.source, ycbcr2rgb.sink),
+            Record.connect(self.luma_modulator.source, ycbcr2rgb.sink),
             ycbcr2rgb.source.ack.eq(1)
         ]
 
@@ -224,7 +228,9 @@ class Driver(Module, AutoCSR):
         de = fifo.pix_de
         hsync = fifo.pix_hsync
         vsync = fifo.pix_vsync
-        for i in range(chroma_upsampler.latency + ycbcr2rgb.latency):
+        for i in range(chroma_upsampler.latency +
+        	           self.luma_modulator.latency +
+        	           ycbcr2rgb.latency):
             next_de = Signal()
             next_vsync = Signal()
             next_hsync = Signal()

@@ -79,7 +79,7 @@ static void system_status(void)
 	printf(" | ");
 	if(fb_fi_enable_read())
 		printf("dvi_out: %dx%d", processor_h_active,
-		    						processor_v_active);
+		    					 processor_v_active);
 	else
 		printf("dvi_out: OFF");
 	printf(" | ");

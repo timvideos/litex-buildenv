@@ -36,7 +36,8 @@ TIMESPEC "TSise_sucks8" = FROM "GRPsys_clk" TO "GRPpix_clk" TIG;
 
 class HDMI2USBSoC(VideomixerSoC):
     csr_map = {
-        "encoder_reader": 22
+        "encoder_reader": 22,
+        "encoder":        23
     }
     csr_map.update(VideomixerSoC.csr_map)
     mem_map = {
