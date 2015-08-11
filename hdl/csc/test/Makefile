@@ -8,3 +8,6 @@ rgb2ycbcr_tb:
 
 ycbcr2rgb_tb:
 	$(CMD) ycbcr2rgb_tb.py
+
+ycbcr_resampling_tb:
+	$(CMD) ycbcr_resampling_tb.py

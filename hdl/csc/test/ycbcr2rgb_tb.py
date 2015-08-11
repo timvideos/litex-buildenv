@@ -36,7 +36,7 @@ class TB(Module):
         raw_image = RAWImage(ycbcr2rgb_coefs(8), "lena.png", 64)
         raw_image.rgb2ycbcr()
         raw_image.ycbcr2rgb_model()
-        raw_image.save("lena_reference.png")
+        raw_image.save("lena_ycbcr2rgb_reference.png")
 
         for i in range(16):
             yield
@@ -50,7 +50,7 @@ class TB(Module):
         yield from self.logger.receive()
         raw_image.set_data(self.logger.packet)
         raw_image.unpack_rgb()
-        raw_image.save("lena_implementation.png")
+        raw_image.save("lena_ycbcr2rgb.png")
 
 
 if __name__ == "__main__":

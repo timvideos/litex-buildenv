@@ -21,5 +21,8 @@ def rgb_layout(dw):
     return [("r", dw), ("g", dw), ("b", dw)]
 
 
-def ycbcr_layout(dw):
+def ycbcr444_layout(dw):
     return [("y", dw), ("cb", dw), ("cr", dw)]
+
+def ycbcr422_layout(dw):
+    return [("y", dw), ("cb_cr", dw)]

@@ -31,7 +31,7 @@ datapath_latency = 8
 class RGB2YCbCrDatapath(Module):
     def __init__(self, rgb_w, ycbcr_w, coef_w):
         self.sink = sink = Record(rgb_layout(rgb_w))
-        self.source = source = Record(ycbcr_layout(ycbcr_w))
+        self.source = source = Record(ycbcr444_layout(ycbcr_w))
 
         # # #
 
@@ -132,7 +132,7 @@ class RGB2YCbCrDatapath(Module):
 class RGB2YCbCr(PipelinedActor, Module):
     def __init__(self, rgb_w=8, ycbcr_w=8, coef_w=8):
         self.sink = sink = Sink(EndpointDescription(rgb_layout(rgb_w), packetized=True))
-        self.source = source = Source(EndpointDescription(ycbcr_layout(ycbcr_w), packetized=True))
+        self.source = source = Source(EndpointDescription(ycbcr444_layout(ycbcr_w), packetized=True))
         PipelinedActor.__init__(self, datapath_latency)
         self.latency = datapath_latency
 

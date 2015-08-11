@@ -38,7 +38,7 @@ class TB(Module):
         raw_image = RAWImage(rgb2ycbcr_coefs(8), "lena.png", 64)
         raw_image.rgb2ycbcr_model()
         raw_image.ycbcr2rgb()
-        raw_image.save("lena_reference.png")
+        raw_image.save("lena_rgb2ycbcr_reference.png")
 
         for i in range(16):
             yield
@@ -52,7 +52,7 @@ class TB(Module):
         raw_image.set_data(self.logger.packet)
         raw_image.unpack_ycbcr()
         raw_image.ycbcr2rgb()
-        raw_image.save("lena_implementation.png")
+        raw_image.save("lena_rgb2ycbcr.png")
 
 if __name__ == "__main__":
     run_simulation(TB(), ncycles=8192, vcd_name="my.vcd", keep_files=True)
