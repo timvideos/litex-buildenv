@@ -1,12 +1,13 @@
+BOARD ?= atlys
 MSCDIR ?= ../misoc
 PROG ?= impact
 SERIAL ?= /dev/ttyVIZ0
+TARGET ?= hdmi2usb
 
-HDMI2USBDIR = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+HDMI2USBDIR = ../HDMI2USB-misoc-firmware
 PYTHON = python3
-TARGET = atlys_hdmi2usb
 
-CMD = $(PYTHON) make.py -X $(HDMI2USBDIR) -t $(TARGET) -Ot firmware_filename $(HDMI2USBDIR)/firmware/lm32/firmware.bin -Op programmer $(PROG)
+CMD = $(PYTHON) make.py -X $(HDMI2USBDIR) -t $(BOARD)_$(TARGET) -Ot firmware_filename $(HDMI2USBDIR)/firmware/lm32/firmware.bin -Op programmer $(PROG)
 
 ifeq ($(OS),Windows_NT)
 	FLTERM = $(PYTHON) $(MSCDIR)/tools/flterm.py
@@ -17,11 +18,14 @@ endif
 help:
 	@echo "Targets avaliable:"
 	@echo " make gateware"
-	@echo " make load_gateware"
-	@echo " make load_firmware (OR) make load_firmware_alt"
+	@echo " make load-gateware"
+	@echo " make load-lm32-firmware"
 	@echo " make clean"
 	@echo ""
 	@echo "Environment:"
+	@echo "  BOARD=atlys OR opsis  (current: $(BOARD))"
+	@echo " TARGET=base OR hdmi2usb OR hdmi2ethernet"
+	@echo "                        (current: $(TARGET)"
 	@echo " MSCDIR=misoc directory (current: $(MSCDIR))"
 	@echo "   PROG=programmer      (current: $(PROG))"
 	@echo " SERIAL=serial port     (current: $(SERIAL))"
@@ -29,7 +33,7 @@ help:
 gateware: lm32-firmware
 	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv clean
 	cp hdl/encoder/vhdl/header.hex $(MSCDIR)/build/header.hex
-	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream load-bitstream
+	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream
 
 load-gateware:
 	cd $(MSCDIR) && $(CMD) load-bitstream
