@@ -57,7 +57,7 @@ void dvisampler_isr(void)
 		return;
 	}
 
-	expected_length = dvisampler_hres*dvisampler_vres*4;
+	expected_length = dvisampler_hres*dvisampler_vres*2;
 	if(dvisampler_dma_slot0_status_read() == DVISAMPLER_SLOT_PENDING) {
 		length = dvisampler_dma_slot0_address_read() - (dvisampler_framebuffer_base(dvisampler_fb_slot_indexes[0]) & 0x0fffffff);
 		if(length == expected_length) {
@@ -96,7 +96,7 @@ void dvisampler_init_video(int hres, int vres)
 	dvisampler_connected = dvisampler_locked = 0;
 	dvisampler_hres = hres; dvisampler_vres = vres;
 
-	dvisampler_dma_frame_size_write(hres*vres*4);
+	dvisampler_dma_frame_size_write(hres*vres*2);
 	dvisampler_fb_slot_indexes[0] = 0;
 	dvisampler_dma_slot0_address_write(dvisampler_framebuffer_base(0));
 	dvisampler_dma_slot0_status_write(DVISAMPLER_SLOT_LOADED);

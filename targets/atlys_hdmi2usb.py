@@ -6,21 +6,21 @@ from hdl import framebuffer
 from hdl.encoder import EncoderReader, Encoder
 from hdl.streamer import USBStreamer
 
-class VideomixerSoC(MiniSoC):
+class VideomixerSoC(BaseSoC):
     csr_map = {
         "fb":                  19,
         "dvisampler":          20,
         "dvisampler_edid_mem": 21
     }
-    csr_map.update(MiniSoC.csr_map)
+    csr_map.update(BaseSoC.csr_map)
 
     interrupt_map = {
         "dvisampler": 3,
     }
-    interrupt_map.update(MiniSoC.interrupt_map)
+    interrupt_map.update(BaseSoC.interrupt_map)
 
     def __init__(self, platform, **kwargs):
-        MiniSoC.__init__(self, platform, **kwargs)
+        BaseSoC.__init__(self, platform, **kwargs)
         self.submodules.dvisampler = dvisampler.DVISampler(platform.request("dvi_in", 1),
                                                            self.sdram.crossbar.get_master(),
                                                            fifo_depth=4096)

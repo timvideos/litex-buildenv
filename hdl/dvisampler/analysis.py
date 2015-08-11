@@ -8,6 +8,7 @@ from migen.flow.actor import *
 from hdl.dvisampler.common import channel_layout
 
 from hdl.csc.rgb2ycbcr import RGB2YCbCr
+from hdl.csc.ycbcr444to422 import YCbCr444to422
 
 class SyncPolarity(Module):
     def __init__(self):
@@ -128,18 +129,24 @@ class FrameExtraction(Module, AutoCSR):
 
         ###
 
+        vsync_d = Signal()
+        self.sync.pix += vsync_d.eq(self.vsync)
+
         rgb2ycbcr = RGB2YCbCr()
         self.submodules += RenameClockDomains(rgb2ycbcr, "pix")
+        ycbcr444to422 = YCbCr444to422()
+        self.submodules += RenameClockDomains(ycbcr444to422, "pix")
         self.comb += [
             rgb2ycbcr.sink.stb.eq(self.valid_i),
             rgb2ycbcr.sink.r.eq(self.r),
             rgb2ycbcr.sink.g.eq(self.g),
             rgb2ycbcr.sink.b.eq(self.b),
-            rgb2ycbcr.source.ack.eq(1)
+            Record.connect(rgb2ycbcr.source, ycbcr444to422.sink),
+            ycbcr444to422.source.ack.eq(1)
         ]
         de = self.de
         vsync = self.vsync
-        for i in range(rgb2ycbcr.latency):
+        for i in range(rgb2ycbcr.latency + ycbcr444to422.latency):
             next_de = Signal()
             next_vsync = Signal()
             self.sync.pix += [
@@ -158,9 +165,9 @@ class FrameExtraction(Module, AutoCSR):
         # pack pixels into words
         cur_word = Signal(word_width)
         cur_word_valid = Signal()
-        encoded_pixel = Signal(24)
-        self.comb += encoded_pixel.eq(Cat(rgb2ycbcr.source.y, rgb2ycbcr.source.cb, rgb2ycbcr.source.cr)),
-        pack_factor = word_width//24
+        encoded_pixel = Signal(16)
+        self.comb += encoded_pixel.eq(Cat(ycbcr444to422.source.y, ycbcr444to422.source.cb_cr)),
+        pack_factor = word_width//16
         assert(pack_factor & (pack_factor - 1) == 0)  # only support powers of 2
         pack_counter = Signal(max=pack_factor)
         self.sync.pix += [
@@ -168,9 +175,9 @@ class FrameExtraction(Module, AutoCSR):
             If(new_frame,
                 cur_word_valid.eq(pack_counter == (pack_factor - 1)),
                 pack_counter.eq(0),
-            ).Elif(rgb2ycbcr.source.stb & de,
+            ).Elif(ycbcr444to422.source.stb & de,
                 [If(pack_counter == (pack_factor-i-1),
-                    cur_word[24*i:24*(i+1)].eq(encoded_pixel)) for i in range(pack_factor)],
+                    cur_word[16*i:16*(i+1)].eq(encoded_pixel)) for i in range(pack_factor)],
                 cur_word_valid.eq(pack_counter == (pack_factor - 1)),
                 pack_counter.eq(pack_counter + 1)
             )

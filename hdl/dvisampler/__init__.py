@@ -63,7 +63,7 @@ class DVISampler(Module, AutoCSR):
             self.resdetection.vsync.eq(self.syncpol.vsync)
         ]
 
-        self.submodules.frame = FrameExtraction(24*lasmim.dw//32, fifo_depth)
+        self.submodules.frame = FrameExtraction(lasmim.dw, fifo_depth)
         self.comb += [
             self.frame.valid_i.eq(self.syncpol.valid_o),
             self.frame.de.eq(self.syncpol.de),

@@ -67,7 +67,7 @@ class DMA(Module):
         bus_dw = lasmim.dw
         alignment_bits = bits_for(bus_dw//8) - 1
 
-        fifo_word_width = 24*bus_dw//32
+        fifo_word_width = bus_dw
         self.frame = Sink([("sof", 1), ("pixels", fifo_word_width)])
         self._frame_size = CSRStorage(bus_aw + alignment_bits, alignment_bits=alignment_bits)
         self.submodules._slot_array = _SlotArray(nslots, bus_aw, alignment_bits)
@@ -98,12 +98,8 @@ class DMA(Module):
         # pack 24bits pixels in 32bits words
         memory_word = Signal(bus_dw)
         pixbits = []
-        for i in range(bus_dw//32):
-            for j in range(3):
-                b = (i*3+j)*8
-                pixbits.append(self.frame.pixels[b:b+8])
-            for j in range(8):
-                pixbits.append(0)
+        for i in range(bus_dw//16):
+            pixbits.append(self.frame.pixels)
         self.comb += memory_word.eq(Cat(*pixbits))
 
         # bus accessor

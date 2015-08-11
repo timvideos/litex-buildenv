@@ -11,17 +11,19 @@ from migen.bank.eventmanager import *
 
 from misoclib.mem.sdram.frontend import dma_lasmi
 
+from hdl.csc.ycbcr422to444 import YCbCr422to444
+
 class EncoderReader(Module, AutoCSR):
     def __init__(self, lasmim):
-        self.source = Source([("data", 24)])
+        self.source = source = Source(EndpointDescription([("data", 16)], packetized=True))
 
         reader = dma_lasmi.Reader(lasmim)
         self.dma = spi.DMAReadController(reader, mode=spi.MODE_SINGLE_SHOT)
 
-        pack_factor = lasmim.dw//32
-        packed_dat = structuring.pack_layout(32, pack_factor)
+        pack_factor = lasmim.dw//16
+        packed_dat = structuring.pack_layout(16, pack_factor)
         cast = structuring.Cast(lasmim.dw, packed_dat)
-        unpack = structuring.Unpack(pack_factor, [("data", 32)], reverse=True)
+        unpack = structuring.Unpack(pack_factor, [("data", 16)], reverse=True)
 
 
         # Graph
@@ -29,6 +31,14 @@ class EncoderReader(Module, AutoCSR):
         g.add_pipeline(self.dma, cast, unpack)
         self.submodules += CompositeActor(g)
         self.comb += Record.connect(unpack.source, self.source)
+
+        self.sync += [
+          If(self.dma._busy.status == 0,
+              source.sop.eq(1),
+          ).Elif(source.stb & source.ack,
+              source.sop.eq(0)
+          )
+        ]
 
         # Irq
         self.submodules.ev = EventManager()
@@ -39,17 +49,26 @@ class EncoderReader(Module, AutoCSR):
 
 class Encoder(Module):
     def __init__(self, platform):
-        self.sink = Sink([("data", 24)])
+        self.sink = Sink(EndpointDescription([("data", 16)], packetized=True))
         self.source = Source([("data", 8)])
         self.bus = wishbone.Interface()
 
         # # #
 
+        self.submodules.upsampler = YCbCr422to444()
+        self.comb += [
+          self.upsampler.sink.stb.eq(self.sink.stb),
+          self.upsampler.sink.sop.eq(self.sink.sop),
+          self.upsampler.sink.y.eq(self.sink.data[:8]),
+          self.upsampler.sink.cb_cr.eq(self.sink.data[8:]),
+          self.sink.ack.eq(self.upsampler.sink.ack)
+        ]
+
         fifo = SyncFIFO([("data", 8)], 1024)
         self.submodules += fifo
 
         iram_fifo_full = Signal()
-        self.comb += self.sink.ack.eq(~iram_fifo_full)
+        self.comb += self.upsampler.source.ack.eq(~iram_fifo_full)
 
         self.specials += Instance("JpegEnc",
                                    i_CLK=ClockSignal(),
@@ -66,8 +85,10 @@ class Encoder(Module):
                                    #o_OPB_toutSup=,
                                    o_OPB_errAck=self.bus.err,
 
-                                   i_iram_wdata=self.sink.data,
-                                   i_iram_wren=self.sink.stb & ~iram_fifo_full,
+                                   i_iram_wdata=Cat(self.upsampler.source.y,
+                                                    self.upsampler.source.cb,
+                                                    self.upsampler.source.cr),
+                                   i_iram_wren=self.upsampler.source.stb & ~iram_fifo_full,
                                    o_iram_fifo_afull=iram_fifo_full,
 
                                    o_ram_byte=fifo.sink.data,
@@ -76,10 +97,7 @@ class Encoder(Module):
                                    i_outif_almost_full=(fifo.fifo.level > (1024-128)),
                                    #o_frame_size=
                                    )
-        self.comb += [
-            self.sink.ack.eq(~iram_fifo_full),
-            Record.connect(fifo.source, self.source)
-        ]
+        self.comb += Record.connect(fifo.source, self.source)
 
         # add VHDL sources
         platform.add_source_dir(os.path.join(platform.soc_ext_path, "hdl", "encoder", "vhdl"))
