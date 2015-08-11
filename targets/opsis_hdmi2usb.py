@@ -23,7 +23,7 @@ class VideomixerSoC(BaseSoC):
         BaseSoC.__init__(self, platform, **kwargs)
         self.submodules.dvisampler = dvisampler.DVISampler(platform.request("dvi_in", 1),
                                                            self.sdram.crossbar.get_master(),
-                                                           fifo_depth=4096)
+                                                           fifo_depth=512)
         self.submodules.fb = framebuffer.Framebuffer(None, platform.request("dvi_out", 1),
                                                      self.sdram.crossbar.get_master())
         platform.add_platform_command("""PIN "dviout_pix_bufg.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
