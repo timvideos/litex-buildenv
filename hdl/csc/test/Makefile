@@ -11,3 +11,8 @@ ycbcr2rgb_tb:
 
 ycbcr_resampling_tb:
 	$(CMD) ycbcr_resampling_tb.py
+
+clean:
+	rm -rf *_*.png *.vvp *.v *.vcd
+
+.PHONY: clean

@@ -14,21 +14,15 @@ class TB(Module):
         self.submodules.logger = PacketLogger(EndpointDescription([("data", 24)], packetized=True))
 
         self.comb += [
-            self.ycbcr2rgb.sink.stb.eq(self.streamer.source.stb),
-            self.ycbcr2rgb.sink.sop.eq(self.streamer.source.sop),
-            self.ycbcr2rgb.sink.eop.eq(self.streamer.source.eop),
+            Record.connect(self.streamer.source, self.ycbcr2rgb.sink, leave_out=["data"]),
             self.ycbcr2rgb.sink.payload.y.eq(self.streamer.source.data[16:24]),
             self.ycbcr2rgb.sink.payload.cb.eq(self.streamer.source.data[8:16]),
             self.ycbcr2rgb.sink.payload.cr.eq(self.streamer.source.data[0:8]),
-            self.streamer.source.ack.eq(self.ycbcr2rgb.sink.ack),
 
-            self.logger.sink.stb.eq(self.ycbcr2rgb.source.stb),
-            self.logger.sink.sop.eq(self.ycbcr2rgb.source.sop),
-            self.logger.sink.eop.eq(self.ycbcr2rgb.source.eop),
+            Record.connect(self.ycbcr2rgb.source, self.logger.sink, leave_out=["r", "g", "b"]),
             self.logger.sink.data[16:24].eq(self.ycbcr2rgb.source.r),
             self.logger.sink.data[8:16].eq(self.ycbcr2rgb.source.g),
-            self.logger.sink.data[0:8].eq(self.ycbcr2rgb.source.b),
-            self.ycbcr2rgb.source.ack.eq(self.logger.sink.ack)
+            self.logger.sink.data[0:8].eq(self.ycbcr2rgb.source.b)
         ]
 
     def gen_simulation(self, selfp):
