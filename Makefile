@@ -52,8 +52,14 @@ load-fx2-firmware: fx2-firmware
 	firmware/fx2/download.sh firmware/fx2/hdmi2usb.hex
 
 clean:
+	cd $(MSCDIR) && $(CMD) clean
 	$(MAKE) -C firmware/lm32 clean
 	$(MAKE) -C firmware/fx2 clean
+
+load: load-gateware load-lm32-firmware load-fx2-firmware
+
+view:
+	guvcview --device=/dev/video0 --show_fps=1 --size=1024X768
 
 all: gateware load-gateware load-lm32-firmware
 
