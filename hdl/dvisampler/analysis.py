@@ -129,8 +129,8 @@ class FrameExtraction(Module, AutoCSR):
 
         ###
 
-        vsync_d = Signal()
-        self.sync.pix += vsync_d.eq(self.vsync)
+        de_r = Signal()
+        self.sync.pix += de_r.eq(self.de)
 
         rgb2ycbcr = RGB2YCbCr()
         self.submodules += RenameClockDomains(rgb2ycbcr, "pix")
@@ -138,6 +138,7 @@ class FrameExtraction(Module, AutoCSR):
         self.submodules += RenameClockDomains(ycbcr444to422, "pix")
         self.comb += [
             rgb2ycbcr.sink.stb.eq(self.valid_i),
+            rgb2ycbcr.sink.sop.eq(self.de & ~de_r),
             rgb2ycbcr.sink.r.eq(self.r),
             rgb2ycbcr.sink.g.eq(self.g),
             rgb2ycbcr.sink.b.eq(self.b),

@@ -227,7 +227,7 @@ static void fb_set_mode(const struct video_timing *mode)
 	fb_fi_vsync_end_write(mode->v_active + mode->v_sync_offset + mode->v_sync_width);
 	fb_fi_vscan_write(mode->v_active + mode->v_blanking);
 
-	fb_fi_length_write(mode->h_active*mode->v_active*4);
+	fb_fi_length_write(mode->h_active*mode->v_active*2);
 
 	fb_clkgen_write(0x1, clock_d-1);
 	fb_clkgen_write(0x3, clock_m-1);

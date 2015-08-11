@@ -8,6 +8,7 @@ from hdl.framebuffer.format import bpc_phy, phy_layout
 from hdl.framebuffer import dvi
 
 from hdl.csc.ycbcr2rgb import YCbCr2RGB
+from hdl.csc.ycbcr422to444 import YCbCr422to444
 
 class _FIFO(Module):
     def __init__(self, pack_factor):
@@ -18,8 +19,7 @@ class _FIFO(Module):
         self.pix_vsync = Signal()
         self.pix_de = Signal()
         self.pix_y = Signal(bpc_phy)
-        self.pix_cb = Signal(bpc_phy)
-        self.pix_cr = Signal(bpc_phy)
+        self.pix_cb_cr = Signal(bpc_phy)
 
         ###
 
@@ -45,8 +45,7 @@ class _FIFO(Module):
             pixel = getattr(fifo.dout, "p"+str(i))
             self.sync.pix += If(unpack_counter == i,
                 self.pix_y.eq(pixel.y),
-                self.pix_cb.eq(pixel.cb),
-                self.pix_cr.eq(pixel.cr)
+                self.pix_cb_cr.eq(pixel.cb_cr)
             )
         self.comb += fifo.re.eq(unpack_counter == (pack_factor - 1))
 
@@ -202,19 +201,28 @@ class Driver(Module, AutoCSR):
 
         self.submodules.clocking = _Clocking(pads_vga, pads_dvi)
 
+        de_r = Signal()
+        self.sync.pix += de_r.eq(fifo.pix_de)
+
+        upsampler = YCbCr422to444()
+        self.submodules += RenameClockDomains(upsampler, "pix")
+        self.comb += [
+          upsampler.sink.stb.eq(fifo.pix_de),
+          upsampler.sink.sop.eq(fifo.pix_de & ~de_r),
+          upsampler.sink.y.eq(fifo.pix_y),
+          upsampler.sink.cb_cr.eq(fifo.pix_cb_cr)
+        ]
+
         ycbcr2rgb = YCbCr2RGB()
         self.submodules += RenameClockDomains(ycbcr2rgb, "pix")
         self.comb += [
-            ycbcr2rgb.sink.stb.eq(1),
-            ycbcr2rgb.sink.y.eq(fifo.pix_y),
-            ycbcr2rgb.sink.cb.eq(fifo.pix_cb),
-            ycbcr2rgb.sink.cr.eq(fifo.pix_cr),
+            Record.connect(upsampler.source, ycbcr2rgb.sink),
             ycbcr2rgb.source.ack.eq(1)
         ]
         de = fifo.pix_de
         hsync = fifo.pix_hsync
         vsync = fifo.pix_vsync
-        for i in range(ycbcr2rgb.latency):
+        for i in range(upsampler.latency + ycbcr2rgb.latency):
             next_de = Signal()
             next_vsync = Signal()
             next_hsync = Signal()

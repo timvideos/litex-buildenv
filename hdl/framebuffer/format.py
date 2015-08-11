@@ -8,12 +8,10 @@ from migen.actorlib import spi
 _hbits = 12
 _vbits = 12
 
-bpp = 32
+bpp = 16
 bpc = 8
 pixel_layout_s = [
-    ("pad", bpp-3*bpc),
-    ("cr", bpc),
-    ("cb", bpc),
+    ("cb_cr", bpc),
     ("y", bpc)
 ]
 
@@ -23,8 +21,7 @@ def pixel_layout(pack_factor):
 
 bpc_phy = 8
 phy_layout_s = [
-    ("cr", bpc_phy),
-    ("cb", bpc_phy),
+    ("cb_cr", bpc_phy),
     ("y", bpc_phy)
 ]
 
@@ -96,7 +93,7 @@ class VTG(Module):
             active.eq(hactive & vactive),
             If(active,
                 [getattr(getattr(self.phy.payload, p), c).eq(getattr(getattr(self.pixels.payload, p), c)[skip:])
-                    for p in ["p"+str(i) for i in range(pack_factor)] for c in ["y", "cb", "cr"]],
+                    for p in ["p"+str(i) for i in range(pack_factor)] for c in ["y", "cb_cr"]],
                 self.phy.de.eq(1)
             ),
             self.pixels.ack.eq(self.phy.ack & active)

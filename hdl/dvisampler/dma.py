@@ -95,7 +95,6 @@ class DMA(Module):
             )
         ]
 
-        # pack 24bits pixels in 32bits words
         memory_word = Signal(bus_dw)
         pixbits = []
         for i in range(bus_dw//16):
