@@ -277,7 +277,7 @@ static void edid_set_mode(const struct video_timing *mode)
 	unsigned char edid[128];
 	int i;
 
-	generate_edid(&edid, "OHW", "MX", 2013, "Mixxeo ch.A", mode);
+	generate_edid(&edid, "OHW", "TV", 2015, "HDMI2USB", mode);
 	for(i=0;i<sizeof(edid);i++)
 		MMPTR(CSR_DVISAMPLER_EDID_MEM_BASE+4*i) = edid[i];
 }
