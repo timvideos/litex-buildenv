@@ -7,6 +7,7 @@ from migen.flow.actor import *
 
 from hdl.dvisampler.common import channel_layout
 
+from hdl.csc.rgb2ycbcr import RGB2YCbCr
 
 class SyncPolarity(Module):
     def __init__(self):
@@ -127,17 +128,38 @@ class FrameExtraction(Module, AutoCSR):
 
         ###
 
+        rgb2ycbcr = RGB2YCbCr()
+        self.submodules += RenameClockDomains(rgb2ycbcr, "pix")
+        self.comb += [
+            rgb2ycbcr.sink.stb.eq(self.valid_i),
+            rgb2ycbcr.sink.r.eq(self.r),
+            rgb2ycbcr.sink.g.eq(self.g),
+            rgb2ycbcr.sink.b.eq(self.b),
+            rgb2ycbcr.source.ack.eq(1)
+        ]
+        de = self.de
+        vsync = self.vsync
+        for i in range(8): # rgb2ycbcr latency
+            next_de = Signal()
+            next_vsync = Signal()
+            self.sync.pix += [
+                next_de.eq(de),
+                next_vsync.eq(vsync)
+            ]
+            de = next_de
+            vsync = next_vsync
+
         # start of frame detection
         vsync_r = Signal()
         new_frame = Signal()
-        self.comb += new_frame.eq(self.vsync & ~vsync_r)
-        self.sync.pix += vsync_r.eq(self.vsync)
+        self.comb += new_frame.eq(vsync & ~vsync_r)
+        self.sync.pix += vsync_r.eq(vsync)
 
         # pack pixels into words
         cur_word = Signal(word_width)
         cur_word_valid = Signal()
         encoded_pixel = Signal(24)
-        self.comb += encoded_pixel.eq(Cat(self.b, self.g, self.r))
+        self.comb += encoded_pixel.eq(Cat(rgb2ycbcr.source.y, rgb2ycbcr.source.cb, rgb2ycbcr.source.cr)),
         pack_factor = word_width//24
         assert(pack_factor & (pack_factor - 1) == 0)  # only support powers of 2
         pack_counter = Signal(max=pack_factor)
@@ -146,7 +168,7 @@ class FrameExtraction(Module, AutoCSR):
             If(new_frame,
                 cur_word_valid.eq(pack_counter == (pack_factor - 1)),
                 pack_counter.eq(0),
-            ).Elif(self.valid_i & self.de,
+            ).Elif(rgb2ycbcr.source.stb & de,
                 [If(pack_counter == (pack_factor-i-1),
                     cur_word[24*i:24*(i+1)].eq(encoded_pixel)) for i in range(pack_factor)],
                 cur_word_valid.eq(pack_counter == (pack_factor - 1)),
@@ -168,6 +190,7 @@ class FrameExtraction(Module, AutoCSR):
             ).Elif(cur_word_valid,
                 fifo.din.sof.eq(0)
             )
+
         self.comb += [
             self.frame.stb.eq(fifo.readable),
             self.frame.payload.eq(fifo.dout),

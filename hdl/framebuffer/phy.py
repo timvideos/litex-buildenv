@@ -7,6 +7,7 @@ from migen.flow.actor import *
 from hdl.framebuffer.format import bpc_phy, phy_layout
 from hdl.framebuffer import dvi
 
+from hdl.csc.ycbcr2rgb import YCbCr2RGB
 
 class _FIFO(Module):
     def __init__(self, pack_factor):
@@ -16,9 +17,9 @@ class _FIFO(Module):
         self.pix_hsync = Signal()
         self.pix_vsync = Signal()
         self.pix_de = Signal()
-        self.pix_r = Signal(bpc_phy)
-        self.pix_g = Signal(bpc_phy)
-        self.pix_b = Signal(bpc_phy)
+        self.pix_y = Signal(bpc_phy)
+        self.pix_cb = Signal(bpc_phy)
+        self.pix_cr = Signal(bpc_phy)
 
         ###
 
@@ -43,9 +44,9 @@ class _FIFO(Module):
         for i in range(pack_factor):
             pixel = getattr(fifo.dout, "p"+str(i))
             self.sync.pix += If(unpack_counter == i,
-                self.pix_r.eq(pixel.r),
-                self.pix_g.eq(pixel.g),
-                self.pix_b.eq(pixel.b)
+                self.pix_y.eq(pixel.y),
+                self.pix_cb.eq(pixel.cb),
+                self.pix_cr.eq(pixel.cr)
             )
         self.comb += fifo.re.eq(unpack_counter == (pack_factor - 1))
 
@@ -201,22 +202,47 @@ class Driver(Module, AutoCSR):
 
         self.submodules.clocking = _Clocking(pads_vga, pads_dvi)
 
+        ycbcr2rgb = YCbCr2RGB()
+        self.submodules += RenameClockDomains(ycbcr2rgb, "pix")
+        self.comb += [
+            ycbcr2rgb.sink.stb.eq(1),
+            ycbcr2rgb.sink.y.eq(fifo.pix_y),
+            ycbcr2rgb.sink.cb.eq(fifo.pix_cb),
+            ycbcr2rgb.sink.cr.eq(fifo.pix_cr),
+            ycbcr2rgb.source.ack.eq(1)
+        ]
+        de = fifo.pix_de
+        hsync = fifo.pix_hsync
+        vsync = fifo.pix_vsync
+        for i in range(4): # ycbcr2rgb latency
+            next_de = Signal()
+            next_vsync = Signal()
+            next_hsync = Signal()
+            self.sync.pix += [
+                next_de.eq(de),
+                next_vsync.eq(vsync),
+                next_hsync.eq(hsync),
+            ]
+            de = next_de
+            vsync = next_vsync
+            hsync = next_hsync
+
         if pads_vga is not None:
             self.comb += [
-                pads_vga.hsync_n.eq(~fifo.pix_hsync),
-                pads_vga.vsync_n.eq(~fifo.pix_vsync),
-                pads_vga.r.eq(fifo.pix_r),
-                pads_vga.g.eq(fifo.pix_g),
-                pads_vga.b.eq(fifo.pix_b),
+                pads_vga.hsync_n.eq(~hsync),
+                pads_vga.vsync_n.eq(~vsync),
+                pads_vga.r.eq(ycbcr2rgb.source.r),
+                pads_vga.g.eq(ycbcr2rgb.source.g),
+                pads_vga.b.eq(ycbcr2rgb.source.b),
                 pads_vga.psave_n.eq(1)
             ]
         if pads_dvi is not None:
             self.submodules.dvi_phy = dvi.PHY(self.clocking.serdesstrobe, pads_dvi)
             self.comb += [
-                self.dvi_phy.hsync.eq(fifo.pix_hsync),
-                self.dvi_phy.vsync.eq(fifo.pix_vsync),
-                self.dvi_phy.de.eq(fifo.pix_de),
-                self.dvi_phy.r.eq(fifo.pix_r),
-                self.dvi_phy.g.eq(fifo.pix_g),
-                self.dvi_phy.b.eq(fifo.pix_b)
+                self.dvi_phy.hsync.eq(hsync),
+                self.dvi_phy.vsync.eq(vsync),
+                self.dvi_phy.de.eq(de),
+                self.dvi_phy.r.eq(ycbcr2rgb.source.r),
+                self.dvi_phy.g.eq(ycbcr2rgb.source.g),
+                self.dvi_phy.b.eq(ycbcr2rgb.source.b)
             ]

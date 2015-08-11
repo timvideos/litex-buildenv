@@ -103,7 +103,7 @@ class DMA(Module):
                 b = (i*3+j)*8
                 pixbits.append(self.frame.pixels[b:b+8])
             for j in range(8):
-            	pixbits.append(0)
+                pixbits.append(0)
         self.comb += memory_word.eq(Cat(*pixbits))
 
         # bus accessor

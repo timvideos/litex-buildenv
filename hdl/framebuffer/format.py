@@ -12,9 +12,9 @@ bpp = 32
 bpc = 8
 pixel_layout_s = [
     ("pad", bpp-3*bpc),
-    ("r", bpc),
-    ("g", bpc),
-    ("b", bpc)
+    ("cr", bpc),
+    ("cb", bpc),
+    ("y", bpc)
 ]
 
 
@@ -23,9 +23,9 @@ def pixel_layout(pack_factor):
 
 bpc_phy = 8
 phy_layout_s = [
-    ("r", bpc_phy),
-    ("g", bpc_phy),
-    ("b", bpc_phy)
+    ("cr", bpc_phy),
+    ("cb", bpc_phy),
+    ("y", bpc_phy)
 ]
 
 
@@ -96,7 +96,7 @@ class VTG(Module):
             active.eq(hactive & vactive),
             If(active,
                 [getattr(getattr(self.phy.payload, p), c).eq(getattr(getattr(self.pixels.payload, p), c)[skip:])
-                    for p in ["p"+str(i) for i in range(pack_factor)] for c in ["r", "g", "b"]],
+                    for p in ["p"+str(i) for i in range(pack_factor)] for c in ["y", "cb", "cr"]],
                 self.phy.de.eq(1)
             ),
             self.pixels.ack.eq(self.phy.ack & active)

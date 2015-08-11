@@ -11,8 +11,6 @@ from migen.bank.eventmanager import *
 
 from misoclib.mem.sdram.frontend import dma_lasmi
 
-from hdl.csc.rgb2ycbcr import RGB2YCbCr
-
 class EncoderReader(Module, AutoCSR):
     def __init__(self, lasmim):
         self.source = Source([("data", 24)])
@@ -47,27 +45,11 @@ class Encoder(Module):
 
         # # #
 
-        self.submodules.rgb2ycbcr = RGB2YCbCr()
-        self.comb += [
-          self.rgb2ycbcr.sink.stb.eq(self.sink.stb),
-          self.sink.ack.eq(self.rgb2ycbcr.sink.ack),
-          self.rgb2ycbcr.sink.r.eq(self.sink.data[16:24]),
-          self.rgb2ycbcr.sink.g.eq(self.sink.data[8:16]),
-          self.rgb2ycbcr.sink.b.eq(self.sink.data[0:8])
-        ]
-
-        data = Signal(24)
-        self.comb += [
-          data[0:8].eq(self.rgb2ycbcr.source.y),
-          data[8:16].eq(self.rgb2ycbcr.source.cb),
-          data[16:24].eq(self.rgb2ycbcr.source.cr)
-        ]
-
         fifo = SyncFIFO([("data", 8)], 1024)
         self.submodules += fifo
 
         iram_fifo_full = Signal()
-        self.comb += self.rgb2ycbcr.source.ack.eq(~iram_fifo_full)
+        self.comb += self.sink.ack.eq(~iram_fifo_full)
 
         self.specials += Instance("JpegEnc",
                                    i_CLK=ClockSignal(),
@@ -84,8 +66,8 @@ class Encoder(Module):
                                    #o_OPB_toutSup=,
                                    o_OPB_errAck=self.bus.err,
 
-                                   i_iram_wdata=data,
-                                   i_iram_wren=self.rgb2ycbcr.source.stb & ~iram_fifo_full,
+                                   i_iram_wdata=self.sink.data,
+                                   i_iram_wren=self.sink.stb & ~iram_fifo_full,
                                    o_iram_fifo_afull=iram_fifo_full,
 
                                    o_ram_byte=fifo.sink.data,
@@ -95,7 +77,7 @@ class Encoder(Module):
                                    #o_frame_size=
                                    )
         self.comb += [
-            self.rgb2ycbcr.source.ack.eq(~iram_fifo_full),
+            self.sink.ack.eq(~iram_fifo_full),
             Record.connect(fifo.source, self.source)
         ]
 
