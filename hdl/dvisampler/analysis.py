@@ -139,7 +139,7 @@ class FrameExtraction(Module, AutoCSR):
         ]
         de = self.de
         vsync = self.vsync
-        for i in range(8): # rgb2ycbcr latency
+        for i in range(rgb2ycbcr.latency):
             next_de = Signal()
             next_vsync = Signal()
             self.sync.pix += [

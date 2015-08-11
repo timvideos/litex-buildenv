@@ -6,10 +6,6 @@ from migen.flow.actor import *
 
 from hdl.csc.common import *
 
-# TODO:
-# - test implementation
-# - do more test
-
 def ycbcr2rgb_coefs(dw, cw=None):
     ca = 0.1819
     cb = 0.0618
@@ -113,6 +109,7 @@ class YCbCr2RGB(PipelinedActor, Module):
         self.sink = sink = Sink(EndpointDescription(ycbcr_layout(ycbcr_w), packetized=True))
         self.source = source = Source(EndpointDescription(rgb_layout(rgb_w), packetized=True))
         PipelinedActor.__init__(self, datapath_latency)
+        self.latency = datapath_latency
 
         # # #
 

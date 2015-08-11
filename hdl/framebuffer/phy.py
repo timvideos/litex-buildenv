@@ -214,7 +214,7 @@ class Driver(Module, AutoCSR):
         de = fifo.pix_de
         hsync = fifo.pix_hsync
         vsync = fifo.pix_vsync
-        for i in range(4): # ycbcr2rgb latency
+        for i in range(ycbcr2rgb.latency):
             next_de = Signal()
             next_vsync = Signal()
             next_hsync = Signal()

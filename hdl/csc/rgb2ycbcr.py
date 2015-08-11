@@ -8,9 +8,6 @@ from hdl.csc.common import *
 
 # TODO:
 # - see if we can regroup some stages without impacting timings (would reduce latency and registers).
-# - test implementation
-# - do more tests.
-
 
 def rgb2ycbcr_coefs(dw, cw=None):
     return {
@@ -137,6 +134,7 @@ class RGB2YCbCr(PipelinedActor, Module):
         self.sink = sink = Sink(EndpointDescription(rgb_layout(rgb_w), packetized=True))
         self.source = source = Source(EndpointDescription(ycbcr_layout(ycbcr_w), packetized=True))
         PipelinedActor.__init__(self, datapath_latency)
+        self.latency = datapath_latency
 
         # # #
 
