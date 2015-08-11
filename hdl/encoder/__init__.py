@@ -55,20 +55,19 @@ class Encoder(Module):
 
         # # #
 
-        self.submodules.upsampler = YCbCr422to444()
+        chroma_upsampler = YCbCr422to444()
+        self.submodules += chroma_upsampler
         self.comb += [
-          self.upsampler.sink.stb.eq(self.sink.stb),
-          self.upsampler.sink.sop.eq(self.sink.sop),
-          self.upsampler.sink.y.eq(self.sink.data[:8]),
-          self.upsampler.sink.cb_cr.eq(self.sink.data[8:]),
-          self.sink.ack.eq(self.upsampler.sink.ack)
+            Record.connect(self.sink, chroma_upsampler.sink, leave_out=["data"]),
+            chroma_upsampler.sink.y.eq(self.sink.data[:8]),
+            chroma_upsampler.sink.cb_cr.eq(self.sink.data[8:])
         ]
 
         fifo = SyncFIFO([("data", 8)], 1024)
         self.submodules += fifo
 
         iram_fifo_full = Signal()
-        self.comb += self.upsampler.source.ack.eq(~iram_fifo_full)
+        self.comb += chroma_upsampler.source.ack.eq(~iram_fifo_full)
 
         self.specials += Instance("JpegEnc",
                                    i_CLK=ClockSignal(),
@@ -85,10 +84,10 @@ class Encoder(Module):
                                    #o_OPB_toutSup=,
                                    o_OPB_errAck=self.bus.err,
 
-                                   i_iram_wdata=Cat(self.upsampler.source.y,
-                                                    self.upsampler.source.cb,
-                                                    self.upsampler.source.cr),
-                                   i_iram_wren=self.upsampler.source.stb & ~iram_fifo_full,
+                                   i_iram_wdata=Cat(chroma_upsampler.source.y,
+                                                    chroma_upsampler.source.cb,
+                                                    chroma_upsampler.source.cr),
+                                   i_iram_wren=chroma_upsampler.source.stb & ~iram_fifo_full,
                                    o_iram_fifo_afull=iram_fifo_full,
 
                                    o_ram_byte=fifo.sink.data,

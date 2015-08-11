@@ -204,25 +204,27 @@ class Driver(Module, AutoCSR):
         de_r = Signal()
         self.sync.pix += de_r.eq(fifo.pix_de)
 
-        upsampler = YCbCr422to444()
-        self.submodules += RenameClockDomains(upsampler, "pix")
+        chroma_upsampler = YCbCr422to444()
+        self.submodules += RenameClockDomains(chroma_upsampler, "pix")
         self.comb += [
-          upsampler.sink.stb.eq(fifo.pix_de),
-          upsampler.sink.sop.eq(fifo.pix_de & ~de_r),
-          upsampler.sink.y.eq(fifo.pix_y),
-          upsampler.sink.cb_cr.eq(fifo.pix_cb_cr)
+          chroma_upsampler.sink.stb.eq(fifo.pix_de),
+          chroma_upsampler.sink.sop.eq(fifo.pix_de & ~de_r),
+          chroma_upsampler.sink.y.eq(fifo.pix_y),
+          chroma_upsampler.sink.cb_cr.eq(fifo.pix_cb_cr)
         ]
 
         ycbcr2rgb = YCbCr2RGB()
         self.submodules += RenameClockDomains(ycbcr2rgb, "pix")
         self.comb += [
-            Record.connect(upsampler.source, ycbcr2rgb.sink),
+            Record.connect(chroma_upsampler.source, ycbcr2rgb.sink),
             ycbcr2rgb.source.ack.eq(1)
         ]
+
+        # XXX need clean up
         de = fifo.pix_de
         hsync = fifo.pix_hsync
         vsync = fifo.pix_vsync
-        for i in range(upsampler.latency + ycbcr2rgb.latency):
+        for i in range(chroma_upsampler.latency + ycbcr2rgb.latency):
             next_de = Signal()
             next_vsync = Signal()
             next_hsync = Signal()

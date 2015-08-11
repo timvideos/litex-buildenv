@@ -134,20 +134,21 @@ class FrameExtraction(Module, AutoCSR):
 
         rgb2ycbcr = RGB2YCbCr()
         self.submodules += RenameClockDomains(rgb2ycbcr, "pix")
-        ycbcr444to422 = YCbCr444to422()
-        self.submodules += RenameClockDomains(ycbcr444to422, "pix")
+        chroma_downsampler = YCbCr444to422()
+        self.submodules += RenameClockDomains(chroma_downsampler, "pix")
         self.comb += [
             rgb2ycbcr.sink.stb.eq(self.valid_i),
             rgb2ycbcr.sink.sop.eq(self.de & ~de_r),
             rgb2ycbcr.sink.r.eq(self.r),
             rgb2ycbcr.sink.g.eq(self.g),
             rgb2ycbcr.sink.b.eq(self.b),
-            Record.connect(rgb2ycbcr.source, ycbcr444to422.sink),
-            ycbcr444to422.source.ack.eq(1)
+            Record.connect(rgb2ycbcr.source, chroma_downsampler.sink),
+            chroma_downsampler.source.ack.eq(1)
         ]
+        # XXX need clean up
         de = self.de
         vsync = self.vsync
-        for i in range(rgb2ycbcr.latency + ycbcr444to422.latency):
+        for i in range(rgb2ycbcr.latency + chroma_downsampler.latency):
             next_de = Signal()
             next_vsync = Signal()
             self.sync.pix += [
@@ -167,7 +168,7 @@ class FrameExtraction(Module, AutoCSR):
         cur_word = Signal(word_width)
         cur_word_valid = Signal()
         encoded_pixel = Signal(16)
-        self.comb += encoded_pixel.eq(Cat(ycbcr444to422.source.y, ycbcr444to422.source.cb_cr)),
+        self.comb += encoded_pixel.eq(Cat(chroma_downsampler.source.y, chroma_downsampler.source.cb_cr)),
         pack_factor = word_width//16
         assert(pack_factor & (pack_factor - 1) == 0)  # only support powers of 2
         pack_counter = Signal(max=pack_factor)
@@ -176,7 +177,7 @@ class FrameExtraction(Module, AutoCSR):
             If(new_frame,
                 cur_word_valid.eq(pack_counter == (pack_factor - 1)),
                 pack_counter.eq(0),
-            ).Elif(ycbcr444to422.source.stb & de,
+            ).Elif(chroma_downsampler.source.stb & de,
                 [If(pack_counter == (pack_factor-i-1),
                     cur_word[16*i:16*(i+1)].eq(encoded_pixel)) for i in range(pack_factor)],
                 cur_word_valid.eq(pack_counter == (pack_factor - 1)),
