@@ -549,7 +549,6 @@ class Platform(XilinxPlatform):
         elif self.programmer == "fpgalink":
             from mibuild.fpgalink_programmer import FPGALink
             return FPGALink("1443:0007")
-            #return FPGALink("1d50:60b7")
         elif self.programmer == "urjtag":
             return UrJTAG(cable="USBBlaster", pld="spartan-6")
         else:
