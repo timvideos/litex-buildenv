@@ -18,6 +18,7 @@ set -x
 set -e
 
 sudo apt-get install -y build-essential
+sudo gpasswd -a $USER dialout
 
 # Get and build gcc+binutils for the target
 (
@@ -82,12 +83,15 @@ sudo apt-get install -y build-essential
 	cd misoc
 	git submodule init
 	git submodule update
+	cd tools
+	make
+	sudo make install
 )
 
 # Get libfpgalink
 (
 	cd $BUILD_DIR
-	sudo apt-get install -y libreadline-dev libusb-1.0-0-dev python-yaml
+	sudo apt-get install -y libreadline-dev libusb-1.0-0-dev python-yaml sdcc fxload
 	wget -qO- http://tiny.cc/msbil | tar zxf -
 
 	cd makestuff/libs

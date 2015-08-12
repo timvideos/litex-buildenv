@@ -8,7 +8,9 @@ These scripts are designed to bootstrap an environment on Ubuntu 14.04 LTS.
 To get started (will install packages, etc):
 
   * Run the bootstrap script to get everything required for flashing firmware:
-  ```curl -fsS https://raw.githubusercontent.com/timvideos/HDMI2USB-misoc-firmware/scripts/scripts/bootstrap.sh | bash```
+  ```
+  curl -fsS https://raw.githubusercontent.com/timvideos/HDMI2USB-misoc-firmware/scripts/scripts/bootstrap.sh | bash
+  ```
   
   * Download & install Xilinx ISE WebPACK 14.7 into the default location in /opt/
   
@@ -22,34 +24,45 @@ To get started (will install packages, etc):
   Go to About > Licence, ensure under "information" you can see your ISC WebPACK licence.  
   
   * Change into the HDMI2USB-misoc-firmware directory:
-  ```cd ~/HDMI2USB-misoc-firmware```
+  ```
+  cd ~/HDMI2USB-misoc-firmware
+  ```
   
   * Initialise the environment:
-  ```source scripts/setup-env.sh```  
-  
+  ```
+  source scripts/setup-env.sh
+  ```  
+ 
   * Build the gateware:
-  ```make gateware```
+  ```
+  make gateware
+  ```
+
   This may fail at the end after it builds the gateware (as it will try to flash the gateware), this is OK, as long as the gateware files have been built:
   
-```Saving bit stream in "atlys_hdmi2usb-hdmi2usbsoc-atlys.bit".
-Saving bit stream in "atlys_hdmi2usb-hdmi2usbsoc-atlys.bin".
-```
+  ```
+  Saving bit stream in "atlys_hdmi2usb-hdmi2usbsoc-atlys.bit".
+  Saving bit stream in "atlys_hdmi2usb-hdmi2usbsoc-atlys.bin".
+  ```
+
    The built gateware will be in build/misoc/build/.
 
   * Ensure board has the right pins set:
   
   As the HDMI2USB firmware manipulates the EDID information the following jumpers must be removed;
 
-JP2/SDA (which connects the EDID lines from J1/HDMI IN to JA/HDMI OUT).
-JP6 and JP7 (which connects the EDID lines from J3/HDMI IN to J2/HDMI OUT).
-  
+  ```
+  JP2/SDA (which connects the EDID lines from J1/HDMI IN to JA/HDMI OUT).
+  JP6 and JP7 (which connects the EDID lines from J3/HDMI IN to J2/HDMI OUT).
+  ```
+ 
   * Plug board in using PROG port & switch on.  If using a VM, ensure the device is passed through.
   
   * Load in custom udev rules:
   (make a script, which is called as part of get-env)
 
 ```  
-  cat > /etc/udev/rules.d/52-hdmi2usb.rules <<EOF
+cat > /etc/udev/rules.d/52-hdmi2usb.rules <<EOF
 # Grant permission to makestuff usb devices.
 ATTR{idVendor}=="1d50", MODE:="666"
 
@@ -62,31 +75,30 @@ ATTR{idVendor}=="04b4", MODE:="666"
 # Grant permissions to Digilent Development board JTAG
 ATTR{idVendor}=="1443", MODE:="666"
 EOF
-```
+
 udevadm control --reload-rules
-  
+```  
   * Flash the gateware and firmware - see [1] if using a VM:
   
-  ```PROG=fpgalink make load-gateware```
+  ```
+  PROG=fpgalink make load-gateware
+  ```
   
   * Connect to lm32 softcore:
-  ```make connect-lm32```
+  ```
+  make connect-lm32
+  ```
   
   * Set a mode/capture - press 'h' and read instructions. TODO: Explain this more
 
   * Run fx2 firmware to enable USB capture:
-  
-  ADD TO ENV GET:  sudo apt-get -y install sdcc fxload
-  ```make load-fx2-firmware```
+  ```
+  make load-fx2-firmware
+  ```
   
 ---
 
 CHANGES TO GET ENV SCRIPT:
-
-````
-sudo apt-get -y install sdcc fxload
-make load-fx2-firmware
-````  
 
 ```
    cd the build directory
@@ -98,24 +110,6 @@ make load-fx2-firmware
    (copy package build command from README.Debian)
 ```
 
-
-add to misoc setup part of get-env:
-
-```
-cd build/misoc/tools
-make
-```
-
-```
-   sudo gpasswd -a <userid> dialout
-```
-
-
-  * Flash the fx firmware (shouldn't be required):
-   
-   ```make load-lm32-firmware```
-   If this doesn't work the first time, try again.
-  
 ---
 
 To get a device working after above is all built (booted up, etc):
