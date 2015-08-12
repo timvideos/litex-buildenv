@@ -57,7 +57,7 @@ sudo gpasswd -a $USER dialout
 
 # Get iverilog
 (
-	sudo apt-get install -y iverilog	
+	sudo apt-get install -y iverilog
 )
 
 
