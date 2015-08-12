@@ -24,6 +24,7 @@ help:
 	@echo " make load-fx2-firmware"
 	@echo " make clean"
 	@echo " make all"
+	@echo " make connect-lm32"
 	@echo ""
 	@echo "Environment:"
 	@echo " MSCDIR=misoc directory (current: $(MSCDIR))"
@@ -44,6 +45,9 @@ lm32-firmware:
 
 load-lm32-firmware: lm32-firmware
 	$(FLTERM) --port $(SERIAL) --kernel=firmware/lm32/firmware.bin --kernel-adr=0x20000000 --speed 115200
+
+connect-lm32:
+	$(FLTERM) --port $(SERIAL) --speed 115200
 
 fx2-firmware:
 	$(MAKE) -C firmware/fx2
