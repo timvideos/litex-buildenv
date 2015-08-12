@@ -166,18 +166,21 @@ void encoder_decrease_quality(void) {
 void encoder_service(void) {
 
 	static int last_event;
+	static int last_fps_event;
 	static int frame_cnt;
 
 	if(encoder_enabled) {
-		if (encoder_done() == 1) {
-			encoder_init(encoder_quality);
-			encoder_start(processor_h_active, processor_v_active);
-			encoder_reader_dma_base_write(fb_fi_base0_read());
-			encoder_reader_dma_length_write(processor_h_active*processor_v_active*4);
-			encoder_reader_dma_shoot_write(1);
-			frame_cnt++;
+		if(elapsed(&last_event, identifier_frequency_read()/30)) {
+			if (encoder_done() == 1) {
+				encoder_init(encoder_quality);
+				encoder_start(processor_h_active, processor_v_active);
+				encoder_reader_dma_base_write(fb_fi_base0_read());
+				encoder_reader_dma_length_write(processor_h_active*processor_v_active*2);
+				encoder_reader_dma_shoot_write(1);
+				frame_cnt++;
+			}
 		}
-		if(elapsed(&last_event, identifier_frequency_read())) {
+		if(elapsed(&last_fps_event, identifier_frequency_read())) {
 			encoder_fps = frame_cnt;
 			frame_cnt = 0;
 		}

@@ -1,4 +1,4 @@
-from targets.atlys_base import *
+from targets.opsis_base import *
 
 from hdl import dvisampler
 from hdl import framebuffer
@@ -24,7 +24,7 @@ class VideomixerSoC(BaseSoC):
         self.submodules.dvisampler = dvisampler.DVISampler(platform.request("dvi_in", 1),
                                                            self.sdram.crossbar.get_master(),
                                                            fifo_depth=512)
-        self.submodules.fb = framebuffer.Framebuffer(None, platform.request("dvi_out"),
+        self.submodules.fb = framebuffer.Framebuffer(None, platform.request("dvi_out", 1),
                                                      self.sdram.crossbar.get_master())
         platform.add_platform_command("""PIN "dviout_pix_bufg.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
         platform.add_platform_command("""
@@ -53,8 +53,6 @@ class HDMI2USBSoC(VideomixerSoC):
         self.submodules.usb_streamer = USBStreamer(platform, platform.request("fx2"))
 
         self.comb += [
-            platform.request("user_led", 0).eq(self.encoder_reader.source.stb),
-            platform.request("user_led", 1).eq(self.encoder_reader.source.ack),
             Record.connect(self.encoder_reader.source, self.encoder.sink),
             Record.connect(self.encoder.source, self.usb_streamer.sink)
         ]

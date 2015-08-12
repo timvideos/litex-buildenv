@@ -3,6 +3,7 @@
 
 #include <generated/csr.h>
 #include <hw/flags.h>
+#include <time.h>
 
 #include "dvisampler.h"
 #include "edid.h"
@@ -161,6 +162,41 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 	}
 };
 
+#define HEARTBEAT_LAW_LENGTH 300
+static char heartbeat_law[] =
+{
+	255, 255, 255, 255, 255, 255, 255, 255, 252, 247,
+	235, 235, 230, 225, 218, 213, 208, 206, 199, 189,
+	187, 182, 182, 177, 175, 168, 165, 163, 158, 148,
+	146, 144, 144, 141, 139, 136, 134, 127, 122, 120,
+	117, 115, 112, 112, 110, 110, 108, 103,  96,  96,
+	 93,  91,  88,  88,  88,  88,  84,  79,  76,  74,
+	 74,  72,  72,  72,  72,  69,  69,  62,  60,  60,
+	 57,  57,  57,  55,  55,  55,  55,  48,  48,  45,
+	 45,  43,  43,  40,  40,  40,  40,  36,  36,  36,
+	 33,  33,  31,  31,  31,  28,  28,  26,  26,  26,
+	 26,  24,  24,  21,  21,  21,  21,  20,  19,  19,
+	 16,  16,  16,  16,  14,  14,  13,  12,  12,  11,
+	 11,  10,  10,   9,   9,   9,   9,   8,   8,   7,
+	  7,   6,   6,   5,   5,   4,   4,   4,   4,   4,
+	  4,   3,   3,   3,   2,   2,   2,   2,   2,   2,
+	  2,   2,   2,   2,   2,   2,   2,   2,   2,   2,
+	  2,   2,   2,   2,   2,   2,   2,   2,   2,   2,
+	  2,   2,   2,   2,   2,   2,   2,   2,   2,   2,
+	  2,   2,   2,   2,   2,   2,   2,   2,   2,   2,
+	  2,   2,   2,   2,   2,   2,   2,   2,   2,   2,
+	  2,   2,   4,   4,   4,   4,   4,   7,   7,   7,
+	  7,   7,   7,   9,   9,   9,  12,  12,  12,  14,
+	 14,  16,  16,  16,  16,  21,  21,  21,  21,  24,
+	 24,  26,  28,  28,  28,  31,  36,  33,  36,  36,
+	 40,  40,  43,  43,  45,  48,  52,  55,  55,  55,
+	 57,  62,  62,  64,  67,  72,  74,  79,  81,  86,
+	 86,  86,  88,  93,  96,  98, 100, 112, 115, 117,
+	124, 127, 129, 129, 136, 141, 144, 148, 160, 165,
+	170, 175, 184, 189, 194, 199, 208, 213, 220, 237,
+	244, 252, 255, 255, 255, 255, 255, 255, 255, 255
+};
+
 void processor_list_modes(char *mode_descriptors)
 {
 	int i;
@@ -227,7 +263,7 @@ static void fb_set_mode(const struct video_timing *mode)
 	fb_fi_vsync_end_write(mode->v_active + mode->v_sync_offset + mode->v_sync_width);
 	fb_fi_vscan_write(mode->v_active + mode->v_blanking);
 
-	fb_fi_length_write(mode->h_active*mode->v_active*4);
+	fb_fi_length_write(mode->h_active*mode->v_active*2);
 
 	fb_clkgen_write(0x1, clock_d-1);
 	fb_clkgen_write(0x3, clock_m-1);
@@ -241,7 +277,7 @@ static void edid_set_mode(const struct video_timing *mode)
 	unsigned char edid[128];
 	int i;
 
-	generate_edid(&edid, "OHW", "MX", 2013, "Mixxeo ch.A", mode);
+	generate_edid(&edid, "OHW", "TV", 2015, "HDMI2USB", mode);
 	for(i=0;i<sizeof(edid);i++)
 		MMPTR(CSR_DVISAMPLER_EDID_MEM_BASE+4*i) = edid[i];
 }
@@ -273,5 +309,22 @@ void processor_start(int mode)
 
 void processor_service(void)
 {
+	static int last_event;
+	static int heartbeat_cnt;
+
 	dvisampler_service();
+
+	if(elapsed(&last_event, identifier_frequency_read()/256)) {
+		if(dvisampler_resdetection_hres_read() != 0) {
+			heartbeat_cnt = 0;
+			fb_driver_luma_modulator_value_write(255);
+			encoder_luma_modulator_value_write(255);
+		} else {
+			heartbeat_cnt++;
+			if(heartbeat_cnt >= HEARTBEAT_LAW_LENGTH)
+				heartbeat_cnt = 0;
+			fb_driver_luma_modulator_value_write(192+heartbeat_law[heartbeat_cnt]/4);
+			encoder_luma_modulator_value_write(192+heartbeat_law[heartbeat_cnt]/4);
+		}
+	}
 }

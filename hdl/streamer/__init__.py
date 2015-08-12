@@ -105,4 +105,4 @@ class USBStreamer(Module):
         )
 
         # add VHDL sources
-        platform.add_source_dir(os.path.join(platform.soc_ext_path, "hdl", "stream", "vhdl"))
+        platform.add_source_dir(os.path.join(platform.soc_ext_path, "hdl", "streamer", "vhdl"))

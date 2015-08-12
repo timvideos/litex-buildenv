@@ -1,7 +1,7 @@
 from targets.atlys_base import *
 
-from misoclib.video import dvisampler
-from misoclib.video import framebuffer
+from hdl import dvisampler
+from hdl import framebuffer
 
 from misoclib.com.liteeth.common import *
 from misoclib.com.liteeth.phy import LiteEthPHY
@@ -10,7 +10,7 @@ from misoclib.com.liteeth.core import LiteEthUDPIPCore
 from misoclib.com.liteeth.frontend.etherbone import LiteEthEtherbone
 
 from hdl.encoder import EncoderReader, Encoder
-from hdl.stream import UDPStreamer
+from hdl.streamer import UDPStreamer
 
 class EtherboneSoC(BaseSoC):
     csr_map = {
@@ -84,6 +84,7 @@ TIMESPEC "TSise_sucks8" = FROM "GRPsys_clk" TO "GRPpix_clk" TIG;
 class HDMI2EthernetSoC(VideomixerSoC):
     csr_map = {
         "encoder_reader": 22
+        "encoder"       : 23
     }
     csr_map.update(VideomixerSoC.csr_map)
     mem_map = {
