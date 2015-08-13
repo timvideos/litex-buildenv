@@ -7,7 +7,6 @@ GIT_REPO=https://github.com/timvideos/HDMI2USB-misoc-firmware.git
 GIT_BRANCH=scripts
 
 sudo apt-get install -y git realpath
-cd ~
 
 if [ -e HDMI2USB-misoc-firmware ]; then
  cd HDMI2USB-misoc-firmware
