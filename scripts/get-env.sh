@@ -2,6 +2,7 @@
 
 SETUP_SRC=$(realpath ${BASH_SOURCE[@]})
 SETUP_DIR=$(dirname $SETUP_SRC)
+USER=$(whoami)
 
 BINUTILS_URL=http://ftp.gnu.org/gnu/binutils/binutils-2.25.tar.gz
 GCC_URL=http://mirrors-usa.go-parts.com/gcc/releases/gcc-4.9.3/gcc-4.9.3.tar.bz2
@@ -18,7 +19,7 @@ set -x
 set -e
 
 sudo apt-get install -y build-essential
-sudo gpasswd -a $USER dialout
+sudo adduser $USER dialout
 
 # Get and build gcc+binutils for the target
 (
