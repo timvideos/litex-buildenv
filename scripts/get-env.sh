@@ -4,8 +4,8 @@ SETUP_SRC=$(realpath ${BASH_SOURCE[@]})
 SETUP_DIR=$(dirname $SETUP_SRC)
 USER=$(whoami)
 
-BINUTILS_URL=http://ftp.gnu.org/gnu/binutils/binutils-2.25.tar.gz
-GCC_URL=http://mirrors-usa.go-parts.com/gcc/releases/gcc-4.9.3/gcc-4.9.3.tar.bz2
+BINUTILS_URL=https://ftp.gnu.org/gnu/binutils/binutils-2.25.tar.gz
+GCC_URL=https://ftp.gnu.org/gnu/gcc/gcc-4.9.3/gcc-4.9.3.tar.bz2
 TARGET=lm32-elf
 
 BUILD_DIR=$SETUP_DIR/../build
