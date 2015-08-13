@@ -18,7 +18,7 @@ export PATH=$OUTPUT_DIR/bin:$PATH
 set -x
 set -e
 
-sudo apt-get install -y build-essential
+sudo apt-get install -y build-essential wget
 sudo adduser $USER dialout
 
 # Get and build gcc+binutils for the target
