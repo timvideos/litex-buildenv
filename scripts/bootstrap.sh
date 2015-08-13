@@ -3,8 +3,7 @@
 set -x
 set -e
 
-#GIT_REPO=https://github.com/timvideos/HDMI2USB-misoc-firmware.git
-GIT_REPO=https://github.com/xfxf/HDMI2USB-misoc-firmware
+GIT_REPO=https://github.com/timvideos/HDMI2USB-misoc-firmware.git
 GIT_BRANCH=scripts
 
 sudo apt-get install -y git realpath
