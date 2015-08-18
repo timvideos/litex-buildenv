@@ -4,7 +4,7 @@ PROG ?= impact
 SERIAL ?= /dev/ttyVIZ0
 TARGET ?= hdmi2usb
 
-HDMI2USBDIR = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+HDMI2USBDIR = ../../
 PYTHON = python3
 
 CMD = $(PYTHON) make.py -X $(HDMI2USBDIR) -t $(BOARD)_$(TARGET) -Ot firmware_filename $(HDMI2USBDIR)/firmware/lm32/firmware.bin -Op programmer $(PROG)
