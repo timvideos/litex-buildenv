@@ -16,10 +16,10 @@ MAKESTUFF_DIR=$BUILD_DIR/makestuff
 echo "             This script is: $SETUP_SRC"
 echo "         Firmware directory: $TOP_DIR"
 echo "         Build directory is: $BUILD_DIR"
-echo " gnu toolchain installed at: $GNU_DIR"
-echo "             migen found at: $MIGEN_DIR"
-echo "             misoc found at: $MISOC_DIR"
-echo "          fpgalink found at: $MAKESTUFF_DIR"
+#echo " gnu toolchain installed at: $GNU_DIR"
+#echo "             migen found at: $MIGEN_DIR"
+#echo "             misoc found at: $MISOC_DIR"
+#echo "          fpgalink found at: $MAKESTUFF_DIR"
 
 if [ $SOURCED = 0 ]; then
   echo "You must source this script, rather then try and run it."
