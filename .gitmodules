@@ -1,3 +1,9 @@
 [submodule "firmware/fx2/fx2lib"]
 	path = firmware/fx2/fx2lib
 	url = https://github.com/timvideos/fx2lib
+[submodule "build/misoc"]
+	path = build/misoc
+	url = https://github.com/m-labs/misoc.git
+[submodule "build/migen"]
+	path = build/migen
+	url = https://github.com/m-labs/migen.git

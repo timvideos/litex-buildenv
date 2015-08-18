@@ -7,9 +7,6 @@ firmware/lm32/firmware.elf
 firmware/lm32/version.h
 test/dump.png
 build
-misoc
 makestuff
-migen
-misoc
 *.pyc
 *.pnm
