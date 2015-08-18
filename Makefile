@@ -5,8 +5,11 @@ $(error "Please 'source scripts/setup-env.sh'")
 endif
 endif
 
+# Turn off Python's hash randomization
+export PYTHONHASHSEED=0
+
 BOARD ?= atlys
-MSCDIR ?= build/misoc
+MSCDIR ?= third_party/misoc
 PROG ?= impact
 TARGET ?= hdmi2usb
 FILTER ?= tee
@@ -64,8 +67,13 @@ help:
 all: clean gateware firmware
 	echo "Run 'make load' to load the firmware."
 
+# Initialize submodules automatically
+third_party/%/.git:
+	git submodule update --recursive --init $(dir $@)
+
 # Gateware
-gateware: $(addprefix gateware-,$(TARGETS))
+MODULES=migen misoc liteeth litescope
+gateware: $(addprefix gateware-,$(TARGETS)) $(addsuffix /.git,$(addprefix third_party/,$(MODULES)))
 ifneq ($(OS),Windows_NT)
 	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream \
 	| $(FILTER) $(PWD)/build/output.$(DATE).log; (exit $${PIPESTATUS[0]})
@@ -101,4 +109,4 @@ clean:
 		touch $(MSCDIR)/software/include/generated/.keep_me)
 
 .DEFAULT_GOAL := help
-.PHONY: all load-gateware load flash gateware firmware
+.PHONY: all load-gateware load flash gateware firmware third_party/*

@@ -22,7 +22,7 @@ if [ -e HDMI2USB-misoc-firmware ]; then
  cd HDMI2USB-misoc-firmware
  git pull || exit 1
 else
- git clone $GIT_REPO || exit 1
+ git clone --recurse-submodules $GIT_REPO || exit 1
  cd HDMI2USB-misoc-firmware
  git checkout $GIT_BRANCH || exit 1
 fi

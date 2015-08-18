@@ -32,7 +32,7 @@
 #   make AS8051=asx8051
 #
 TARGET := hdmi2usb
-FX2LIBDIR := fx2lib
+FX2LIBDIR := ../../third_party/fx2lib
 LIBS := $(FX2LIBDIR)/lib/fx2.lib
 INCS := -I sdcc -I$(FX2LIBDIR)/include -I.
 
@@ -80,7 +80,7 @@ all: $(TARGET).hex
 
 $(CC_SRCS) $(AS_SRCS): $(FX2LIBDIR)/lib/fx2.lib
 
-$(FX2LIBDIR)/lib/fx2.lib: $(FX2LIBDIR)/Makefile
+$(FX2LIBDIR)/lib/fx2.lib: $(FX2LIBDIR)/.git
 	cd $(dir $@) && make -j1
 
 # We depend on a file inside the directory as git creates an
@@ -88,9 +88,9 @@ $(FX2LIBDIR)/lib/fx2.lib: $(FX2LIBDIR)/Makefile
 #
 # Note that although we have the variable FX2LIBDIR, the submodule
 # magic will always check it out in fx2lib/
-$(FX2LIBDIR)/Makefile:
-	git submodule init
-	git submodule update
+$(FX2LIBDIR)/.git:
+	git submodule init $@
+	git submodule update --recursive $@
 
 $(TARGET).hex: $(CC_OBJS) $(AS_OBJS)
 	$(Q_LINK)$(CC) $(CFLAGS) -o $@ $+ $(LIBS)

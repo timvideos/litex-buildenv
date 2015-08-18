@@ -25,7 +25,7 @@ help-lm32:
 gateware-lm32: firmware-lm32
 	@true
 
-firmware-lm32:
+firmware-lm32: third_party/misoc/.git
 	cd $(MSCDIR) && $(CMD) build-headers
 	$(MAKE) -C firmware/lm32 all
 
