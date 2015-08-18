@@ -13,6 +13,18 @@ MIGEN_DIR=$BUILD_DIR/migen
 MISOC_DIR=$BUILD_DIR/misoc
 MAKESTUFF_DIR=$BUILD_DIR/makestuff
 
+if [ $SOURCED = 0 ]; then
+  echo "You must source this script, rather then try and run it."
+  echo ". $SETUP_SRC"
+  exit 1
+fi
+
+if [ ! -z $HDMI2USB_ENV ]; then
+  echo "Already sourced this file."
+  return
+fi
+HDMI2USB_ENV=1
+
 echo "             This script is: $SETUP_SRC"
 echo "         Firmware directory: $TOP_DIR"
 echo "         Build directory is: $BUILD_DIR"
@@ -20,17 +32,6 @@ echo "         Build directory is: $BUILD_DIR"
 #echo "             migen found at: $MIGEN_DIR"
 #echo "             misoc found at: $MISOC_DIR"
 #echo "          fpgalink found at: $MAKESTUFF_DIR"
-
-if [ $SOURCED = 0 ]; then
-  echo "You must source this script, rather then try and run it."
-  echo ". $SETUP_SRC"
-  exit 1
-fi
-
-if [ ! -z $MISOC_ENV ]; then
-  echo "Already have misoc environment."
-  exit 1
-fi
 
 export LD_LIBRARY_PATH=$MAKESTUFF_DIR/libs/libfpgalink/lin.x64/rel:$LD_LIBRARY_PATH
 export PYTHONPATH=$MIGEN_DIR:$MISOC_DIR:$MAKESTUFF_DIR/libs/libfpgalink/examples/python/:$PYTHONPATH
