@@ -5,9 +5,21 @@ CALLED=$_
 
 SETUP_SRC=$(realpath ${BASH_SOURCE[@]})
 SETUP_DIR=$(dirname $SETUP_SRC)
-TOP_DIR=$(realpath $SETUP_DIR/../build)
+TOP_DIR=$(realpath $SETUP_DIR/..)
+BUILD_DIR=$TOP_DIR/build
 
-echo $TOP_DIR
+GNU_DIR=$BUILD_DIR/gnu
+MIGEN_DIR=$BUILD_DIR/migen
+MISOC_DIR=$BUILD_DIR/misoc
+MAKESTUFF_DIR=$BUILD_DIR/makestuff
+
+echo "             This script is: $SETUP_SRC"
+echo "         Firmware directory: $TOP_DIR"
+echo "         Build directory is: $BUILD_DIR"
+echo " gnu toolchain installed at: $GNU_DIR"
+echo "             migen found at: $MIGEN_DIR"
+echo "             misoc found at: $MISOC_DIR"
+echo "          fpgalink found at: $MAKESTUFF_DIR"
 
 if [ $SOURCED = 0 ]; then
   echo "You must source this script, rather then try and run it."
@@ -20,8 +32,8 @@ if [ ! -z $MISOC_ENV ]; then
   exit 1
 fi
 
-export LD_LIBRARY_PATH=$TOP_DIR/makestuff/libs/libfpgalink/lin.x64/rel:$LD_LIBRARY_PATH
-export PYTHONPATH=$TOP_DIR/migen:$TOP_DIR/misoc:$TOP_DIR/makestuff/libs/libfpgalink/examples/python/:$PYTHONPATH
-export PATH=$TOP_DIR/gnu/output/bin:/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/:$PATH
+export LD_LIBRARY_PATH=$MAKESTUFF_DIR/libs/libfpgalink/lin.x64/rel:$LD_LIBRARY_PATH
+export PYTHONPATH=$MIGEN_DIR:$MISOC_DIR:$MAKESTUFF_DIR/libs/libfpgalink/examples/python/:$PYTHONPATH
+export PATH=$GNU_DIR/output/bin:/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/:$PATH
 
 alias python=python3
