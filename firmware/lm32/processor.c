@@ -278,10 +278,10 @@ static void edid_set_mode(const struct video_timing *mode)
 	unsigned char edid[128];
 	int i;
 
-	generate_edid(&edid, "OHW", "TV", 2015, "HDMI2USB", mode);
+	generate_edid(&edid, "OHW", "TV", 2015, "HDMI2USB 1", mode);
 	for(i=0;i<sizeof(edid);i++)
 		MMPTR(CSR_DVISAMPLER0_EDID_MEM_BASE+4*i) = edid[i];
-	generate_edid(&edid, "OHW", "TV", 2015, "HDMI2USB", mode);
+	generate_edid(&edid, "OHW", "TV", 2015, "HDMI2USB 2", mode);
 	for(i=0;i<sizeof(edid);i++)
 		MMPTR(CSR_DVISAMPLER1_EDID_MEM_BASE+4*i) = edid[i];
 }
@@ -295,7 +295,10 @@ void processor_start(int mode)
 	processor_v_active = m->v_active;
 
 	processor_framebuffer_source = VIDEO_IN_DVISAMPLER0;
+	processor_framebuffer_source_active = 0;
+
 	processor_encoder_source = VIDEO_IN_DVISAMPLER0;
+	processor_encoder_source_active = 0;
 
 	fb_fi_enable_write(0);
 	fb_driver_clocking_pll_reset_write(1);
@@ -322,17 +325,25 @@ void processor_start(int mode)
 void processor_update(void)
 {
 	/*  framebuffer */
-	if(processor_framebuffer_source == VIDEO_IN_DVISAMPLER0)
+	if(processor_framebuffer_source == VIDEO_IN_DVISAMPLER0) {
 		fb_fi_base0_write(dvisampler0_framebuffer_base(dvisampler0_fb_index));
-	else if(processor_framebuffer_source == VIDEO_IN_DVISAMPLER1)
+		processor_framebuffer_source_active = (dvisampler0_resdetection_hres_read() != 0);
+	}
+	else if(processor_framebuffer_source == VIDEO_IN_DVISAMPLER1) {
 		fb_fi_base0_write(dvisampler1_framebuffer_base(dvisampler1_fb_index));
+		processor_framebuffer_source_active = (dvisampler1_resdetection_hres_read() != 0);
+	}
 
 #ifdef ENCODER_BASE
 	/*  encoder */
-	if(processor_encoder_source == VIDEO_IN_DVISAMPLER0)
+	if(processor_encoder_source == VIDEO_IN_DVISAMPLER0) {
 		encoder_reader_dma_base_write((dvisampler0_framebuffer_base(dvisampler0_fb_index));
-	else if(processor_encoder_source == VIDEO_IN_DVISAMPLER1)
+		processor_encoder_source_active = (dvisampler0_resdetection_hres_read() != 0);
+	}
+	else if(processor_encoder_source == VIDEO_IN_DVISAMPLER1) {
 		encoder_reader_dma_base_write((dvisampler1_framebuffer_base(dvisampler1_fb_index));
+		processor_encoder_source_active = (dvisampler0_resdetection_hres_read() != 0);
+	}
 #endif
 }
 
@@ -342,22 +353,24 @@ void processor_service(void)
 	static int heartbeat_cnt;
 
 	dvisampler0_service();
+	dvisampler1_service();
+	processor_update();
 
 	if(elapsed(&last_event, identifier_frequency_read()/256)) {
-		if(dvisampler0_resdetection_hres_read() != 0) {
+		heartbeat_cnt++;
+		if(heartbeat_cnt >= HEARTBEAT_LAW_LENGTH)
 			heartbeat_cnt = 0;
+
+		if(processor_framebuffer_source_active)
 			fb_driver_luma_modulator_value_write(255);
-#ifdef ENCODER_BASE
-			encoder_luma_modulator_value_write(255);
-#endif
-		} else {
-			heartbeat_cnt++;
-			if(heartbeat_cnt >= HEARTBEAT_LAW_LENGTH)
-				heartbeat_cnt = 0;
+		else
 			fb_driver_luma_modulator_value_write(192+heartbeat_law[heartbeat_cnt]/4);
+
 #ifdef ENCODER_BASE
+		if(processor_encoder_source_active)
+			encoder_luma_modulator_value_write(255);
+		else
 			encoder_luma_modulator_value_write(192+heartbeat_law[heartbeat_cnt]/4);
 #endif
 		}
-	}
 }

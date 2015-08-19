@@ -13,7 +13,9 @@ extern int processor_mode;
 int processor_h_active;
 int processor_v_active;
 int processor_framebuffer_source;
+int processor_framebuffer_source_active;
 int processor_encoder_source;
+int processor_encoder_source_active;
 
 void processor_list_modes(char *mode_descriptors);
 void processor_start(int mode);

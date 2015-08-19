@@ -7,6 +7,7 @@
 
 #include "config.h"
 #include "dvisampler0.h"
+#include "dvisampler1.h"
 #include "processor.h"
 #include "pll.h"
 #include "ci.h"
@@ -74,8 +75,11 @@ static void version(void)
 
 static void system_status(void)
 {
-	printf("dvi_in: %dx%d",	dvisampler0_resdetection_hres_read(),
-							dvisampler0_resdetection_vres_read());
+	printf("dvi1_in: %dx%d",	dvisampler0_resdetection_hres_read(),
+							    dvisampler0_resdetection_vres_read());
+	printf(" | ");
+	printf("dvi2_in: %dx%d",	dvisampler1_resdetection_hres_read(),
+							    dvisampler1_resdetection_vres_read());
 	printf(" | ");
 	if(fb_fi_enable_read())
 		printf("dvi_out: %dx%d", processor_h_active,
@@ -123,10 +127,12 @@ void ci_service(void)
 				break;
 			case 'D':
 				dvisampler0_debug = 1;
+				dvisampler1_debug = 1;
 				printf("DVI sampler debug is ON\n");
 				break;
 			case 'd':
 				dvisampler0_debug = 0;
+				dvisampler1_debug = 0;
 				printf("DVI sampler debug is OFF\n");
 				break;
 #ifdef ENCODER_BASE

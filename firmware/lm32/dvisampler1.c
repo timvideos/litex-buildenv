@@ -17,7 +17,7 @@ int dvisampler1_fb_index;
 #define FRAMEBUFFER_COUNT 4
 #define FRAMEBUFFER_MASK (FRAMEBUFFER_COUNT - 1)
 
-#define DVISAMPLER_FRAMEBUFFERS_BASE 0x10000000
+#define DVISAMPLER_FRAMEBUFFERS_BASE 0x01000000
 #define DVISAMPLER_FRAMEBUFFERS_SIZE 1280*720*4
 
 unsigned int dvisampler1_framebuffer_base(char n) {
@@ -113,7 +113,7 @@ void dvisampler1_init_video(int hres, int vres)
 	dvisampler1_dma_ev_pending_write(dvisampler1_dma_ev_pending_read());
 	dvisampler1_dma_ev_enable_write(0x3);
 	mask = irq_getmask();
-	mask |= 1 << DVISAMPLER0_INTERRUPT;
+	mask |= 1 << DVISAMPLER1_INTERRUPT;
 	irq_setmask(mask);
 
 	dvisampler1_fb_index = 3;
@@ -124,7 +124,7 @@ void dvisampler1_disable(void)
 	unsigned int mask;
 
 	mask = irq_getmask();
-	mask &= ~(1 << DVISAMPLER0_INTERRUPT);
+	mask &= ~(1 << DVISAMPLER1_INTERRUPT);
 	irq_setmask(mask);
 
 	dvisampler1_dma_slot0_status_write(DVISAMPLER_SLOT_EMPTY);
