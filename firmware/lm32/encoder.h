@@ -32,8 +32,7 @@ void encoder_init(int encoder_quality);
 void encoder_start(short resx, short resy);
 int encoder_done(void);
 void encoder_enable(char enable);
-void encoder_increase_quality(void);
-void encoder_decrease_quality(void);
+int encoder_set_quality(int quality);
 void encoder_service(void);
 
 #endif

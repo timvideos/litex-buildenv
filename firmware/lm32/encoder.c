@@ -145,22 +145,19 @@ void encoder_enable(char enable) {
 	encoder_enabled = enable;
 }
 
-void encoder_increase_quality(void) {
-	if(encoder_quality == 50)
-		encoder_quality = 75;
-	else if(encoder_quality == 75)
-		encoder_quality = 85;
-	else
-		encoder_quality = 100;
-}
-
-void encoder_decrease_quality(void) {
-	if(encoder_quality == 100)
-		encoder_quality = 85;
-	else if(encoder_quality == 85)
-		encoder_quality = 75;
-	else
-		encoder_quality = 50;
+int encoder_set_quality(int quality) {
+	switch(quality) {
+		case 100:
+		case 85:
+		case 75:
+		case 50:
+			encoder_quality = quality;
+			break;
+		default:
+			printf("Unsupported encoder quality (50, 75, 85 or 100)\n");
+			return 0;
+	}
+	return 1;
 }
 
 void encoder_service(void) {

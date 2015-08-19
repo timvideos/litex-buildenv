@@ -261,10 +261,8 @@ void processor_start(int mode)
 	processor_v_active = m->v_active;
 
 	processor_framebuffer_source = VIDEO_IN_DVISAMPLER0;
-	processor_framebuffer_source_active = 0;
 
 	processor_encoder_source = VIDEO_IN_DVISAMPLER0;
-	processor_encoder_source_active = 0;
 
 	fb_fi_enable_write(0);
 	fb_driver_clocking_pll_reset_write(1);
@@ -288,27 +286,31 @@ void processor_start(int mode)
 	dvisampler1_edid_hpd_en_write(1);
 }
 
+void processor_set_framebuffer_source(int source) {
+	processor_framebuffer_source = source;
+}
+
+void processor_set_encoder_source(int source) {
+	processor_encoder_source = source;
+}
+
 void processor_update(void)
 {
 	/*  framebuffer */
 	if(processor_framebuffer_source == VIDEO_IN_DVISAMPLER0) {
 		fb_fi_base0_write(dvisampler0_framebuffer_base(dvisampler0_fb_index));
-		processor_framebuffer_source_active = (dvisampler0_resdetection_hres_read() != 0);
 	}
 	else if(processor_framebuffer_source == VIDEO_IN_DVISAMPLER1) {
 		fb_fi_base0_write(dvisampler1_framebuffer_base(dvisampler1_fb_index));
-		processor_framebuffer_source_active = (dvisampler1_resdetection_hres_read() != 0);
 	}
 
 #ifdef ENCODER_BASE
 	/*  encoder */
 	if(processor_encoder_source == VIDEO_IN_DVISAMPLER0) {
 		encoder_reader_dma_base_write((dvisampler0_framebuffer_base(dvisampler0_fb_index)));
-		processor_encoder_source_active = (dvisampler0_resdetection_hres_read() != 0);
 	}
 	else if(processor_encoder_source == VIDEO_IN_DVISAMPLER1) {
 		encoder_reader_dma_base_write((dvisampler1_framebuffer_base(dvisampler1_fb_index)));
-		processor_encoder_source_active = (dvisampler1_resdetection_hres_read() != 0);
 	}
 #endif
 }
