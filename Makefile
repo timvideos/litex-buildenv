@@ -15,14 +15,6 @@ else
 	FLTERM = $(MSCDIR)/tools/flterm
 endif
 
-build/misoc:
-	git submodule init build/misoc
-	git submodule update build/misoc
-
-build/migen:
-	git submodule init build/migen
-	git submodule update build/misoc
-
 help:
 	@echo "Targets avaliable:"
 	@echo " make gateware"
