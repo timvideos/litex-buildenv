@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include <generated/csr.h>
+#include <generated/mem.h>
 #include <hw/flags.h>
 #include <time.h>
 
@@ -302,12 +303,12 @@ void processor_update(void)
 #ifdef ENCODER_BASE
 	/*  encoder */
 	if(processor_encoder_source == VIDEO_IN_DVISAMPLER0) {
-		encoder_reader_dma_base_write((dvisampler0_framebuffer_base(dvisampler0_fb_index));
+		encoder_reader_dma_base_write((dvisampler0_framebuffer_base(dvisampler0_fb_index)));
 		processor_encoder_source_active = (dvisampler0_resdetection_hres_read() != 0);
 	}
 	else if(processor_encoder_source == VIDEO_IN_DVISAMPLER1) {
-		encoder_reader_dma_base_write((dvisampler1_framebuffer_base(dvisampler1_fb_index));
-		processor_encoder_source_active = (dvisampler0_resdetection_hres_read() != 0);
+		encoder_reader_dma_base_write((dvisampler1_framebuffer_base(dvisampler1_fb_index)));
+		processor_encoder_source_active = (dvisampler1_resdetection_hres_read() != 0);
 	}
 #endif
 }
