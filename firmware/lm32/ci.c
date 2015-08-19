@@ -33,6 +33,9 @@ static void help(void)
 	puts("encoder <source> <quality> - select encoder source, quality and enable it");
 	puts("encoder off                - disable encode");
 	puts("");
+	puts("debug pll                  - dump pll configuration");
+	puts("debug ddr                  - show DDR bandwidth");
+	puts("");
 }
 
 static void version(void)
@@ -152,6 +155,26 @@ static void encoder_disable(void)
 	encoder_enable(0);
 }
 
+static void debug_pll(void)
+{
+	pll_dump();
+}
+
+static void debug_ddr(void)
+{
+	unsigned long long int nr, nw;
+	unsigned long long int f;
+	unsigned int rdb, wrb;
+
+	sdram_controller_bandwidth_update_write(1);
+	nr = sdram_controller_bandwidth_nreads_read();
+	nw = sdram_controller_bandwidth_nwrites_read();
+	f = identifier_frequency_read();
+	rdb = (nr*f >> (24 - 7))/1000000ULL;
+	wrb = (nw*f >> (24 - 7))/1000000ULL;
+	printf("read:%5dMbps  write:%5dMbps  all:%5dMbps\n", rdb, wrb, rdb + wrb);
+}
+
 static char *readstr(void)
 {
 	char c[2];
@@ -244,17 +267,22 @@ void ci_service(void)
 		token = get_token(&str);
 		if(strcmp(token, "off") == 0)
 			encoder_disable();
-		else {
+		else
 			encoder_set(atoi(token), atoi(get_token(&str)));
-		}
 	}
 	else if(strcmp(token, "status") == 0) {
 		token = get_token(&str);
 		if(strcmp(token, "off") == 0)
 			status_disable();
-		else {
+		else
 			status_enable();
-		}
+	}
+	else if(strcmp(token, "debug") == 0) {
+		token = get_token(&str);
+		if(strcmp(token, "pll") == 0)
+			debug_pll();
+		else if(strcmp(token, "ddr") == 0)
+			debug_ddr();
 	}
 
 	ci_prompt();
