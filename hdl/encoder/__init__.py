@@ -56,7 +56,18 @@ class Encoder(Module, AutoCSR):
         self.source = Source([("data", 8)])
         self.bus = wishbone.Interface()
 
+        self._nwrites_clear = CSR()
+        self._nwrites = CSRStatus(32)
+
         # # #
+
+        nwrites = self._nwrites.status
+        self.sync += \
+          If(self._nwrites_clear.re & self._nwrites_clear.r,
+            nwrites.eq(0)
+          ).Elif(self.source.stb & self.source.ack,
+            nwrites.eq(nwrites + 1)
+          )
 
         chroma_upsampler = YCbCr422to444()
         self.submodules += chroma_upsampler

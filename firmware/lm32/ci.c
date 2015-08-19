@@ -34,8 +34,8 @@ static void help_framebuffer0(char banner)
 {
 	if(banner)
 		help_banner();
-	puts("framebuffer0 <source>       - select framebuffer0 source and enable it");
-	puts("framebuffer0 off            - disable framebuffer0");
+	puts("framebuffer0 <source>      - select framebuffer0 source and enable it");
+	puts("framebuffer0 off           - disable framebuffer0");
 	puts("");
 }
 
@@ -43,8 +43,8 @@ static void help_framebuffer1(char banner)
 {
 	if(banner)
 		help_banner();
-	puts("framebuffer1 <source>       - select framebuffer1 source and enable it");
-	puts("framebuffer1 off            - disable framebuffer1");
+	puts("framebuffer1 <source>      - select framebuffer1 source and enable it");
+	puts("framebuffer1 off           - disable framebuffer1");
 	puts("");
 }
 
@@ -96,6 +96,7 @@ static void status_enable(void)
 {
 	printf("Enabling status\n");
 	status_enabled = 1;
+	encoder_nwrites_clear_write(1);
 }
 
 static void status_disable(void)
@@ -141,13 +142,16 @@ static void status_service(void)
 
 #ifdef ENCODER_BASE
 			printf("encoder: ");
-			if(encoder_enabled)
-				printf("%dx%d @ %dfps from video source %d, q: %d",	processor_h_active,
-																	processor_v_active,
-																	encoder_fps,
-																	processor_encoder_source,
-																	encoder_quality);
-			else
+			if(encoder_enabled) {
+				printf("%dx%d @ %dfps (%dMbps) from video source %d (q: %d)",
+					processor_h_active,
+					processor_v_active,
+					encoder_fps,
+					encoder_nwrites_read()*8/1000000,
+					processor_encoder_source,
+					encoder_quality);
+				encoder_nwrites_clear_write(1);
+			} else
 				printf("off");
 			printf("\n");
 #endif
