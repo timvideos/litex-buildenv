@@ -16,26 +16,59 @@
 
 int status_enabled;
 
-static void help(void)
+static void help_banner(void)
 {
 	puts("Available commands:");
+}
+
+static void help_video_mode(char banner)
+{
+	if(banner)
+		help_banner();
+	puts("video_mode list            - list available video modes");
+	puts("video_mode <mode>          - select video mode");
+	puts("");
+}
+
+static void help_framebuffer(char banner)
+{
+	if(banner)
+		help_banner();
+	puts("framebuffer <source>       - select framebuffer source and enable it");
+	puts("framebuffer off            - disable framebuffer");
+	puts("");
+}
+
+static void help_encoder(char banner)
+{
+	if(banner)
+		help_banner();
+	puts("encoder <source> <quality> - select encoder source, quality and enable it");
+	puts("encoder off                - disable encode");
+	puts("");
+}
+
+static void help_debug(char banner)
+{
+	if(banner)
+		help_banner();
+	puts("debug pll                  - dump pll configuration");
+	puts("debug ddr                  - show DDR bandwidth");
+	puts("");
+}
+
+static void help(void)
+{
+	help_banner();
 	puts("help                       - this command");
 	puts("version                    - firmware/gateware version");
 	puts("reboot                     - reboot CPU");
 	puts("status <on/off>            - enable/disable status message");
 	puts("");
-	puts("video_mode list            - list available video modes");
-	puts("video_mode <mode>          - select video mode");
-	puts("");
-	puts("framebuffer <source>       - select framebuffer source and enable it");
-	puts("framebuffer off            - disable framebuffer");
-	puts("");
-	puts("encoder <source> <quality> - select encoder source, quality and enable it");
-	puts("encoder off                - disable encode");
-	puts("");
-	puts("debug pll                  - dump pll configuration");
-	puts("debug ddr                  - show DDR bandwidth");
-	puts("");
+	help_video_mode(0);
+	help_framebuffer(0);
+	help_encoder(0);
+	help_debug(0);
 }
 
 static void version(void)
@@ -246,7 +279,19 @@ void ci_service(void)
 
 	token = get_token(&str);
 
-	if(strcmp(token, "help") == 0) help();
+	if(strcmp(token, "help") == 0) {
+		token = get_token(&str);
+		if(strcmp(token, "video_mode") == 0)
+			help_video_mode(1);
+		else if (strcmp(token, "framebuffer") == 0)
+			help_framebuffer(1);
+		else if (strcmp(token, "encoder") == 0)
+			help_encoder(1);
+		else if (strcmp(token, "debug") == 0)
+			help_debug(1);
+		else
+			help();
+	}
 	else if(strcmp(token, "reboot") == 0) reboot();
 	else if(strcmp(token, "version") == 0) version();
 	else if(strcmp(token, "video_mode") == 0) {
