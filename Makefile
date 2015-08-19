@@ -4,7 +4,7 @@ PROG ?= impact
 SERIAL ?= /dev/ttyVIZ0
 TARGET ?= hdmi2usb
 
-HDMI2USBDIR = ../../
+HDMI2USBDIR = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 PYTHON = python3
 
 CMD = $(PYTHON) make.py -X $(HDMI2USBDIR) -t $(BOARD)_$(TARGET) -Ot firmware_filename $(HDMI2USBDIR)/firmware/lm32/firmware.bin -Op programmer $(PROG)
@@ -14,14 +14,6 @@ ifeq ($(OS),Windows_NT)
 else
 	FLTERM = $(MSCDIR)/tools/flterm
 endif
-
-build/misoc:
-	git submodule init build/misoc
-	git submodule update build/misoc
-
-build/migen:
-	git submodule init build/migen
-	git submodule update build/misoc
 
 help:
 	@echo "Targets avaliable:"
@@ -75,7 +67,7 @@ clean:
 load: load-gateware load-lm32-firmware load-fx2-firmware
 
 view:
-	guvcview --device=/dev/video0 --show_fps=1 --size=1024X768
+	./scripts/view.sh
 
 all: gateware load-gateware load-fx2-firmware
 

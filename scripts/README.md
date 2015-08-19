@@ -9,7 +9,7 @@ To get started (will install packages, etc):
 
   * Run the bootstrap script to get everything required for flashing firmware:
   ```
-  curl -fsS https://raw.githubusercontent.com/timvideos/HDMI2USB-misoc-firmware/scripts/scripts/bootstrap.sh | bash
+  curl -fsS https://raw.githubusercontent.com/timvideos/HDMI2USB-misoc-firmware/master/scripts/bootstrap.sh | bash
   ```
 
   * Download & install Xilinx ISE WebPACK 14.7 into the default location in /opt/
