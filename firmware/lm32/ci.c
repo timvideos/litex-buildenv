@@ -94,6 +94,8 @@ static void status_disable(void)
 	status_enabled = 0;
 }
 
+static void debug_ddr(void);
+
 static void status_service(void)
 {
 	static int last_event;
@@ -130,6 +132,8 @@ static void status_service(void)
 				printf("off");
 			printf("\n");
 #endif
+			printf("ddr: ");
+			debug_ddr();
 		}
 	}
 }
@@ -203,8 +207,8 @@ static void debug_ddr(void)
 	nr = sdram_controller_bandwidth_nreads_read();
 	nw = sdram_controller_bandwidth_nwrites_read();
 	f = identifier_frequency_read();
-	rdb = (nr*f >> (24 - 7))/1000000ULL;
-	wrb = (nw*f >> (24 - 7))/1000000ULL;
+	rdb = (nr*f >> (24 - 6))/1000000ULL;
+	wrb = (nw*f >> (24 - 6))/1000000ULL;
 	printf("read:%5dMbps  write:%5dMbps  all:%5dMbps\n", rdb, wrb, rdb + wrb);
 }
 
