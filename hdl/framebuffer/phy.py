@@ -214,13 +214,10 @@ class Driver(Module, AutoCSR):
           chroma_upsampler.sink.cb_cr.eq(fifo.pix_cb_cr)
         ]
 
-        self.submodules.luma_modulator = RenameClockDomains(YModulator(), "pix")
-        self.comb += Record.connect(chroma_upsampler.source, self.luma_modulator.sink)
-
         ycbcr2rgb = YCbCr2RGB()
         self.submodules += RenameClockDomains(ycbcr2rgb, "pix")
         self.comb += [
-            Record.connect(self.luma_modulator.source, ycbcr2rgb.sink),
+            Record.connect(chroma_upsampler.source, ycbcr2rgb.sink),
             ycbcr2rgb.source.ack.eq(1)
         ]
 
@@ -229,7 +226,6 @@ class Driver(Module, AutoCSR):
         hsync = fifo.pix_hsync
         vsync = fifo.pix_vsync
         for i in range(chroma_upsampler.latency +
-        	           self.luma_modulator.latency +
         	           ycbcr2rgb.latency):
             next_de = Signal()
             next_vsync = Signal()

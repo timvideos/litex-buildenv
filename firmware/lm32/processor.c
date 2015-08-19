@@ -163,41 +163,6 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 	}
 };
 
-#define HEARTBEAT_LAW_LENGTH 300
-static char heartbeat_law[] =
-{
-	255, 255, 255, 255, 255, 255, 255, 255, 252, 247,
-	235, 235, 230, 225, 218, 213, 208, 206, 199, 189,
-	187, 182, 182, 177, 175, 168, 165, 163, 158, 148,
-	146, 144, 144, 141, 139, 136, 134, 127, 122, 120,
-	117, 115, 112, 112, 110, 110, 108, 103,  96,  96,
-	 93,  91,  88,  88,  88,  88,  84,  79,  76,  74,
-	 74,  72,  72,  72,  72,  69,  69,  62,  60,  60,
-	 57,  57,  57,  55,  55,  55,  55,  48,  48,  45,
-	 45,  43,  43,  40,  40,  40,  40,  36,  36,  36,
-	 33,  33,  31,  31,  31,  28,  28,  26,  26,  26,
-	 26,  24,  24,  21,  21,  21,  21,  20,  19,  19,
-	 16,  16,  16,  16,  14,  14,  13,  12,  12,  11,
-	 11,  10,  10,   9,   9,   9,   9,   8,   8,   7,
-	  7,   6,   6,   5,   5,   4,   4,   4,   4,   4,
-	  4,   3,   3,   3,   2,   2,   2,   2,   2,   2,
-	  2,   2,   2,   2,   2,   2,   2,   2,   2,   2,
-	  2,   2,   2,   2,   2,   2,   2,   2,   2,   2,
-	  2,   2,   2,   2,   2,   2,   2,   2,   2,   2,
-	  2,   2,   2,   2,   2,   2,   2,   2,   2,   2,
-	  2,   2,   2,   2,   2,   2,   2,   2,   2,   2,
-	  2,   2,   4,   4,   4,   4,   4,   7,   7,   7,
-	  7,   7,   7,   9,   9,   9,  12,  12,  12,  14,
-	 14,  16,  16,  16,  16,  21,  21,  21,  21,  24,
-	 24,  26,  28,  28,  28,  31,  36,  33,  36,  36,
-	 40,  40,  43,  43,  45,  48,  52,  55,  55,  55,
-	 57,  62,  62,  64,  67,  72,  74,  79,  81,  86,
-	 86,  86,  88,  93,  96,  98, 100, 112, 115, 117,
-	124, 127, 129, 129, 136, 141, 144, 148, 160, 165,
-	170, 175, 184, 189, 194, 199, 208, 213, 220, 237,
-	244, 252, 255, 255, 255, 255, 255, 255, 255, 255
-};
-
 void processor_list_modes(char *mode_descriptors)
 {
 	int i;
@@ -349,28 +314,7 @@ void processor_update(void)
 
 void processor_service(void)
 {
-	static int last_event;
-	static int heartbeat_cnt;
-
 	dvisampler0_service();
 	dvisampler1_service();
 	processor_update();
-
-	if(elapsed(&last_event, identifier_frequency_read()/256)) {
-		heartbeat_cnt++;
-		if(heartbeat_cnt >= HEARTBEAT_LAW_LENGTH)
-			heartbeat_cnt = 0;
-
-		if(processor_framebuffer_source_active)
-			fb_driver_luma_modulator_value_write(255);
-		else
-			fb_driver_luma_modulator_value_write(192+heartbeat_law[heartbeat_cnt]/4);
-
-#ifdef ENCODER_BASE
-		if(processor_encoder_source_active)
-			encoder_luma_modulator_value_write(255);
-		else
-			encoder_luma_modulator_value_write(192+heartbeat_law[heartbeat_cnt]/4);
-#endif
-		}
 }

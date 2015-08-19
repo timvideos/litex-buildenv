@@ -66,14 +66,11 @@ class Encoder(Module, AutoCSR):
             chroma_upsampler.sink.cb_cr.eq(self.sink.data[8:])
         ]
 
-        self.submodules.luma_modulator = YModulator()
-        self.comb += Record.connect(chroma_upsampler.source, self.luma_modulator.sink)
-
         fifo = SyncFIFO([("data", 8)], 1024)
         self.submodules += fifo
 
         iram_fifo_full = Signal()
-        self.comb += self.luma_modulator.source.ack.eq(~iram_fifo_full)
+        self.comb += chroma_upsampler.source.ack.eq(~iram_fifo_full)
 
         self.specials += Instance("JpegEnc",
                                    i_CLK=ClockSignal(),
@@ -90,10 +87,10 @@ class Encoder(Module, AutoCSR):
                                    #o_OPB_toutSup=,
                                    o_OPB_errAck=self.bus.err,
 
-                                   i_iram_wdata=Cat(self.luma_modulator.source.y,
-                                                    self.luma_modulator.source.cb,
-                                                    self.luma_modulator.source.cr),
-                                   i_iram_wren=self.luma_modulator.source.stb & ~iram_fifo_full,
+                                   i_iram_wdata=Cat(chroma_upsampler.source.y,
+                                                    chroma_upsampler.source.cb,
+                                                    chroma_upsampler.source.cr),
+                                   i_iram_wren=chroma_upsampler.source.stb & ~iram_fifo_full,
                                    o_iram_fifo_afull=iram_fifo_full,
 
                                    o_ram_byte=fifo.sink.data,
