@@ -35,10 +35,10 @@ static void program_data(const unsigned short *data)
 	 * PLLs also seem to dislike any write to the last words.
 	 */
 	for(i=6;i<32-5;i++) {
-		fb_driver_clocking_pll_adr_write(i);
-		fb_driver_clocking_pll_dat_w_write(data[i]);
-		fb_driver_clocking_pll_write_write(1);
-		while(!fb_driver_clocking_pll_drdy_read());
+		fb0_driver_clocking_pll_adr_write(i);
+		fb0_driver_clocking_pll_dat_w_write(data[i]);
+		fb0_driver_clocking_pll_write_write(1);
+		while(!fb0_driver_clocking_pll_drdy_read());
 	}
 	for(i=6;i<32-5;i++) {
 		dvisampler0_clocking_pll_adr_write(i);
@@ -82,10 +82,10 @@ void pll_dump(void)
 
 	printf("framebuffer PLL:\n");
 	for(i=0;i<32;i++) {
-		fb_driver_clocking_pll_adr_write(i);
-		fb_driver_clocking_pll_read_write(1);
-		while(!fb_driver_clocking_pll_drdy_read());
-		printf("%04x ", fb_driver_clocking_pll_dat_r_read());
+		fb0_driver_clocking_pll_adr_write(i);
+		fb0_driver_clocking_pll_read_write(1);
+		while(!fb0_driver_clocking_pll_drdy_read());
+		printf("%04x ", fb0_driver_clocking_pll_dat_r_read());
 	}
 	printf("\n");
 	printf("dvisampler0 PLL:\n");

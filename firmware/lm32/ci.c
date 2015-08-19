@@ -30,12 +30,21 @@ static void help_video_mode(char banner)
 	puts("");
 }
 
-static void help_framebuffer(char banner)
+static void help_framebuffer0(char banner)
 {
 	if(banner)
 		help_banner();
-	puts("framebuffer <source>       - select framebuffer source and enable it");
-	puts("framebuffer off            - disable framebuffer");
+	puts("framebuffer0 <source>       - select framebuffer0 source and enable it");
+	puts("framebuffer0 off            - disable framebuffer0");
+	puts("");
+}
+
+static void help_framebuffer1(char banner)
+{
+	if(banner)
+		help_banner();
+	puts("framebuffer1 <source>       - select framebuffer1 source and enable it");
+	puts("framebuffer1 off            - disable framebuffer1");
 	puts("");
 }
 
@@ -66,7 +75,8 @@ static void help(void)
 	puts("status <on/off>            - enable/disable status message");
 	puts("");
 	help_video_mode(0);
-	help_framebuffer(0);
+	help_framebuffer0(0);
+	help_framebuffer1(0);
 	help_encoder(0);
 	help_debug(0);
 }
@@ -111,11 +121,20 @@ static void status_service(void)
 											dvisampler1_resdetection_vres_read());
 			printf("\n");
 
-			printf("framebuffer: ");
-			if(fb_fi_enable_read())
+			printf("framebuffer0: ");
+			if(fb0_fi_enable_read())
 				printf("%dx%d from video source %d", 	processor_h_active,
 														processor_v_active,
-														processor_framebuffer_source);
+														processor_framebuffer0_source);
+			else
+				printf("off");
+			printf("\n");
+
+			printf("framebuffer1: ");
+			if(fb1_fi_enable_read())
+				printf("%dx%d from video source %d", 	processor_h_active,
+														processor_v_active,
+														processor_framebuffer1_source);
 			else
 				printf("off");
 			printf("\n");
@@ -126,7 +145,7 @@ static void status_service(void)
 				printf("%dx%d @ %dfps from video source %d, q: %d",	processor_h_active,
 																	processor_v_active,
 																	encoder_fps,
-																	processor_framebuffer_source,
+																	processor_encoder_source,
 																	encoder_quality);
 			else
 				printf("off");
@@ -161,19 +180,34 @@ static void video_mode_set(int mode)
 	}
 }
 
-static void framebuffer_set(int source)
+static void framebuffer0_set(int source)
 {
 	if(source <= VIDEO_IN_DVISAMPLER1)
-		printf("Enabling framebuffer on video source %d\n", source);
-		processor_set_framebuffer_source(source);
+		printf("Enabling framebuffer0 from video source %d\n", source);
+		processor_set_framebuffer0_source(source);
 		processor_update();
-		fb_fi_enable_write(1);
+		fb0_fi_enable_write(1);
 }
 
-static void framebuffer_disable(void)
+static void framebuffer0_disable(void)
 {
-	printf("Disabling framebuffer\n");
-	fb_fi_enable_write(0);
+	printf("Disabling framebuffer0\n");
+	fb0_fi_enable_write(0);
+}
+
+static void framebuffer1_set(int source)
+{
+	if(source <= VIDEO_IN_DVISAMPLER1)
+		printf("Enabling framebuffer1 from video source %d\n", source);
+		processor_set_framebuffer1_source(source);
+		processor_update();
+		fb1_fi_enable_write(1);
+}
+
+static void framebuffer1_disable(void)
+{
+	printf("Disabling framebuffer1\n");
+	fb1_fi_enable_write(0);
 }
 
 static void encoder_set(int quality, int source)
@@ -287,8 +321,10 @@ void ci_service(void)
 		token = get_token(&str);
 		if(strcmp(token, "video_mode") == 0)
 			help_video_mode(1);
-		else if (strcmp(token, "framebuffer") == 0)
-			help_framebuffer(1);
+		else if (strcmp(token, "framebuffer0") == 0)
+			help_framebuffer0(1);
+		else if (strcmp(token, "framebuffer1") == 0)
+			help_framebuffer1(1);
 		else if (strcmp(token, "encoder") == 0)
 			help_encoder(1);
 		else if (strcmp(token, "debug") == 0)
@@ -305,12 +341,19 @@ void ci_service(void)
 		else
 			video_mode_set(atoi(token));
 	}
-	else if(strcmp(token, "framebuffer") == 0) {
+	else if(strcmp(token, "framebuffer0") == 0) {
 		token = get_token(&str);
 		if(strcmp(token, "off") == 0)
-			framebuffer_disable();
+			framebuffer0_disable();
 		else
-			framebuffer_set(atoi(token));
+			framebuffer0_set(atoi(token));
+	}
+	else if(strcmp(token, "framebuffer1") == 0) {
+		token = get_token(&str);
+		if(strcmp(token, "off") == 0)
+			framebuffer1_disable();
+		else
+			framebuffer1_set(atoi(token));
 	}
 	else if(strcmp(token, "encoder") == 0) {
 		token = get_token(&str);

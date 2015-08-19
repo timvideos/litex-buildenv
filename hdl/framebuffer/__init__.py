@@ -10,7 +10,7 @@ from hdl.framebuffer.phy import Driver
 
 
 class Framebuffer(Module, AutoCSR):
-    def __init__(self, pads_vga, pads_dvi, lasmim):
+    def __init__(self, pads_vga, pads_dvi, lasmim, external_clocking=None):
         pack_factor = lasmim.dw//bpp
 
         g = DataFlowGraph()
@@ -24,7 +24,7 @@ class Framebuffer(Module, AutoCSR):
 
         cast = structuring.Cast(lasmim.dw, pixel_layout(pack_factor), reverse_to=True)
         vtg = VTG(pack_factor)
-        self.driver = Driver(pack_factor, pads_vga, pads_dvi)
+        self.driver = Driver(pack_factor, pads_vga, pads_dvi, external_clocking)
 
         g.add_connection(self.fi, vtg, source_subr=self.fi.timing_subr, sink_ep="timing")
         g.add_connection(dma_out, cast)

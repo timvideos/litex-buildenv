@@ -183,9 +183,9 @@ static void fb_clkgen_write(int cmd, int data)
 	int word;
 
 	word = (data << 2) | cmd;
-	fb_driver_clocking_cmd_data_write(word);
-	fb_driver_clocking_send_cmd_data_write(1);
-	while(fb_driver_clocking_status_read() & CLKGEN_STATUS_BUSY);
+	fb0_driver_clocking_cmd_data_write(word);
+	fb0_driver_clocking_send_cmd_data_write(1);
+	while(fb0_driver_clocking_status_read() & CLKGEN_STATUS_BUSY);
 }
 
 static void fb_get_clock_md(unsigned int pixel_clock, unsigned int *best_m, unsigned int *best_d)
@@ -221,22 +221,33 @@ static void fb_set_mode(const struct video_timing *mode)
 
 	fb_get_clock_md(mode->pixel_clock, &clock_m, &clock_d);
 
-	fb_fi_hres_write(mode->h_active);
-	fb_fi_hsync_start_write(mode->h_active + mode->h_sync_offset);
-	fb_fi_hsync_end_write(mode->h_active + mode->h_sync_offset + mode->h_sync_width);
-	fb_fi_hscan_write(mode->h_active + mode->h_blanking);
-	fb_fi_vres_write(mode->v_active);
-	fb_fi_vsync_start_write(mode->v_active + mode->v_sync_offset);
-	fb_fi_vsync_end_write(mode->v_active + mode->v_sync_offset + mode->v_sync_width);
-	fb_fi_vscan_write(mode->v_active + mode->v_blanking);
+	fb0_fi_hres_write(mode->h_active);
+	fb0_fi_hsync_start_write(mode->h_active + mode->h_sync_offset);
+	fb0_fi_hsync_end_write(mode->h_active + mode->h_sync_offset + mode->h_sync_width);
+	fb0_fi_hscan_write(mode->h_active + mode->h_blanking);
+	fb0_fi_vres_write(mode->v_active);
+	fb0_fi_vsync_start_write(mode->v_active + mode->v_sync_offset);
+	fb0_fi_vsync_end_write(mode->v_active + mode->v_sync_offset + mode->v_sync_width);
+	fb0_fi_vscan_write(mode->v_active + mode->v_blanking);
 
-	fb_fi_length_write(mode->h_active*mode->v_active*2);
+	fb0_fi_length_write(mode->h_active*mode->v_active*2);
+
+	fb1_fi_hres_write(mode->h_active);
+	fb1_fi_hsync_start_write(mode->h_active + mode->h_sync_offset);
+	fb1_fi_hsync_end_write(mode->h_active + mode->h_sync_offset + mode->h_sync_width);
+	fb1_fi_hscan_write(mode->h_active + mode->h_blanking);
+	fb1_fi_vres_write(mode->v_active);
+	fb1_fi_vsync_start_write(mode->v_active + mode->v_sync_offset);
+	fb1_fi_vsync_end_write(mode->v_active + mode->v_sync_offset + mode->v_sync_width);
+	fb1_fi_vscan_write(mode->v_active + mode->v_blanking);
+
+	fb1_fi_length_write(mode->h_active*mode->v_active*2);
 
 	fb_clkgen_write(0x1, clock_d-1);
 	fb_clkgen_write(0x3, clock_m-1);
-	fb_driver_clocking_send_go_write(1);
-	while(!(fb_driver_clocking_status_read() & CLKGEN_STATUS_PROGDONE));
-	while(!(fb_driver_clocking_status_read() & CLKGEN_STATUS_LOCKED));
+	fb0_driver_clocking_send_go_write(1);
+	while(!(fb0_driver_clocking_status_read() & CLKGEN_STATUS_PROGDONE));
+	while(!(fb0_driver_clocking_status_read() & CLKGEN_STATUS_LOCKED));
 }
 
 static void edid_set_mode(const struct video_timing *mode)
@@ -260,12 +271,13 @@ void processor_start(int mode)
 	processor_h_active = m->h_active;
 	processor_v_active = m->v_active;
 
-	processor_framebuffer_source = VIDEO_IN_DVISAMPLER0;
-
+	processor_framebuffer0_source = VIDEO_IN_DVISAMPLER0;
+	processor_framebuffer1_source = VIDEO_IN_DVISAMPLER0;
 	processor_encoder_source = VIDEO_IN_DVISAMPLER0;
 
-	fb_fi_enable_write(0);
-	fb_driver_clocking_pll_reset_write(1);
+	fb0_fi_enable_write(0);
+	fb1_fi_enable_write(0);
+	fb0_driver_clocking_pll_reset_write(1);
 	dvisampler0_edid_hpd_en_write(0);
 	dvisampler1_edid_hpd_en_write(0);
 
@@ -280,14 +292,19 @@ void processor_start(int mode)
 	dvisampler0_init_video(m->h_active, m->v_active);
 	dvisampler1_init_video(m->h_active, m->v_active);
 
-	fb_driver_clocking_pll_reset_write(0);
-	fb_fi_enable_write(1);
+	fb0_driver_clocking_pll_reset_write(0);
+	fb0_fi_enable_write(1);
+	fb1_fi_enable_write(1);
 	dvisampler0_edid_hpd_en_write(1);
 	dvisampler1_edid_hpd_en_write(1);
 }
 
-void processor_set_framebuffer_source(int source) {
-	processor_framebuffer_source = source;
+void processor_set_framebuffer0_source(int source) {
+	processor_framebuffer0_source = source;
+}
+
+void processor_set_framebuffer1_source(int source) {
+	processor_framebuffer1_source = source;
 }
 
 void processor_set_encoder_source(int source) {
@@ -296,12 +313,20 @@ void processor_set_encoder_source(int source) {
 
 void processor_update(void)
 {
-	/*  framebuffer */
-	if(processor_framebuffer_source == VIDEO_IN_DVISAMPLER0) {
-		fb_fi_base0_write(dvisampler0_framebuffer_base(dvisampler0_fb_index));
+	/*  framebuffer0 */
+	if(processor_framebuffer0_source == VIDEO_IN_DVISAMPLER0) {
+		fb0_fi_base0_write(dvisampler0_framebuffer_base(dvisampler0_fb_index));
 	}
-	else if(processor_framebuffer_source == VIDEO_IN_DVISAMPLER1) {
-		fb_fi_base0_write(dvisampler1_framebuffer_base(dvisampler1_fb_index));
+	else if(processor_framebuffer0_source == VIDEO_IN_DVISAMPLER1) {
+		fb0_fi_base0_write(dvisampler1_framebuffer_base(dvisampler1_fb_index));
+	}
+
+	/*  framebuffer1 */
+	if(processor_framebuffer1_source == VIDEO_IN_DVISAMPLER0) {
+		fb1_fi_base0_write(dvisampler0_framebuffer_base(dvisampler0_fb_index));
+	}
+	else if(processor_framebuffer1_source == VIDEO_IN_DVISAMPLER1) {
+		fb1_fi_base0_write(dvisampler1_framebuffer_base(dvisampler1_fb_index));
 	}
 
 #ifdef ENCODER_BASE
