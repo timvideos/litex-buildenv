@@ -67,7 +67,7 @@ clean:
 load: load-gateware load-lm32-firmware load-fx2-firmware
 
 view:
-	guvcview --device=/dev/video0 --show_fps=1 --size=1024X768
+	./scripts/view.sh
 
 all: gateware load-gateware load-fx2-firmware
 
