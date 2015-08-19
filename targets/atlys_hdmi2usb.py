@@ -8,20 +8,26 @@ from hdl.streamer import USBStreamer
 
 class VideomixerSoC(BaseSoC):
     csr_map = {
-        "fb":                  19,
-        "dvisampler":          20,
-        "dvisampler_edid_mem": 21
+        "fb":                   19,
+        "dvisampler0":          20,
+        "dvisampler0_edid_mem": 21,
+        "dvisampler1":          22,
+        "dvisampler1_edid_mem": 23,
     }
     csr_map.update(BaseSoC.csr_map)
 
     interrupt_map = {
-        "dvisampler": 3,
+        "dvisampler0": 3,
+        "dvisampler1": 4,
     }
     interrupt_map.update(BaseSoC.interrupt_map)
 
     def __init__(self, platform, **kwargs):
         BaseSoC.__init__(self, platform, **kwargs)
-        self.submodules.dvisampler = dvisampler.DVISampler(platform.request("dvi_in", 1),
+        self.submodules.dvisampler0 = dvisampler.DVISampler(platform.request("dvi_in", 0),
+                                                           self.sdram.crossbar.get_master(),
+                                                           fifo_depth=512)
+        self.submodules.dvisampler1 = dvisampler.DVISampler(platform.request("dvi_in", 1),
                                                            self.sdram.crossbar.get_master(),
                                                            fifo_depth=512)
         self.submodules.fb = framebuffer.Framebuffer(None, platform.request("dvi_out"),
@@ -36,8 +42,8 @@ TIMESPEC "TSise_sucks8" = FROM "GRPsys_clk" TO "GRPpix_clk" TIG;
 
 class HDMI2USBSoC(VideomixerSoC):
     csr_map = {
-        "encoder_reader": 22,
-        "encoder":        23
+        "encoder_reader": 24,
+        "encoder":        25
     }
     csr_map.update(VideomixerSoC.csr_map)
     mem_map = {

@@ -6,7 +6,7 @@
 #include <time.h>
 
 #include "config.h"
-#include "dvisampler.h"
+#include "dvisampler0.h"
 #include "processor.h"
 #include "pll.h"
 #include "ci.h"
@@ -74,8 +74,8 @@ static void version(void)
 
 static void system_status(void)
 {
-	printf("dvi_in: %dx%d",	dvisampler_resdetection_hres_read(),
-							dvisampler_resdetection_vres_read());
+	printf("dvi_in: %dx%d",	dvisampler0_resdetection_hres_read(),
+							dvisampler0_resdetection_vres_read());
 	printf(" | ");
 	if(fb_fi_enable_read())
 		printf("dvi_out: %dx%d", processor_h_active,
@@ -122,15 +122,23 @@ void ci_service(void)
 				list_video_modes();
 				break;
 			case 'D':
-				dvisampler_debug = 1;
+				dvisampler0_debug = 1;
 				printf("DVI sampler debug is ON\n");
 				break;
 			case 'd':
-				dvisampler_debug = 0;
+				dvisampler0_debug = 0;
 				printf("DVI sampler debug is OFF\n");
 				break;
 #ifdef ENCODER_BASE
 			case 'E':
+				/* XXX for test, FIXME */
+				c = readchar();
+				if (c == '1')
+					processor_encoder_source = VIDEO_IN_DVISAMPLER0;
+				else if (c == '2')
+					processor_encoder_source = VIDEO_IN_DVISAMPLER1;
+				processor_update();
+
 				encoder_enable(1);
 				printf("Encoder is ON\n");
 				break;
@@ -140,12 +148,20 @@ void ci_service(void)
 				break;
 #endif
 			case 'F':
+				/* XXX for test, FIXME */
+				c = readchar();
+				if (c == '1')
+					processor_framebuffer_source = VIDEO_IN_DVISAMPLER0;
+				else if (c == '2')
+					processor_framebuffer_source = VIDEO_IN_DVISAMPLER1;
+				processor_update();
+
 				fb_fi_enable_write(1);
-				printf("framebuffer is ON\n");
+				printf("Framebuffer is ON\n");
 				break;
 			case 'f':
 				fb_fi_enable_write(0);
-				printf("framebuffer is OFF\n");
+				printf("Framebuffer is OFF\n");
 				break;
 			case 'h':
 				help();

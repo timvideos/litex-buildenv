@@ -2,7 +2,7 @@
 MSCDIR=../../build/misoc
 include $(MSCDIR)/software/common.mak
 
-OBJECTS=isr.o processor.o dvisampler.o edid.o pll.o ci.o config.o encoder.o main.o
+OBJECTS=isr.o processor.o dvisampler0.o dvisampler1.o edid.o pll.o ci.o config.o encoder.o main.o
 
 all: firmware.bin
 

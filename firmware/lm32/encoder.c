@@ -174,7 +174,6 @@ void encoder_service(void) {
 			if (encoder_done() == 1) {
 				encoder_init(encoder_quality);
 				encoder_start(processor_h_active, processor_v_active);
-				encoder_reader_dma_base_write(fb_fi_base0_read());
 				encoder_reader_dma_length_write(processor_h_active*processor_v_active*2);
 				encoder_reader_dma_shoot_write(1);
 				frame_cnt++;

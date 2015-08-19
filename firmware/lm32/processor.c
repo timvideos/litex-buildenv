@@ -5,7 +5,8 @@
 #include <hw/flags.h>
 #include <time.h>
 
-#include "dvisampler.h"
+#include "dvisampler0.h"
+#include "dvisampler1.h"
 #include "edid.h"
 #include "pll.h"
 #include "processor.h"
@@ -279,7 +280,10 @@ static void edid_set_mode(const struct video_timing *mode)
 
 	generate_edid(&edid, "OHW", "TV", 2015, "HDMI2USB", mode);
 	for(i=0;i<sizeof(edid);i++)
-		MMPTR(CSR_DVISAMPLER_EDID_MEM_BASE+4*i) = edid[i];
+		MMPTR(CSR_DVISAMPLER0_EDID_MEM_BASE+4*i) = edid[i];
+	generate_edid(&edid, "OHW", "TV", 2015, "HDMI2USB", mode);
+	for(i=0;i<sizeof(edid);i++)
+		MMPTR(CSR_DVISAMPLER1_EDID_MEM_BASE+4*i) = edid[i];
 }
 
 int processor_mode = 0;
@@ -290,21 +294,46 @@ void processor_start(int mode)
 	processor_h_active = m->h_active;
 	processor_v_active = m->v_active;
 
+	processor_framebuffer_source = VIDEO_IN_DVISAMPLER0;
+	processor_encoder_source = VIDEO_IN_DVISAMPLER0;
+
 	fb_fi_enable_write(0);
 	fb_driver_clocking_pll_reset_write(1);
-	dvisampler_edid_hpd_en_write(0);
+	dvisampler0_edid_hpd_en_write(0);
+	dvisampler1_edid_hpd_en_write(0);
 
-	dvisampler_disable();
-	dvisampler_clear_framebuffers();
+	dvisampler0_disable();
+	dvisampler1_disable();
+	dvisampler0_clear_framebuffers();
+	dvisampler1_clear_framebuffers();
 
 	pll_config_for_clock(m->pixel_clock);
 	fb_set_mode(m);
 	edid_set_mode(m);
-	dvisampler_init_video(m->h_active, m->v_active);
+	dvisampler0_init_video(m->h_active, m->v_active);
+	dvisampler1_init_video(m->h_active, m->v_active);
 
 	fb_driver_clocking_pll_reset_write(0);
 	fb_fi_enable_write(1);
-	dvisampler_edid_hpd_en_write(1);
+	dvisampler0_edid_hpd_en_write(1);
+	dvisampler1_edid_hpd_en_write(1);
+}
+
+void processor_update(void)
+{
+	/*  framebuffer */
+	if(processor_framebuffer_source == VIDEO_IN_DVISAMPLER0)
+		fb_fi_base0_write(dvisampler0_framebuffer_base(dvisampler0_fb_index));
+	else if(processor_framebuffer_source == VIDEO_IN_DVISAMPLER1)
+		fb_fi_base0_write(dvisampler1_framebuffer_base(dvisampler1_fb_index));
+
+#ifdef ENCODER_BASE
+	/*  encoder */
+	if(processor_encoder_source == VIDEO_IN_DVISAMPLER0)
+		encoder_reader_dma_base_write((dvisampler0_framebuffer_base(dvisampler0_fb_index));
+	else if(processor_encoder_source == VIDEO_IN_DVISAMPLER1)
+		encoder_reader_dma_base_write((dvisampler1_framebuffer_base(dvisampler1_fb_index));
+#endif
 }
 
 void processor_service(void)
@@ -312,19 +341,23 @@ void processor_service(void)
 	static int last_event;
 	static int heartbeat_cnt;
 
-	dvisampler_service();
+	dvisampler0_service();
 
 	if(elapsed(&last_event, identifier_frequency_read()/256)) {
-		if(dvisampler_resdetection_hres_read() != 0) {
+		if(dvisampler0_resdetection_hres_read() != 0) {
 			heartbeat_cnt = 0;
 			fb_driver_luma_modulator_value_write(255);
+#ifdef ENCODER_BASE
 			encoder_luma_modulator_value_write(255);
+#endif
 		} else {
 			heartbeat_cnt++;
 			if(heartbeat_cnt >= HEARTBEAT_LAW_LENGTH)
 				heartbeat_cnt = 0;
 			fb_driver_luma_modulator_value_write(192+heartbeat_law[heartbeat_cnt]/4);
+#ifdef ENCODER_BASE
 			encoder_luma_modulator_value_write(192+heartbeat_law[heartbeat_cnt]/4);
+#endif
 		}
 	}
 }
