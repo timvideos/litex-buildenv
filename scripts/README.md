@@ -19,6 +19,8 @@ To get started (will install packages, etc):
   cd Xilinx_ISE_DS_Lin_14.7_1015_1
   ./xsetup (gui, needs X forwarding if over ssh)
   ```
+step ?, "Select products to install: (*) ISE WebPACK" 17403 MB
+
 
   * Ensure you have a free WebPACK license for ISE installed, see http://license.xilinx.com/getLicense
 goes in ~/.Xilinx/Xilinx.lic (I think)
