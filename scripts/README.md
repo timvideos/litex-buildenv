@@ -12,9 +12,17 @@ To get started (will install packages, etc):
   curl -fsS https://raw.githubusercontent.com/timvideos/HDMI2USB-misoc-firmware/master/scripts/bootstrap.sh | bash
   ```
 
-  * Download & install Xilinx ISE WebPACK 14.7 into the default location in /opt/
+  * Download (URL?)
+  * & install Xilinx ISE WebPACK 14.7 into the default location in /opt/
+  ```
+  tar xvf Xilinx_ISE_DS_Lin_14.7_1015_1.tar
+  cd Xilinx_ISE_DS_Lin_14.7_1015_1
+  ./xsetup (gui, needs X forwarding if over ssh)
+  ```
 
   * Ensure you have a free WebPACK license for ISE installed, see http://license.xilinx.com/getLicense
+goes in ~/.Xilinx/Xilinx.lic (I think)
+
 
   * Ensure licence is activated by checking ISE:
   ```
