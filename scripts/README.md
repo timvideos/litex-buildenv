@@ -23,8 +23,8 @@ step ?, "Select products to install: (*) ISE WebPACK" 17403 MB
 
 
   * Ensure you have a free WebPACK license for ISE installed, see http://license.xilinx.com/getLicense
+  * 
 goes in ~/.Xilinx/Xilinx.lic (I think)
-
 
   * Ensure licence is activated by checking ISE:
   ```
@@ -32,6 +32,7 @@ goes in ~/.Xilinx/Xilinx.lic (I think)
   ise
   ```
   Go to About > Licence, ensure under "information" you can see your ISC WebPACK licence.
+  or maybe Help, Manage Licence? 
 
   * Change into the HDMI2USB-misoc-firmware directory:
   ```
