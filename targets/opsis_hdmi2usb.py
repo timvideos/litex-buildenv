@@ -28,10 +28,10 @@ class VideomixerSoC(opsis_base_soc):
         opsis_base_soc.__init__(self, platform, **kwargs)
         self.submodules.dvisampler0 = dvisampler.DVISampler(platform.request("dvi_in", 0),
                                                            self.sdram.crossbar.get_master(),
-                                                           fifo_depth=1024)
+                                                           fifo_depth=512)
         self.submodules.dvisampler1 = dvisampler.DVISampler(platform.request("dvi_in", 1),
                                                            self.sdram.crossbar.get_master(),
-                                                           fifo_depth=1024)
+                                                           fifo_depth=512)
         self.submodules.fb0 = framebuffer.Framebuffer(None, platform.request("dvi_out", 0),
                                                      self.sdram.crossbar.get_master())
         self.submodules.fb1 = framebuffer.Framebuffer(None, platform.request("dvi_out", 1),
