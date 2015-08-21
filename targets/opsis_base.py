@@ -9,7 +9,6 @@ from migen.bus import wishbone
 from migen.genlib.record import Record
 
 from misoclib.mem.sdram.module import SDRAMModule
-from misoclib.mem.sdram.phy import s6ddrphy
 from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
 from misoclib.soc import mem_decoder
 from misoclib.soc.sdram import SDRAMSoC
@@ -17,21 +16,22 @@ from misoclib.soc.sdram import SDRAMSoC
 from misoclib.com.liteeth.phy.s6rgmii import LiteEthPHYRGMII
 from misoclib.com.liteeth.core.mac import LiteEthMAC
 
+from hdl import s6ddrphy
+
 # DDR3
 class MT41J128M16(SDRAMModule):
-    # MT41J128M16 - 16 Meg x 16 x 8 Banks
     geom_settings = {
         "nbanks":   8,      #   8 banks
         "nrows":    16384,  # 16K (A[13:0])
         "ncols":    1024,   #  1K (A[9:0])
     }
     timing_settings = {
-        "tRP":        15,
-        "tRCD":       15,
-        "tWR":        15,
-        "tWTR":        2,
-        "tREFI":     64*1000*1000/16384,
-        "tRFC":      160,
+        "tRP":   15,
+        "tRCD":  15,
+        "tWR":   15,
+        "tWTR":  2,
+        "tREFI": 64*1000*1000/16384,
+        "tRFC":  260,
     }
 
     def __init__(self, clk_freq):
@@ -42,13 +42,14 @@ class MT41J128M16(SDRAMModule):
 class _CRG(Module):
     def __init__(self, platform, clk_freq):
         self.clock_domains.cd_sys = ClockDomain()
+        self.clock_domains.cd_sys_half = ClockDomain()
         self.clock_domains.cd_sdram_half = ClockDomain()
         self.clock_domains.cd_sdram_full_wr = ClockDomain()
         self.clock_domains.cd_sdram_full_rd = ClockDomain()
         self.clock_domains.cd_base50 = ClockDomain()
 
-        self.clk4x_wr_strb = Signal()
-        self.clk4x_rd_strb = Signal()
+        self.clk8x_wr_strb = Signal()
+        self.clk8x_rd_strb = Signal()
 
         f0 = 100*1000000
         clk100 = platform.request("clk100")
@@ -79,13 +80,14 @@ class _CRG(Module):
                                      o_CLKOUT3=pll[3], p_CLKOUT3_DUTY_CYCLE=.5,
                                      o_CLKOUT4=pll[4], p_CLKOUT4_DUTY_CYCLE=.5,
                                      o_CLKOUT5=pll[5], p_CLKOUT5_DUTY_CYCLE=.5,
-                                     p_CLKOUT0_PHASE=0., p_CLKOUT0_DIVIDE=p//4,  # sdram wr rd
-                                     p_CLKOUT1_PHASE=0., p_CLKOUT1_DIVIDE=p//4,
-                                     p_CLKOUT2_PHASE=270., p_CLKOUT2_DIVIDE=p//2,  # sdram dqs adr ctrl
-                                     p_CLKOUT3_PHASE=250., p_CLKOUT3_DIVIDE=p//2,  # off-chip ddr
-                                     p_CLKOUT4_PHASE=0., p_CLKOUT4_DIVIDE=p//1,
+                                     p_CLKOUT0_PHASE=0., p_CLKOUT0_DIVIDE=p//8,  # sdram wr rd
+                                     p_CLKOUT1_PHASE=0., p_CLKOUT1_DIVIDE=p//8,
+                                     p_CLKOUT2_PHASE=230., p_CLKOUT2_DIVIDE=p//4,  # sdram dqs adr ctrl
+                                     p_CLKOUT3_PHASE=210., p_CLKOUT3_DIVIDE=p//4,  # off-chip ddr
+                                     p_CLKOUT4_PHASE=0., p_CLKOUT4_DIVIDE=p//2,
                                      p_CLKOUT5_PHASE=0., p_CLKOUT5_DIVIDE=p//1,  # sys
         )
+        self.specials += Instance("BUFG", i_I=pll[4], o_O=self.cd_sys_half.clk)
         self.specials += Instance("BUFG", i_I=pll[5], o_O=self.cd_sys.clk)
         reset = ~platform.request("cpu_reset")
         self.clock_domains.cd_por = ClockDomain()
@@ -93,15 +95,16 @@ class _CRG(Module):
         self.sync.por += If(por != 0, por.eq(por - 1))
         self.comb += self.cd_por.clk.eq(self.cd_sys.clk)
         self.specials += AsyncResetSynchronizer(self.cd_por, reset)
+        self.specials += AsyncResetSynchronizer(self.cd_sys_half, ~pll_lckd | (por > 0))
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~pll_lckd | (por > 0))
         self.specials += Instance("BUFG", i_I=pll[2], o_O=self.cd_sdram_half.clk)
         self.specials += Instance("BUFPLL", p_DIVIDE=4,
-                                  i_PLLIN=pll[0], i_GCLK=self.cd_sys.clk,
+                                  i_PLLIN=pll[0], i_GCLK=self.cd_sys_half.clk,
                                   i_LOCKED=pll_lckd, o_IOCLK=self.cd_sdram_full_wr.clk,
-                                  o_SERDESSTROBE=self.clk4x_wr_strb)
+                                  o_SERDESSTROBE=self.clk8x_wr_strb)
         self.comb += [
             self.cd_sdram_full_rd.clk.eq(self.cd_sdram_full_wr.clk),
-            self.clk4x_rd_strb.eq(self.clk4x_wr_strb),
+            self.clk8x_rd_strb.eq(self.clk8x_wr_strb),
         ]
         clk_sdram_half_shifted = Signal()
         self.specials += Instance("BUFG", i_I=pll[3], o_O=clk_sdram_half_shifted)
@@ -159,10 +162,10 @@ class BaseSoC(SDRAMSoC):
                  firmware_ram_size=0x8000,
                  firmware_filename=None,
                  **kwargs):
-        clk_freq = 75*1000000
+        clk_freq = 50*1000000
         SDRAMSoC.__init__(self, platform, clk_freq,
                           integrated_rom_size=0x8000,
-                          sdram_controller_settings=LASMIconSettings(l2_size=16, with_refresh=False),
+                          sdram_controller_settings=LASMIconSettings(l2_size=128, with_refresh=False),
                           **kwargs)
 
         self.submodules.crg = _CRG(platform, clk_freq)
@@ -171,14 +174,14 @@ class BaseSoC(SDRAMSoC):
         self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
         self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = s6ddrphy.S6DDRPHY(platform.request("ddram"),
-                                                       MT41J128M16(self.clk_freq),
-                                                       rd_bitslip=0,
-                                                       wr_bitslip=4,
-                                                       dqs_ddr_alignment="C0")
+            self.submodules.ddrphy = s6ddrphy.S6QuarterRateDDRPHY(platform.request("ddram"),
+                                                                  MT41J128M16(self.clk_freq),
+                                                                  rd_bitslip=0,
+                                                                  wr_bitslip=4,
+                                                                  dqs_ddr_alignment="C0")
             self.comb += [
-                self.ddrphy.clk4x_wr_strb.eq(self.crg.clk4x_wr_strb),
-                self.ddrphy.clk4x_rd_strb.eq(self.crg.clk4x_rd_strb),
+                self.ddrphy.clk8x_wr_strb.eq(self.crg.clk8x_wr_strb),
+                self.ddrphy.clk8x_rd_strb.eq(self.crg.clk8x_rd_strb),
             ]
             self.register_sdram_phy(self.ddrphy)
 
@@ -230,4 +233,4 @@ PIN "BUFG_4.O" CLOCK_DEDICATED_ROUTE = FALSE;
      eth_rx_clk=self.ethphy.crg.cd_eth_rx.clk,
      eth_tx_clk=self.ethphy.crg.cd_eth_tx.clk)
 
-default_subtarget = MiniSoC
+default_subtarget = BaseSoC
