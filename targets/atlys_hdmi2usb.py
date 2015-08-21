@@ -41,7 +41,7 @@ class VideomixerSoC(opsis_base_soc):
 
         platform.add_platform_command("""INST PLL_ADV LOC=PLL_ADV_X0Y0;""") # all PLL_ADV are used: router needs help...
         platform.add_platform_command("""PIN "dviout_pix_bufg.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
-        platform.add_platform_command("""PIN "BUFG_8.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
+        platform.add_platform_command("""PIN "BUFG_8.O" CLOCK_DEDICATED_ROUTE = FALSE;""")  # XXX add name to BUFG
         platform.add_platform_command("""
 NET "{pix0_clk}" TNM_NET = "GRPpix0_clk";
 NET "{pix1_clk}" TNM_NET = "GRPpix1_clk";

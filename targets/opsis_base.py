@@ -29,7 +29,7 @@ class MT41J128M16(SDRAMModule):
         "tRP":   15,
         "tRCD":  15,
         "tWR":   15,
-        "tWTR":  2,
+        "tWTR":  3,
         "tREFI": 64*1000*1000/16384,
         "tRFC":  260,
     }
@@ -165,7 +165,7 @@ class BaseSoC(SDRAMSoC):
         clk_freq = 50*1000000
         SDRAMSoC.__init__(self, platform, clk_freq,
                           integrated_rom_size=0x8000,
-                          sdram_controller_settings=LASMIconSettings(l2_size=128, with_bandwidth=True, with_refresh=False),
+                          sdram_controller_settings=LASMIconSettings(l2_size=32, with_bandwidth=True, with_refresh=False),
                           **kwargs)
 
         self.submodules.crg = _CRG(platform, clk_freq)

@@ -166,7 +166,7 @@ class BaseSoC(SDRAMSoC):
         clk_freq = 75*1000000
         SDRAMSoC.__init__(self, platform, clk_freq,
                           integrated_rom_size=0x8000,
-                          sdram_controller_settings=LASMIconSettings(l2_size=128, with_bandwidth=True),
+                          sdram_controller_settings=LASMIconSettings(l2_size=32, with_bandwidth=True),
                           **kwargs)
 
         self.submodules.crg = _CRG(platform, clk_freq)
