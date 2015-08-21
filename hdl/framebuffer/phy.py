@@ -179,7 +179,7 @@ class _Clocking(Module, AutoCSR):
 
         else:
             self.clock_domains.cd_pix = ClockDomain(reset_less=True)
-            self.specials +=  Instance("BUFG", i_I=external_clocking.pll_clk2, o_O=self.cd_pix.clk)
+            self.specials +=  Instance("BUFG", name="dviout_pix_bufg", i_I=external_clocking.pll_clk2, o_O=self.cd_pix.clk)
             if pads_dvi is not None:
                 self.clock_domains.cd_pix2x = ClockDomain(reset_less=True)
                 self.clock_domains.cd_pix10x = ClockDomain(reset_less=True)
