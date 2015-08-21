@@ -210,7 +210,7 @@ _io = [
         Subsignal("data2_n", Pins("P22")),
         Subsignal("scl", Pins("T21"), IOStandard("LVCMOS33")),
         Subsignal("sda", Pins("R22"), IOStandard("LVCMOS33")),
-        Subsignal("hpd_notif", Pins("R20"), IOStandard("LVCMOS33"))
+        Subsignal("hpd_en", Pins("R20"), IOStandard("LVCMOS33"))
     ),
 
     ## onboard HDMI IN2
@@ -226,7 +226,7 @@ _io = [
         Subsignal("data2_n", Pins("L19")),
         Subsignal("scl", Pins("L17"), IOStandard("LVCMOS33")),
         Subsignal("sda", Pins("T18"), IOStandard("LVCMOS33")),
-        Subsignal("hpd_notif", Pins("V19"), IOStandard("LVCMOS33"))
+        Subsignal("hpd_en", Pins("V19"), IOStandard("LVCMOS33"))
     ),
 
     ## USB UART Connector
