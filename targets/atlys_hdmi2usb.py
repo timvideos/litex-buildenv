@@ -1,4 +1,5 @@
 from targets.atlys_base import *
+from targets.atlys_base import default_subtarget as opsis_base_soc
 
 from hdl import dvisampler
 from hdl import framebuffer
@@ -6,7 +7,7 @@ from hdl import framebuffer
 from hdl.encoder import EncoderReader, Encoder
 from hdl.streamer import USBStreamer
 
-class VideomixerSoC(BaseSoC):
+class VideomixerSoC(opsis_base_soc):
     csr_map = {
         "fb0":                  19,
         "fb1":                  20,
@@ -15,16 +16,16 @@ class VideomixerSoC(BaseSoC):
         "dvisampler1":          23,
         "dvisampler1_edid_mem": 24,
     }
-    csr_map.update(BaseSoC.csr_map)
+    csr_map.update(opsis_base_soc.csr_map)
 
     interrupt_map = {
         "dvisampler0": 3,
         "dvisampler1": 4,
     }
-    interrupt_map.update(BaseSoC.interrupt_map)
+    interrupt_map.update(opsis_base_soc.interrupt_map)
 
     def __init__(self, platform, **kwargs):
-        BaseSoC.__init__(self, platform, **kwargs)
+        opsis_base_soc.__init__(self, platform, **kwargs)
         self.submodules.dvisampler0 = dvisampler.DVISampler(platform.request("dvi_in", 0),
                                                            self.sdram.crossbar.get_master(),
                                                            fifo_depth=1024)
