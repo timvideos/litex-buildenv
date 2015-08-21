@@ -113,8 +113,8 @@ _io = [
     ),
 
     ("i2c", 0,
-        Subsignal("scl", Pins("G6")),
-        Subsignal("sda", Pins("C1")),
+        Subsignal("scl", Pins("G6"), IOStandard("LVCMOS15")),
+        Subsignal("sda", Pins("C1"), IOStandard("LVCMOS15")),
     ),
 
     ## onBoard Quad-SPI Flash
