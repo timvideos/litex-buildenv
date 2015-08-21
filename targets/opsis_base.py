@@ -21,9 +21,9 @@ from hdl import s6ddrphy
 # DDR3
 class MT41J128M16(SDRAMModule):
     geom_settings = {
-        "nbanks":   8,      #   8 banks
-        "nrows":    16384,  # 16K (A[13:0])
-        "ncols":    1024,   #  1K (A[9:0])
+        "nbanks": 8,      #   8 banks
+        "nrows":  16384,  # 16K (A[13:0])
+        "ncols":  1024,   #  1K (A[9:0])
     }
     timing_settings = {
         "tRP":   15,
@@ -165,7 +165,7 @@ class BaseSoC(SDRAMSoC):
         clk_freq = 50*1000000
         SDRAMSoC.__init__(self, platform, clk_freq,
                           integrated_rom_size=0x8000,
-                          sdram_controller_settings=LASMIconSettings(l2_size=128, with_refresh=False),
+                          sdram_controller_settings=LASMIconSettings(l2_size=128, with_bandwidth=True, with_refresh=False),
                           **kwargs)
 
         self.submodules.crg = _CRG(platform, clk_freq)

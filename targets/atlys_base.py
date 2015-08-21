@@ -11,7 +11,6 @@ from migen.genlib.record import Record
 from misoclib.mem.sdram.module import SDRAMModule
 from misoclib.mem.sdram.phy import s6ddrphy
 from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
-from misoclib.mem.flash import spiflash
 from misoclib.soc import mem_decoder
 from misoclib.soc.sdram import SDRAMSoC
 from misoclib.com.liteeth.common import *
