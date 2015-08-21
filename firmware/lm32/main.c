@@ -26,6 +26,9 @@ int main(void)
 	ci_prompt();
 	config_init();
 	time_init();
+#ifdef ENCODER_BASE
+		encoder_enable(0);
+#endif
 	processor_start(config_get(CONFIG_KEY_RESOLUTION));
 	while(1) {
 		processor_service();
