@@ -361,29 +361,35 @@ class S6HalfRateDDRPHY(Module):
         #
         # DQ/DQS/DM control
         #
-        wr_data_en = d_dfi[0].wrdata_en | d_dfi[1].wrdata_en
+
+        # write
+        wrdata_en = Signal()
+        self.comb += wrdata_en.eq(optree("|", d_dfi[p].wrdata_en for p in range(nphases)))
 
         if module.memtype == "DDR3":
             r_drive_dq = Signal(self.settings.cwl-1)
-            sd_sdram_half += r_drive_dq.eq(Cat(wr_data_en, r_drive_dq))
+            sd_sdram_half += r_drive_dq.eq(Cat(wrdata_en, r_drive_dq))
             self.comb += drive_dq.eq(r_drive_dq[self.settings.cwl-2])
         else:
-            self.comb += drive_dq.eq(wr_data_en)
+            self.comb += drive_dq.eq(wrdata_en)
 
-        d_dfi_wrdata_en = Signal()
-        sd_sys += d_dfi_wrdata_en.eq(wr_data_en)
+        wrdata_en_d = Signal()
+        sd_sys += wrdata_en_d.eq(wrdata_en)
 
         r_dfi_wrdata_en = Signal(max(self.settings.cwl, self.settings.cl))
-        sd_sdram_half += r_dfi_wrdata_en.eq(Cat(d_dfi_wrdata_en, r_dfi_wrdata_en))
+        sd_sdram_half += r_dfi_wrdata_en.eq(Cat(wrdata_en_d, r_dfi_wrdata_en))
 
         if module.memtype == "DDR3":
             self.comb += drive_dqs.eq(r_dfi_wrdata_en[self.settings.cwl-1])
         else:
             self.comb += drive_dqs.eq(r_dfi_wrdata_en[1])
 
+        # read
+        rddata_en = Signal()
+        self.comb += rddata_en.eq(optree("|", d_dfi[p].rddata_en for p in range(nphases)))
+
         rddata_sr = Signal(self.settings.read_latency)
-        sd_sys += rddata_sr.eq(Cat(rddata_sr[1:self.settings.read_latency],
-            d_dfi[self.settings.rdphase].rddata_en))
+        sd_sys += rddata_sr.eq(Cat(rddata_sr[1:self.settings.read_latency], rddata_en))
 
         for n, phase in enumerate(self.dfi.phases):
             self.comb += [
