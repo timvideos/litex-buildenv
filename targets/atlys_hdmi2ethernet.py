@@ -14,8 +14,8 @@ from hdl.streamer import UDPStreamer
 
 class EtherboneSoC(BaseSoC):
     csr_map = {
-        "ethphy": 17,
-        "ethcore": 18,
+        "ethphy":  18,
+        "ethcore": 19,
     }
     csr_map.update(BaseSoC.csr_map)
 
@@ -55,9 +55,9 @@ TIMESPEC "TSise_sucks6" = FROM "GRPsys_clk" TO "GRPeth_rx_clk" TIG;
 
 class VideomixerSoC(EtherboneSoC):
     csr_map = {
-        "fb":                  19,
-        "dvisampler":          20,
-        "dvisampler_edid_mem": 21
+        "fb":                  20,
+        "dvisampler":          21,
+        "dvisampler_edid_mem": 22
     }
     csr_map.update(EtherboneSoC.csr_map)
 
@@ -83,8 +83,8 @@ TIMESPEC "TSise_sucks8" = FROM "GRPsys_clk" TO "GRPpix_clk" TIG;
 
 class HDMI2EthernetSoC(VideomixerSoC):
     csr_map = {
-        "encoder_reader": 22
-        "encoder"       : 23
+        "encoder_reader": 23
+        "encoder"       : 24
     }
     csr_map.update(VideomixerSoC.csr_map)
     mem_map = {

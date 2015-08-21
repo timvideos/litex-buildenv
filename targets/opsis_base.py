@@ -17,6 +17,7 @@ from misoclib.com.liteeth.phy.s6rgmii import LiteEthPHYRGMII
 from misoclib.com.liteeth.core.mac import LiteEthMAC
 
 from hdl import s6ddrphy
+from hdl import i2c
 
 # DDR3
 class MT41J128M16(SDRAMModule):
@@ -149,7 +150,8 @@ class BaseSoC(SDRAMSoC):
     default_platform = "opsis"
 
     csr_map = {
-        "ddrphy":   16,
+        "ddrphy": 16,
+        "i2c":    17
     }
     csr_map.update(SDRAMSoC.csr_map)
 
@@ -170,9 +172,12 @@ class BaseSoC(SDRAMSoC):
 
         self.submodules.crg = _CRG(platform, clk_freq)
 
+        self.submodules.i2c = i2c.I2C(platform.request("i2c"))
+
         self.submodules.firmware_ram = wishbone.SRAM(firmware_ram_size, init=_get_firmware_data(firmware_filename))
         self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
         self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
+
         if not self.integrated_main_ram_size:
             self.submodules.ddrphy = s6ddrphy.S6QuarterRateDDRPHY(platform.request("ddram"),
                                                                   MT41J128M16(self.clk_freq),
@@ -193,8 +198,8 @@ NET "{sys_clk}" TNM_NET = "GRPsys_clk";
 
 class MiniSoC(BaseSoC):
     csr_map = {
-        "ethphy": 17,
-        "ethmac": 18,
+        "ethphy": 18,
+        "ethmac": 19,
     }
     csr_map.update(BaseSoC.csr_map)
 

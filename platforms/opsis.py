@@ -112,6 +112,11 @@ _io = [
         #Subsignal("sda", Pins("C1"), IOStandard("I2C")),
     ),
 
+    ("i2c", 0,
+        Subsignal("scl", Pins("G6")),
+        Subsignal("sda", Pins("C1")),
+    ),
+
     ## onBoard Quad-SPI Flash
     ## W25Q128FVEIG - component U3
     ## 128M (16M x 8) - 104MHz

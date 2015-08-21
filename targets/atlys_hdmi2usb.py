@@ -9,12 +9,12 @@ from hdl.streamer import USBStreamer
 
 class VideomixerSoC(opsis_base_soc):
     csr_map = {
-        "fb0":                  19,
-        "fb1":                  20,
-        "dvisampler0":          21,
-        "dvisampler0_edid_mem": 22,
-        "dvisampler1":          23,
-        "dvisampler1_edid_mem": 24,
+        "fb0":                  20,
+        "fb1":                  21,
+        "dvisampler0":          22,
+        "dvisampler0_edid_mem": 23,
+        "dvisampler1":          24,
+        "dvisampler1_edid_mem": 25,
     }
     csr_map.update(opsis_base_soc.csr_map)
 
@@ -56,8 +56,8 @@ TIMESPEC "TSise_sucks10" = FROM "GRPsys_clk" TO "GRPpix1_clk" TIG;
 
 class HDMI2USBSoC(VideomixerSoC):
     csr_map = {
-        "encoder_reader": 25,
-        "encoder":        26
+        "encoder_reader": 26,
+        "encoder":        27
     }
     csr_map.update(VideomixerSoC.csr_map)
     mem_map = {
