@@ -1,5 +1,4 @@
-# 1:2 and 1:4 frequency-ratio DDR / LPDDR / DDR2 / DDR3 PHYs
-# for Spartan-6
+# 1:2 and 1:4 frequency-ratio DDR / LPDDR / DDR2 / DDR3 PHYs for Spartan-6
 #
 # Assert dfi_wrdata_en and present the data
 # on dfi_wrdata_mask/dfi_wrdata in the same
@@ -16,8 +15,6 @@
 # Read commands must be sent on phase 0.
 # Write commands must be sent on phase 1.
 #
-
-# XXX needs cleanup
 
 from migen.fhdl.std import *
 from migen.genlib.record import *
@@ -364,7 +361,7 @@ class S6HalfRateDDRPHY(Module):
 
         # write
         wrdata_en = Signal()
-        self.comb += wrdata_en.eq(optree("|", d_dfi[p].wrdata_en for p in range(nphases)))
+        self.comb += wrdata_en.eq(optree("|", [d_dfi[p].wrdata_en for p in range(nphases)]))
 
         if module.memtype == "DDR3":
             r_drive_dq = Signal(self.settings.cwl-1)
@@ -386,7 +383,7 @@ class S6HalfRateDDRPHY(Module):
 
         # read
         rddata_en = Signal()
-        self.comb += rddata_en.eq(optree("|", d_dfi[p].rddata_en for p in range(nphases)))
+        self.comb += rddata_en.eq(optree("|", [d_dfi[p].rddata_en for p in range(nphases)]))
 
         rddata_sr = Signal(self.settings.read_latency)
         sd_sys += rddata_sr.eq(Cat(rddata_sr[1:self.settings.read_latency], rddata_en))
@@ -402,7 +399,8 @@ class S6QuarterRateDDRPHY(Module):
     def __init__(self, pads, module, rd_bitslip, wr_bitslip, dqs_ddr_alignment):
         if module.memtype not in ["DDR3"]:
             raise NotImplementedError("S6QuarterRateDDRPHY only supports DDR3")
-        self.submodules.half_rate_phy = RenameClockDomains(S6HalfRateDDRPHY(pads, module, rd_bitslip, wr_bitslip, dqs_ddr_alignment), {"sys" : "sys_half"})
+        half_rate_phy = S6HalfRateDDRPHY(pads, module, rd_bitslip, wr_bitslip, dqs_ddr_alignment)
+        self.submodules += RenameClockDomains(half_rate_phy, {"sys" : "sys2x"})
 
         addressbits = flen(pads.a)
         bankbits = flen(pads.ba)
@@ -426,68 +424,67 @@ class S6QuarterRateDDRPHY(Module):
         self.module = module
 
         self.dfi = Interface(addressbits, bankbits, 2*databits, nphases)
-        self.clk8x_wr_strb = self.half_rate_phy.clk4x_wr_strb
-        self.clk8x_rd_strb = self.half_rate_phy.clk4x_rd_strb
+        self.clk8x_wr_strb = half_rate_phy.clk4x_wr_strb
+        self.clk8x_rd_strb = half_rate_phy.clk4x_rd_strb
 
-        # sys_clk           : system clk, used for dfi interface
-        # sdram_half_clk    : half rate sdram clk
+        # sys_clk      : system clk, used for dfi interface
+        # sys2x_clk    : half rate  sys clk
         sd_sys = getattr(self.sync, "sys")
-        sd_sys_half = getattr(self.sync, "sys_half")
+        sd_sys2x = getattr(self.sync, "sys2x")
 
-        # select active phase
-        #             sys_clk   ----____----____
-        #  phase_sel(nphases=2) 0   1   0   1     Half Rate
+        # select active sys2x phase
+        # sys_clk   ----____----____
+        # phase_sel 0   1   0   1
         phase_sel = Signal()
-        phase_half = Signal.like(phase_sel)
-        phase_sys = Signal.like(phase_half)
+        phase_sys2x = Signal.like(phase_sel)
+        phase_sys = Signal.like(phase_sys2x)
 
-        sd_sys += phase_sys.eq(phase_half)
+        sd_sys += phase_sys.eq(phase_sys2x)
 
-        sd_sys_half += [
-            If(phase_half == phase_sys,
+        sd_sys2x += [
+            If(phase_sys2x == phase_sys,
                 phase_sel.eq(0),
             ).Else(
                 phase_sel.eq(~phase_sel)
             ),
-            phase_half.eq(~phase_sel)
+            phase_sys2x.eq(~phase_sel)
         ]
 
+        # DFI adaptation
+
+        # Commands and writes
+        dfi_leave_out = ["rddata", "rddata_valid", "wrdata_en"]
         self.comb += [
             If(~phase_sel,
-                Record.connect(self.dfi.phases[0], self.half_rate_phy.dfi.phases[0], leave_out=["rddata", "rddata_valid", "wrdata_en"]),
-                Record.connect(self.dfi.phases[1], self.half_rate_phy.dfi.phases[1], leave_out=["rddata", "rddata_valid", "wrdata_en"]),
+                Record.connect(self.dfi.phases[0], half_rate_phy.dfi.phases[0], leave_out=dfi_leave_out),
+                Record.connect(self.dfi.phases[1], half_rate_phy.dfi.phases[1], leave_out=dfi_leave_out),
             ).Else(
-                Record.connect(self.dfi.phases[2], self.half_rate_phy.dfi.phases[0], leave_out=["rddata", "rddata_valid", "wrdata_en"]),
-                Record.connect(self.dfi.phases[3], self.half_rate_phy.dfi.phases[1], leave_out=["rddata", "rddata_valid", "wrdata_en"]),
+                Record.connect(self.dfi.phases[2], half_rate_phy.dfi.phases[0], leave_out=dfi_leave_out),
+                Record.connect(self.dfi.phases[3], half_rate_phy.dfi.phases[1], leave_out=dfi_leave_out),
             ),
         ]
-        wr_data_en = self.dfi.phases[1].wrdata_en & ~phase_sel
+        wr_data_en = self.dfi.phases[self.settings.wrphase].wrdata_en & ~phase_sel
         wr_data_en_d = Signal()
-        sd_sys_half += [
-          wr_data_en_d.eq(wr_data_en)
-        ]
-        self.comb += self.half_rate_phy.dfi.phases[1].wrdata_en.eq(wr_data_en | wr_data_en_d)
+        sd_sys2x += wr_data_en_d.eq(wr_data_en)
+        self.comb += half_rate_phy.dfi.phases[half_rate_phy.settings.wrphase].wrdata_en.eq(wr_data_en | wr_data_en_d)
 
+        # Reads
+        rddata = Array(Signal(2*databits) for i in range(2))
+        rddata_valid = Signal(2)
 
-        rddata_0 = Signal(2*databits)
-        rddata_valid_0 = Signal()
-        rddata_1 = Signal(2*databits)
-        rddata_valid_1 = Signal()
-
-        sd_sys_half += [
-          rddata_0.eq(self.half_rate_phy.dfi.phases[0].rddata),
-          rddata_valid_0.eq(self.half_rate_phy.dfi.phases[0].rddata_valid),
-          rddata_1.eq(self.half_rate_phy.dfi.phases[1].rddata),
-          rddata_valid_1.eq(self.half_rate_phy.dfi.phases[1].rddata_valid),
-        ]
+        for i in range(2):
+            sd_sys2x += [
+                rddata_valid[i].eq(half_rate_phy.dfi.phases[i].rddata_valid),
+                rddata[i].eq(half_rate_phy.dfi.phases[i].rddata)
+            ]
 
         sd_sys += [
-            self.dfi.phases[0].rddata.eq(rddata_0),
-            self.dfi.phases[0].rddata_valid.eq(rddata_valid_0),
-            self.dfi.phases[1].rddata.eq(rddata_1),
-            self.dfi.phases[1].rddata_valid.eq(rddata_valid_1),
-            self.dfi.phases[2].rddata.eq(self.half_rate_phy.dfi.phases[0].rddata),
-            self.dfi.phases[2].rddata_valid.eq(self.half_rate_phy.dfi.phases[0].rddata_valid),
-            self.dfi.phases[3].rddata.eq(self.half_rate_phy.dfi.phases[1].rddata),
-            self.dfi.phases[3].rddata_valid.eq(self.half_rate_phy.dfi.phases[1].rddata_valid)
+            self.dfi.phases[0].rddata.eq(rddata[0]),
+            self.dfi.phases[0].rddata_valid.eq(rddata_valid[0]),
+            self.dfi.phases[1].rddata.eq(rddata[1]),
+            self.dfi.phases[1].rddata_valid.eq(rddata_valid[1]),
+            self.dfi.phases[2].rddata.eq(half_rate_phy.dfi.phases[0].rddata),
+            self.dfi.phases[2].rddata_valid.eq(half_rate_phy.dfi.phases[0].rddata_valid),
+            self.dfi.phases[3].rddata.eq(half_rate_phy.dfi.phases[1].rddata),
+            self.dfi.phases[3].rddata_valid.eq(half_rate_phy.dfi.phases[1].rddata_valid)
         ]

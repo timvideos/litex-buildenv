@@ -43,7 +43,7 @@ class MT41J128M16(SDRAMModule):
 class _CRG(Module):
     def __init__(self, platform, clk_freq):
         self.clock_domains.cd_sys = ClockDomain()
-        self.clock_domains.cd_sys_half = ClockDomain()
+        self.clock_domains.cd_sys2x = ClockDomain()
         self.clock_domains.cd_sdram_half = ClockDomain()
         self.clock_domains.cd_sdram_full_wr = ClockDomain()
         self.clock_domains.cd_sdram_full_rd = ClockDomain()
@@ -88,7 +88,7 @@ class _CRG(Module):
                                      p_CLKOUT4_PHASE=0., p_CLKOUT4_DIVIDE=p//2,
                                      p_CLKOUT5_PHASE=0., p_CLKOUT5_DIVIDE=p//1,  # sys
         )
-        self.specials += Instance("BUFG", i_I=pll[4], o_O=self.cd_sys_half.clk)
+        self.specials += Instance("BUFG", i_I=pll[4], o_O=self.cd_sys2x.clk)
         self.specials += Instance("BUFG", i_I=pll[5], o_O=self.cd_sys.clk)
         reset = ~platform.request("cpu_reset")
         self.clock_domains.cd_por = ClockDomain()
@@ -96,11 +96,11 @@ class _CRG(Module):
         self.sync.por += If(por != 0, por.eq(por - 1))
         self.comb += self.cd_por.clk.eq(self.cd_sys.clk)
         self.specials += AsyncResetSynchronizer(self.cd_por, reset)
-        self.specials += AsyncResetSynchronizer(self.cd_sys_half, ~pll_lckd | (por > 0))
+        self.specials += AsyncResetSynchronizer(self.cd_sys2x, ~pll_lckd | (por > 0))
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~pll_lckd | (por > 0))
         self.specials += Instance("BUFG", i_I=pll[2], o_O=self.cd_sdram_half.clk)
         self.specials += Instance("BUFPLL", p_DIVIDE=4,
-                                  i_PLLIN=pll[0], i_GCLK=self.cd_sys_half.clk,
+                                  i_PLLIN=pll[0], i_GCLK=self.cd_sys2x.clk,
                                   i_LOCKED=pll_lckd, o_IOCLK=self.cd_sdram_full_wr.clk,
                                   o_SERDESSTROBE=self.clk8x_wr_strb)
         self.comb += [
