@@ -14,10 +14,6 @@
 #include "processor.h"
 #include "encoder.h"
 
-static void ui_service(void)
-{
-}
-
 int main(void)
 {
 	irq_setmask(0);
@@ -33,7 +29,6 @@ int main(void)
 	processor_start(config_get(CONFIG_KEY_RESOLUTION));
 	while(1) {
 		processor_service();
-		ui_service();
 		ci_service();
 #ifdef ENCODER_BASE
 		encoder_service();
