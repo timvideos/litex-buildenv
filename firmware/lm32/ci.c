@@ -4,6 +4,7 @@
 #include <string.h>
 #include <generated/csr.h>
 #include <generated/mem.h>
+#include <generated/sdram_phy.h>
 #include <time.h>
 
 #include "config.h"
@@ -235,18 +236,27 @@ static void debug_pll(void)
 	pll_dump();
 }
 
+static unsigned int log2(unsigned int v)
+{
+	unsigned int r = 0;
+	while(v>>=1) r++;
+	return r;
+}
+
 static void debug_ddr(void)
 {
 	unsigned long long int nr, nw;
 	unsigned long long int f;
 	unsigned int rdb, wrb;
+	unsigned int burstbits;
 
 	sdram_controller_bandwidth_update_write(1);
 	nr = sdram_controller_bandwidth_nreads_read();
 	nw = sdram_controller_bandwidth_nwrites_read();
 	f = identifier_frequency_read();
-	rdb = (nr*f >> (24 - 6))/1000000ULL;
-	wrb = (nw*f >> (24 - 6))/1000000ULL;
+	burstbits = (2*DFII_NPHASES) << DFII_PIX_DATA_SIZE;
+	rdb = (nr*f >> (24 - log2(burstbits)))/1000000ULL;
+	wrb = (nw*f >> (24 - log2(burstbits)))/1000000ULL;
 	printf("read:%5dMbps  write:%5dMbps  all:%5dMbps\n", rdb, wrb, rdb + wrb);
 }
 
