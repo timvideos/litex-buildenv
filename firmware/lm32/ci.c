@@ -31,6 +31,14 @@ static void help_video_mode(char banner)
 	puts("");
 }
 
+static void help_hdp_toggle(char banner)
+{
+	if(banner)
+		help_banner();
+	puts("hdp_toggle <source>        - toggle HDP on source for EDID rescan");
+	puts("");
+}
+
 static void help_framebuffer0(char banner)
 {
 	if(banner)
@@ -76,6 +84,7 @@ static void help(void)
 	puts("status <on/off>            - enable/disable status message");
 	puts("");
 	help_video_mode(0);
+	help_hdp_toggle(0);
 	help_framebuffer0(0);
 	help_framebuffer1(0);
 	help_encoder(0);
@@ -182,6 +191,22 @@ static void video_mode_set(int mode)
 		printf("Setting video mode to %s\n", &mode_descriptors[mode*PROCESSOR_MODE_DESCLEN]);
 		config_set(CONFIG_KEY_RESOLUTION, mode);
 		processor_start(mode);
+	}
+}
+
+static void hdp_toggle(int source)
+{
+	int i;
+	printf("Toggling HDP on video source %d\n", source);
+	if(source ==  VIDEO_IN_DVISAMPLER0) {
+		dvisampler0_edid_hpd_en_write(0);
+		for(i=0; i<65536; i++);
+		dvisampler0_edid_hpd_en_write(1);
+	}
+	else if(source == VIDEO_IN_DVISAMPLER1) {
+		dvisampler1_edid_hpd_en_write(0);
+		for(i=0; i<65536; i++);
+		dvisampler1_edid_hpd_en_write(1);
 	}
 }
 
@@ -335,13 +360,15 @@ void ci_service(void)
 		token = get_token(&str);
 		if(strcmp(token, "video_mode") == 0)
 			help_video_mode(1);
-		else if (strcmp(token, "framebuffer0") == 0)
+		else if(strcmp(token, "hdp_toggle") == 0)
+			help_hdp_toggle(1);
+		else if(strcmp(token, "framebuffer0") == 0)
 			help_framebuffer0(1);
-		else if (strcmp(token, "framebuffer1") == 0)
+		else if(strcmp(token, "framebuffer1") == 0)
 			help_framebuffer1(1);
-		else if (strcmp(token, "encoder") == 0)
+		else if(strcmp(token, "encoder") == 0)
 			help_encoder(1);
-		else if (strcmp(token, "debug") == 0)
+		else if(strcmp(token, "debug") == 0)
 			help_debug(1);
 		else
 			help();
@@ -354,6 +381,10 @@ void ci_service(void)
 			video_mode_list();
 		else
 			video_mode_set(atoi(token));
+	}
+	else if(strcmp(token, "hdp_toggle") == 0) {
+		token = get_token(&str);
+		hdp_toggle(atoi(token));
 	}
 	else if(strcmp(token, "framebuffer0") == 0) {
 		token = get_token(&str);
