@@ -8,7 +8,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 from migen.bus import wishbone
 from migen.genlib.record import Record
 
-from misoclib.mem.sdram.module import SDRAMModule
+from misoclib.mem.sdram.module import MT41J128M16
 from misoclib.mem.sdram.phy import s6ddrphy
 from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
 from misoclib.soc import mem_decoder
@@ -18,26 +18,6 @@ from misoclib.com.liteeth.phy.s6rgmii import LiteEthPHYRGMII
 from misoclib.com.liteeth.core.mac import LiteEthMAC
 
 from hdl import i2c
-
-# DDR3
-class MT41J128M16(SDRAMModule):
-    geom_settings = {
-        "nbanks": 8,      #   8 banks
-        "nrows":  16384,  # 16K (A[13:0])
-        "ncols":  1024,   #  1K (A[9:0])
-    }
-    timing_settings = {
-        "tRP":   15,
-        "tRCD":  15,
-        "tWR":   15,
-        "tWTR":  3,
-        "tREFI": 64*1000*1000/16384,
-        "tRFC":  260,
-    }
-
-    def __init__(self, clk_freq):
-        SDRAMModule.__init__(self, clk_freq, "DDR3", self.geom_settings,
-            self.timing_settings)
 
 
 class _CRG(Module):

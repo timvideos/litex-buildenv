@@ -8,7 +8,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 from migen.bus import wishbone
 from migen.genlib.record import Record
 
-from misoclib.mem.sdram.module import SDRAMModule
+from misoclib.mem.sdram.module import P3R1GE4JGF
 from misoclib.mem.sdram.phy import s6ddrphy
 from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
 from misoclib.soc import mem_decoder
@@ -16,31 +16,6 @@ from misoclib.soc.sdram import SDRAMSoC
 from misoclib.com.liteeth.common import *
 from misoclib.com.liteeth.phy.mii import LiteEthPHYMII
 from misoclib.com.liteeth.core.mac import LiteEthMAC
-
-
-class P3R1GE4JGF(SDRAMModule):
-    # MIRA P3R1GE4JGF
-    # Density: 1G bits
-    # 8M words × 16 bits × 8 banks (P3R1GE4JGF) -- 1235E - G8E -- E20316JOR826
-    # 2KB page size (P3R1GE4JGF) - Row address: A0 to A12 - Column address: A0 to A9
-    # http://208.74.204.60/t5/Spartan-Family-FPGAs/Atlys-DDR2-memory/td-p/497304
-    geom_settings = {
-        "nbanks": 8,
-        "nrows": 8192,
-        "ncols": 1024
-    }
-    timing_settings = {
-        "tRP":   12.5,
-        "tRCD":  12.5,
-        "tWR":   15,
-        "tWTR":  3,
-        "tREFI": 7800,
-        "tRFC":  127.5, # 256Mb = 75ns, 512Mb = 105ns, 1Gb = 127.5ns, 2Gb = 197.5ns
-    }
-
-    def __init__(self, clk_freq):
-        SDRAMModule.__init__(self, clk_freq, "DDR2", self.geom_settings,
-            self.timing_settings)
 
 
 class _CRG(Module):
