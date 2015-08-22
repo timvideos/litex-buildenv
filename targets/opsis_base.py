@@ -9,6 +9,7 @@ from migen.bus import wishbone
 from migen.genlib.record import Record
 
 from misoclib.mem.sdram.module import SDRAMModule
+from misoclib.mem.sdram.phy import s6ddrphy
 from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
 from misoclib.soc import mem_decoder
 from misoclib.soc.sdram import SDRAMSoC
@@ -16,7 +17,6 @@ from misoclib.soc.sdram import SDRAMSoC
 from misoclib.com.liteeth.phy.s6rgmii import LiteEthPHYRGMII
 from misoclib.com.liteeth.core.mac import LiteEthMAC
 
-from hdl import s6ddrphy
 from hdl import i2c
 
 # DDR3

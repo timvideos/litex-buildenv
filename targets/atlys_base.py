@@ -176,11 +176,11 @@ class BaseSoC(SDRAMSoC):
         self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
 
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = s6ddrphy.S6DDRPHY(platform.request("ddram"),
-                                                       P3R1GE4JGF(self.clk_freq),
-                                                       rd_bitslip=0,
-                                                       wr_bitslip=4,
-                                                       dqs_ddr_alignment="C0")
+            self.submodules.ddrphy = s6ddrphy.S6HalfRateDDRPHY(platform.request("ddram"),
+                                                               P3R1GE4JGF(self.clk_freq),
+                                                               rd_bitslip=0,
+                                                               wr_bitslip=4,
+                                                               dqs_ddr_alignment="C0")
             self.comb += [
                 self.ddrphy.clk4x_wr_strb.eq(self.crg.clk4x_wr_strb),
                 self.ddrphy.clk4x_rd_strb.eq(self.crg.clk4x_rd_strb),
