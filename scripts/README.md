@@ -112,13 +112,13 @@ udevadm control --reload-rules
 CHANGES TO GET ENV SCRIPT:
 
 ```
-   cd the build directory
-   git clone mithro/exar-uart-driver
+   cd HDMI2USB-misoc-firmware/build
+   git clone https://github.com/mithro/exar-uart-driver
    cd exar-uart-driver
    sudo apt-get install linux-headers-generic debhelper module-assistant
    dpkg-buildpackage -rfakeroot
-   sudo dpkg --install ../v blah (copy from README.Debian)
-   (copy package build command from README.Debian)
+   sudo dpkg --install ../vizzini-source_*_all.deb
+   (copy package build command from README.Debian) (what?)
 ```
 
 ---
