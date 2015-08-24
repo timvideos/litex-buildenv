@@ -4,13 +4,13 @@ set -x
 set -e
 
 GIT_REPO=https://github.com/timvideos/HDMI2USB-misoc-firmware.git
-GIT_BRANCH=scripts
+GIT_BRANCH=master
 
 sudo apt-get install -y git realpath
 
 if [ -e HDMI2USB-misoc-firmware ]; then
  cd HDMI2USB-misoc-firmware
- #git pull
+ git pull
 else
  git clone $GIT_REPO
  cd HDMI2USB-misoc-firmware

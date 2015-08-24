@@ -1,30 +1,22 @@
 # Building HDMI2USB-misoc-firmware
-#### (assumes a new Ubuntu Desktop 14.04 LTS install)
 
-TODO: Complete this, clean this up, move some of it back into the script
+These scripts are designed to bootstrap a firmware build environment on Ubuntu 14.04 LTS.
 
-These scripts are designed to bootstrap an environment on Ubuntu 14.04 LTS.
+Instructions:
 
-To get started (will install packages, etc):
+1. Install Xilinx ISE WebPACK 14.7 + activate a licence:
 
-  * Run the bootstrap script to get everything required for flashing firmware:
-  ```
-  curl -fsS https://raw.githubusercontent.com/timvideos/HDMI2USB-misoc-firmware/master/scripts/bootstrap.sh | bash
-  ```
-
-  * Download (URL?)
-  * & install Xilinx ISE WebPACK 14.7 into the default location in /opt/
+  * Download from [http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/design-tools.html]
+  * Install into the default location in /opt (requires X11 GUI):
   ```
   tar xvf Xilinx_ISE_DS_Lin_14.7_1015_1.tar
   cd Xilinx_ISE_DS_Lin_14.7_1015_1
-  sudo ./xsetup (gui, needs X forwarding if over ssh)
+  sudo ./xsetup
   ```
-step ?, "Select products to install: (*) ISE WebPACK" 17403 MB
+  Ensure you select "ISE WebPACK" 17403 MB
 
 
-  * Ensure you have a free WebPACK license for ISE installed, see http://license.xilinx.com/getLicense
-  
-goes in ~/.Xilinx/Xilinx.lic 
+  * Ensure you have a free WebPACK license for ISE installed, see [http://license.xilinx.com/getLicense], ensure installed into ```~/.Xilinx/Xilinx.lic```
 
   * Ensure licence is activated by checking ISE:
   ```
@@ -32,19 +24,19 @@ goes in ~/.Xilinx/Xilinx.lic
   ise
   ```
   Go to About > Licence, ensure under "information" you can see your ISC WebPACK licence.
-  or maybe Help, Manage Licence? 
+ 
+2.  Run the bootstrap script to build an environment required for flashing firmware:
+  ```
+  curl -fsS https://raw.githubusercontent.com/timvideos/HDMI2USB-misoc-firmware/master/scripts/bootstrap.sh | bash
+  ```
 
-  * Change into the HDMI2USB-misoc-firmware directory:
+3. Initalise the environment (required for any of the build/load steps below[2]):
   ```
   cd ~/HDMI2USB-misoc-firmware
-  ```
-
-  * Initialise the environment:
-  ```
   source scripts/setup-env.sh
   ```
 
-  * Build the gateware:
+4.  Build the gateware:
   ```
   make gateware
   ```
@@ -58,7 +50,7 @@ goes in ~/.Xilinx/Xilinx.lic
 
    The built gateware will be in build/misoc/build/.
 
-  * Ensure board has the right pins set:
+5. You've now built the HDMI2USB firmware/gateware.  Ensure board has the right pins set before flashing anything, and plug it in:
 
   As the HDMI2USB firmware manipulates the EDID information the following jumpers must be removed;
 
@@ -67,91 +59,47 @@ goes in ~/.Xilinx/Xilinx.lic
   JP6 and JP7 (which connects the EDID lines from J3/HDMI IN to J2/HDMI OUT).
   ```
 
-  * Plug board in using PROG port & switch on.  If using a VM, ensure the device is passed through.
-
-  * Load in custom udev rules:
-  (make a script, which is called as part of get-env)
-
-```
-cat > /etc/udev/rules.d/52-hdmi2usb.rules <<EOF
-# Grant permission to makestuff usb devices.
-ATTR{idVendor}=="1d50", MODE:="666"
-
-# Grant permissions to hdmi2usb usb devices.
-ATTR{idVendor}=="fb9a", MODE:="666"
-
-# Grant permissions to unconfigured cypress chips.
-ATTR{idVendor}=="04b4", MODE:="666"
-
-# Grant permissions to Digilent Development board JTAG
-ATTR{idVendor}=="1443", MODE:="666"
-EOF
-
-udevadm control --reload-rules
-```
-  * Flash the gateware and firmware - see [1] if using a VM:
+  * Plug board in using USB PROG port & switch on.  If using a VM, ensure the device is passed through.
+  * Other USB port is for the HDMI2USB capture.  Recommend plugging this in too so you can use/test the device.
+ 
+6.  Flash the gateware and firmware - see [1] if using a VM:
 
   ```
   PROG=fpgalink make load-gateware
   ```
+  (may need to run several times)
 
-  * Connect to lm32 softcore:
-  ```
-  make connect-lm32
-  ```
-
-  * Set a mode/capture - press 'h' and read instructions. TODO: Explain this more
-
-  * Run fx2 firmware to enable USB capture:
+7.  Load fx2 firmware to enable USB capture:
   ```
   make load-fx2-firmware
   ```
 
----
+8. Connect to lm32 softcore to send direct commands to the HDMI2USB such as changing resolution:
+  ```
+  make connect-lm32
+  ```
+  Set a mode/capture - press 'h' and read instructions.
+  TODO: Expand on this
 
-CHANGES TO GET ENV SCRIPT:
-
-```
-   cd HDMI2USB-misoc-firmware/build
-   git clone https://github.com/mithro/exar-uart-driver
-   cd exar-uart-driver
-   sudo apt-get install linux-headers-generic debhelper module-assistant
-   dpkg-buildpackage -rfakeroot
-   sudo dpkg --install ../vizzini-source_*_all.deb
-   (copy package build command from README.Debian) (what?)
-```
-
----
-
-To get a device working after above is all built (booted up, etc):
-```
-cd ~/HDMI2USB-misoc-firmware
-source scripts/setup-env.sh
-PROG=fpgalink make load-gateware
-make load-lm32-firmware
-```
+9. Once everything has been built, get HDMI2USB running again after a power cycle by running this script (does non-build steps above):
+   ```
+   ~/HDMI2USB-misoc-firmware/scripts/flash-hdmi2usb.sh
+   ```
 
 #### Footnotes
 
   [1] If you are in a VM, during flashing the device will change USB UUID's up to 3 times.  You can just run the command above again until you see "Programming successful!" (you may need to choose the new USB vendor/device ID in your hypervisor to pass through).
 
----
-
-  * https://github.com/timvideos/HDMI2USB-firmware-prebuilt
-
-  programmer i want to use when running make is
-  fpgalink (probably)
-  urjtag
-  x3progs
-
-  last two require firmware on device first, first will do firmware loading for me
-  so probably use first
+  [2] Note firmware is only temporarily flashed to the device and is lost if HDMI2USB is power cycled, so has to be reflashed.  You can use the 'go-hdmi2usb.sh' script metioned in step 9.
 
 ---
 
-Files:
+#### Files
 
   * bootstrap.sh: script to run on a fresh Ubuntu 14.04 LTS install
   * get-env.sh: called from bootstrap (gets and installs software)
   * setup-env.sh: script to run after installation to setup environemnt
 
+  * 52-hdmi2usb.rules: udev rules loaded by get-env.sh
+  * view-hdmi2usb.sh: test script to view HDMI2USB output
+  * flash-hdmi2usb.sh: script to run after gateware/firmware built

@@ -1,0 +1,11 @@
+# Grant permission to makestuff usb devices.
+ATTR{idVendor}=="1d50", MODE:="666"
+
+# Grant permissions to hdmi2usb usb devices.
+ATTR{idVendor}=="fb9a", MODE:="666"
+
+# Grant permissions to unconfigured cypress chips.
+ATTR{idVendor}=="04b4", MODE:="666" 
+
+# Grant permissions to Digilent Development board JTAG
+ATTR{idVendor}=="1443", MODE:="666"

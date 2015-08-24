@@ -65,14 +65,9 @@ sudo adduser $USER dialout
 # Get migen
 (
 	cd $BUILD_DIR
-	if [ -e migen ]; then
-	  cd migen
-	  git pull
-	else
-	  git clone https://github.com/m-labs/migen.git
-	  cd migen
-	fi
-	cd vpi
+	rm -fr migen
+	git clone https://github.com/m-labs/migen.git
+	cd migen/vpi
 	make all
 	sudo make install
 )
@@ -80,6 +75,7 @@ sudo adduser $USER dialout
 # Get misoc
 (
 	cd $BUILD_DIR
+	rm -fr misoc
 	git clone https://github.com/m-labs/misoc.git
 	cd misoc
 	git submodule init
@@ -93,13 +89,32 @@ sudo adduser $USER dialout
 (
 	cd $BUILD_DIR
 	sudo apt-get install -y libreadline-dev libusb-1.0-0-dev python-yaml sdcc fxload
+	rm -fr makestuff
 	wget -qO- http://tiny.cc/msbil | tar zxf -
-
 	cd makestuff/libs
 	../scripts/msget.sh makestuff/libfpgalink
 	cd libfpgalink
 	make deps
 )
+# Load custom udev rules
+(
+	cd $SETUP_DIR
+	sudo cp -uf 52-hdmi2usb.rules /etc/udev/rules.d/
+
+)
+
+# build exar-uart-driver
+(
+   	cd $BUILD_DIR
+   	rm -fr exar-uart-driver
+	git clone https://github.com/mithro/exar-uart-driver
+    	cd exar-uart-driver
+    	sudo apt-get install linux-headers-generic debhelper module-assistant
+    	dpkg-buildpackage -rfakeroot
+    	sudo dpkg --install ../vizzini-source_*_all.deb
+)
+
+
 
 sudo apt-get install -y gtkwave
 

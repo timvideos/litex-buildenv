@@ -24,14 +24,8 @@ This firmware is supported on the following to boards;
 
 [> Getting started
 ------------------
-1. Follow MiSoC Quick start guide
-	https://github.com/m-labs/misoc
 
-2. Clone https://github.com/timvideos/HDMI2USB-misoc-firmware into same directory as misoc
-
-3. Follow instructions to build the gateware and software:
-	# In the HDMI2USB-misoc-firmware directory
-	make help
+1. See scripts/README.md for firmware build instructions
 
 [> Status:
 atlys_base:
