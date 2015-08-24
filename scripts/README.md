@@ -78,10 +78,13 @@ Instructions:
   ```
   make connect-lm32
   ```
-  Set a mode/capture - press 'h' and read instructions.
-  TODO: Expand on this
+  Set a mode/capture - type 'help' and read instructions.
+  You likely need to enable a video mode, framebuffer & encoder.
+  'status' helps to see what the firmware is doing.
 
-9. Once everything has been built, get HDMI2USB running again after a power cycle by running this script (does non-build steps above):
+---
+
+Once everything has been built, get HDMI2USB running again after a power cycle by running this script, possibly multiple times if errors first attempt (does non-build steps above):
    ```
    ~/HDMI2USB-misoc-firmware/scripts/flash-hdmi2usb.sh
    ```
@@ -90,7 +93,7 @@ Instructions:
 
   [1] If you are in a VM, during flashing the device will change USB UUID's up to 3 times.  You can just run the command above again until you see "Programming successful!" (you may need to choose the new USB vendor/device ID in your hypervisor to pass through).
 
-  [2] Note firmware is only temporarily flashed to the device and is lost if HDMI2USB is power cycled, so has to be reflashed.  You can use the 'go-hdmi2usb.sh' script metioned in step 9.
+  [2] Note firmware is only temporarily flashed to the device and is lost if HDMI2USB is power cycled, so has to be reflashed.  You can use the 'flash-hdmi2usb.sh' script metioned in step 9.
 
 ---
 
