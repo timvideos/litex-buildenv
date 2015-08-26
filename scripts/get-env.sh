@@ -100,21 +100,24 @@ sudo adduser $USER dialout
 (
 	cd $SETUP_DIR
 	sudo cp -uf 52-hdmi2usb.rules /etc/udev/rules.d/
-
 )
 
 # build exar-uart-driver
 (
-   	cd $BUILD_DIR
-   	rm -fr exar-uart-driver
+	cd $BUILD_DIR
+	# Build the vizzini-source package
+	rm -fr exar-uart-driver
 	git clone https://github.com/mithro/exar-uart-driver
-    	cd exar-uart-driver
-    	sudo apt-get install linux-headers-generic debhelper module-assistant
-    	dpkg-buildpackage -rfakeroot
-    	sudo dpkg --install ../vizzini-source_*_all.deb
+	cd exar-uart-driver
+	sudo apt-get install linux-headers-generic debhelper module-assistant
+	dpkg-buildpackage -rfakeroot
+	# Install the vizzini-source package
+	sudo dpkg --install ../vizzini-source_*_all.deb
+	sudo apt-get -f install
+	# Use module assistant to build and install a package containing modules for
+	# your current kernel.
+	sudo m-a b-i vizzini
 )
-
-
 
 sudo apt-get install -y gtkwave
 
