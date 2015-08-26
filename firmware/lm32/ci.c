@@ -61,7 +61,7 @@ static void help_encoder(char banner)
 {
 	if(banner)
 		help_banner();
-	puts("encoder <source> <quality> - select encoder source, quality and enable it");
+	puts("encoder <quality> <source> - select encoder source, quality and enable it");
 	puts("encoder off                - disable encode");
 	puts("");
 }
