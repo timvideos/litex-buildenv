@@ -106,7 +106,9 @@ static void status_enable(void)
 {
 	printf("Enabling status\n");
 	status_enabled = 1;
+#ifdef ENCODER_BASE
 	encoder_nwrites_clear_write(1);
+#endif
 }
 
 static void status_disable(void)
@@ -240,6 +242,7 @@ static void hdmi_out1_disable(void)
 	hdmi_out1_fi_enable_write(0);
 }
 
+#ifdef ENCODER_BASE
 static void encoder_set(int quality, int source)
 {
 	if(source <= VIDEO_IN_HDMI_IN1)
@@ -255,6 +258,7 @@ static void encoder_disable(void)
 	printf("Disabling encoder\n");
 	encoder_enable(0);
 }
+#endif
 
 static void debug_pll(void)
 {
@@ -366,8 +370,10 @@ void ci_service(void)
 			help_hdmi_out0(1);
 		else if(strcmp(token, "hdmi_out1") == 0)
 			help_hdmi_out1(1);
+#ifdef ENCODER_BASE
 		else if(strcmp(token, "encoder") == 0)
 			help_encoder(1);
+#endif
 		else if(strcmp(token, "debug") == 0)
 			help_debug(1);
 		else
@@ -400,6 +406,7 @@ void ci_service(void)
 		else
 			hdmi_out1_set(atoi(token));
 	}
+#ifdef ENCODER_BASE
 	else if(strcmp(token, "encoder") == 0) {
 		token = get_token(&str);
 		if(strcmp(token, "off") == 0)
@@ -407,6 +414,7 @@ void ci_service(void)
 		else
 			encoder_set(atoi(token), atoi(get_token(&str)));
 	}
+#endif
 	else if(strcmp(token, "status") == 0) {
 		token = get_token(&str);
 		if(strcmp(token, "off") == 0)
