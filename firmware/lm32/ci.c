@@ -57,6 +57,7 @@ static void help_hdmi_out1(char banner)
 	puts("");
 }
 
+#ifdef ENCODER_BASE
 static void help_encoder(char banner)
 {
 	if(banner)
@@ -65,6 +66,7 @@ static void help_encoder(char banner)
 	puts("encoder off                - disable encode");
 	puts("");
 }
+#endif
 
 static void help_debug(char banner)
 {
@@ -81,13 +83,15 @@ static void help(void)
 	puts("help                       - this command");
 	puts("version                    - firmware/gateware version");
 	puts("reboot                     - reboot CPU");
-	puts("status <on/off>            - enable/disable status message");
+	puts("status <on/off>            - enable/disable status message (same with by pressing enter)");
 	puts("");
 	help_video_mode(0);
 	help_hdp_toggle(0);
 	help_hdmi_out0(0);
 	help_hdmi_out1(0);
+#ifdef ENCODER_BASE
 	help_encoder(0);
+#endif
 	help_debug(0);
 }
 
@@ -126,28 +130,28 @@ static void status_service(void)
 	if(elapsed(&last_event, identifier_frequency_read())) {
 		if(status_enabled) {
 			printf("\n");
-			printf("video source 0: %dx%d",	hdmi_in0_resdetection_hres_read(),
-											hdmi_in0_resdetection_vres_read());
+			printf("hdmi_in0:  %dx%d",	hdmi_in0_resdetection_hres_read(),
+										hdmi_in0_resdetection_vres_read());
 			printf("\n");
 
-			printf("video source 1: %dx%d",	hdmi_in1_resdetection_hres_read(),
-											hdmi_in1_resdetection_vres_read());
+			printf("hdmi_in1:  %dx%d",	hdmi_in1_resdetection_hres_read(),
+										hdmi_in1_resdetection_vres_read());
 			printf("\n");
 
 			printf("hdmi_out0: ");
 			if(hdmi_out0_fi_enable_read())
-				printf("%dx%d from video source %d", 	processor_h_active,
-														processor_v_active,
-														processor_hdmi_out0_source);
+				printf("%dx%d from hdmi_in%d", 	processor_h_active,
+												processor_v_active,
+												processor_hdmi_out0_source);
 			else
 				printf("off");
 			printf("\n");
 
 			printf("hdmi_out1: ");
 			if(hdmi_out1_fi_enable_read())
-				printf("%dx%d from video source %d", 	processor_h_active,
-														processor_v_active,
-														processor_hdmi_out1_source);
+				printf("%dx%d from hdmi_in%d", 	processor_h_active,
+												processor_v_active,
+												processor_hdmi_out1_source);
 			else
 				printf("off");
 			printf("\n");
@@ -155,7 +159,7 @@ static void status_service(void)
 #ifdef ENCODER_BASE
 			printf("encoder: ");
 			if(encoder_enabled) {
-				printf("%dx%d @ %dfps (%dMbps) from video source %d (q: %d)",
+				printf("%dx%d @ %dfps (%dMbps) from hdmi_in%d (q: %d)",
 					processor_h_active,
 					processor_v_active,
 					encoder_fps,
@@ -199,7 +203,7 @@ static void video_mode_set(int mode)
 static void hdp_toggle(int source)
 {
 	int i;
-	printf("Toggling HDP on video source %d\n", source);
+	printf("Toggling HDP on hdmi_in%d\n", source);
 	if(source ==  VIDEO_IN_HDMI_IN0) {
 		hdmi_in0_edid_hpd_en_write(0);
 		for(i=0; i<65536; i++);
@@ -215,7 +219,7 @@ static void hdp_toggle(int source)
 static void hdmi_out0_set(int source)
 {
 	if(source <= VIDEO_IN_HDMI_IN1)
-		printf("Enabling hdmi_out0 from video source %d\n", source);
+		printf("Enabling hdmi_out0 from hdmi_in%d\n", source);
 		processor_set_hdmi_out0_source(source);
 		processor_update();
 		hdmi_out0_fi_enable_write(1);
@@ -230,7 +234,7 @@ static void hdmi_out0_disable(void)
 static void hdmi_out1_set(int source)
 {
 	if(source <= VIDEO_IN_HDMI_IN1)
-		printf("Enabling hdmi_out1 from video source %d\n", source);
+		printf("Enabling hdmi_out1 from hdmi_in%d\n", source);
 		processor_set_hdmi_out1_source(source);
 		processor_update();
 		hdmi_out1_fi_enable_write(1);
@@ -246,7 +250,7 @@ static void hdmi_out1_disable(void)
 static void encoder_set(int quality, int source)
 {
 	if(source <= VIDEO_IN_HDMI_IN1)
-		printf("Enabling encoder on video source %d with %d quality\n", source, quality);
+		printf("Enabling encoder from hdmi_in%d with %d quality\n", source, quality);
 		processor_set_encoder_source(source);
 		processor_update();
 		if(encoder_set_quality(quality))
@@ -428,6 +432,9 @@ void ci_service(void)
 			debug_pll();
 		else if(strcmp(token, "ddr") == 0)
 			debug_ddr();
+	} else {
+		if(status_enabled)
+			status_disable();
 	}
 
 	ci_prompt();
