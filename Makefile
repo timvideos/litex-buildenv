@@ -4,8 +4,9 @@ PROG ?= impact
 SERIAL ?= /dev/ttyVIZ0
 TARGET ?= hdmi2usb
 
-HDMI2USBDIR = ../../
+HDMI2USBDIR = ../..
 PYTHON = python3
+DATE = `date +%Y_%m_%d`
 
 CMD = $(PYTHON) make.py -X $(HDMI2USBDIR) -t $(BOARD)_$(TARGET) -Ot firmware_filename $(HDMI2USBDIR)/firmware/lm32/firmware.bin -Op programmer $(PROG)
 
@@ -42,6 +43,9 @@ gateware: lm32-firmware
 
 load-gateware:
 	cd $(MSCDIR) && $(CMD) load-bitstream
+
+release-gateware:
+	cd $(MSCDIR)/build && tar -cvzf ../$(HDMI2USBDIR)/$(BOARD)_$(TARGET)_gateware_$(DATE).tar.gz *.bin *.bit
 
 lm32-firmware:
 	cd $(MSCDIR) && $(CMD) build-headers
