@@ -352,7 +352,7 @@ class Platform(XilinxPlatform):
         XilinxPlatform.do_finalize(self, fragment)
         for i in range(2):
             try:
-                self.add_period_constraint(self.lookup_request("dvi_in", i).clk_p, 12)
+                self.add_period_constraint(self.lookup_request("hdmi_in", i).clk_p, 12)
             except ConstraintError:
                 pass
 
