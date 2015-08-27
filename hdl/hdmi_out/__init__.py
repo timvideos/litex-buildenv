@@ -5,11 +5,11 @@ from migen.bank.description import AutoCSR
 from migen.actorlib import structuring, misc
 
 from misoclib.mem.sdram.frontend import dma_lasmi
-from hdl.framebuffer.format import bpp, pixel_layout, FrameInitiator, VTG
-from hdl.framebuffer.phy import Driver
+from hdl.hdmi_out.format import bpp, pixel_layout, FrameInitiator, VTG
+from hdl.hdmi_out.phy import Driver
 
 
-class Framebuffer(Module, AutoCSR):
+class HDMIOut(Module, AutoCSR):
     def __init__(self, pads_vga, pads_dvi, lasmim, external_clocking=None):
         pack_factor = lasmim.dw//bpp
 

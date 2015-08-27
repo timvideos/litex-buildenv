@@ -35,22 +35,22 @@ static void program_data(const unsigned short *data)
 	 * PLLs also seem to dislike any write to the last words.
 	 */
 	for(i=6;i<32-5;i++) {
-		fb0_driver_clocking_pll_adr_write(i);
-		fb0_driver_clocking_pll_dat_w_write(data[i]);
-		fb0_driver_clocking_pll_write_write(1);
-		while(!fb0_driver_clocking_pll_drdy_read());
+		hdmi_out0_driver_clocking_pll_adr_write(i);
+		hdmi_out0_driver_clocking_pll_dat_w_write(data[i]);
+		hdmi_out0_driver_clocking_pll_write_write(1);
+		while(!hdmi_out0_driver_clocking_pll_drdy_read());
 	}
 	for(i=6;i<32-5;i++) {
-		dvisampler0_clocking_pll_adr_write(i);
-		dvisampler0_clocking_pll_dat_w_write(data[i]);
-		dvisampler0_clocking_pll_write_write(1);
-		while(!dvisampler0_clocking_pll_drdy_read());
+		hdmi_in0_clocking_pll_adr_write(i);
+		hdmi_in0_clocking_pll_dat_w_write(data[i]);
+		hdmi_in0_clocking_pll_write_write(1);
+		while(!hdmi_in0_clocking_pll_drdy_read());
 	}
 	for(i=6;i<32-5;i++) {
-		dvisampler1_clocking_pll_adr_write(i);
-		dvisampler1_clocking_pll_dat_w_write(data[i]);
-		dvisampler1_clocking_pll_write_write(1);
-		while(!dvisampler1_clocking_pll_drdy_read());
+		hdmi_in1_clocking_pll_adr_write(i);
+		hdmi_in1_clocking_pll_dat_w_write(data[i]);
+		hdmi_in1_clocking_pll_write_write(1);
+		while(!hdmi_in1_clocking_pll_drdy_read());
 	}
 }
 
@@ -82,26 +82,26 @@ void pll_dump(void)
 
 	printf("framebuffer PLL:\n");
 	for(i=0;i<32;i++) {
-		fb0_driver_clocking_pll_adr_write(i);
-		fb0_driver_clocking_pll_read_write(1);
-		while(!fb0_driver_clocking_pll_drdy_read());
-		printf("%04x ", fb0_driver_clocking_pll_dat_r_read());
+		hdmi_out0_driver_clocking_pll_adr_write(i);
+		hdmi_out0_driver_clocking_pll_read_write(1);
+		while(!hdmi_out0_driver_clocking_pll_drdy_read());
+		printf("%04x ", hdmi_out0_driver_clocking_pll_dat_r_read());
 	}
 	printf("\n");
 	printf("dvisampler0 PLL:\n");
 	for(i=0;i<32;i++) {
-		dvisampler0_clocking_pll_adr_write(i);
-		dvisampler0_clocking_pll_read_write(1);
-		while(!dvisampler0_clocking_pll_drdy_read());
-		printf("%04x ", dvisampler0_clocking_pll_dat_r_read());
+		hdmi_in0_clocking_pll_adr_write(i);
+		hdmi_in0_clocking_pll_read_write(1);
+		while(!hdmi_in0_clocking_pll_drdy_read());
+		printf("%04x ", hdmi_in0_clocking_pll_dat_r_read());
 	}
 	printf("\n");
 	printf("dvisampler1 PLL:\n");
 	for(i=0;i<32;i++) {
-		dvisampler1_clocking_pll_adr_write(i);
-		dvisampler1_clocking_pll_read_write(1);
-		while(!dvisampler1_clocking_pll_drdy_read());
-		printf("%04x ", dvisampler1_clocking_pll_dat_r_read());
+		hdmi_in1_clocking_pll_adr_write(i);
+		hdmi_in1_clocking_pll_read_write(1);
+		while(!hdmi_in1_clocking_pll_drdy_read());
+		printf("%04x ", hdmi_in1_clocking_pll_dat_r_read());
 	}
 	printf("\n");
 }

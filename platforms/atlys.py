@@ -275,7 +275,7 @@ _io = [
     # NET "HDMIOUTD2N"  LOC = "A8"; # Bank = 0, Pin name = IO_L33N,        Sch name = TMDS-TX-2_N
     # NET "HDMIOUTSCL"  LOC = "D9"; # Bank = 0, Pin name = IO_L34P_GCLK19, Sch name = TMDS-TX-SCL
     # NET "HDMIOUTSDA"  LOC = "C9"; # Bank = 0, Pin name = IO_L34N_GCLK18, Sch name = TMDS-TX-SDA
-    ("dvi_out", 0,
+    ("hdmi_out", 0,
         Subsignal("clk_p", Pins("B6"), IOStandard("TMDS_33")),
         Subsignal("clk_n", Pins("A6"), IOStandard("TMDS_33")),
         Subsignal("data2_p", Pins("D8"), IOStandard("TMDS_33")),
@@ -305,7 +305,7 @@ _io = [
     # NET "HDMIIN1D2N"  LOC = "A12"; # Bank = 0, Pin name = IO_L41N,        Sch name = TMDS-RXB-2_N
     # NET "HDMIIN1SCL"  LOC = "C13"; # Bank = 0, Pin name = IO_L50P,        Sch name = PMOD-SCL
     # NET "HDMIIN1SDA"  LOC = "A13"; # Bank = 0, Pin name = IO_L50N,        Sch name = PMOD-SDA
-    ("dvi_in", 0,
+    ("hdmi_in", 0,
         Subsignal("clk_p", Pins("D11")),
         Subsignal("clk_n", Pins("C11")),
         Subsignal("data0_p", Pins("G9")),
@@ -337,7 +337,7 @@ _io = [
     # NET "HDMIIN2D2N"  LOC = "J18"; # Bank = 1, Pin name = IO_L44N_A2_M1DQ7,    Sch name = TMDS-RX-2_N
     # NET "HDMIIN2SCL"  LOC = "M16"; # Bank = 1, Pin name = IO_L47P_FWE_B_M1DQ0, Sch name = TMDS-RX-SCL
     # NET "HDMIIN2SDA"  LOC = "M18"; # Bank = 1, Pin name = IO_L47N_LDC_M1DQ1,   Sch name = TMDS-RX-SDA
-    ("dvi_in", 1,
+    ("hdmi_in", 1,
         Subsignal("clk_p", Pins("H17")),
         Subsignal("clk_n", Pins("H18")),
         Subsignal("data0_p", Pins("K17")),
@@ -406,7 +406,7 @@ _io = [
     # NET "JB<6>"  LOC = "V4"; # Bank = 2,  Pin name = IO_L63N,        Sch name = JA-D1_N
     # NET "JB<3>"  LOC = "N5"; # Bank = 2,  Pin name = IO_L64P_D8,     Sch name = JA-D2_P
     # NET "JB<2>"  LOC = "P6"; # Bank = 2,  Pin name = IO_L64N_D9,     Sch name = JA-D2_N
-    ("dvi_out", 1,
+    ("hdmi_out", 1,
         Subsignal("clk_p", Pins("T9"), IOStandard("TMDS_33")),
         Subsignal("clk_n", Pins("V9"), IOStandard("TMDS_33")),
         Subsignal("data2_p", Pins("R3"), IOStandard("TMDS_33")),

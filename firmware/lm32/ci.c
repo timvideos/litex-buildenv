@@ -8,8 +8,8 @@
 #include <time.h>
 
 #include "config.h"
-#include "dvisampler0.h"
-#include "dvisampler1.h"
+#include "hdmi_in0.h"
+#include "hdmi_in1.h"
 #include "processor.h"
 #include "pll.h"
 #include "ci.h"
@@ -39,21 +39,21 @@ static void help_hdp_toggle(char banner)
 	puts("");
 }
 
-static void help_framebuffer0(char banner)
+static void help_hdmi_out0(char banner)
 {
 	if(banner)
 		help_banner();
-	puts("framebuffer0 <source>      - select framebuffer0 source and enable it");
-	puts("framebuffer0 off           - disable framebuffer0");
+	puts("hdmi_out0 <source>         - select hdmi_out0 source and enable it");
+	puts("hdmi_out0 off              - disable hdmi_out0");
 	puts("");
 }
 
-static void help_framebuffer1(char banner)
+static void help_hdmi_out1(char banner)
 {
 	if(banner)
 		help_banner();
-	puts("framebuffer1 <source>      - select framebuffer1 source and enable it");
-	puts("framebuffer1 off           - disable framebuffer1");
+	puts("hdmi_out1 <source>         - select hdmi_out1 source and enable it");
+	puts("hdmi_out1 off              - disable hdmi_out1");
 	puts("");
 }
 
@@ -85,8 +85,8 @@ static void help(void)
 	puts("");
 	help_video_mode(0);
 	help_hdp_toggle(0);
-	help_framebuffer0(0);
-	help_framebuffer1(0);
+	help_hdmi_out0(0);
+	help_hdmi_out1(0);
 	help_encoder(0);
 	help_debug(0);
 }
@@ -124,28 +124,28 @@ static void status_service(void)
 	if(elapsed(&last_event, identifier_frequency_read())) {
 		if(status_enabled) {
 			printf("\n");
-			printf("video source 0: %dx%d",	dvisampler0_resdetection_hres_read(),
-											dvisampler0_resdetection_vres_read());
+			printf("video source 0: %dx%d",	hdmi_in0_resdetection_hres_read(),
+											hdmi_in0_resdetection_vres_read());
 			printf("\n");
 
-			printf("video source 1: %dx%d",	dvisampler1_resdetection_hres_read(),
-											dvisampler1_resdetection_vres_read());
+			printf("video source 1: %dx%d",	hdmi_in1_resdetection_hres_read(),
+											hdmi_in1_resdetection_vres_read());
 			printf("\n");
 
-			printf("framebuffer0: ");
-			if(fb0_fi_enable_read())
+			printf("hdmi_out0: ");
+			if(hdmi_out0_fi_enable_read())
 				printf("%dx%d from video source %d", 	processor_h_active,
 														processor_v_active,
-														processor_framebuffer0_source);
+														processor_hdmi_out0_source);
 			else
 				printf("off");
 			printf("\n");
 
-			printf("framebuffer1: ");
-			if(fb1_fi_enable_read())
+			printf("hdmi_out1: ");
+			if(hdmi_out1_fi_enable_read())
 				printf("%dx%d from video source %d", 	processor_h_active,
 														processor_v_active,
-														processor_framebuffer1_source);
+														processor_hdmi_out1_source);
 			else
 				printf("off");
 			printf("\n");
@@ -198,51 +198,51 @@ static void hdp_toggle(int source)
 {
 	int i;
 	printf("Toggling HDP on video source %d\n", source);
-	if(source ==  VIDEO_IN_DVISAMPLER0) {
-		dvisampler0_edid_hpd_en_write(0);
+	if(source ==  VIDEO_IN_HDMI_IN0) {
+		hdmi_in0_edid_hpd_en_write(0);
 		for(i=0; i<65536; i++);
-		dvisampler0_edid_hpd_en_write(1);
+		hdmi_in0_edid_hpd_en_write(1);
 	}
-	else if(source == VIDEO_IN_DVISAMPLER1) {
-		dvisampler1_edid_hpd_en_write(0);
+	else if(source == VIDEO_IN_HDMI_IN1) {
+		hdmi_in1_edid_hpd_en_write(0);
 		for(i=0; i<65536; i++);
-		dvisampler1_edid_hpd_en_write(1);
+		hdmi_in1_edid_hpd_en_write(1);
 	}
 }
 
-static void framebuffer0_set(int source)
+static void hdmi_out0_set(int source)
 {
-	if(source <= VIDEO_IN_DVISAMPLER1)
-		printf("Enabling framebuffer0 from video source %d\n", source);
-		processor_set_framebuffer0_source(source);
+	if(source <= VIDEO_IN_HDMI_IN1)
+		printf("Enabling hdmi_out0 from video source %d\n", source);
+		processor_set_hdmi_out0_source(source);
 		processor_update();
-		fb0_fi_enable_write(1);
+		hdmi_out0_fi_enable_write(1);
 }
 
-static void framebuffer0_disable(void)
+static void hdmi_out0_disable(void)
 {
-	printf("Disabling framebuffer0\n");
-	fb0_fi_enable_write(0);
+	printf("Disabling hdmi_out0\n");
+	hdmi_out0_fi_enable_write(0);
 }
 
-static void framebuffer1_set(int source)
+static void hdmi_out1_set(int source)
 {
-	if(source <= VIDEO_IN_DVISAMPLER1)
-		printf("Enabling framebuffer1 from video source %d\n", source);
-		processor_set_framebuffer1_source(source);
+	if(source <= VIDEO_IN_HDMI_IN1)
+		printf("Enabling hdmi_out1 from video source %d\n", source);
+		processor_set_hdmi_out1_source(source);
 		processor_update();
-		fb1_fi_enable_write(1);
+		hdmi_out1_fi_enable_write(1);
 }
 
-static void framebuffer1_disable(void)
+static void hdmi_out1_disable(void)
 {
-	printf("Disabling framebuffer1\n");
-	fb1_fi_enable_write(0);
+	printf("Disabling hdmi_out1\n");
+	hdmi_out1_fi_enable_write(0);
 }
 
 static void encoder_set(int quality, int source)
 {
-	if(source <= VIDEO_IN_DVISAMPLER1)
+	if(source <= VIDEO_IN_HDMI_IN1)
 		printf("Enabling encoder on video source %d with %d quality\n", source, quality);
 		processor_set_encoder_source(source);
 		processor_update();
@@ -362,10 +362,10 @@ void ci_service(void)
 			help_video_mode(1);
 		else if(strcmp(token, "hdp_toggle") == 0)
 			help_hdp_toggle(1);
-		else if(strcmp(token, "framebuffer0") == 0)
-			help_framebuffer0(1);
-		else if(strcmp(token, "framebuffer1") == 0)
-			help_framebuffer1(1);
+		else if(strcmp(token, "hdmi_out0") == 0)
+			help_hdmi_out0(1);
+		else if(strcmp(token, "hdmi_out1") == 0)
+			help_hdmi_out1(1);
 		else if(strcmp(token, "encoder") == 0)
 			help_encoder(1);
 		else if(strcmp(token, "debug") == 0)
@@ -386,19 +386,19 @@ void ci_service(void)
 		token = get_token(&str);
 		hdp_toggle(atoi(token));
 	}
-	else if(strcmp(token, "framebuffer0") == 0) {
+	else if(strcmp(token, "hdmi_out0") == 0) {
 		token = get_token(&str);
 		if(strcmp(token, "off") == 0)
-			framebuffer0_disable();
+			hdmi_out0_disable();
 		else
-			framebuffer0_set(atoi(token));
+			hdmi_out0_set(atoi(token));
 	}
-	else if(strcmp(token, "framebuffer1") == 0) {
+	else if(strcmp(token, "hdmi_out1") == 0) {
 		token = get_token(&str);
 		if(strcmp(token, "off") == 0)
-			framebuffer1_disable();
+			hdmi_out1_disable();
 		else
-			framebuffer1_set(atoi(token));
+			hdmi_out1_set(atoi(token));
 	}
 	else if(strcmp(token, "encoder") == 0) {
 		token = get_token(&str);

@@ -1,47 +1,46 @@
 from targets.opsis_base import *
 from targets.opsis_base import default_subtarget as opsis_base_soc
 
-from hdl import dvisampler
-from hdl import framebuffer
-
+from hdl.hdmi_in import HDMIIn
+from hdl.hdmi_out import HDMIOut
 from hdl.encoder import EncoderReader, Encoder
 from hdl.streamer import USBStreamer
 
 class VideomixerSoC(opsis_base_soc):
     csr_map = {
-        "fb0":                  20,
-        "fb1":                  21,
-        "dvisampler0":          22,
-        "dvisampler0_edid_mem": 23,
-        "dvisampler1":          24,
-        "dvisampler1_edid_mem": 25,
+        "hdmi_out0":         20,
+        "hdmi_out1":         21,
+        "hdmi_in0":          22,
+        "hdmi_in0_edid_mem": 23,
+        "hdmi_in1":          24,
+        "hdmi_in1_edid_mem": 25,
     }
     csr_map.update(opsis_base_soc.csr_map)
 
     interrupt_map = {
-        "dvisampler0": 3,
-        "dvisampler1": 4,
+        "hdmi_in0": 3,
+        "hdmi_in1": 4,
     }
     interrupt_map.update(opsis_base_soc.interrupt_map)
 
     def __init__(self, platform, **kwargs):
         opsis_base_soc.__init__(self, platform, **kwargs)
-        self.submodules.dvisampler0 = dvisampler.DVISampler(platform.request("dvi_in", 0),
-                                                           self.sdram.crossbar.get_master(),
-                                                           fifo_depth=512)
-        self.submodules.dvisampler1 = dvisampler.DVISampler(platform.request("dvi_in", 1),
-                                                           self.sdram.crossbar.get_master(),
-                                                           fifo_depth=512)
-        self.submodules.fb0 = framebuffer.Framebuffer(None, platform.request("dvi_out", 0),
-                                                     self.sdram.crossbar.get_master())
-        self.submodules.fb1 = framebuffer.Framebuffer(None, platform.request("dvi_out", 1),
-                                                     self.sdram.crossbar.get_master(),
-                                                     self.fb0.driver.clocking) # share clocking with frambuffer0
-                                                                               # since no PLL_ADV left.
+        self.submodules.hdmi_in0 = HDMIIn(platform.request("hdmi_in", 0),
+                                          self.sdram.crossbar.get_master(),
+                                          fifo_depth=1024)
+        self.submodules.hdmi_in1 = HDMIIn(platform.request("hdmi_in", 1),
+                                          self.sdram.crossbar.get_master(),
+                                          fifo_depth=1024)
+        self.submodules.hdmi_out0 = HDMIOut(None, platform.request("hdmi_out", 0),
+                                            self.sdram.crossbar.get_master())
+        self.submodules.hdmi_out1 = HDMIOut(None, platform.request("hdmi_out", 1),
+                                            self.sdram.crossbar.get_master(),
+                                            self.hdmi_out0.driver.clocking) # share clocking with hdmi_out0
+                                                                            # since no PLL_ADV left.
 
         platform.add_platform_command("""INST PLL_ADV LOC=PLL_ADV_X0Y0;""") # all PLL_ADV are used: router needs help...
-        platform.add_platform_command("""PIN "dviout_pix_bufg.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
-        platform.add_platform_command("""PIN "dviout_pix_bufg_1.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
+        platform.add_platform_command("""PIN "hdmi_out_pix_bufg.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
+        platform.add_platform_command("""PIN "hdmi_out_pix_bufg_1.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
         platform.add_platform_command("""
 NET "{pix0_clk}" TNM_NET = "GRPpix0_clk";
 NET "{pix1_clk}" TNM_NET = "GRPpix1_clk";
@@ -49,8 +48,8 @@ TIMESPEC "TSise_sucks7" = FROM "GRPpix0_clk" TO "GRPsys_clk" TIG;
 TIMESPEC "TSise_sucks8" = FROM "GRPsys_clk" TO "GRPpix0_clk" TIG;
 TIMESPEC "TSise_sucks9" = FROM "GRPpix1_clk" TO "GRPsys_clk" TIG;
 TIMESPEC "TSise_sucks10" = FROM "GRPsys_clk" TO "GRPpix1_clk" TIG;
-""", pix0_clk=self.fb0.driver.clocking.cd_pix.clk,
-     pix1_clk=self.fb1.driver.clocking.cd_pix.clk,
+""", pix0_clk=self.hdmi_out0.driver.clocking.cd_pix.clk,
+     pix1_clk=self.hdmi_out1.driver.clocking.cd_pix.clk,
 )
 
 

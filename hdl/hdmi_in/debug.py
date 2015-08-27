@@ -5,9 +5,9 @@ from migen.bank.description import AutoCSR
 from migen.actorlib import structuring, spi
 
 from misoclib.mem.sdram.frontend import dma_lasmi
-from hdl.dvisampler.edid import EDID
-from hdl.dvisampler.clocking import Clocking
-from hdl.dvisampler.datacapture import DataCapture
+from hdl.hdmi_in.edid import EDID
+from hdl.hdmi_in.clocking import Clocking
+from hdl.hdmi_in.datacapture import DataCapture
 
 
 class RawDVISampler(Module, AutoCSR):

@@ -199,7 +199,7 @@ _io = [
 
     ## onboard HDMI IN1
     ## HDMI - connector J5 - Direction RX
-    ("dvi_in", 0,
+    ("hdmi_in", 0,
         Subsignal("clk_p", Pins("L20")),
         Subsignal("clk_n", Pins("L22")),
         Subsignal("data0_p", Pins("M21")),
@@ -215,7 +215,7 @@ _io = [
 
     ## onboard HDMI IN2
     ## HDMI - connector J4 - Direction RX
-    ("dvi_in", 1,
+    ("hdmi_in", 1,
         Subsignal("clk_p", Pins("M20")),
         Subsignal("clk_n", Pins("M19")),
         Subsignal("data0_p", Pins("J20")),
@@ -261,7 +261,7 @@ _io = [
     ## onboard HDMI OUT
 
     ## HDMI - connector J3 - Direction TX
-    ("dvi_out", 0,
+    ("hdmi_out", 0,
         Subsignal("clk_p", Pins("Y11"), IOStandard("TMDS_33")),
         Subsignal("clk_n", Pins("AB11"), IOStandard("TMDS_33")),
         Subsignal("data2_p", Pins("W12"), IOStandard("TMDS_33")),
@@ -276,7 +276,7 @@ _io = [
     ),
 
     ## HDMI - connector J2 - Direction TX
-    ("dvi_out", 1,
+    ("hdmi_out", 1,
         Subsignal("clk_p", Pins("T12"), IOStandard("TMDS_33")),
         Subsignal("clk_n", Pins("U12"), IOStandard("TMDS_33")),
         Subsignal("data0_p", Pins("U14"), IOStandard("TMDS_33")),

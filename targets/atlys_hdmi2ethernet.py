@@ -1,14 +1,13 @@
 from targets.atlys_base import *
 
-from hdl import dvisampler
-from hdl import framebuffer
-
 from misoclib.com.liteeth.common import *
 from misoclib.com.liteeth.phy import LiteEthPHY
 from misoclib.com.liteeth.phy.mii import LiteEthPHYMII
 from misoclib.com.liteeth.core import LiteEthUDPIPCore
 from misoclib.com.liteeth.frontend.etherbone import LiteEthEtherbone
 
+from hdl import hdmi_in
+from hdl import hdmi_out
 from hdl.encoder import EncoderReader, Encoder
 from hdl.streamer import UDPStreamer
 
@@ -68,17 +67,17 @@ class VideomixerSoC(EtherboneSoC):
 
     def __init__(self, platform, **kwargs):
         EtherboneSoC.__init__(self, platform, **kwargs)
-        self.submodules.dvisampler = dvisampler.DVISampler(platform.request("dvi_in", 1),
-                                                           self.sdram.crossbar.get_master(),
-                                                           fifo_depth=4096)
-        self.submodules.fb = framebuffer.Framebuffer(None, platform.request("dvi_out"),
-                                                     self.sdram.crossbar.get_master())
-        platform.add_platform_command("""PIN "dviout_pix_bufg.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
+        self.submodules.hdmi_in0 = HDMIIn(platform.request("dvi_in", 1),
+                                          self.sdram.crossbar.get_master(),
+                                          fifo_depth=512)
+        self.submodules.hdmi_out0 = HDMIOut(None, platform.request("dvi_out"),
+                                            self.sdram.crossbar.get_master())
+        platform.add_platform_command("""PIN "hdmi_out_pix_bufg.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
         platform.add_platform_command("""
 NET "{pix_clk}" TNM_NET = "GRPpix_clk";
 TIMESPEC "TSise_sucks7" = FROM "GRPpix_clk" TO "GRPsys_clk" TIG;
 TIMESPEC "TSise_sucks8" = FROM "GRPsys_clk" TO "GRPpix_clk" TIG;
-""", pix_clk=self.fb.driver.clocking.cd_pix.clk)
+""", pix_clk=self.hdmi_out0.driver.clocking.cd_pix.clk)
 
 
 class HDMI2EthernetSoC(VideomixerSoC):

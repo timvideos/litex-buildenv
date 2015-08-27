@@ -2,8 +2,8 @@
 #include <irq.h>
 #include <uart.h>
 
-#include "dvisampler0.h"
-#include "dvisampler1.h"
+#include "hdmi_in0.h"
+#include "hdmi_in1.h"
 
 void isr(void);
 void isr(void)
@@ -14,8 +14,8 @@ void isr(void)
 
 	if(irqs & (1 << UART_INTERRUPT))
 		uart_isr();
-	if(irqs & (1 << DVISAMPLER0_INTERRUPT))
-		dvisampler0_isr();
-	if(irqs & (1 << DVISAMPLER1_INTERRUPT))
-		dvisampler1_isr();
+	if(irqs & (1 << HDMI_IN0_INTERRUPT))
+		hdmi_in0_isr();
+	if(irqs & (1 << HDMI_IN1_INTERRUPT))
+		hdmi_in1_isr();
 }

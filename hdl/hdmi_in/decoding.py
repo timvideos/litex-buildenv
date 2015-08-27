@@ -1,7 +1,7 @@
 from migen.fhdl.std import *
 from migen.genlib.record import Record
 
-from hdl.dvisampler.common import control_tokens, channel_layout
+from hdl.hdmi_in.common import control_tokens, channel_layout
 
 
 class Decoding(Module):

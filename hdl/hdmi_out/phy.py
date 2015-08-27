@@ -4,8 +4,8 @@ from migen.genlib.cdc import MultiReg
 from migen.bank.description import *
 from migen.flow.actor import *
 
-from hdl.framebuffer.format import bpc_phy, phy_layout
-from hdl.framebuffer import dvi
+from hdl.hdmi_out.format import bpc_phy, phy_layout
+from hdl.hdmi_out import dvi
 
 from hdl.csc.ycbcr2rgb import YCbCr2RGB
 from hdl.csc.ycbcr422to444 import YCbCr422to444
@@ -168,7 +168,7 @@ class _Clocking(Module, AutoCSR):
                              i_PLLIN=pll_clk0, i_GCLK=ClockSignal("pix2x"), i_LOCKED=pll_locked,
                              o_IOCLK=self.cd_pix10x.clk, o_LOCK=locked_async, o_SERDESSTROBE=self.serdesstrobe),
                     Instance("BUFG", i_I=pll_clk1, o_O=self.cd_pix2x.clk),
-                    Instance("BUFG", name="dviout_pix_bufg", i_I=pll_clk2, o_O=self.cd_pix.clk),
+                    Instance("BUFG", name="hdmi_out_pix_bufg", i_I=pll_clk2, o_O=self.cd_pix.clk),
                     MultiReg(locked_async, mult_locked, "sys")
                 ]
 
@@ -179,7 +179,7 @@ class _Clocking(Module, AutoCSR):
 
         else:
             self.clock_domains.cd_pix = ClockDomain(reset_less=True)
-            self.specials +=  Instance("BUFG", name="dviout_pix_bufg", i_I=external_clocking.pll_clk2, o_O=self.cd_pix.clk)
+            self.specials +=  Instance("BUFG", name="hdmi_out_pix_bufg", i_I=external_clocking.pll_clk2, o_O=self.cd_pix.clk)
             if pads_dvi is not None:
                 self.clock_domains.cd_pix2x = ClockDomain(reset_less=True)
                 self.clock_domains.cd_pix10x = ClockDomain(reset_less=True)

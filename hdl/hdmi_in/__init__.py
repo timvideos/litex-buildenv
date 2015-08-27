@@ -1,18 +1,18 @@
 from migen.fhdl.std import *
 from migen.bank.description import AutoCSR
 
-from hdl.dvisampler.edid import EDID
-from hdl.dvisampler.clocking import Clocking
-from hdl.dvisampler.datacapture import DataCapture
-from hdl.dvisampler.charsync import CharSync
-from hdl.dvisampler.wer import WER
-from hdl.dvisampler.decoding import Decoding
-from hdl.dvisampler.chansync import ChanSync
-from hdl.dvisampler.analysis import SyncPolarity, ResolutionDetection, FrameExtraction
-from hdl.dvisampler.dma import DMA
+from hdl.hdmi_in.edid import EDID
+from hdl.hdmi_in.clocking import Clocking
+from hdl.hdmi_in.datacapture import DataCapture
+from hdl.hdmi_in.charsync import CharSync
+from hdl.hdmi_in.wer import WER
+from hdl.hdmi_in.decoding import Decoding
+from hdl.hdmi_in.chansync import ChanSync
+from hdl.hdmi_in.analysis import SyncPolarity, ResolutionDetection, FrameExtraction
+from hdl.hdmi_in.dma import DMA
 
 
-class DVISampler(Module, AutoCSR):
+class HDMIIn(Module, AutoCSR):
     def __init__(self, pads, lasmim, n_dma_slots=2, fifo_depth=512):
         self.submodules.edid = EDID(pads)
         self.submodules.clocking = Clocking(pads)
