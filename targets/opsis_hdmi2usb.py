@@ -31,9 +31,9 @@ class VideomixerSoC(opsis_base_soc):
         self.submodules.hdmi_in1 = HDMIIn(platform.request("hdmi_in", 1),
                                           self.sdram.crossbar.get_master(),
                                           fifo_depth=1024)
-        self.submodules.hdmi_out0 = HDMIOut(None, platform.request("hdmi_out", 0),
+        self.submodules.hdmi_out0 = HDMIOut(platform.request("hdmi_out", 0),
                                             self.sdram.crossbar.get_master())
-        self.submodules.hdmi_out1 = HDMIOut(None, platform.request("hdmi_out", 1),
+        self.submodules.hdmi_out1 = HDMIOut(platform.request("hdmi_out", 1),
                                             self.sdram.crossbar.get_master(),
                                             self.hdmi_out0.driver.clocking) # share clocking with hdmi_out0
                                                                             # since no PLL_ADV left.

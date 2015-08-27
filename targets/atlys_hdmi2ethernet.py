@@ -70,7 +70,7 @@ class VideomixerSoC(EtherboneSoC):
         self.submodules.hdmi_in0 = HDMIIn(platform.request("dvi_in", 1),
                                           self.sdram.crossbar.get_master(),
                                           fifo_depth=512)
-        self.submodules.hdmi_out0 = HDMIOut(None, platform.request("dvi_out"),
+        self.submodules.hdmi_out0 = HDMIOut(platform.request("hdmi_out"),
                                             self.sdram.crossbar.get_master())
         platform.add_platform_command("""PIN "hdmi_out_pix_bufg.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
         platform.add_platform_command("""
