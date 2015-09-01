@@ -287,7 +287,7 @@ void processor_start(int mode)
 	hdmi_in1_disable();
 	hdmi_in0_clear_framebuffers();
 	hdmi_in1_clear_framebuffers();
-	pattern_fill_framebuffer();
+	pattern_fill_framebuffer(m->h_active, m->v_active);
 
 	pll_config_for_clock(m->pixel_clock);
 	fb_set_mode(m);
