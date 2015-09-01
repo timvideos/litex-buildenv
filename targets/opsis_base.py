@@ -141,7 +141,7 @@ class BaseSoC(SDRAMSoC):
     mem_map.update(SDRAMSoC.mem_map)
 
     def __init__(self, platform,
-                 firmware_ram_size=0x8000,
+                 firmware_ram_size=0x10000,
                  firmware_filename=None,
                  **kwargs):
         clk_freq = 50*1000000

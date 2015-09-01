@@ -13,6 +13,7 @@
 #include "ci.h"
 #include "processor.h"
 #include "encoder.h"
+#include "pattern.h"
 
 int main(void)
 {
@@ -36,6 +37,9 @@ int main(void)
 		ci_service();
 #ifdef ENCODER_BASE
 		encoder_service();
+#endif
+#if 0
+		pattern_service();
 #endif
 	}
 
