@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <generated/csr.h>
 #include <generated/mem.h>
@@ -8,6 +9,7 @@
 
 #include "hdmi_in0.h"
 #include "hdmi_in1.h"
+#include "pattern.h"
 #include "edid.h"
 #include "pll.h"
 #include "processor.h"
@@ -285,6 +287,7 @@ void processor_start(int mode)
 	hdmi_in1_disable();
 	hdmi_in0_clear_framebuffers();
 	hdmi_in1_clear_framebuffers();
+	pattern_fill_framebuffer();
 
 	pll_config_for_clock(m->pixel_clock);
 	fb_set_mode(m);
@@ -311,23 +314,32 @@ void processor_set_encoder_source(int source) {
 	processor_encoder_source = source;
 }
 
+char * processor_get_source_name(int source) {
+	memset(processor_buffer, 0, 16);
+	if(source == VIDEO_IN_PATTERN)
+		sprintf(processor_buffer, "pattern");
+	else
+		sprintf(processor_buffer, "hdmi_in%d", source);
+	return processor_buffer;
+}
+
 void processor_update(void)
 {
 	/*  hdmi_out0 */
-	if(processor_hdmi_out0_source == VIDEO_IN_HDMI_IN0) {
+	if(processor_hdmi_out0_source == VIDEO_IN_HDMI_IN0)
 		hdmi_out0_fi_base0_write(hdmi_in0_framebuffer_base(hdmi_in0_fb_index));
-	}
-	else if(processor_hdmi_out0_source == VIDEO_IN_HDMI_IN1) {
+	else if(processor_hdmi_out0_source == VIDEO_IN_HDMI_IN1)
 		hdmi_out0_fi_base0_write(hdmi_in1_framebuffer_base(hdmi_in1_fb_index));
-	}
+	else if(processor_hdmi_out0_source == VIDEO_IN_PATTERN)
+		hdmi_out0_fi_base0_write(pattern_framebuffer_base());
 
 	/*  hdmi_out1 */
-	if(processor_hdmi_out1_source == VIDEO_IN_HDMI_IN0) {
+	if(processor_hdmi_out1_source == VIDEO_IN_HDMI_IN0)
 		hdmi_out1_fi_base0_write(hdmi_in0_framebuffer_base(hdmi_in0_fb_index));
-	}
-	else if(processor_hdmi_out1_source == VIDEO_IN_HDMI_IN1) {
+	else if(processor_hdmi_out1_source == VIDEO_IN_HDMI_IN1)
 		hdmi_out1_fi_base0_write(hdmi_in1_framebuffer_base(hdmi_in1_fb_index));
-	}
+	else if(processor_hdmi_out1_source == VIDEO_IN_PATTERN)
+		hdmi_out1_fi_base0_write(pattern_framebuffer_base());
 
 #ifdef ENCODER_BASE
 	/*  encoder */
@@ -337,6 +349,8 @@ void processor_update(void)
 	else if(processor_encoder_source == VIDEO_IN_HDMI_IN1) {
 		encoder_reader_dma_base_write((hdmi_in1_framebuffer_base(hdmi_in1_fb_index)));
 	}
+	else if(processor_encoder_source == VIDEO_IN_PATTERN)
+		encoder_reader_dma_base_write(pattern_framebuffer_base());
 #endif
 }
 

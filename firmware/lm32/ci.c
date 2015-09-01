@@ -153,18 +153,18 @@ static void status_service(void)
 
 			printf("hdmi_out0: ");
 			if(hdmi_out0_fi_enable_read())
-				printf("%dx%d from hdmi_in%d", 	processor_h_active,
-												processor_v_active,
-												processor_hdmi_out0_source);
+				printf("%dx%d from %s",	processor_h_active,
+										processor_v_active,
+										processor_get_source_name(processor_hdmi_out0_source));
 			else
 				printf("off");
 			printf("\n");
 
 			printf("hdmi_out1: ");
 			if(hdmi_out1_fi_enable_read())
-				printf("%dx%d from hdmi_in%d", 	processor_h_active,
-												processor_v_active,
-												processor_hdmi_out1_source);
+				printf("%dx%d from %s",	processor_h_active,
+										processor_v_active,
+									 	processor_get_source_name(processor_hdmi_out1_source));
 			else
 				printf("off");
 			printf("\n");
@@ -197,6 +197,8 @@ static void video_matrix_list(void)
 	printf("  %s\n", HDMI_OUT0_DESCRIPTION);
 	printf("hdmi_in1: %s\n", HDMI_IN1_MNEMONIC);
 	printf("  %s\n", HDMI_OUT1_DESCRIPTION);
+	printf("pattern:\n");
+	printf("  Video pattern\n");
 	puts(" ");
 	printf("Video sinks:\n");
 	printf("hdmi_out0: %s\n", HDMI_OUT0_MNEMONIC);
@@ -212,10 +214,10 @@ static void video_matrix_list(void)
 
 static void video_matrix_connect(int source, int sink)
 {
-	if(source >= 0 && source <= VIDEO_IN_HDMI_IN1)
+	if(source >= 0 && source <= VIDEO_IN_PATTERN)
 	{
 		if(sink >= 0 && sink <= VIDEO_OUT_HDMI_OUT1) {
-			printf("Connecting hdmi_in%d to hdmi_out%d\n", source, sink);
+			printf("Connecting %s to hdmi_out%d\n", processor_get_source_name(source), sink);
 			if(sink == VIDEO_OUT_HDMI_OUT0)
 				processor_set_hdmi_out0_source(source);
 			else if(sink == VIDEO_OUT_HDMI_OUT1)
@@ -224,7 +226,7 @@ static void video_matrix_connect(int source, int sink)
 		}
 #ifdef ENCODER_BASE
 		else if(sink == VIDEO_OUT_ENCODER) {
-			printf("Connecting hdmi_in%d to encoder\n", source);
+			printf("Connecting %s to encoder\n", processor_get_source_name(source));
 			processor_set_encoder_source(source);
 			processor_update();
 		}
@@ -453,6 +455,8 @@ void ci_service(void)
 				source = VIDEO_IN_HDMI_IN0;
 			else if(strcmp(token, "hdmi_in1") == 0)
 				source = VIDEO_IN_HDMI_IN1;
+			else if(strcmp(token, "pattern") == 0)
+				source = VIDEO_IN_PATTERN;
 			/* get video sink */
 			token = get_token(&str);
 			sink = -1;
