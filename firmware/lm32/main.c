@@ -29,6 +29,7 @@ int main(void)
 #ifdef ENCODER_BASE
 		encoder_enable(0);
 #endif
+	processor_init();
 	processor_start(config_get(CONFIG_KEY_RESOLUTION));
 	while(1) {
 		processor_service();

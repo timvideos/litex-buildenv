@@ -266,16 +266,20 @@ static void edid_set_mode(const struct video_timing *mode)
 }
 
 int processor_mode = 0;
+
+void processor_init(void)
+{
+	processor_hdmi_out0_source = VIDEO_IN_HDMI_IN0;
+	processor_hdmi_out1_source = VIDEO_IN_HDMI_IN0;
+	processor_encoder_source = VIDEO_IN_HDMI_IN0;
+}
+
 void processor_start(int mode)
 {
 	const struct video_timing *m = &video_modes[mode];
 	processor_mode = mode;
 	processor_h_active = m->h_active;
 	processor_v_active = m->v_active;
-
-	processor_hdmi_out0_source = VIDEO_IN_HDMI_IN0;
-	processor_hdmi_out1_source = VIDEO_IN_HDMI_IN0;
-	processor_encoder_source = VIDEO_IN_HDMI_IN0;
 
 	hdmi_out0_fi_enable_write(0);
 	hdmi_out1_fi_enable_write(0);

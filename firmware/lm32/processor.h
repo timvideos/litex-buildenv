@@ -25,6 +25,7 @@ int processor_encoder_source;
 char processor_buffer[16];
 
 void processor_list_modes(char *mode_descriptors);
+void processor_init(void);
 void processor_start(int mode);
 void processor_set_hdmi_out0_source(int source);
 void processor_set_hdmi_out1_source(int source);
