@@ -138,7 +138,7 @@ void hdmi_in1_clear_framebuffers(void)
 	int i;
 	flush_l2_cache();
 	volatile unsigned int *framebuffer = (unsigned int *)(MAIN_RAM_BASE + HDMI_IN1_FRAMEBUFFERS_BASE);
-	for(i=0; i<HDMI_IN1_FRAMEBUFFERS_SIZE/4; i++) {
+	for(i=0; i<(HDMI_IN1_FRAMEBUFFERS_SIZE*FRAMEBUFFER_COUNT)/4; i++) {
 		framebuffer[i] = 0x80108010; /* black in YCbCr 4:2:2*/
 	}
 }
