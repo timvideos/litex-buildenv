@@ -9,6 +9,12 @@ enum {
 	VIDEO_IN_HDMI_IN1
 };
 
+enum {
+	VIDEO_OUT_HDMI_OUT0=0,
+	VIDEO_OUT_HDMI_OUT1,
+	VIDEO_OUT_ENCODER
+};
+
 extern int processor_mode;
 int processor_h_active;
 int processor_v_active;

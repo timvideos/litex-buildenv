@@ -527,9 +527,24 @@ _connectors = [
     ),
 ]
 
+_hdmi_infos = {
+    "HDMI_IN0_MNEMONIC": "J1",
+    "HDMI_IN0_DESCRIPTION" : "XXX",
+
+    "HDMI_IN1_MNEMONIC": "J3",
+    "HDMI_IN1_DESCRIPTION" : "XXX",
+
+    "HDMI_OUT0_MNEMONIC": "J2",
+    "HDMI_OUT0_DESCRIPTION" : "XXX",
+
+    "HDMI_OUT1_MNEMONIC": "JA",
+    "HDMI_OUT1_DESCRIPTION" : "XXX"
+}
+
 class Platform(XilinxPlatform):
     default_clk_name = "clk100"
     default_clk_period = 10.0
+    hdmi_infos = _hdmi_infos
 
     def __init__(self, programmer="xc3sprog"):
         # XC6SLX45-2CSG324C

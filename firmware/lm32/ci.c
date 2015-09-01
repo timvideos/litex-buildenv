@@ -22,12 +22,22 @@ static void help_banner(void)
 	puts("Available commands:");
 }
 
+static void help_video_matrix(char banner)
+{
+	if(banner)
+		help_banner();
+	puts("video_matrix list              - list available video sinks and sources");
+	puts("video_matrix connect <source>  - connect video source to video sink");
+	puts("                     <sink>");
+	puts("");
+}
+
 static void help_video_mode(char banner)
 {
 	if(banner)
 		help_banner();
-	puts("video_mode list            - list available video modes");
-	puts("video_mode <mode>          - select video mode");
+	puts("video_mode list                - list available video modes");
+	puts("video_mode <mode>              - select video mode");
 	puts("");
 }
 
@@ -35,7 +45,7 @@ static void help_hdp_toggle(char banner)
 {
 	if(banner)
 		help_banner();
-	puts("hdp_toggle <source>        - toggle HDP on source for EDID rescan");
+	puts("hdp_toggle <source>            - toggle HDP on source for EDID rescan");
 	puts("");
 }
 
@@ -43,8 +53,8 @@ static void help_hdmi_out0(char banner)
 {
 	if(banner)
 		help_banner();
-	puts("hdmi_out0 <source>         - select hdmi_out0 source and enable it");
-	puts("hdmi_out0 off              - disable hdmi_out0");
+	puts("hdmi_out0 on                   - enable hdmi_out0");
+	puts("hdmi_out0 off                  - disable hdmi_out0");
 	puts("");
 }
 
@@ -52,8 +62,8 @@ static void help_hdmi_out1(char banner)
 {
 	if(banner)
 		help_banner();
-	puts("hdmi_out1 <source>         - select hdmi_out1 source and enable it");
-	puts("hdmi_out1 off              - disable hdmi_out1");
+	puts("hdmi_out1 on                   - enable hdmi_out1");
+	puts("hdmi_out1 off                  - disable hdmi_out1");
 	puts("");
 }
 
@@ -62,8 +72,10 @@ static void help_encoder(char banner)
 {
 	if(banner)
 		help_banner();
-	puts("encoder <quality> <source> - select encoder source, quality and enable it");
-	puts("encoder off                - disable encode");
+	puts("encoder on                     - enable encoder");
+	puts("encoder off                    - disable encoder");
+	puts("encoder quality <quality>      - select quality");
+
 	puts("");
 }
 #endif
@@ -72,19 +84,20 @@ static void help_debug(char banner)
 {
 	if(banner)
 		help_banner();
-	puts("debug pll                  - dump pll configuration");
-	puts("debug ddr                  - show DDR bandwidth");
+	puts("debug pll                      - dump pll configuration");
+	puts("debug ddr                      - show DDR bandwidth");
 	puts("");
 }
 
 static void help(void)
 {
 	help_banner();
-	puts("help                       - this command");
-	puts("version                    - firmware/gateware version");
-	puts("reboot                     - reboot CPU");
-	puts("status <on/off>            - enable/disable status message (same with by pressing enter)");
+	puts("help                           - this command");
+	puts("version                        - firmware/gateware version");
+	puts("reboot                         - reboot CPU");
+	puts("status <on/off>                - enable/disable status message (same with by pressing enter)");
 	puts("");
+	help_video_matrix(0);
 	help_video_mode(0);
 	help_hdp_toggle(0);
 	help_hdmi_out0(0);
@@ -177,6 +190,48 @@ static void status_service(void)
 	}
 }
 
+static void video_matrix_list(void)
+{
+	printf("Video sources:\n");
+	printf("hdmi_in0: %s\n", HDMI_IN0_MNEMONIC);
+	printf("  %s\n", HDMI_OUT0_DESCRIPTION);
+	printf("hdmi_in1: %s\n", HDMI_IN1_MNEMONIC);
+	printf("  %s\n", HDMI_OUT1_DESCRIPTION);
+	puts(" ");
+	printf("Video sinks:\n");
+	printf("hdmi_out0: %s\n", HDMI_OUT0_MNEMONIC);
+	printf("  %s\n", HDMI_OUT0_DESCRIPTION);
+	printf("hdmi_out1: %s\n", HDMI_OUT1_MNEMONIC);
+	printf("  %s\n", HDMI_OUT1_DESCRIPTION);
+#ifdef ENCODER_BASE
+	printf("encoder:\n");
+	printf("  JPEG Encoder\n");
+#endif
+	puts(" ");
+}
+
+static void video_matrix_connect(int source, int sink)
+{
+	if(source >= 0 && source <= VIDEO_IN_HDMI_IN1)
+	{
+		if(sink >= 0 && sink <= VIDEO_OUT_HDMI_OUT1) {
+			printf("Connecting hdmi_in%d to hdmi_out%d\n", source, sink);
+			if(sink == VIDEO_OUT_HDMI_OUT0)
+				processor_set_hdmi_out0_source(source);
+			else if(sink == VIDEO_OUT_HDMI_OUT1)
+				processor_set_hdmi_out1_source(source);
+			processor_update();
+		}
+#ifdef ENCODER_BASE
+		else if(sink == VIDEO_OUT_ENCODER) {
+			printf("Connecting hdmi_in%d to encoder\n", source);
+			processor_set_encoder_source(source);
+			processor_update();
+		}
+#endif
+	}
+}
+
 static void video_mode_list(void)
 {
 	char mode_descriptors[PROCESSOR_MODE_COUNT*PROCESSOR_MODE_DESCLEN];
@@ -216,48 +271,45 @@ static void hdp_toggle(int source)
 	}
 }
 
-static void hdmi_out0_set(int source)
+static void hdmi_out0_on(void)
 {
-	if(source <= VIDEO_IN_HDMI_IN1)
-		printf("Enabling hdmi_out0 from hdmi_in%d\n", source);
-		processor_set_hdmi_out0_source(source);
-		processor_update();
-		hdmi_out0_fi_enable_write(1);
+	printf("Enabling hdmi_out0\n");
+	hdmi_out0_fi_enable_write(1);
 }
 
-static void hdmi_out0_disable(void)
+static void hdmi_out0_off(void)
 {
 	printf("Disabling hdmi_out0\n");
 	hdmi_out0_fi_enable_write(0);
 }
 
-static void hdmi_out1_set(int source)
+static void hdmi_out1_on(void)
 {
-	if(source <= VIDEO_IN_HDMI_IN1)
-		printf("Enabling hdmi_out1 from hdmi_in%d\n", source);
-		processor_set_hdmi_out1_source(source);
-		processor_update();
-		hdmi_out1_fi_enable_write(1);
+	printf("Enabling hdmi_out1\n");
+	hdmi_out1_fi_enable_write(1);
 }
 
-static void hdmi_out1_disable(void)
+static void hdmi_out1_off(void)
 {
 	printf("Disabling hdmi_out1\n");
 	hdmi_out1_fi_enable_write(0);
 }
 
 #ifdef ENCODER_BASE
-static void encoder_set(int quality, int source)
+static void encoder_on(void)
 {
-	if(source <= VIDEO_IN_HDMI_IN1)
-		printf("Enabling encoder from hdmi_in%d with %d quality\n", source, quality);
-		processor_set_encoder_source(source);
-		processor_update();
-		if(encoder_set_quality(quality))
-			encoder_enable(1);
+	printf("Enabling encoder\n");
+	encoder_enable(1);
 }
 
-static void encoder_disable(void)
+static void encoder_configure_quality(int quality)
+{
+	printf("Setting encoder quality to %d\n", quality);
+	encoder_set_quality(quality);
+}
+
+
+static void encoder_off(void)
 {
 	printf("Disabling encoder\n");
 	encoder_enable(0);
@@ -366,7 +418,9 @@ void ci_service(void)
 
 	if(strcmp(token, "help") == 0) {
 		token = get_token(&str);
-		if(strcmp(token, "video_mode") == 0)
+		if(strcmp(token, "video_matrix") == 0)
+			help_video_matrix(1);
+		else if(strcmp(token, "video_mode") == 0)
 			help_video_mode(1);
 		else if(strcmp(token, "hdp_toggle") == 0)
 			help_hdp_toggle(1);
@@ -385,6 +439,32 @@ void ci_service(void)
 	}
 	else if(strcmp(token, "reboot") == 0) reboot();
 	else if(strcmp(token, "version") == 0) version();
+	else if(strcmp(token, "video_matrix") == 0) {
+		token = get_token(&str);
+		if(strcmp(token, "list") == 0)
+			video_matrix_list();
+		else if(strcmp(token, "connect") == 0) {
+			int source;
+			int sink;
+			/* get video source */
+			token = get_token(&str);
+			source = -1;
+			if(strcmp(token, "hdmi_in0") == 0)
+				source = VIDEO_IN_HDMI_IN0;
+			else if(strcmp(token, "hdmi_in1") == 0)
+				source = VIDEO_IN_HDMI_IN1;
+			/* get video sink */
+			token = get_token(&str);
+			sink = -1;
+			if(strcmp(token, "hdmi_out0") == 0)
+				sink = VIDEO_OUT_HDMI_OUT0;
+			else if(strcmp(token, "hdmi_out1") == 0)
+				sink = VIDEO_OUT_HDMI_OUT1;
+			else if(strcmp(token, "encoder") == 0)
+				sink = VIDEO_OUT_ENCODER;
+			video_matrix_connect(source, sink);
+		}
+	}
 	else if(strcmp(token, "video_mode") == 0) {
 		token = get_token(&str);
 		if(strcmp(token, "list") == 0)
@@ -398,25 +478,27 @@ void ci_service(void)
 	}
 	else if(strcmp(token, "hdmi_out0") == 0) {
 		token = get_token(&str);
-		if(strcmp(token, "off") == 0)
-			hdmi_out0_disable();
-		else
-			hdmi_out0_set(atoi(token));
+		if(strcmp(token, "on") == 0)
+			hdmi_out0_on();
+		else if(strcmp(token, "off") == 0)
+			hdmi_out0_off();
 	}
 	else if(strcmp(token, "hdmi_out1") == 0) {
 		token = get_token(&str);
-		if(strcmp(token, "off") == 0)
-			hdmi_out1_disable();
-		else
-			hdmi_out1_set(atoi(token));
+		if(strcmp(token, "on") == 0)
+			hdmi_out1_on();
+		else if(strcmp(token, "off") == 0)
+			hdmi_out1_off();
 	}
 #ifdef ENCODER_BASE
 	else if(strcmp(token, "encoder") == 0) {
 		token = get_token(&str);
-		if(strcmp(token, "off") == 0)
-			encoder_disable();
-		else
-			encoder_set(atoi(token), atoi(get_token(&str)));
+		if(strcmp(token, "on") == 0)
+			encoder_on();
+		else if(strcmp(token, "off") == 0)
+			encoder_off();
+		else if(strcmp(token, "quality") == 0)
+			encoder_configure_quality(atoi(get_token(&str)));
 	}
 #endif
 	else if(strcmp(token, "status") == 0) {

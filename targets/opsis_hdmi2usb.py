@@ -51,6 +51,8 @@ TIMESPEC "TSise_sucks10" = FROM "GRPsys_clk" TO "GRPpix1_clk" TIG;
 """, pix0_clk=self.hdmi_out0.driver.clocking.cd_pix.clk,
      pix1_clk=self.hdmi_out1.driver.clocking.cd_pix.clk,
 )
+        for k, v in platform.hdmi_infos.items():
+            self.add_constant(k, v)
 
 
 class HDMI2USBSoC(VideomixerSoC):
