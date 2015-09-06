@@ -138,6 +138,7 @@ static void debug_ddr(void);
 
 static void status_print(void)
 {
+	printf("\n");
 	printf("hdmi_in0:  %dx%d",	hdmi_in0_resdetection_hres_read(),
 								hdmi_in0_resdetection_vres_read());
 	printf("\n");
@@ -189,7 +190,6 @@ static void status_service(void)
 
 	if(elapsed(&last_event, identifier_frequency_read())) {
 		if(status_enabled) {
-			printf("\n");
 			status_print();
 		}
 	}
@@ -512,10 +512,10 @@ void ci_service(void)
 #endif
 	else if(strcmp(token, "status") == 0) {
 		token = get_token(&str);
-		if(strcmp(token, "off") == 0)
-			status_disable();
-		else if(strcmp(token, "on") == 0)
+		if(strcmp(token, "on") == 0)
 			status_enable();
+		else if(strcmp(token, "off") == 0)
+			status_disable();
 		else
 			status_print();
 	}
