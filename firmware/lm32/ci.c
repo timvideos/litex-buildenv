@@ -136,6 +136,53 @@ static void status_disable(void)
 
 static void debug_ddr(void);
 
+static void status_print(void)
+{
+	printf("hdmi_in0:  %dx%d",	hdmi_in0_resdetection_hres_read(),
+								hdmi_in0_resdetection_vres_read());
+	printf("\n");
+
+	printf("hdmi_in1:  %dx%d",	hdmi_in1_resdetection_hres_read(),
+								hdmi_in1_resdetection_vres_read());
+	printf("\n");
+
+	printf("hdmi_out0: ");
+	if(hdmi_out0_fi_enable_read())
+		printf("%dx%d from %s",	processor_h_active,
+								processor_v_active,
+								processor_get_source_name(processor_hdmi_out0_source));
+	else
+		printf("off");
+	printf("\n");
+
+	printf("hdmi_out1: ");
+	if(hdmi_out1_fi_enable_read())
+		printf("%dx%d from %s",	processor_h_active,
+								processor_v_active,
+							 	processor_get_source_name(processor_hdmi_out1_source));
+	else
+		printf("off");
+	printf("\n");
+
+#ifdef ENCODER_BASE
+	printf("encoder: ");
+	if(encoder_enabled) {
+		printf("%dx%d @ %dfps (%dMbps) from hdmi_in%d (q: %d)",
+			processor_h_active,
+			processor_v_active,
+			encoder_fps,
+			encoder_nwrites_read()*8/1000000,
+			processor_encoder_source,
+			encoder_quality);
+		encoder_nwrites_clear_write(1);
+	} else
+		printf("off");
+	printf("\n");
+#endif
+	printf("ddr: ");
+	debug_ddr();
+}
+
 static void status_service(void)
 {
 	static int last_event;
@@ -143,49 +190,7 @@ static void status_service(void)
 	if(elapsed(&last_event, identifier_frequency_read())) {
 		if(status_enabled) {
 			printf("\n");
-			printf("hdmi_in0:  %dx%d",	hdmi_in0_resdetection_hres_read(),
-										hdmi_in0_resdetection_vres_read());
-			printf("\n");
-
-			printf("hdmi_in1:  %dx%d",	hdmi_in1_resdetection_hres_read(),
-										hdmi_in1_resdetection_vres_read());
-			printf("\n");
-
-			printf("hdmi_out0: ");
-			if(hdmi_out0_fi_enable_read())
-				printf("%dx%d from %s",	processor_h_active,
-										processor_v_active,
-										processor_get_source_name(processor_hdmi_out0_source));
-			else
-				printf("off");
-			printf("\n");
-
-			printf("hdmi_out1: ");
-			if(hdmi_out1_fi_enable_read())
-				printf("%dx%d from %s",	processor_h_active,
-										processor_v_active,
-									 	processor_get_source_name(processor_hdmi_out1_source));
-			else
-				printf("off");
-			printf("\n");
-
-#ifdef ENCODER_BASE
-			printf("encoder: ");
-			if(encoder_enabled) {
-				printf("%dx%d @ %dfps (%dMbps) from hdmi_in%d (q: %d)",
-					processor_h_active,
-					processor_v_active,
-					encoder_fps,
-					encoder_nwrites_read()*8/1000000,
-					processor_encoder_source,
-					encoder_quality);
-				encoder_nwrites_clear_write(1);
-			} else
-				printf("off");
-			printf("\n");
-#endif
-			printf("ddr: ");
-			debug_ddr();
+			status_print();
 		}
 	}
 }
@@ -509,8 +514,10 @@ void ci_service(void)
 		token = get_token(&str);
 		if(strcmp(token, "off") == 0)
 			status_disable();
-		else
+		else if(strcmp(token, "on") == 0)
 			status_enable();
+		else
+			status_print();
 	}
 	else if(strcmp(token, "debug") == 0) {
 		token = get_token(&str);
