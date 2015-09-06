@@ -38,6 +38,7 @@ int main(void)
 #ifdef ENCODER_BASE
 		encoder_service();
 #endif
+/* XXX FIX DDR conflict between DMA and L2 cache */
 #if 0
 		pattern_service();
 #endif

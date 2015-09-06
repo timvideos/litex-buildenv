@@ -16,16 +16,15 @@ unsigned int pattern_framebuffer_base(void) {
 	return PATTERN_FRAMEBUFFER_BASE;
 }
 
-/* DRAM content in YCbCr 4:2:2, from pattern.py */
 static const unsigned int color_bar[8] = {
-	0x80ff80ff,
-	0x00e194e1,
-	0xabb200b2,
-	0x2b951595,
-	0xd469e969,
-	0x544cff4c,
-	0xff1d6f1d,
-	0x80108010
+	YCBCR422_WHITE,
+	YCBCR422_YELLOW,
+	YCBCR422_CYAN,
+	YCBCR422_GREEN,
+	YCBCR422_PURPLE,
+	YCBCR422_RED,
+	YCBCR422_BLUE,
+	YCBCR422_BLACK
 };
 
 static const unsigned char font5x7[] = {
@@ -132,20 +131,21 @@ static int inc_color(int color) {
 	return color%8;
 }
 
-/* XXX needs clean up an optimization */
-static void draw_text(int x, int y, char *ptr) {
+static void pattern_draw_text(int x, int y, char *ptr) {
 	int i, j, k;
+	int adr;
 	volatile unsigned int *framebuffer = (unsigned int *)(MAIN_RAM_BASE + PATTERN_FRAMEBUFFER_BASE);
 	for(i=0; ptr[i] != '\0'; i++) {
 		for(j=0; j<7; j++) {
 			for(k=0; k<5; k++) {
+				adr = 5*(x + i) + k + (2*8*y + 2*j)*processor_h_active/2;
 				if((font5x7[5*(ptr[i] - ' ') + k] >> j) & 0x1) {
-					framebuffer[5*(x + i) + k + (2*8*y + 2*j)*processor_h_active/2]   = color_bar[7];
-					framebuffer[5*(x + i) + k + (2*8*y + 2*j+1)*processor_h_active/2] = color_bar[7];
+					framebuffer[adr + 0*processor_h_active/2] = YCBCR422_BLACK;
+					framebuffer[adr + 1*processor_h_active/2] = YCBCR422_BLACK;
 				}
 				else {
-					framebuffer[5*(x + i) + k + (2*8*y + 2*j)*processor_h_active/2]   = color_bar[0];
-					framebuffer[5*(x + i) + k + (2*8*y + 2*j+1)*processor_h_active/2] = color_bar[0];
+					framebuffer[adr + 0*processor_h_active/2] = YCBCR422_WHITE;
+					framebuffer[adr + 1*processor_h_active/2] = YCBCR422_WHITE;
 				}
 			}
 		}
@@ -165,8 +165,8 @@ void pattern_fill_framebuffer(int h_active, int m_active)
 		if(color >= 0)
 			framebuffer[i] = color_bar[color];
 	}
-	draw_text(1, 1, "HDMI2USB");
-	draw_text(1, 2, "TimVideo.us");
+	pattern_draw_text(1, 1, "HDMI2USB");
+	pattern_draw_text(1, 2, "TimVideo.us");
 }
 
 void pattern_service(void)
@@ -177,7 +177,7 @@ void pattern_service(void)
 
 	if(elapsed(&last_event, identifier_frequency_read()/10)) {
 		sprintf(buffer, "%08x", counter);
-		draw_text(1, 3, buffer);
+		pattern_draw_text(1, 3, buffer);
 		counter++;
 	}
 }
