@@ -527,18 +527,43 @@ _connectors = [
     ),
 ]
 
+
 _hdmi_infos = {
     "HDMI_IN0_MNEMONIC": "J1",
-    "HDMI_IN0_DESCRIPTION" : "XXX",
+    "HDMI_IN0_DESCRIPTION" : (
+      "Type A connector, marked as J1, on side with USB connectors.\\n"
+      "To use J1, make sure:\\n"
+      " * JP4 has a jumper (it connects / disconnects 5V to HDMI pin 18).\\n"
+      " * JP2 (marked only as SDA/SCL - not to be confused with JP6 and JP6) "
+        "has *two* jumpers.\\n"
+    ),
 
     "HDMI_IN1_MNEMONIC": "J3",
-    "HDMI_IN1_DESCRIPTION" : "XXX",
+    "HDMI_IN1_DESCRIPTION" : (
+      "Type A connector, marked as J3, between audio connectors and "
+      "Ethernet RJ45 connector.\\n"
+      "To use J3, make sure:\\n"
+      " * JP8 has a jumper (it connects / disconnects 5V to HDMI pin 18)\\n"
+      " * JP6 and JP7 do *not* have any jumpers (it connect J3;s and J2's "
+         "EDID lines together).\\n"
+    ),
 
     "HDMI_OUT0_MNEMONIC": "J2",
-    "HDMI_OUT0_DESCRIPTION" : "XXX",
+    "HDMI_OUT0_DESCRIPTION" : (
+      "Type A connector, marked as J2, next to the power connector. "
+      "To use J2, make sure:\\n"
+      " * JP8 has a jumper (it connects / disconnects 5V to HDMI pin 18)\\n"
+      " * JP6 and JP7 do *not* have any jumpers (it connect J3's and J2's "
+         "EDID lines together).\\n"
+    ),
 
     "HDMI_OUT1_MNEMONIC": "JA",
-    "HDMI_OUT1_DESCRIPTION" : "XXX"
+    "HDMI_OUT1_DESCRIPTION" : (
+      "Micro-D connector, marked as JB, on the same side as switches "
+      "+ LEDs but on the underside of the board below MOD connector. "
+      "Works as either output or input because it isn't buffered. "
+      "Also often referred to as 'JA'. "
+    )
 }
 
 class Platform(XilinxPlatform):
