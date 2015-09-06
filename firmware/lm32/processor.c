@@ -323,7 +323,7 @@ char * processor_get_source_name(int source) {
 	if(source == VIDEO_IN_PATTERN)
 		sprintf(processor_buffer, "pattern");
 	else
-		sprintf(processor_buffer, "hdmi_in%d", source);
+		sprintf(processor_buffer, "input%d", source);
 	return processor_buffer;
 }
 
