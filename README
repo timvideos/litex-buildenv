@@ -13,12 +13,18 @@
 1. Follow MiSoC Quick start guide
 	https://github.com/m-labs/misoc
 
-2. Build the gateware and software:
+2. Obtain LiteUSB and install it:
+  git clone https://github.com/enjoy-digital/liteusb
+  cd liteusb
+  python3 setup.py install
+  cd ..
+
+3. Build the gateware and software:
 	go to misoc dir
-	./make.py -X your_scarab-soc_path -t minispartan6 -s SDRAMSoC all
+	./make.py -X your_scarab-soc_path -t minispartan6 -s BaseSoC all
 
 [> Status:
-SRAMSoC: SDRAM and UART (FTDI channel B in rs232 mode)
+BaseSoC: SDRAM and UART (FTDI channel B in rs232 mode)
 USBSoC:  SDRAM and UART/DMA over USB (FTDI channel B in FT245 mode)
 
 [> Contact

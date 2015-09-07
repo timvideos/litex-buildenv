@@ -9,11 +9,11 @@ from misoclib.mem.sdram.phy import gensdrphy
 from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
 from misoclib.soc.sdram import SDRAMSoC
 
-from misoclib.com.liteusb.common import *
-from misoclib.com.liteusb.phy.ft245 import FT245PHY
-from misoclib.com.liteusb.core import LiteUSBCore
-from misoclib.com.liteusb.frontend.uart import LiteUSBUART
-from misoclib.com.liteusb.frontend.wishbone import LiteUSBWishboneBridge
+from liteusb.common import *
+from liteusb.phy.ft245 import FT245PHY
+from liteusb.core import LiteUSBCore
+from liteusb.frontend.uart import LiteUSBUART
+from liteusb.frontend.wishbone import LiteUSBWishboneBridge
 
 from misoclib.com.gpio import GPIOOut
 

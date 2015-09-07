@@ -1,4 +1,4 @@
-from misoclib.com.liteusb.software.wishbone import LiteUSBWishboneDriver
+from liteusb.software.wishbone import LiteUSBWishboneDriver
 
 FTDI_INTERFACE_A = 1
 FTDI_INTERFACE_B = 2
