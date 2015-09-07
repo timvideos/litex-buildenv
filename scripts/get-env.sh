@@ -67,6 +67,7 @@ sudo adduser $USER dialout
 	cd $BUILD_DIR
 	rm -fr migen
 	git clone https://github.com/m-labs/migen.git
+	sudo python3 setup.py install
 	cd migen/vpi
 	make all
 	sudo make install
@@ -83,6 +84,15 @@ sudo adduser $USER dialout
 	cd tools
 	make
 	sudo make install
+)
+
+# Get liteeth
+(
+	cd $BUILD_DIR
+	rm -fr liteeth
+	git clone https://github.com/enjoy-digital/liteeth.git
+	cd liteeth
+	sudo python3 setup.py install
 )
 
 # Get libfpgalink
