@@ -138,28 +138,36 @@ static void debug_ddr(void);
 
 static void status_print(void)
 {
-	printf("input0:  %dx%d",	hdmi_in0_resdetection_hres_read(),
-								hdmi_in0_resdetection_vres_read());
+	printf(
+		"input0:  %dx%d",
+		hdmi_in0_resdetection_hres_read(),
+		hdmi_in0_resdetection_vres_read());
 	printf("\n");
 
-	printf("input1:  %dx%d",	hdmi_in1_resdetection_hres_read(),
-								hdmi_in1_resdetection_vres_read());
+	printf(
+		"input1:  %dx%d",
+		hdmi_in1_resdetection_hres_read(),
+		hdmi_in1_resdetection_vres_read());
 	printf("\n");
 
 	printf("output0: ");
 	if(hdmi_out0_fi_enable_read())
-		printf("%dx%d from %s",	processor_h_active,
-								processor_v_active,
-								processor_get_source_name(processor_hdmi_out0_source));
+		printf(
+			"%dx%d from %s",
+			processor_h_active,
+			processor_v_active,
+			processor_get_source_name(processor_hdmi_out0_source));
 	else
 		printf("off");
 	printf("\n");
 
 	printf("output1: ");
 	if(hdmi_out1_fi_enable_read())
-		printf("%dx%d from %s",	processor_h_active,
-								processor_v_active,
-							 	processor_get_source_name(processor_hdmi_out1_source));
+		printf(
+			"%dx%d from %s",
+			processor_h_active,
+			processor_v_active,
+			processor_get_source_name(processor_hdmi_out1_source));
 	else
 		printf("off");
 	printf("\n");
@@ -167,7 +175,8 @@ static void status_print(void)
 #ifdef ENCODER_BASE
 	printf("encoder: ");
 	if(encoder_enabled) {
-		printf("%dx%d @ %dfps (%dMbps) from %s (q: %d)",
+		printf(
+			"%dx%d @ %dfps (%dMbps) from %s (q: %d)",
 			processor_h_active,
 			processor_v_active,
 			encoder_fps,
