@@ -1,10 +1,10 @@
 from targets.atlys_base import *
 
-from misoclib.com.liteeth.common import *
-from misoclib.com.liteeth.phy import LiteEthPHY
-from misoclib.com.liteeth.phy.mii import LiteEthPHYMII
-from misoclib.com.liteeth.core import LiteEthUDPIPCore
-from misoclib.com.liteeth.frontend.etherbone import LiteEthEtherbone
+from liteeth.common import *
+from liteeth.phy import LiteEthPHY
+from liteeth.phy.mii import LiteEthPHYMII
+from liteeth.core import LiteEthUDPIPCore
+from liteeth.frontend.etherbone import LiteEthEtherbone
 
 from hdl import hdmi_in
 from hdl import hdmi_out

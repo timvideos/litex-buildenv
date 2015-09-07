@@ -13,9 +13,10 @@ from misoclib.mem.sdram.phy import s6ddrphy
 from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
 from misoclib.soc import mem_decoder
 from misoclib.soc.sdram import SDRAMSoC
-from misoclib.com.liteeth.common import *
-from misoclib.com.liteeth.phy.mii import LiteEthPHYMII
-from misoclib.com.liteeth.core.mac import LiteEthMAC
+
+from liteeth.common import *
+from liteeth.phy.mii import LiteEthPHYMII
+from liteeth.core.mac import LiteEthMAC
 
 
 class _CRG(Module):

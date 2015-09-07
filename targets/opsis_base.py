@@ -14,8 +14,8 @@ from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
 from misoclib.soc import mem_decoder
 from misoclib.soc.sdram import SDRAMSoC
 
-from misoclib.com.liteeth.phy.s6rgmii import LiteEthPHYRGMII
-from misoclib.com.liteeth.core.mac import LiteEthMAC
+from liteeth.phy.s6rgmii import LiteEthPHYRGMII
+from liteeth.core.mac import LiteEthMAC
 
 from hdl import i2c
 
