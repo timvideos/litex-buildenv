@@ -167,12 +167,12 @@ static void status_print(void)
 #ifdef ENCODER_BASE
 	printf("encoder: ");
 	if(encoder_enabled) {
-		printf("%dx%d @ %dfps (%dMbps) from input%d (q: %d)",
+		printf("%dx%d @ %dfps (%dMbps) from %s (q: %d)",
 			processor_h_active,
 			processor_v_active,
 			encoder_fps,
 			encoder_nwrites_read()*8/1000000,
-			processor_encoder_source,
+			processor_get_source_name(processor_encoder_source),
 			encoder_quality);
 		encoder_nwrites_clear_write(1);
 	} else
