@@ -26,4 +26,7 @@ void generate_edid(void *out,
 	const char *name,
 	const struct video_timing *timing);
 
+unsigned calculate_refresh_rate(const struct video_timing* video_mode);
+
+
 #endif

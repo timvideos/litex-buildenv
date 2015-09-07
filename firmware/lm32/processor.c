@@ -169,14 +169,9 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 void processor_list_modes(char *mode_descriptors)
 {
 	int i;
-	unsigned int refresh_span;
-	unsigned int refresh_rate;
-
 	for(i=0;i<PROCESSOR_MODE_COUNT;i++) {
-		refresh_span = (video_modes[i].h_active + video_modes[i].h_blanking)*(video_modes[i].v_active + video_modes[i].v_blanking);
-		refresh_rate = video_modes[i].pixel_clock*10000/refresh_span;
 		sprintf(&mode_descriptors[PROCESSOR_MODE_DESCLEN*i],
-			"%ux%u @%uHz", video_modes[i].h_active, video_modes[i].v_active, refresh_rate);
+			"%ux%u @%uHz", video_modes[i].h_active, video_modes[i].v_active, calculate_refresh_rate(&(video_modes[i])));
 	}
 }
 
