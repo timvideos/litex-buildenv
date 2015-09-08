@@ -35,7 +35,7 @@ sudo adduser $USER dialout
 	# Build binutils for target
 	sudo apt-get install -y texinfo
 	(
-		tar -zxvf ./download/binutils-*.tar.gz
+		tar -zxf ./download/binutils-*.tar.gz
 		cd binutils-*
 		mkdir -p build && cd build
 		../configure --prefix=$OUTPUT_DIR --target=$TARGET
@@ -46,7 +46,7 @@ sudo adduser $USER dialout
 	# Build gcc for target
 	sudo apt-get install -y libgmp-dev libmpfr-dev libmpc-dev
 	(
-		tar -jxvf ./download/gcc-*.tar.bz2
+		tar -jxf ./download/gcc-*.tar.bz2
 		cd gcc-*
 		rm -rf libstdc++-v3
 		mkdir -p build && cd build
