@@ -53,6 +53,7 @@
                                        192
 
 References:
+ * http://www.arachnoid.com/modelines/
  * http://martin.hinner.info/vga/timing.html
  * VESA Modes - http://cvsweb.xfree86.org/cvsweb/xc/programs/Xserver/hw/xfree86/etc/vesamodes
  * 720p and TV modes - https://www.mythtv.org/wiki/Modeline_Database
