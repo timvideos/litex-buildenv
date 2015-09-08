@@ -462,6 +462,8 @@ void ci_service(void)
 
 			if (source >= 0 && sink >= 0)
 				video_matrix_connect(source, sink);
+			else
+				help_video_matrix();
 		} else {
 			help_video_matrix();
 		}
@@ -483,6 +485,8 @@ void ci_service(void)
 			output0_on();
 		else if(strcmp(token, "off") == 0)
 			output0_off();
+		else
+			help_output0();
 	}
 	else if(strcmp(token, "output1") == 0) {
 		token = get_token(&str);
@@ -490,6 +494,8 @@ void ci_service(void)
 			output1_on();
 		else if(strcmp(token, "off") == 0)
 			output1_off();
+		else
+			help_output1();
 	}
 #ifdef ENCODER_BASE
 	else if(strcmp(token, "encoder") == 0) {
@@ -500,6 +506,8 @@ void ci_service(void)
 			encoder_off();
 		else if(strcmp(token, "quality") == 0)
 			encoder_configure_quality(atoi(get_token(&str)));
+		else
+			help_encoder();
 	}
 #endif
 	else if(strcmp(token, "status") == 0) {
@@ -517,10 +525,11 @@ void ci_service(void)
 			debug_pll();
 		else if(strcmp(token, "ddr") == 0)
 			debug_ddr();
-	} else {
-		if(status_enabled)
-			status_disable();
+		else
+			help_debug();
 	}
+	else
+		printf("Unknown command: '%s'\n", token);
 
 	ci_prompt();
 }
