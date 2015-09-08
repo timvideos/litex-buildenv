@@ -14,8 +14,54 @@
 #include "pll.h"
 #include "processor.h"
 
-/* reference: http://martin.hinner.info/vga/timing.html */
+/*
+ ----------------->>> Time ----------->>>
+
+                  +-------------------+
+   Video          |  Blanking         |  Video
+                  |                   |
+ ----(a)--------->|<-------(b)------->|
+                  |                   |
+                  |       +-------+   |
+                  |       | Sync  |   |
+                  |       |       |   |
+                  |<-(c)->|<-(d)->|   |
+                  |       |       |   |
+ ----(1)--------->|       |       |   |
+ ----(2)----------------->|       |   |
+ ----(3)------------------------->|   |
+ ----(4)----------------------------->|
+                  |       |       |   |
+
+ (a) - h_active ==(1)
+ (b) - h_blanking
+ (c) - h_sync_offset
+ (d) - h_sync_width
+ (1) - HDisp / width == (a)
+ (2) - HSyncStart
+ (3) - HSyncEnd
+ (4) - HTotal
+
+ Modeline "String description" Dot-Clock HDisp HSyncStart HSyncEnd HTotal VDisp VSyncStart VSyncEnd VTotal [options]
+
+                            (1|a)    (2)    (3)  (4)
+ ModeLine "640x480"    31.5  640    664    704  832    480  489  491  520
+                              |\-(c)-/\-(b)-/    |
+                              |   24    40       |
+                              |                  |
+                              \--------(b)-------/
+                                       192
+
+References:
+ * http://martin.hinner.info/vga/timing.html
+ * VESA Modes - http://cvsweb.xfree86.org/cvsweb/xc/programs/Xserver/hw/xfree86/etc/vesamodes
+ * 720p and TV modes - https://www.mythtv.org/wiki/Modeline_Database
+
+*/
 static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
+	// 640x480 @ 72Hz (VESA) hsync: 37.9kHz
+	// ModeLine "640x480"    31.5  640  664  704  832    480  489  491  520
+	//                                24   40  <192          9   2   <40
 	{
 		.pixel_clock = 3150,
 
@@ -31,6 +77,9 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 
 		.established_timing = 0x0800
 	},
+	// 640x480 @ 75Hz (VESA) hsync: 37.5kHz
+	// ModeLine "640x480"    31.5  640  656  720  840    480  481  484  500
+	//                                16   64  <200         1    3   <20
 	{
 		.pixel_clock = 3150,
 
@@ -46,6 +95,8 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 
 		.established_timing = 0x0400
 	},
+	// 800x600 @ 56Hz (VESA) hsync: 35.2kHz
+	// ModeLine "800x600"    36.0  800  824  896 1024    600  601  603  625
 	{
 		.pixel_clock = 3600,
 
@@ -61,6 +112,8 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 
 		.established_timing = 0x0200
 	},
+	// 800x600 @ 60Hz (VESA) hsync: 37.9kHz
+	// ModeLine "800x600"    40.0  800  840  968 1056    600  601  605  628
 	{
 		.pixel_clock = 4000,
 
@@ -76,6 +129,8 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 
 		.established_timing = 0x0100
 	},
+	// 800x600 @ 72Hz (VESA) hsync: 48.1kHz
+	// ModeLine "800x600"    50.0  800  856  976 1040    600  637  643  666
 	{
 		.pixel_clock = 5000,
 
@@ -91,6 +146,8 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 
 		.established_timing = 0x0080
 	},
+	// 800x600 @ 75Hz (VESA) hsync: 46.9kHz
+	// ModeLine "800x600"    49.5  800  816  896 1056    600  601  604  625
 	{
 		.pixel_clock = 4950,
 
@@ -106,6 +163,8 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 
 		.established_timing = 0x0040
 	},
+	// 1024x768 @ 60Hz (VESA) hsync: 48.4kHz
+	// ModeLine "1024x768"   65.0 1024 1048 1184 1344    768  771  777  806
 	{
 		.pixel_clock = 6500,
 
@@ -121,6 +180,8 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 
 		.established_timing = 0x0008
 	},
+	// 1024x768 @ 70Hz (VESA) hsync: 56.5kHz
+	// ModeLine "1024x768"   75.0 1024 1048 1184 1328    768  771  777  806
 	{
 		.pixel_clock = 7500,
 
@@ -136,6 +197,8 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 
 		.established_timing = 0x0004
 	},
+	// 1024x768 @ 75Hz (VESA) hsync: 60.0kHz
+	// ModeLine "1024x768"   78.8 1024 1040 1136 1312    768  769  772  800
 	{
 		.pixel_clock = 7880,
 
@@ -151,6 +214,8 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 
 		.established_timing = 0x0002
 	},
+	// 720p @ 60Hz
+	//1280	720	60 Hz	45 kHz		ModeLine "1280x720"		74.25  1280 1390 1430 1650 720 725 730 750 +HSync +VSync
 	{
 		.pixel_clock = 7425,
 
@@ -162,6 +227,28 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 		.v_active = 720,
 		.v_blanking = 30,
 		.v_sync_offset = 20,
+		.v_sync_width = 5
+	},
+	// Other 720p60 modes not enabled...
+	//1280	720	60 Hz	44.9576 kHz	ModeLine "1280x720"		74.18  1280 1390 1430 1650 720 725 730 750 +HSync +VSync
+	//1280	720	59.94			ModeLine "ATSC-720-59.94p"	74.176 1280 1320 1376 1650 720 722 728 750
+	//1280	720	60 Hz			ModeLine "ATSC-720-60p"		74.25  1280 1320 1376 1650 720 722 728 750
+
+	// 720p @ 50Hz
+	// 19 720p50    16:9     1:1        1280x720p @ 50 Hz
+	//1280	720	50 Hz	37.5 kHz	ModeLine "1280x720"		74.25  1280 1720 1760 1980 720 725 730 750 +HSync +VSync
+	//                                                                                440   40  <700      5   5   <30
+	{
+		.pixel_clock = 7425,
+
+		.h_active = 1280,
+		.h_blanking = 700,
+		.h_sync_offset = 440,
+		.h_sync_width = 40,
+
+		.v_active = 720,
+		.v_blanking = 30,
+		.v_sync_offset = 5,
 		.v_sync_width = 5
 	}
 };
