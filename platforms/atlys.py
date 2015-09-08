@@ -113,14 +113,14 @@ _io = [
     # NET "sw<5>" LOC = "R5";  # Bank = 2, Pin name = IO_L48P_D7,             Sch name = SW5
     # NET "sw<6>" LOC = "T5";  # Bank = 2, Pin name = IO_L48N_RDWR_B_VREF_2,  Sch name = SW6
     # NET "sw<7>" LOC = "E4";  # Bank = 3, Pin name = IO_L54P_M3RESET,        Sch name = SW7
-    ("user_dip", 0, Pins("A10"), Misc("PULLDOWN"), IOStandard("LVCMOS33")),
-    ("user_dip", 1, Pins("D14"), Misc("PULLDOWN"), IOStandard("LVCMOS33")),
-    ("user_dip", 2, Pins("C14"), Misc("PULLDOWN"), IOStandard("LVCMOS33")),
-    ("user_dip", 3, Pins("P15"), Misc("PULLDOWN"), IOStandard("LVCMOS33")),
-    ("user_dip", 4, Pins("P12"), Misc("PULLDOWN"), IOStandard("LVCMOS33")),
-    ("user_dip", 5, Pins("R5"), Misc("PULLDOWN"), IOStandard("LVCMOS33")),
-    ("user_dip", 6, Pins("T5"), Misc("PULLDOWN"), IOStandard("LVCMOS33")),
-    ("user_dip", 7, Pins("E4"), Misc("PULLDOWN"), IOStandard("LVCMOS18")),
+    ("user_dip", 0, Pins("A10"), IOStandard("LVCMOS33")),
+    ("user_dip", 1, Pins("D14"), IOStandard("LVCMOS33")),
+    ("user_dip", 2, Pins("C14"), IOStandard("LVCMOS33")),
+    ("user_dip", 3, Pins("P15"), IOStandard("LVCMOS33")),
+    ("user_dip", 4, Pins("P12"), IOStandard("LVCMOS33")),
+    ("user_dip", 5, Pins("R5"), IOStandard("LVCMOS33")),
+    ("user_dip", 6, Pins("T5"), IOStandard("LVCMOS33")),
+    ("user_dip", 7, Pins("E4"), IOStandard("LVCMOS18")),
 
     ## TEMAC Ethernet MAC - FIXME
     # 10/100/1000 Ethernet PHY
