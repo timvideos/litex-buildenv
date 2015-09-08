@@ -471,6 +471,9 @@ void ci_service(void)
 				source = VIDEO_IN_HDMI_IN1;
 			else if(strcmp(token, "pattern") == 0)
 				source = VIDEO_IN_PATTERN;
+			else
+				printf("Unknown video source: '%s'\n", token);
+
 			/* get video sink */
 			token = get_token(&str);
 			sink = -1;
@@ -480,7 +483,13 @@ void ci_service(void)
 				sink = VIDEO_OUT_HDMI_OUT1;
 			else if(strcmp(token, "encoder") == 0)
 				sink = VIDEO_OUT_ENCODER;
-			video_matrix_connect(source, sink);
+			else
+				printf("Unknown video sink: '%s'\n", token);
+
+			if (source >= 0 && sink >= 0)
+				video_matrix_connect(source, sink);
+		} else {
+			help_video_matrix(0);
 		}
 	}
 	else if(strcmp(token, "video_mode") == 0) {
