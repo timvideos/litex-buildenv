@@ -125,9 +125,10 @@ static void status_print(void)
 	printf("output0: ");
 	if(hdmi_out0_fi_enable_read())
 		printf(
-			"%dx%d from %s",
+			"%dx%d@%dHz from %s",
 			processor_h_active,
 			processor_v_active,
+			processor_refresh,
 			processor_get_source_name(processor_hdmi_out0_source));
 	else
 		printf("off");
@@ -136,9 +137,10 @@ static void status_print(void)
 	printf("output1: ");
 	if(hdmi_out1_fi_enable_read())
 		printf(
-			"%dx%d from %s",
+			"%dx%d@%uHz from %s",
 			processor_h_active,
 			processor_v_active,
+			processor_refresh,
 			processor_get_source_name(processor_hdmi_out1_source));
 	else
 		printf("off");

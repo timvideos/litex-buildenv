@@ -362,6 +362,7 @@ void processor_start(int mode)
 	processor_mode = mode;
 	processor_h_active = m->h_active;
 	processor_v_active = m->v_active;
+	processor_refresh = calculate_refresh_rate(m);
 
 	hdmi_out0_fi_enable_write(0);
 	hdmi_out1_fi_enable_write(0);
