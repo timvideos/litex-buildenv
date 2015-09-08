@@ -246,3 +246,10 @@ void generate_edid(void *out,
 
 	e->checksum = compute_checksum(e);
 }
+
+unsigned calculate_refresh_rate(const struct video_timing* mode)
+{
+	unsigned int refresh_span;
+	refresh_span = (mode->h_active + mode->h_blanking)*(mode->v_active + mode->v_blanking);
+	return mode->pixel_clock*10000/refresh_span;
+}

@@ -17,95 +17,67 @@
 
 int status_enabled;
 
-static void help_banner(void)
+static void help_video_matrix(void)
 {
-	puts("Available commands:");
-}
-
-static void help_video_matrix(char banner)
-{
-	if(banner)
-		help_banner();
 	puts("video_matrix list              - list available video sinks and sources");
 	puts("video_matrix connect <source>  - connect video source to video sink");
 	puts("                     <sink>");
-	puts("");
 }
 
-static void help_video_mode(char banner)
+static void help_video_mode(void)
 {
-	if(banner)
-		help_banner();
 	puts("video_mode list                - list available video modes");
 	puts("video_mode <mode>              - select video mode");
-	puts("");
 }
 
-static void help_hdp_toggle(char banner)
+static void help_hdp_toggle(void)
 {
-	if(banner)
-		help_banner();
 	puts("hdp_toggle <source>            - toggle HDP on source for EDID rescan");
-	puts("");
 }
 
-static void help_output0(char banner)
+static void help_output0(void)
 {
-	if(banner)
-		help_banner();
 	puts("output0 on                   - enable output0");
 	puts("output0 off                  - disable output0");
-	puts("");
 }
 
-static void help_output1(char banner)
+static void help_output1(void)
 {
-	if(banner)
-		help_banner();
 	puts("output1 on                   - enable output1");
 	puts("output1 off                  - disable output1");
-	puts("");
 }
 
 #ifdef ENCODER_BASE
-static void help_encoder(char banner)
+static void help_encoder(void)
 {
-	if(banner)
-		help_banner();
 	puts("encoder on                     - enable encoder");
 	puts("encoder off                    - disable encoder");
 	puts("encoder quality <quality>      - select quality");
-
-	puts("");
 }
 #endif
 
-static void help_debug(char banner)
+static void help_debug(void)
 {
-	if(banner)
-		help_banner();
 	puts("debug pll                      - dump pll configuration");
 	puts("debug ddr                      - show DDR bandwidth");
-	puts("");
 }
 
 static void help(void)
 {
-	help_banner();
 	puts("help                           - this command");
 	puts("version                        - firmware/gateware version");
 	puts("reboot                         - reboot CPU");
 	puts("status <on/off>                - enable/disable status message (same with by pressing enter)");
 	puts("");
-	help_video_matrix(0);
-	help_video_mode(0);
-	help_hdp_toggle(0);
-	help_output0(0);
-	help_output1(0);
+	help_video_matrix();
+	help_video_mode();
+	help_hdp_toggle();
+	help_output0();
+	help_output1();
 #ifdef ENCODER_BASE
-	help_encoder(0);
+	help_encoder();
 #endif
-	help_debug(0);
+	help_debug();
 }
 
 static void version(void)
@@ -138,28 +110,38 @@ static void debug_ddr(void);
 
 static void status_print(void)
 {
-	printf("input0:  %dx%d",	hdmi_in0_resdetection_hres_read(),
-								hdmi_in0_resdetection_vres_read());
+	printf(
+		"input0:  %dx%d",
+		hdmi_in0_resdetection_hres_read(),
+		hdmi_in0_resdetection_vres_read());
 	printf("\n");
 
-	printf("input1:  %dx%d",	hdmi_in1_resdetection_hres_read(),
-								hdmi_in1_resdetection_vres_read());
+	printf(
+		"input1:  %dx%d",
+		hdmi_in1_resdetection_hres_read(),
+		hdmi_in1_resdetection_vres_read());
 	printf("\n");
 
 	printf("output0: ");
 	if(hdmi_out0_fi_enable_read())
-		printf("%dx%d from %s",	processor_h_active,
-								processor_v_active,
-								processor_get_source_name(processor_hdmi_out0_source));
+		printf(
+			"%dx%d@%dHz from %s",
+			processor_h_active,
+			processor_v_active,
+			processor_refresh,
+			processor_get_source_name(processor_hdmi_out0_source));
 	else
 		printf("off");
 	printf("\n");
 
 	printf("output1: ");
 	if(hdmi_out1_fi_enable_read())
-		printf("%dx%d from %s",	processor_h_active,
-								processor_v_active,
-							 	processor_get_source_name(processor_hdmi_out1_source));
+		printf(
+			"%dx%d@%uHz from %s",
+			processor_h_active,
+			processor_v_active,
+			processor_refresh,
+			processor_get_source_name(processor_hdmi_out1_source));
 	else
 		printf("off");
 	printf("\n");
@@ -167,7 +149,8 @@ static void status_print(void)
 #ifdef ENCODER_BASE
 	printf("encoder: ");
 	if(encoder_enabled) {
-		printf("%dx%d @ %dfps (%dMbps) from %s (q: %d)",
+		printf(
+			"%dx%d @ %dfps (%dMbps) from %s (q: %d)",
 			processor_h_active,
 			processor_v_active,
 			encoder_fps,
@@ -424,25 +407,27 @@ void ci_service(void)
 	token = get_token(&str);
 
 	if(strcmp(token, "help") == 0) {
+		puts("Available commands:");
 		token = get_token(&str);
 		if(strcmp(token, "video_matrix") == 0)
-			help_video_matrix(1);
+			help_video_matrix();
 		else if(strcmp(token, "video_mode") == 0)
-			help_video_mode(1);
+			help_video_mode();
 		else if(strcmp(token, "hdp_toggle") == 0)
-			help_hdp_toggle(1);
+			help_hdp_toggle();
 		else if(strcmp(token, "output0") == 0)
-			help_output0(1);
+			help_output0();
 		else if(strcmp(token, "output1") == 0)
-			help_output1(1);
+			help_output1();
 #ifdef ENCODER_BASE
 		else if(strcmp(token, "encoder") == 0)
-			help_encoder(1);
+			help_encoder();
 #endif
 		else if(strcmp(token, "debug") == 0)
-			help_debug(1);
+			help_debug();
 		else
 			help();
+		puts("");
 	}
 	else if(strcmp(token, "reboot") == 0) reboot();
 	else if(strcmp(token, "version") == 0) version();
@@ -462,6 +447,9 @@ void ci_service(void)
 				source = VIDEO_IN_HDMI_IN1;
 			else if(strcmp(token, "pattern") == 0)
 				source = VIDEO_IN_PATTERN;
+			else
+				printf("Unknown video source: '%s'\n", token);
+
 			/* get video sink */
 			token = get_token(&str);
 			sink = -1;
@@ -471,7 +459,15 @@ void ci_service(void)
 				sink = VIDEO_OUT_HDMI_OUT1;
 			else if(strcmp(token, "encoder") == 0)
 				sink = VIDEO_OUT_ENCODER;
-			video_matrix_connect(source, sink);
+			else
+				printf("Unknown video sink: '%s'\n", token);
+
+			if (source >= 0 && sink >= 0)
+				video_matrix_connect(source, sink);
+			else
+				help_video_matrix();
+		} else {
+			help_video_matrix();
 		}
 	}
 	else if(strcmp(token, "video_mode") == 0) {
@@ -491,6 +487,8 @@ void ci_service(void)
 			output0_on();
 		else if(strcmp(token, "off") == 0)
 			output0_off();
+		else
+			help_output0();
 	}
 	else if(strcmp(token, "output1") == 0) {
 		token = get_token(&str);
@@ -498,6 +496,8 @@ void ci_service(void)
 			output1_on();
 		else if(strcmp(token, "off") == 0)
 			output1_off();
+		else
+			help_output1();
 	}
 #ifdef ENCODER_BASE
 	else if(strcmp(token, "encoder") == 0) {
@@ -508,6 +508,8 @@ void ci_service(void)
 			encoder_off();
 		else if(strcmp(token, "quality") == 0)
 			encoder_configure_quality(atoi(get_token(&str)));
+		else
+			help_encoder();
 	}
 #endif
 	else if(strcmp(token, "status") == 0) {
@@ -525,10 +527,11 @@ void ci_service(void)
 			debug_pll();
 		else if(strcmp(token, "ddr") == 0)
 			debug_ddr();
-	} else {
-		if(status_enabled)
-			status_disable();
+		else
+			help_debug();
 	}
+	else
+		printf("Unknown command: '%s'\n", token);
 
 	ci_prompt();
 }

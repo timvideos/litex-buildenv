@@ -1,7 +1,7 @@
 #ifndef __PROCESSOR_H
 #define __PROCESSOR_H
 
-#define PROCESSOR_MODE_COUNT 10
+#define PROCESSOR_MODE_COUNT 11
 #define PROCESSOR_MODE_DESCLEN 32
 
 enum {
@@ -19,6 +19,7 @@ enum {
 extern int processor_mode;
 int processor_h_active;
 int processor_v_active;
+int processor_refresh;
 int processor_hdmi_out0_source;
 int processor_hdmi_out1_source;
 int processor_encoder_source;
