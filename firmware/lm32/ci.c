@@ -37,14 +37,14 @@ static void help_hdp_toggle(void)
 
 static void help_output0(void)
 {
-	puts("output0 on                   - enable output0");
-	puts("output0 off                  - disable output0");
+	puts("output0 on                     - enable output0");
+	puts("output0 off                    - disable output0");
 }
 
 static void help_output1(void)
 {
-	puts("output1 on                   - enable output1");
-	puts("output1 off                  - disable output1");
+	puts("output1 on                     - enable output1");
+	puts("output1 off                    - disable output1");
 }
 
 #ifdef ENCODER_BASE
@@ -70,12 +70,18 @@ static void help(void)
 	puts("status <on/off>                - enable/disable status message (same with by pressing enter)");
 	puts("");
 	help_video_matrix();
+	puts("");
 	help_video_mode();
+	puts("");
 	help_hdp_toggle();
+	puts("");
 	help_output0();
+	puts("");
 	help_output1();
+	puts("");
 #ifdef ENCODER_BASE
 	help_encoder();
+	puts("");
 #endif
 	help_debug();
 }
@@ -529,9 +535,10 @@ void ci_service(void)
 			debug_ddr();
 		else
 			help_debug();
+	} else {
+		if(status_enabled)
+			status_disable();
 	}
-	else
-		printf("Unknown command: '%s'\n", token);
 
 	ci_prompt();
 }
