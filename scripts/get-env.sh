@@ -33,7 +33,6 @@ set -e
 	sudo apt-get install -y iverilog
 )
 
-
 # Get migen
 (
 	cd $BUILD_DIR
@@ -82,27 +81,16 @@ set -e
 (
 	cd $SETUP_DIR
 	sudo cp -uf 52-hdmi2usb.rules /etc/udev/rules.d/
+	sudo adduser $USER dialout
 )
-
-# build exar-uart-driver
+# Get the vizzini module needed for the Atlys board
 (
-	cd $BUILD_DIR
-	# Build the vizzini-source package
-	rm -fr exar-uart-driver
-	git clone https://github.com/mithro/exar-uart-driver
-	cd exar-uart-driver
-	sudo apt-get install linux-headers-generic debhelper module-assistant
-	dpkg-buildpackage -rfakeroot
-	# Install the vizzini-source package
-	sudo dpkg --install ../vizzini-source_*_all.deb
-	sudo apt-get -f install
-	# Use module assistant to build and install a package containing modules for
-	# your current kernel.
-	sudo m-a b-i vizzini
+	sudo add-apt-repository ppa:timvideos/fpga-support
+	sudo apt-get update
+	sudo apt-get install vizzini-dkms
 )
 
 sudo apt-get install -y gtkwave
 
 echo "Completed.  To load environment:"
 echo "source HDMI2USB-misoc-firmware/scripts/setup-env.sh"
-
