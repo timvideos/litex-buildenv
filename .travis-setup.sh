@@ -2,9 +2,11 @@
 
 set -x
 set -e
-df -h
 
 sudo apt-get install -y realpath
 
 scripts/get-env.sh
+
+set +x
+set +e
 . scripts/setup-env.sh

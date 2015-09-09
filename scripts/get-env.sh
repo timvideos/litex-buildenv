@@ -1,28 +1,29 @@
-#! /bin/bash
+#!/bin/bash
 
-SETUP_SRC=$(realpath ${BASH_SOURCE[@]})
+
+SETUP_SRC=$(realpath ${BASH_SOURCE[0]})
 SETUP_DIR=$(dirname $SETUP_SRC)
-USER=$(whoami)
-
-BUILD_DIR=$SETUP_DIR/../build
+TOP_DIR=$(realpath $SETUP_DIR/..)
+BUILD_DIR=$TOP_DIR/build
 CONDA_DIR=$SETUP_DIR/build/conda
-OUTPUT_DIR=$GNU_DIR/output
-mkdir -p $OUTPUT_DIR
 
-export PATH=$OUTPUT_DIR/bin:$PATH
 
 set -x
 set -e
 
+mkdir -p $BUILD_DIR
+
 # Get and build gcc+binutils for the target
+export PATH=$CONDA_DIR/bin:$PATH
 (
 	if [ ! -d $CONDA_DIR ]; then
 		cd $BUILD_DIR
 		wget -c https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 		chmod a+x Miniconda3-latest-Linux-x86_64.sh
 	        ./Miniconda3-latest-Linux-x86_64.sh -p $CONDA_DIR -b
+		conda config --set always_yes yes --set changeps1 no
+		conda update -q conda
 	fi
-	export PATH=$CONDA_DIR/bin:$PATH
 	conda config --add channels timvideos
 	conda install binutils-lm32-elf
 	conda install gcc-lm32-elf
@@ -38,11 +39,13 @@ set -e
 	cd $BUILD_DIR
 	rm -fr migen
 	git clone https://github.com/m-labs/migen.git
-	sudo python3 setup.py install
-	cd migen/vpi
+	cd migen
+	cd vpi
 	make all
 	sudo make install
 )
+export PYTHONPATH=$BUILD_DIR/migen:$PYTHONPATH
+python3 -c "import migen"
 
 # Get misoc
 (
@@ -56,15 +59,17 @@ set -e
 	make
 	sudo make install
 )
+export PYTHONPATH=$BUILD_DIR/misoc:$PYTHONPATH
+python3 -c "import misoclib"
 
 # Get liteeth
 (
 	cd $BUILD_DIR
 	rm -fr liteeth
 	git clone https://github.com/enjoy-digital/liteeth.git
-	cd liteeth
-	sudo python3 setup.py install
 )
+export PYTHONPATH=$BUILD_DIR/liteeth:$PYTHONPATH
+python3 -c "import liteeth"
 
 # Get libfpgalink
 (
@@ -77,6 +82,8 @@ set -e
 	cd libfpgalink
 	make deps
 )
+
+USER=$(whoami)
 # Load custom udev rules
 (
 	cd $SETUP_DIR
@@ -85,9 +92,10 @@ set -e
 )
 # Get the vizzini module needed for the Atlys board
 (
-	sudo add-apt-repository ppa:timvideos/fpga-support
+	sudo apt-get install -y software-properties-common
+	sudo add-apt-repository -y ppa:timvideos/fpga-support
 	sudo apt-get update
-	sudo apt-get install vizzini-dkms
+	sudo apt-get install -y vizzini-dkms
 )
 
 sudo apt-get install -y gtkwave
