@@ -3,7 +3,7 @@ from migen.fhdl.specials import Tristate
 from migen.genlib.cdc import MultiReg
 from migen.genlib.fsm import FSM, NextState
 from migen.genlib.misc import chooser
-from migen.bank.description import CSR, CSRStorage, CSRStatus, AutoCSR
+from migen.bank.description import CSRStorage, CSRStatus, AutoCSR
 
 _default_edid = [
     0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x3D, 0x17, 0x32, 0x12, 0x2A, 0x6A, 0xBF, 0x00,
@@ -46,6 +46,13 @@ class EDID(Module, AutoCSR):
             MultiReg(_sda_i_async, sda_i)
         ]
 
+        # for debug
+        self.scl = scl_raw
+        self.sda_i = sda_i
+        self.sda_o = Signal()
+        self.comb += self.sda_o.eq(~_sda_drv_reg)
+        self.sda_oe = _sda_drv_reg
+
         scl_i = Signal()
         samp_count = Signal(6)
         samp_carry = Signal()
@@ -86,6 +93,9 @@ class EDID(Module, AutoCSR):
             )
         ]
 
+        self.din = din
+        self.counter = counter
+
         is_read = Signal()
         update_is_read = Signal()
         self.sync += If(update_is_read, is_read.eq(din[0]))
@@ -114,13 +124,7 @@ class EDID(Module, AutoCSR):
         self.sync += If(data_drv_en, data_drv.eq(1)).Elif(data_drv_stop, data_drv.eq(0))
         self.sync += If(data_drv_en, chooser(rdport.dat_r, counter, data_bit, 8, reverse=True))
 
-        fsm = FSM()
-        self.submodules += fsm
-
-        # debug signals
-        debug_write = Signal()
-        debug_read = Signal()
-        debug_invalid = Signal()
+        self.submodules.fsm = fsm = FSM()
 
         fsm.act("WAIT_START")
         fsm.act("RCV_ADDRESS",
@@ -129,7 +133,6 @@ class EDID(Module, AutoCSR):
                     update_is_read.eq(1),
                     NextState("ACK_ADDRESS0")
                 ).Else(
-                    debug_invalid.eq(1),
                     NextState("WAIT_START")
                 )
             )
@@ -167,10 +170,7 @@ class EDID(Module, AutoCSR):
         )
         fsm.act("ACK_OFFSET2",
             zero_drv.eq(1),
-            If(~scl_i,
-                debug_write.eq(1),
-                NextState("RCV_ADDRESS")
-            )
+            If(~scl_i, NextState("RCV_ADDRESS"))
         )
 
         fsm.act("READ",
@@ -186,7 +186,6 @@ class EDID(Module, AutoCSR):
         fsm.act("ACK_READ",
             If(scl_rising,
                 oc_inc.eq(1),
-                debug_read.eq(1),
                 If(sda_i,
                     NextState("WAIT_START")
                 ).Else(
@@ -199,28 +198,3 @@ class EDID(Module, AutoCSR):
             fsm.act(state, If(start, NextState("RCV_ADDRESS")))
             fsm.act(state, If(~self._hpd_en.storage, NextState("WAIT_START")))
 
-
-        # debug logic
-        self._debug_clear = CSR()
-        self._debug_nwrites = CSRStatus(16)
-        self._debug_nreads = CSRStatus(16)
-        self._debug_ninvalids = CSRStatus(16)
-
-        debug_clear = self._debug_clear.r & self._debug_clear.re
-        debug_nwrites = self._debug_nwrites.status
-        debug_nreads = self._debug_nreads.status
-        debug_ninvalids = self._debug_ninvalids.status
-
-        self.sync += [
-            If(debug_clear,
-                debug_nwrites.eq(0),
-                debug_nreads.eq(0),
-                debug_ninvalids.eq(0)
-            ).Elif(debug_write,
-                debug_nwrites.eq(debug_nwrites + 1)
-            ).Elif(debug_read,
-                debug_nreads.eq(debug_nreads + 1)
-            ).Elif(debug_invalid,
-                debug_ninvalids.eq(debug_ninvalids + 1)
-            )
-        ]

@@ -60,8 +60,6 @@ static void help_debug(void)
 {
 	puts("debug pll                      - dump pll configuration");
 	puts("debug ddr                      - show DDR bandwidth");
-	puts("debug edid                     - show EDID debug counters");
-	puts("debug edid_reset               - reset EDID debug counters");
 }
 
 static void help(void)
@@ -343,27 +341,6 @@ static void debug_ddr(void)
 	printf("read:%5dMbps  write:%5dMbps  all:%5dMbps\n", rdb, wrb, rdb + wrb);
 }
 
-static void debug_edid(void)
-{
-	printf("hdmi_in0:\n");
-	printf("nwrites: %d\n", hdmi_in0_edid_debug_nwrites_read());
-	printf("nreads: %d\n", hdmi_in0_edid_debug_nreads_read());
-	printf("ninvalids: %d\n", hdmi_in0_edid_debug_ninvalids_read());
-	puts("");
-	printf("hdmi_in1:\n");
-	printf("nwrites: %d\n", hdmi_in1_edid_debug_nwrites_read());
-	printf("nreads: %d\n", hdmi_in1_edid_debug_nreads_read());
-	printf("ninvalids: %d\n", hdmi_in1_edid_debug_ninvalids_read());
-}
-
-static void debug_edid_reset(void)
-{
-	printf("Reseting EDID debug\n");
-	hdmi_in0_edid_debug_clear_write(1);
-	hdmi_in1_edid_debug_clear_write(1);
-}
-
-
 static char *readstr(void)
 {
 	char c[2];
@@ -556,10 +533,6 @@ void ci_service(void)
 			debug_pll();
 		else if(strcmp(token, "ddr") == 0)
 			debug_ddr();
-		else if(strcmp(token, "edid") == 0)
-			debug_edid();
-		else if(strcmp(token, "edid_reset") == 0)
-			debug_edid_reset();
 		else
 			help_debug();
 	} else {
