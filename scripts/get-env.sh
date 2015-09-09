@@ -4,12 +4,8 @@ SETUP_SRC=$(realpath ${BASH_SOURCE[@]})
 SETUP_DIR=$(dirname $SETUP_SRC)
 USER=$(whoami)
 
-BINUTILS_URL=https://ftp.gnu.org/gnu/binutils/binutils-2.25.tar.gz
-GCC_URL=https://ftp.gnu.org/gnu/gcc/gcc-4.9.3/gcc-4.9.3.tar.bz2
-TARGET=lm32-elf
-
 BUILD_DIR=$SETUP_DIR/../build
-GNU_DIR=$BUILD_DIR/gnu
+CONDA_DIR=$SETUP_DIR/build/conda
 OUTPUT_DIR=$GNU_DIR/output
 mkdir -p $OUTPUT_DIR
 
@@ -18,42 +14,18 @@ export PATH=$OUTPUT_DIR/bin:$PATH
 set -x
 set -e
 
-sudo apt-get install -y build-essential wget
-sudo adduser $USER dialout
-
 # Get and build gcc+binutils for the target
 (
-	cd $GNU_DIR
-	# Download binutils + gcc
-	(
-		mkdir -p download
-		cd download
-		wget -c $BINUTILS_URL
-		wget -c $GCC_URL
-	)
-
-	# Build binutils for target
-	sudo apt-get install -y texinfo
-	(
-		tar -zxf ./download/binutils-*.tar.gz
-		cd binutils-*
-		mkdir -p build && cd build
-		../configure --prefix=$OUTPUT_DIR --target=$TARGET
-		make
-		make install
-	)
-
-	# Build gcc for target
-	sudo apt-get install -y libgmp-dev libmpfr-dev libmpc-dev
-	(
-		tar -jxf ./download/gcc-*.tar.bz2
-		cd gcc-*
-		rm -rf libstdc++-v3
-		mkdir -p build && cd build
-		../configure --prefix=$OUTPUT_DIR --target=$TARGET --enable-languages="c,c++" --disable-libgcc --disable-libssp
-		make
-		make install
-	)
+	if [ ! -d $CONDA_DIR ]; then
+		cd $BUILD_DIR
+		wget -c https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+		chmod a+x Miniconda3-latest-Linux-x86_64.sh
+	        ./Miniconda3-latest-Linux-x86_64.sh -p $CONDA_DIR -b
+	fi
+	export PATH=$CONDA_DIR/bin:$PATH
+	conda config --add channels timvideos
+	conda install binutils-lm32-elf
+	conda install gcc-lm32-elf
 )
 
 # Get iverilog
