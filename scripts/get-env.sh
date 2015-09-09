@@ -1,59 +1,32 @@
-#! /bin/bash
+#!/bin/bash
 
-SETUP_SRC=$(realpath ${BASH_SOURCE[@]})
+
+SETUP_SRC=$(realpath ${BASH_SOURCE[0]})
 SETUP_DIR=$(dirname $SETUP_SRC)
-USER=$(whoami)
+TOP_DIR=$(realpath $SETUP_DIR/..)
+BUILD_DIR=$TOP_DIR/build
+CONDA_DIR=$SETUP_DIR/build/conda
 
-BINUTILS_URL=https://ftp.gnu.org/gnu/binutils/binutils-2.25.tar.gz
-GCC_URL=https://ftp.gnu.org/gnu/gcc/gcc-4.9.3/gcc-4.9.3.tar.bz2
-TARGET=lm32-elf
-
-BUILD_DIR=$SETUP_DIR/../build
-GNU_DIR=$BUILD_DIR/gnu
-OUTPUT_DIR=$GNU_DIR/output
-mkdir -p $OUTPUT_DIR
-
-export PATH=$OUTPUT_DIR/bin:$PATH
 
 set -x
 set -e
 
-sudo apt-get install -y build-essential wget
-sudo adduser $USER dialout
+mkdir -p $BUILD_DIR
 
 # Get and build gcc+binutils for the target
+export PATH=$CONDA_DIR/bin:$PATH
 (
-	cd $GNU_DIR
-	# Download binutils + gcc
-	(
-		mkdir -p download
-		cd download
-		wget -c $BINUTILS_URL
-		wget -c $GCC_URL
-	)
-
-	# Build binutils for target
-	sudo apt-get install -y texinfo
-	(
-		tar -zxvf ./download/binutils-*.tar.gz
-		cd binutils-*
-		mkdir -p build && cd build
-		../configure --prefix=$OUTPUT_DIR --target=$TARGET
-		make
-		make install
-	)
-
-	# Build gcc for target
-	sudo apt-get install -y libgmp-dev libmpfr-dev libmpc-dev
-	(
-		tar -jxvf ./download/gcc-*.tar.bz2
-		cd gcc-*
-		rm -rf libstdc++-v3
-		mkdir -p build && cd build
-		../configure --prefix=$OUTPUT_DIR --target=$TARGET --enable-languages="c,c++" --disable-libgcc --disable-libssp
-		make
-		make install
-	)
+	if [ ! -d $CONDA_DIR ]; then
+		cd $BUILD_DIR
+		wget -c https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+		chmod a+x Miniconda3-latest-Linux-x86_64.sh
+	        ./Miniconda3-latest-Linux-x86_64.sh -p $CONDA_DIR -b
+		conda config --set always_yes yes --set changeps1 no
+		conda update -q conda
+	fi
+	conda config --add channels timvideos
+	conda install binutils-lm32-elf
+	conda install gcc-lm32-elf
 )
 
 # Get iverilog
@@ -61,17 +34,18 @@ sudo adduser $USER dialout
 	sudo apt-get install -y iverilog
 )
 
-
 # Get migen
 (
 	cd $BUILD_DIR
 	rm -fr migen
 	git clone https://github.com/m-labs/migen.git
-	sudo python3 setup.py install
-	cd migen/vpi
+	cd migen
+	cd vpi
 	make all
 	sudo make install
 )
+export PYTHONPATH=$BUILD_DIR/migen:$PYTHONPATH
+python3 -c "import migen"
 
 # Get misoc
 (
@@ -85,15 +59,17 @@ sudo adduser $USER dialout
 	make
 	sudo make install
 )
+export PYTHONPATH=$BUILD_DIR/misoc:$PYTHONPATH
+python3 -c "import misoclib"
 
 # Get liteeth
 (
 	cd $BUILD_DIR
 	rm -fr liteeth
 	git clone https://github.com/enjoy-digital/liteeth.git
-	cd liteeth
-	sudo python3 setup.py install
 )
+export PYTHONPATH=$BUILD_DIR/liteeth:$PYTHONPATH
+python3 -c "import liteeth"
 
 # Get libfpgalink
 (
@@ -106,31 +82,23 @@ sudo adduser $USER dialout
 	cd libfpgalink
 	make deps
 )
+
+USER=$(whoami)
 # Load custom udev rules
 (
 	cd $SETUP_DIR
 	sudo cp -uf 52-hdmi2usb.rules /etc/udev/rules.d/
+	sudo adduser $USER dialout
 )
-
-# build exar-uart-driver
+# Get the vizzini module needed for the Atlys board
 (
-	cd $BUILD_DIR
-	# Build the vizzini-source package
-	rm -fr exar-uart-driver
-	git clone https://github.com/mithro/exar-uart-driver
-	cd exar-uart-driver
-	sudo apt-get install linux-headers-generic debhelper module-assistant
-	dpkg-buildpackage -rfakeroot
-	# Install the vizzini-source package
-	sudo dpkg --install ../vizzini-source_*_all.deb
-	sudo apt-get -f install
-	# Use module assistant to build and install a package containing modules for
-	# your current kernel.
-	sudo m-a b-i vizzini
+	sudo apt-get install -y software-properties-common
+	sudo add-apt-repository -y ppa:timvideos/fpga-support
+	sudo apt-get update
+	sudo apt-get install -y vizzini-dkms
 )
 
 sudo apt-get install -y gtkwave
 
 echo "Completed.  To load environment:"
 echo "source HDMI2USB-misoc-firmware/scripts/setup-env.sh"
-
