@@ -27,17 +27,11 @@ int main(void)
 	ci_prompt();
 	config_init();
 	time_init();
-#ifdef ENCODER_BASE
-		encoder_enable(0);
-#endif
 	processor_init();
 	processor_start(config_get(CONFIG_KEY_RESOLUTION));
 	while(1) {
 		processor_service();
 		ci_service();
-#ifdef ENCODER_BASE
-		encoder_service();
-#endif
 /* XXX FIX DDR conflict between DMA and L2 cache */
 #if 0
 		pattern_service();

@@ -10,6 +10,7 @@
 #include "hdmi_in0.h"
 #include "hdmi_in1.h"
 #include "pattern.h"
+#include "encoder.h"
 #include "edid.h"
 #include "pll.h"
 #include "processor.h"
@@ -355,6 +356,9 @@ void processor_init(void)
 	processor_hdmi_out0_source = VIDEO_IN_HDMI_IN0;
 	processor_hdmi_out1_source = VIDEO_IN_HDMI_IN0;
 	processor_encoder_source = VIDEO_IN_HDMI_IN0;
+#ifdef ENCODER_BASE
+		encoder_enable(1);
+#endif
 }
 
 void processor_start(int mode)
@@ -447,4 +451,7 @@ void processor_service(void)
 	hdmi_in0_service();
 	hdmi_in1_service();
 	processor_update();
+#ifdef ENCODER_BASE
+		encoder_service();
+#endif
 }
