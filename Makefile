@@ -36,7 +36,13 @@ help:
 	@echo "   PROG=programmer      (current: $(PROG))"
 	@echo " SERIAL=serial port     (current: $(SERIAL))"
 
-gateware: lm32-firmware
+ifeq ($(TARGET), base)
+  GATEWARE_DEP =
+else
+  GATEWARE_DEP = lm32-firmware
+endif
+
+gateware: $(GATEWARE_DEP)
 	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv clean
 	cp hdl/encoder/vhdl/header.hex $(MSCDIR)/build/header.hex
 	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream
