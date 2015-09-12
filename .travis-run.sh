@@ -2,24 +2,27 @@
 
 . scripts/setup-env.sh
 
-set -x
+set +x
+set -e
 
 BOARDS="atlys opsis"
-TARGETS="hdmi2usb"
+TARGETS="base hdmi2usb"
 
 for BOARD in $BOARDS; do
 	for TARGET in $TARGETS; do
-		echo "---------------------------------------------"
+		echo "============================================="
 		echo "- $BOARD $TARGET"
 		echo "---------------------------------------------"
-
 		BOARD=$BOARD TARGET=$TARGET make help
+		echo "---------------------------------------------"
 
 		# FIXME: Add ability to compile gateware.
 
 		BOARD=$BOARD TARGET=$TARGET make lm32-firmware
+		echo "---------------------------------------------"
 		BOARD=$BOARD TARGET=$TARGET make fx2-firmware
-
+		echo "---------------------------------------------"
 		BOARD=$BOARD TARGET=$TARGET make clean
+		echo "============================================="
 	done
 done
