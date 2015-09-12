@@ -36,13 +36,7 @@ help:
 	@echo "   PROG=programmer      (current: $(PROG))"
 	@echo " SERIAL=serial port     (current: $(SERIAL))"
 
-ifeq ($(TARGET), base)
-  GATEWARE_DEP =
-else
-  GATEWARE_DEP = lm32-firmware
-endif
-
-gateware: $(GATEWARE_DEP)
+gateware: lm32-firmware
 	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv clean
 	cp hdl/encoder/vhdl/header.hex $(MSCDIR)/build/header.hex
 	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream
@@ -53,9 +47,16 @@ load-gateware:
 release-gateware:
 	cd $(MSCDIR)/build && tar -cvzf ../$(HDMI2USBDIR)/$(BOARD)_$(TARGET)_gateware_$(DATE).tar.gz *.bin *.bit
 
+
+ifeq ($(TARGET), base)
+lm32-firmware:
+	cd $(MSCDIR) && $(CMD) build-headers
+	echo "No lm32-firmware for base target."
+else
 lm32-firmware:
 	cd $(MSCDIR) && $(CMD) build-headers
 	$(MAKE) -C firmware/lm32 all
+endif
 
 load-lm32-firmware: lm32-firmware
 	$(FLTERM) --port $(SERIAL) --kernel=firmware/lm32/firmware.bin --kernel-adr=0x20000000 --speed 115200
