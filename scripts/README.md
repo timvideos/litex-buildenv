@@ -23,7 +23,7 @@ Instructions:
   source /opt/Xilinx/14.7/ISE_DS/settings64.sh
   ise
   ```
-  Go to About > Licence, ensure under "information" you can see your ISC WebPACK licence.
+  Go to About > Licence, ensure under "information" you can see your ISE WebPACK licence.
  
 2.  Run the bootstrap script to build an environment required for flashing firmware:
   ```
