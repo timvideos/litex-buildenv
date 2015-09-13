@@ -8,11 +8,11 @@ compiler:
 
 install:
  - wget -q -O- https://raw.githubusercontent.com/mithro/travis-trusty/master/setup.sh | bash
- - chmod a+rx $PWD/.travis-*.sh
- - /trusty/run.py $PWD/.travis-setup.sh
+ - chmod a+rx $PWD/.travis/*.sh
+ - /trusty/run.py $PWD/.travis/setup.sh
 
 script:
- - /trusty/run.py $PWD/.travis-run.sh
+ - /trusty/run.py $PWD/.travis/run.sh
 
 notifications:
  email:

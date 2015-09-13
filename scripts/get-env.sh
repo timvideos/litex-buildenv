@@ -82,7 +82,7 @@ python3 -c "import liteeth"
 	cd libfpgalink
 	make deps
 )
-export LD_LIBRARY_PATH=$MAKESTUFF_DIR/libs/libfpgalink/lin.x64/rel:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$BUILD_DIR/makestuff/libs/libfpgalink/lin.x64/rel:$LD_LIBRARY_PATH
 export PYTHONPATH=$BUILD_DIR/makestuff/libs/libfpgalink/examples/python/
 python3 -c "import fl"
 
