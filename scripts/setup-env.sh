@@ -8,6 +8,7 @@ SETUP_DIR=$(dirname $SETUP_SRC)
 TOP_DIR=$(realpath $SETUP_DIR/..)
 BUILD_DIR=$TOP_DIR/build
 
+
 if [ $SOURCED = 0 ]; then
   echo "You must source this script, rather then try and run it."
   echo ". $SETUP_SRC"
@@ -23,9 +24,24 @@ echo "             This script is: $SETUP_SRC"
 echo "         Firmware directory: $TOP_DIR"
 echo "         Build directory is: $BUILD_DIR"
 
+# Check the build dir
 if [ ! -d $BUILD_DIR ]; then
 	echo "Build directory not found!"
 	return
+fi
+
+# Xilinx ISE
+if [ ! -z "$XILINX_PASSPHRASE" ]; then
+	XILINX_DIR=$BUILD_DIR/Xilinx
+	export MISOC_EXTRA_CMDLINE="-Ob ise_path $XILINX_DIR/opt/Xilinx/"
+	# Reserved MAC address from documentation block, see
+	# http://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
+	export XILINXD_LICENSE_FILE=$XILINX_DIR
+	export MACADDR=90:10:00:00:00:01
+	#export LD_PRELOAD=$XILINX_DIR/impersonate_macaddress/impersonate_macaddress.so
+	#ls -l $LD_PRELOAD
+else
+	XILINX_DIR=/
 fi
 
 # gcc+binutils for the target
@@ -52,8 +68,6 @@ MAKESTUFF_DIR=$BUILD_DIR/makestuff
 export LD_LIBRARY_PATH=$MAKESTUFF_DIR/libs/libfpgalink/lin.x64/rel:$LD_LIBRARY_PATH
 export PYTHONPATH=$MAKESTUFF_DIR/libs/libfpgalink/examples/python/:$PYTHONPATH
 python3 -c "import fl" || (echo "libfpgalink broken"; return)
-
-export PATH=$PATH:/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/
 
 alias python=python3
 

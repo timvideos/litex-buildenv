@@ -8,7 +8,13 @@ HDMI2USBDIR = ../..
 PYTHON = python3
 DATE = `date +%Y_%m_%d`
 
-CMD = $(PYTHON) make.py -X $(HDMI2USBDIR) -t $(BOARD)_$(TARGET) -Ot firmware_filename $(HDMI2USBDIR)/firmware/lm32/firmware.bin -Op programmer $(PROG)
+CMD = $(PYTHON) \
+  make.py \
+  -X $(HDMI2USBDIR) \
+  -t $(BOARD)_$(TARGET) \
+  -Ot firmware_filename $(HDMI2USBDIR)/firmware/lm32/firmware.bin \
+  -Op programmer $(PROG) \
+  $(MISOC_EXTRA_CMDLINE)
 
 ifeq ($(OS),Windows_NT)
 	FLTERM = $(PYTHON) $(MSCDIR)/tools/flterm.py

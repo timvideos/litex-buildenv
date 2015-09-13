@@ -2,6 +2,12 @@
 
 . scripts/setup-env.sh
 
+if [ -f $XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/xreport ]; then
+	HAVE_XILINX_ISE=1
+else
+	HAVE_XILINX_ISE=0
+fi
+
 set +x
 set -e
 
@@ -30,16 +36,20 @@ for BOARD in $BOARDS; do
 		echo ""
 		echo ""
 		echo ""
-		echo "- make gateware"
+		echo "- make firmware ($BOARD $TARGET)"
 		echo "---------------------------------------------"
-		BOARD=$BOARD TARGET=$TARGET make gateware
+		BOARD=$BOARD TARGET=$TARGET make firmware
 
 		echo ""
 		echo ""
 		echo ""
-		echo "- make firmware ($BOARD $TARGET)"
+		echo "- make gatewaree ($BOARD $TARGET)"
 		echo "---------------------------------------------"
-		BOARD=$BOARD TARGET=$TARGET make firmware
+		if [ $HAVE_XILINX_ISE -eq 0 ]; then
+			echo "Skipping gateware"
+		else
+			BOARD=$BOARD TARGET=$TARGET make gateware
+		fi
 
 		echo ""
 		echo ""
