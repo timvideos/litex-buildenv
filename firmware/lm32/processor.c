@@ -371,7 +371,7 @@ void processor_init(void)
 	processor_hdmi_out1_source = VIDEO_IN_HDMI_IN0;
 	processor_encoder_source = VIDEO_IN_HDMI_IN0;
 #ifdef ENCODER_BASE
-		encoder_enable(1);
+		encoder_enable(0);
 #endif
 }
 
