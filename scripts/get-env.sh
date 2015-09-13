@@ -19,8 +19,22 @@ if [ ! -d $BUILD_DIR ]; then
 fi
 
 # Xilinx ISE
-if [ ! -z "$XILINX_PASSPHRASE" ]; then
 
+# --------
+# Save the passphrase to a file so we don't echo it in the logs
+XILINX_PASSPHRASE_FILE=$(tempfile)
+trap "rm -f -- '$XILINX_PASSPHRASE_FILE'" EXIT
+set +x
+if [ ! -z "$XILINX_PASSPHRASE" ]; then
+	echo $XILINX_PASSPHRASE >> $XILINX_PASSPHRASE_FILE
+else
+	rm $XILINX_PASSPHRASE_FILE
+	trap - EXIT
+fi
+set -x
+# --------
+
+if [ -f $XILINX_PASSPHRASE_FILE ]; then
 	# Need gpg to do the unencryption
 	sudo apt-get install gnupg
 
@@ -38,7 +52,7 @@ if [ ! -z "$XILINX_PASSPHRASE" ]; then
 
 			# This setup was taken from https://github.com/m-labs/artiq/blob/master/.travis/get-xilinx.sh
 			wget -c http://xilinx.timvideos.us/${XILINX_TAR_FILE}.gpg
-			echo "$XILINX_PASSPHRASE" | gpg --batch --passphrase-fd 0 ${XILINX_TAR_FILE}.gpg
+			cat $XILINX_PASSPHRASE_FILE | gpg --batch --passphrase-fd 0 ${XILINX_TAR_FILE}.gpg
 			tar -xjf $XILINX_TAR_FILE
 
 			# Relocate ISE from /opt to $XILINX_DIR
@@ -48,7 +62,7 @@ if [ ! -z "$XILINX_PASSPHRASE" ]; then
 			done
 
 			wget -c http://xilinx.timvideos.us/Xilinx.lic.gpg
-			echo "$XILINX_PASSPHRASE" | gpg --batch --passphrase-fd 0 Xilinx.lic.gpg
+			cat $XILINX_PASSPHRASE_FILE | gpg --batch --passphrase-fd 0 Xilinx.lic.gpg
 
 			git clone https://github.com/mithro/impersonate_macaddress
 			cd impersonate_macaddress
@@ -65,6 +79,8 @@ if [ ! -z "$XILINX_PASSPHRASE" ]; then
 else
 	XILINX_DIR=/
 fi
+rm $XILINX_PASSPHRASE_FILE
+trap - EXIT
 echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
 
 # gcc+binutils for the target
