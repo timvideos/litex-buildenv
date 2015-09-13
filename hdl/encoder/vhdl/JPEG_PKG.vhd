@@ -60,7 +60,7 @@ package JPEG_PKG is
   -- warning! this parameter heavily affects memory size required
   -- if expected image width is known change this parameter to match this
   -- otherwise some onchip RAM will be wasted and never used
-  constant C_MAX_LINE_WIDTH   : integer := 1280;
+  constant C_MAX_LINE_WIDTH   : integer := 1920;
 
   -- memory/performance tradeoff
   -- 8 extra lines highest performance
