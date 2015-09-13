@@ -3,16 +3,16 @@ help-hdmi2ethernet:
 	@echo " make load-lm32-firmware"
 
 gateware-hdmi2ethernet: lm32-firmware
-	true
+	@true
 
 firmware-hdmi2ethernet:	lm32-firmware
-	true
+	@true
 
 load-hdmi2ethernet: load-lm32-firmware
-	true
+	@true
 
 clean-hdmi2ethernet: clean-lm32-firmware
-	true
+	@true
 
 # Firmware for the lm32 softcore
 lm32-firmware:

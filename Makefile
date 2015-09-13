@@ -54,7 +54,7 @@ release-gateware:
 
 # Firmware targets
 firmware: firmware-$(TARGET)
-	true
+	@true
 
 connect-lm32:
 	$(FLTERM) --port $(SERIAL) --speed 115200

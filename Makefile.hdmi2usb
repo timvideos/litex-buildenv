@@ -6,16 +6,16 @@ help-hdmi2usb:
 	@echo " make view"
 
 gateware-hdmi2usb: lm32-firmware
-	true
+	@true
 
 firmware-hdmi2usb: lm32-firmware fx2-firmware
-	true
+	@true
 
 load-hdmi2usb: load-lm32-firmware
-	true
+	@true
 
 clean-hdmi2usb: clean-lm32-firmware clean-fx2-firmware
-	true
+	@true
 
 # Firmware for the lm32 softcore
 lm32-firmware:
