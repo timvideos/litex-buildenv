@@ -592,7 +592,7 @@ class Platform(XilinxPlatform):
         elif self.programmer == "urjtag":
             return UrJTAG(cable="USBBlaster", pld="spartan-6")
         else:
-            raise ValueError("{} programmer is not supported".format(programmer))
+            raise ValueError("{} programmer is not supported".format(self.programmer))
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
