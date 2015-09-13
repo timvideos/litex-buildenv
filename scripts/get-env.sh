@@ -5,15 +5,21 @@ SETUP_SRC=$(realpath ${BASH_SOURCE[0]})
 SETUP_DIR=$(dirname $SETUP_SRC)
 TOP_DIR=$(realpath $SETUP_DIR/..)
 BUILD_DIR=$TOP_DIR/build
-CONDA_DIR=$SETUP_DIR/build/conda
 
 
 set -x
 set -e
 
-mkdir -p $BUILD_DIR
+echo "             This script is: $SETUP_SRC"
+echo "         Firmware directory: $TOP_DIR"
+echo "         Build directory is: $BUILD_DIR"
 
-# Get and build gcc+binutils for the target
+if [ ! -d $BUILD_DIR ]; then
+	mkdir -p $BUILD_DIR
+fi
+
+# gcc+binutils for the target
+CONDA_DIR=$SETUP_DIR/build/conda
 export PATH=$CONDA_DIR/bin:$PATH
 (
 	if [ ! -d $CONDA_DIR ]; then
@@ -29,59 +35,84 @@ export PATH=$CONDA_DIR/bin:$PATH
 	conda install gcc-lm32-elf
 )
 
-# Get iverilog
+# migen
+MIGEN_DIR=$BUILD_DIR/migen
 (
+	# Get iverilog
 	sudo apt-get install -y iverilog
-)
+	# Install gtkwave
+	sudo apt-get install -y gtkwave
 
-# Get migen
-(
-	cd $BUILD_DIR
-	rm -fr migen
-	git clone https://github.com/m-labs/migen.git
-	cd migen
+	if [ ! -d $MIGEN_DIR ]; then
+		cd $BUILD_DIR
+		git clone https://github.com/m-labs/migen.git
+		cd migen
+	else
+		cd $MIGEN_DIR
+		git pull
+	fi
 	cd vpi
 	make all
 	sudo make install
 )
-export PYTHONPATH=$BUILD_DIR/migen:$PYTHONPATH
+export PYTHONPATH=$MIGEN_DIR:$PYTHONPATH
 python3 -c "import migen"
 
-# Get misoc
+# misoc
+MISOC_DIR=$BUILD_DIR/misoc
 (
-	cd $BUILD_DIR
-	rm -fr misoc
-	git clone https://github.com/m-labs/misoc.git
-	cd misoc
+	if [ ! -d $MISOC_DIR ]; then
+		cd $BUILD_DIR
+		git clone https://github.com/m-labs/misoc.git
+		cd misoc
+	else
+		cd $MISOC_DIR
+		git pull
+	fi
 	git submodule init
 	git submodule update
 	cd tools
 	make
 	sudo make install
 )
-export PYTHONPATH=$BUILD_DIR/misoc:$PYTHONPATH
+export PYTHONPATH=$MISOC_DIR:$PYTHONPATH
 python3 -c "import misoclib"
 
-# Get liteeth
+# liteeth
+LITEETH_DIR=$BUILD_DIR/liteeth
 (
-	cd $BUILD_DIR
-	rm -fr liteeth
-	git clone https://github.com/enjoy-digital/liteeth.git
+	if [ ! -d $LITEETH_DIR ]; then
+		cd $BUILD_DIR
+		git clone https://github.com/enjoy-digital/liteeth.git
+		cd liteeth
+	else
+		cd $LITEETH_DIR
+		git pull
+	fi
 )
-export PYTHONPATH=$BUILD_DIR/liteeth:$PYTHONPATH
+export PYTHONPATH=$LITEETH_DIR:$PYTHONPATH
 python3 -c "import liteeth"
 
-# Get libfpgalink
+# libfpgalink
+MAKESTUFF_DIR=$BUILD_DIR/makestuff
 (
-	cd $BUILD_DIR
 	sudo apt-get install -y libreadline-dev libusb-1.0-0-dev python-yaml sdcc fxload
-	rm -fr makestuff
-	wget -qO- http://tiny.cc/msbil | tar zxf -
-	cd makestuff/libs
-	../scripts/msget.sh makestuff/libfpgalink
-	cd libfpgalink
+
+	if [ ! -d $MAKESTUFF_DIR ]; then
+		cd $BUILD_DIR
+		wget -qO- http://tiny.cc/msbil | tar zxf -
+		cd makestuff/libs
+		../scripts/msget.sh makestuff/libfpgalink
+		cd libfpgalink
+	else
+		cd $MAKESTUFF_DIR
+		cd libs/libfpgalink
+	fi
 	make deps
 )
+export LD_LIBRARY_PATH=$MAKESTUFF_DIR/libs/libfpgalink/lin.x64/rel:$LD_LIBRARY_PATH
+export PYTHONPATH=$MAKESTUFF_DIR/libs/libfpgalink/examples/python/:$PYTHONPATH
+python3 -c "import fl"
 
 USER=$(whoami)
 # Load custom udev rules
@@ -97,8 +128,6 @@ USER=$(whoami)
 	sudo apt-get update
 	sudo apt-get install -y vizzini-dkms
 )
-
-sudo apt-get install -y gtkwave
 
 echo "Completed.  To load environment:"
 echo "source HDMI2USB-misoc-firmware/scripts/setup-env.sh"
