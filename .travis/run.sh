@@ -27,7 +27,12 @@ for BOARD in $BOARDS; do
 		echo "---------------------------------------------"
 		BOARD=$BOARD TARGET=$TARGET make help
 
-		# FIXME: Add ability to compile gateware.
+		echo ""
+		echo ""
+		echo ""
+		echo "- make gateware"
+		echo "---------------------------------------------"
+		BOARD=$BOARD TARGET=$TARGET make gateware
 
 		echo ""
 		echo ""
