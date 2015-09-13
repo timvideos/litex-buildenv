@@ -56,7 +56,7 @@ class VideomixerSoC(EtherboneSoC):
     csr_map = {
         "fb":                  20,
         "dvisampler":          21,
-        "dvisampler_edid_mem": 22
+        "dvisampler_edid_mem": 22,
     }
     csr_map.update(EtherboneSoC.csr_map)
 
@@ -82,8 +82,8 @@ TIMESPEC "TSise_sucks8" = FROM "GRPsys_clk" TO "GRPpix_clk" TIG;
 
 class HDMI2EthernetSoC(VideomixerSoC):
     csr_map = {
-        "encoder_reader": 23
-        "encoder"       : 24
+        "encoder_reader": 23,
+        "encoder"       : 24,
     }
     csr_map.update(VideomixerSoC.csr_map)
     mem_map = {
