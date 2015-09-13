@@ -6,7 +6,7 @@ set +x
 set -e
 
 BOARDS="atlys opsis"
-TARGETS="base hdmi2usb"
+TARGETS="base hdmi2usb hdmi2ethernet"
 
 for BOARD in $BOARDS; do
 	for TARGET in $TARGETS; do
