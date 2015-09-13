@@ -10,23 +10,31 @@ TARGETS="base hdmi2usb"
 
 for BOARD in $BOARDS; do
 	for TARGET in $TARGETS; do
+		echo ""
+		echo ""
+		echo ""
 		echo "============================================="
 		echo "- $BOARD $TARGET"
+		echo "============================================="
+		echo ""
+		echo "- make help"
 		echo "---------------------------------------------"
 		BOARD=$BOARD TARGET=$TARGET make help
-		echo "---------------------------------------------"
 
 		# FIXME: Add ability to compile gateware.
 
-		BOARD=$BOARD TARGET=$TARGET make lm32-firmware
+		echo ""
+		echo ""
+		echo ""
+		echo "- make firmware"
 		echo "---------------------------------------------"
+		BOARD=$BOARD TARGET=$TARGET make firmware
 
-		# FIXME: Remove this once "make all" does what we need
-		if [ "$TARGET" = "hdmi2usb" ]; then
-			BOARD=$BOARD TARGET=$TARGET make fx2-firmware
-			echo "---------------------------------------------"
-		fi
-
+		echo ""
+		echo ""
+		echo ""
+		echo "- make clean"
+		echo "---------------------------------------------"
 		BOARD=$BOARD TARGET=$TARGET make clean
 		echo "============================================="
 	done

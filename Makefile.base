@@ -1,0 +1,16 @@
+help-base:
+	@true
+
+gateware-base:
+	@true
+
+firmware-base:
+	cd $(MSCDIR) && $(CMD) build-headers
+
+load-base:
+	@true
+
+clean-base:
+	@true
+
+.PHONY: help-base gateware-base firmware-base load-base clean-base

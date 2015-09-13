@@ -16,27 +16,32 @@ else
 	FLTERM = $(MSCDIR)/tools/flterm
 endif
 
+include Makefile.$(TARGET)
+
 help:
-	@echo "Targets avaliable:"
-	@echo " make gateware"
-	@echo " make lm32-firmware"
-	@echo " make fx2-firmware"
-	@echo " make load-gateware"
-	@echo " make load-lm32-firmware"
-	@echo " make load-fx2-firmware"
-	@echo " make clean"
-	@echo " make all"
-	@echo " make connect-lm32"
-	@echo ""
 	@echo "Environment:"
 	@echo "  BOARD=atlys OR opsis  (current: $(BOARD))"
 	@echo " TARGET=base OR hdmi2usb OR hdmi2ethernet"
-	@echo "                        (current: $(TARGET)"
-	@echo " MSCDIR=misoc directory (current: $(MSCDIR))"
+	@echo "                        (current: $(TARGET))"
 	@echo "   PROG=programmer      (current: $(PROG))"
 	@echo " SERIAL=serial port     (current: $(SERIAL))"
+	@echo ""
+	@echo "Targets avaliable:"
+	@echo " make help"
+	@echo " make gateware"
+	@echo " make load-gateware"
+	@echo " make connect-lm32"
+	@make -s help-$(TARGET)
+	@echo " make clean"
+	@echo " make all"
 
-gateware: lm32-firmware
+clean: clean-$(TARGET)
+	cd $(MSCDIR) && $(CMD) clean
+
+load: load-gateware load-$(TARGET)
+
+# Gateware targets
+gateware: gateware-$(TARGET)
 	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv clean
 	cp hdl/encoder/vhdl/header.hex $(MSCDIR)/build/header.hex
 	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream
@@ -47,39 +52,14 @@ load-gateware:
 release-gateware:
 	cd $(MSCDIR)/build && tar -cvzf ../$(HDMI2USBDIR)/$(BOARD)_$(TARGET)_gateware_$(DATE).tar.gz *.bin *.bit
 
-
-ifeq ($(TARGET), base)
-lm32-firmware:
-	cd $(MSCDIR) && $(CMD) build-headers
-	echo "No lm32-firmware for base target."
-else
-lm32-firmware:
-	cd $(MSCDIR) && $(CMD) build-headers
-	$(MAKE) -C firmware/lm32 all
-endif
-
-load-lm32-firmware: lm32-firmware
-	$(FLTERM) --port $(SERIAL) --kernel=firmware/lm32/firmware.bin --kernel-adr=0x20000000 --speed 115200
+# Firmware targets
+firmware: firmware-$(TARGET)
+	@true
 
 connect-lm32:
 	$(FLTERM) --port $(SERIAL) --speed 115200
 
-fx2-firmware:
-	$(MAKE) -C firmware/fx2
+# All target
+all: gateware load-gateware load-$(TARGET)
 
-load-fx2-firmware: fx2-firmware
-	firmware/fx2/download.sh firmware/fx2/hdmi2usb.hex
-
-clean:
-	cd $(MSCDIR) && $(CMD) clean
-	$(MAKE) -C firmware/lm32 clean
-	$(MAKE) -C firmware/fx2 clean
-
-load: load-gateware load-lm32-firmware load-fx2-firmware
-
-view:
-	./scripts/view.sh
-
-all: gateware load-gateware load-fx2-firmware
-
-.PHONY: lm32-firmware load clean
+.PHONY: help clean load gateware load-gateware release-gateware connect-lm32 all
