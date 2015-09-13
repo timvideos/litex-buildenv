@@ -10,6 +10,10 @@ BUILD_DIR=$TOP_DIR/build
 set -x
 set -e
 
+echo "             This script is: $SETUP_SRC"
+echo "         Firmware directory: $TOP_DIR"
+echo "         Build directory is: $BUILD_DIR"
+
 if [ ! -d $BUILD_DIR ]; then
 	mkdir -p $BUILD_DIR
 fi
