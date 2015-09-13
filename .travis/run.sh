@@ -18,14 +18,8 @@ for BOARD in $BOARDS; do
 
 		# FIXME: Add ability to compile gateware.
 
-		BOARD=$BOARD TARGET=$TARGET make lm32-firmware
+		BOARD=$BOARD TARGET=$TARGET make firmware
 		echo "---------------------------------------------"
-
-		# FIXME: Remove this once "make all" does what we need
-		if [ "$TARGET" = "hdmi2usb" ]; then
-			BOARD=$BOARD TARGET=$TARGET make fx2-firmware
-			echo "---------------------------------------------"
-		fi
 
 		BOARD=$BOARD TARGET=$TARGET make clean
 		echo "============================================="

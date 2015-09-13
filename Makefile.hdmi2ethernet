@@ -1,0 +1,31 @@
+help-hdmi2ethernet:
+	@echo " make lm32-firmware"
+	@echo " make load-lm32-firmware"
+
+gateware-hdmi2ethernet: lm32-firmware
+	true
+
+firmware-hdmi2ethernet:	lm32-firmware
+	true
+
+load-hdmi2ethernet: load-lm32-firmware
+	true
+
+clean-hdmi2ethernet: clean-lm32-firmware
+	true
+
+# Firmware for the lm32 softcore
+lm32-firmware:
+	cd $(MSCDIR) && $(CMD) build-headers
+	$(MAKE) -C firmware/lm32 all
+
+load-lm32-firmware: lm32-firmware
+	$(FLTERM) --port $(SERIAL) --kernel=firmware/lm32/firmware.bin --kernel-adr=0x20000000 --speed 115200
+
+clean-lm32-firmware:
+	$(MAKE) -C firmware/lm32 clean
+
+# Utility functions
+
+.PHONY: help-hdmi2ethernet gateware-hdmi2ethernet firmware-hdmi2ethernet load-hdmi2ethernet clean-hdmi2ethernet
+.PHONY: lm32-firmware load-lm32-firmware clean-lm32-firmware
