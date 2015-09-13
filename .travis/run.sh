@@ -2,6 +2,7 @@
 
 . scripts/setup-env.sh
 
+ls -l $XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/xreport
 if [ -f $XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/xreport ]; then
 	HAVE_XILINX_ISE=1
 else
@@ -11,13 +12,22 @@ fi
 set +x
 set -e
 
-BOARDS="atlys opsis"
+if [ -z "$BOARD" ]; then
+	BOARDS="atlys opsis"
+else
+	BOARDS="$BOARD"
+fi
 
 for BOARD in $BOARDS; do
-	TARGETS="base hdmi2usb"
-	# FIXME: Get hdmi2ethernet working on the Opsis
-	if [ "$BOARD" = "atlys" ]; then
-		TARGETS="$TARGETS hdmi2ethernet"
+	if [ -z "$TARGET" ]; then
+		TARGETS="base hdmi2usb"
+		# FIXME: Get hdmi2ethernet working on the Opsis
+		# https://github.com/timvideos/HDMI2USB-misoc-firmware/issues/51
+		if [ "$BOARD" = "atlys" ]; then
+			TARGETS="$TARGETS hdmi2ethernet"
+		fi
+	else
+		TARGETS="$TARGET"
 	fi
 
 	for TARGET in $TARGETS; do

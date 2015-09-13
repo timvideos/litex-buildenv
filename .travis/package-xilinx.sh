@@ -12,6 +12,7 @@ export PREFIX="/opt/Xilinx/"
 TB_COMMAND="turbolift -u $RACKSPACE_USER -a $RACKSPACE_API --os-rax-auth iad upload -c xilinx"
 
 ./build/migen/tools/strace_tailor.sh $PREFIX bash .travis/run.sh
+cp $PREFIX/14.7/ISE_DS/ISE/bin/lin64/xreport opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/
 
 FILENAME="xilinx-ise-$(git describe).tar.bz2"
 echo $FILENAME
