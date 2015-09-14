@@ -76,11 +76,12 @@ if [ -f $XILINX_PASSPHRASE_FILE ]; then
 	export MACADDR=90:10:00:00:00:01
 	#export LD_PRELOAD=$XILINX_DIR/impersonate_macaddress/impersonate_macaddress.so
 	#ls -l $LD_PRELOAD
+
+	rm $XILINX_PASSPHRASE_FILE
+	trap - EXIT
 else
 	XILINX_DIR=/
 fi
-rm $XILINX_PASSPHRASE_FILE
-trap - EXIT
 echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
 
 # gcc+binutils for the target
