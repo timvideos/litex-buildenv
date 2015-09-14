@@ -53,12 +53,24 @@ for BOARD in $BOARDS; do
 		echo ""
 		echo ""
 		echo ""
-		echo "- make gatewaree ($BOARD $TARGET)"
+		echo "- make gateware ($BOARD $TARGET)"
 		echo "---------------------------------------------"
 		if [ $HAVE_XILINX_ISE -eq 0 ]; then
 			echo "Skipping gateware"
 		else
 			BOARD=$BOARD TARGET=$TARGET make gateware
+		fi
+
+		if [ ! -z "$PROGS" ]; then
+			for PROG in $PROGS; do
+				echo ""
+				echo ""
+				echo ""
+				echo "- make load-gateware ($PROG $BOARD $TARGET)"
+				echo "---------------------------------------------"
+				# Allow the programming to fail.
+				PROG=$PROG BOARD=$BOARD TARGET=$TARGET make load-gateware || true
+			done
 		fi
 
 		echo ""
