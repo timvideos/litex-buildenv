@@ -6,9 +6,14 @@ set +x
 set -e
 
 BOARDS="atlys opsis"
-TARGETS="base hdmi2usb"
 
 for BOARD in $BOARDS; do
+	TARGETS="base hdmi2usb"
+	# FIXME: Get hdmi2ethernet working on the Opsis
+	if [ "$BOARD" = "atlys" ]; then
+		TARGETS="$TARGETS hdmi2ethernet"
+	fi
+
 	for TARGET in $TARGETS; do
 		echo ""
 		echo ""
@@ -16,8 +21,9 @@ for BOARD in $BOARDS; do
 		echo "============================================="
 		echo "- $BOARD $TARGET"
 		echo "============================================="
+		# Output the commands available to make it easier to debug.
 		echo ""
-		echo "- make help"
+		echo "- make help ($BOARD $TARGET)"
 		echo "---------------------------------------------"
 		BOARD=$BOARD TARGET=$TARGET make help
 
@@ -26,14 +32,14 @@ for BOARD in $BOARDS; do
 		echo ""
 		echo ""
 		echo ""
-		echo "- make firmware"
+		echo "- make firmware ($BOARD $TARGET)"
 		echo "---------------------------------------------"
 		BOARD=$BOARD TARGET=$TARGET make firmware
 
 		echo ""
 		echo ""
 		echo ""
-		echo "- make clean"
+		echo "- make clean ($BOARD $TARGET)"
 		echo "---------------------------------------------"
 		BOARD=$BOARD TARGET=$TARGET make clean
 		echo "============================================="
