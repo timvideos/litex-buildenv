@@ -3,10 +3,14 @@ MSCDIR ?= build/misoc
 PROG ?= impact
 SERIAL ?= /dev/ttyVIZ0
 TARGET ?= hdmi2usb
+FILTER ?= tee
 
 HDMI2USBDIR = ../..
 PYTHON = python3
 DATE = `date +%Y_%m_%d`
+
+# We use the special PIPESTATUS which is bash only below.
+SHELL := /bin/bash
 
 CMD = $(PYTHON) \
   make.py \
@@ -50,7 +54,8 @@ load: load-gateware load-$(TARGET)
 gateware: gateware-$(TARGET)
 	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv clean
 	cp hdl/encoder/vhdl/header.hex $(MSCDIR)/build/header.hex
-	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream
+	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream \
+	| $(FILTER) $(PWD)/build/output.$(DATE).log; (exit $${PIPESTATUS[0]})
 
 load-gateware:
 	cd $(MSCDIR) && $(CMD) load-bitstream

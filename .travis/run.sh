@@ -58,7 +58,7 @@ for BOARD in $BOARDS; do
 		if [ $HAVE_XILINX_ISE -eq 0 ]; then
 			echo "Skipping gateware"
 		else
-			BOARD=$BOARD TARGET=$TARGET make gateware
+			FILTER=$PWD/.travis/run-make-gateware-filter.py BOARD=$BOARD TARGET=$TARGET make gateware
 		fi
 
 		if [ ! -z "$PROGS" ]; then
