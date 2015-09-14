@@ -31,8 +31,8 @@ if [ ! -d $BUILD_DIR ]; then
 fi
 
 # Xilinx ISE
-if [ ! -z "$XILINX_PASSPHRASE" ]; then
-	XILINX_DIR=$BUILD_DIR/Xilinx
+XILINX_DIR=$BUILD_DIR/Xilinx
+if [ -d "$XILINX_DIR" ]; then
 	export MISOC_EXTRA_CMDLINE="-Ob ise_path $XILINX_DIR/opt/Xilinx/"
 	# Reserved MAC address from documentation block, see
 	# http://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
@@ -44,6 +44,9 @@ else
 	XILINX_DIR=/
 fi
 echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
+# FIXME: Remove this when build/migen/mibuild/xilinx/programmer.py:_create_xsvf
+# understands the $MISOC_EXTRA_CMDLINE option.
+export PATH=$PATH:$XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64
 
 # gcc+binutils for the target
 CONDA_DIR=$SETUP_DIR/build/conda
