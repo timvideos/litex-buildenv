@@ -13,43 +13,58 @@ import time
 log_file = open(sys.argv[1], 'w')
 
 # Suppressions for warning / info messages
-suppressions = [x.strip() for x in open(sys.argv[2], 'r').readlines() if not x.startswith('#')]
-pprint.pprint(suppressions)
-suppressions = [re.compile(x) for x in suppressions]
+#suppressions = [x.strip() for x in open(sys.argv[2], 'r').readlines() if not x.startswith('#')]
+#suppressions = [re.compile(x) for x in suppressions]
 
 top_path = os.path.normpath(os.getcwd())
 
 def output(s, *args, **kw):
-	keepalive_thread.output = True
-	if args:
-		assert not kw
-		data = (s % args).encode('utf-8')
-	elif kw:
-		data = (s % kw).encode('utf-8')
-	else:
-		data = s.encode('utf-8')
+	with keepalive_thread.lock:
+		if "before_next_output" in kw:
+			before_next_output = kw["before_next_output"]
+			del kw["before_next_output"]
+		else:
+			before_next_output = ""
 
-	keepalive_thread.last_output = data
-	sys.stdout.write(data)
+		keepalive_thread.output = True
+		if args:
+			assert not kw
+			data = (s % args).encode('utf-8')
+		elif kw:
+			data = (s % kw).encode('utf-8')
+		else:
+			data = s.encode('utf-8')
 
-	# Flush every second
-	if (time.time() - keepalive_thread.last_output_time) > 1:
-		sys.stdout.flush()
+		if data:
+			sys.stdout.write(keepalive_thread.before_next_output)
+			keepalive_thread.before_next_output = before_next_output
+			sys.stdout.flush()
 
-	keepalive_thread.last_output_time = time.time()
+			sys.stdout.write(data)
+			keepalive_thread.last_output_time = time.time()
+			keepalive_thread.last_output = data
+			sys.stdout.flush()
 
 
 class KeepAliveThread(threading.Thread):
+	ROTATE = [" - ", " \\ ", " | ", " / "]
+
 	def __init__(self):
 		threading.Thread.__init__(self)
+		self.lock = threading.RLock()
 		self.daemon = True
+
+		self.pos = 0
 		self.output = False
+		self.before_next_output = ""
 		self.last_output_time = time.time()
+		self.last_output = ""
 
 	def run(self):
 		while True:
-			if (time.time() - self.last_output_time) > 30:
-				output(u"\U0001F436")
+			if (time.time() - self.last_output_time) > 1:
+				output(self.ROTATE[self.pos], before_next_output="\b\b\b")
+				self.pos = (self.pos + 1) % len(self.ROTATE)
 			time.sleep(1)
 
 keepalive_thread = KeepAliveThread()
@@ -80,7 +95,7 @@ found_specials = []
 
 last_path = None
 for lineno, rawline in enumerate(sys.stdin.xreadlines()):
-	log_file.write(rawline+'\n')
+	log_file.write(rawline)
 	log_file.flush()
 
 	line = rawline.strip('\n\r')
@@ -433,3 +448,6 @@ for lineno, rawline in enumerate(sys.stdin.xreadlines()):
 
 for lineno, rawline in enumerate(sys.stdin.xreadlines()):
 	output(rawline)
+
+output("\n\n")
+output("Raw output saved in %r\n", sys.argv[1])
