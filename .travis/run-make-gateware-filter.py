@@ -429,7 +429,7 @@ for lineno, rawline in enumerate(sys.stdin.xreadlines()):
 
 
 	if sline.startswith("Phase"):
-		if "REAL time:" in sline and not "unrouted":
+		if "REAL time:" in sline and not "unrouted" in sline:
 			phase, rtime = sline.split("REAL time:")
 			output(" (completed in %s)\n", rtime.strip())
 		else:
