@@ -14,6 +14,10 @@ env:
    - BOARD=opsis TARGET=base
    - BOARD=opsis TARGET=hdmi2usb
 
+matrix:
+  allow_failures:
+   - env: BOARD=opsis TARGET=hdmi2usb
+
 install:
  - wget -q -O- https://raw.githubusercontent.com/mithro/travis-trusty/master/setup.sh | bash
  - chmod a+rx $PWD/.travis/*.sh
