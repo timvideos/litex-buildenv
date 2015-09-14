@@ -23,11 +23,14 @@ def output(s, *args, **kw):
 	keepalive_thread.output = True
 	if args:
 		assert not kw
-		sys.stdout.write((s % args).encode('utf-8'))
+		data = (s % args).encode('utf-8')
 	elif kw:
-		sys.stdout.write((s % kw).encode('utf-8'))
+		data = (s % kw).encode('utf-8')
 	else:
-		sys.stdout.write(s.encode('utf-8'))
+		data = s.encode('utf-8')
+
+	keepalive_thread.last_output = data
+	sys.stdout.write(data)
 
 	# Flush every second
 	if (time.time() - keepalive_thread.last_output_time) > 1:
@@ -52,7 +55,7 @@ class KeepAliveThread(threading.Thread):
 keepalive_thread = KeepAliveThread()
 keepalive_thread.start()
 
-BUFFER_SIZE=100
+BUFFER_SIZE=200
 DELIM_MAJOR = "========================================================================="
 ERROR = "*~"*35+"*"
 
@@ -76,7 +79,7 @@ fsm_triggered = False
 found_specials = []
 
 last_path = None
-for lineno, rawline in enumerate(sys.stdin.readlines()):
+for lineno, rawline in enumerate(sys.stdin.xreadlines()):
 	log_file.write(rawline+'\n')
 	log_file.flush()
 
@@ -87,15 +90,16 @@ for lineno, rawline in enumerate(sys.stdin.readlines()):
 		linesbuffer.pop()
 
 	if line.startswith("make"):
-		output('\n'+line+'\n')
+		output('\n%s ', line)
 		continue
 
 	if not sline:
 		continue
 
 	if line.startswith("ERROR:"):
-		output("\nError detected! - %s\n%s\n%s\n%s\n", line, ERROR, "\n".join(reversed(linesbuffer)), ERROR)
-		continue
+		linesbuffer.popleft()
+		output("\n\nError detected! - %s\n%s\n%s\n%s\n%s", line, ERROR, "\n".join(reversed(linesbuffer)), ERROR, rawline)
+		break
 
 	# WARNING:HDLCompiler:1016 - "/home/tansell/foss/timvideos/hdmi2usb/HDMI2USB-misoc-firmware/build/misoc/build/atlys_hdmi2usb-hdmi2usbsoc-atlys.v" Line 24382: Port I_LOCK_O is not connected to this instance
 	# WARNING:HDLCompiler:1016 - "/home/tansell/foss/timvideos/hdmi2usb/HDMI2USB-misoc-firmware/build/misoc/build/atlys_hdmi2usb-hdmi2usbsoc-atlys.v" Line 24475: Port IOCLK is not connected to this instance
@@ -108,6 +112,17 @@ for lineno, rawline in enumerate(sys.stdin.readlines()):
 	elif line.startswith("INFO:"):
 		output("i")
 		continue
+
+	# Different tools start with the following
+	# Release 14.7 - Map P.20131013 (lin64)
+	# Copyright (c) 1995-2013 Xilinx, Inc.  All rights reserved.
+	if sline.startswith("Copyright (c)"):
+		output("\n\n\n%s\n# %-66s #\n%s\n", "#"*70, linesbuffer[1], "#"*70)
+		continue
+
+	######################################################################
+	# Release 14.7 - xst P.20131013 (lin64)                              #
+	######################################################################
 		
 	# Output a header which looks like this unless it is a summary header
 	# =========================================================================
@@ -119,7 +134,7 @@ for lineno, rawline in enumerate(sys.stdin.readlines()):
 		if "Summary" in linesbuffer[1]:
 			continue
 		else:
-			output("\n\n%s\n%s\n%s\n", linesbuffer[0], linesbuffer[1], linesbuffer[2])
+			output("\n\n%s\n* %-66s *\n%s\n", '*'*70, linesbuffer[1][2:-2].strip(), '*'*70)
 			continue
 
 	# When we see a filename, output it. Examples;
@@ -174,9 +189,18 @@ for lineno, rawline in enumerate(sys.stdin.readlines()):
 			break
 
 		if summary_start:
-			output("\n")
+			output("\n\n")
 			for i in range(summary_start, 0, -1):
-				output("%s\n", linesbuffer[i])
+				sbufline = linesbuffer[i].strip()
+				if sbufline == DELIM_MAJOR:
+					output("%s\n", "*"*70)
+				elif sbufline.startswith('*'):
+					output("* %-66s *\n", sbufline[2:-2].strip())
+				else:
+					if linesbuffer[i].startswith('#'):
+						output("%s\n", linesbuffer[i][1:])
+					else:
+						output("%s\n", linesbuffer[i])
 
 	#########################################################################
 	# 2) HDL Parsing
@@ -184,7 +208,7 @@ for lineno, rawline in enumerate(sys.stdin.readlines()):
 	# Analyzing Verilog file "/home/tansell/foss/timvideos/hdmi2usb/HDMI2USB-misoc-firmware/build/misoc/extcores/lm32/submodule/rtl/lm32_dtlb.v" into library work
 	ANALYZING_VERILOG = "Analyzing Verilog"
 	if sline.startswith(ANALYZING_VERILOG):
-		output("\n\n%s ", shorten_path(sline))
+		output("\n%s ", shorten_path(sline))
 	
 	# Parsing package <MDCT_PKG>.
 	# Parsing module <lm32_addsub>.
@@ -193,7 +217,7 @@ for lineno, rawline in enumerate(sys.stdin.readlines()):
 	PARSING = "Parsing "
 	if sline.startswith(PARSING):
 		if sline.startswith("Parsing VHDL"):
-			output("\n\n%s ", shorten_path(sline))
+			output("\n%s ", shorten_path(sline))
 		else:
 			if sline.endswith('.'):
 				sline = sline[:-1]
@@ -280,12 +304,12 @@ for lineno, rawline in enumerate(sys.stdin.readlines()):
 			output("\n  Summary:\n")
 			for special in sorted(found_specials):
 				output("    %s\n", special)
+			if found_specials:
+				output("    %s\n", "--")
 			found_specials = []
-			output("    %s\n", "--")
 			for bufferno in range(summary_start-1, 0, -1):
 				sbufline = linesbuffer[bufferno].strip()
 				output("    %s\n", sbufline[0].upper()+sbufline[1:-1])
-		output("\n")
 
 	#########################################################################
 	# 5) Advanced HDL Synthesis
@@ -327,7 +351,7 @@ for lineno, rawline in enumerate(sys.stdin.readlines()):
 
 	# Final Macro Processing ...
 	if sline == "Final Macro Processing ...":
-		output("\n\n%s\n" % sline)
+		output("\n%s" % sline)
 	
 
 	#########################################################################
@@ -340,6 +364,72 @@ for lineno, rawline in enumerate(sys.stdin.readlines()):
 	# 8) Design Summary
 	# -----------------------------------------------------------------------
 
+	######################################################################
+	# Release 14.7 - ngdbuild P.20131013 (lin64)                         #
+	######################################################################
+
+	######################################################################
+	# Release 14.7 - Map P.20131013 (lin64)                              #
+	######################################################################
+
+	if sline.startswith("Peak Memory Usage"):
+		summary_start = None
+		for bufferno, bufline in enumerate(linesbuffer):
+			sbufline = bufline.strip()
+			if sbufline.startswith("Design Summary:"):
+				summary_start = bufferno
+				break
+		if summary_start:
+			output("""\n
+**********************************************************************
+* Design Summary                                                     *
+**********************************************************************
+""")
+			for bufferno in range(summary_start-1, 0, -1):
+				bufline = linesbuffer[bufferno]
+				output("%s\n", bufline)
+			output("%s\n", "*" * 70)
+
+	######################################################################
+	# Release 14.7 - par P.20131013 (lin64)                              #
+	######################################################################
+
+	if sline.startswith("Starting initial Timing Analysis"):
+		summary_start = None
+		for bufferno, bufline in enumerate(linesbuffer):
+			sbufline = bufline.strip()
+			if sbufline.startswith("Device Utilization Summary:"):
+				summary_start = bufferno
+				break
+		if summary_start:
+			output("""\n
+**********************************************************************
+* Device Utilization Summary                                         *
+**********************************************************************
+""")
+			for bufferno in range(summary_start-1, 0, -1):
+				bufline = linesbuffer[bufferno]
+				output("%s\n", bufline)
+			output("%s\n", "*" * 70)
+
+
+	if sline.startswith("Phase"):
+		if "REAL time:" in sline and not "unrouted":
+			phase, rtime = sline.split("REAL time:")
+			output(" (completed in %s)\n", rtime.strip())
+		else:
+			bits = sline.split()
+			if keepalive_thread.last_output[-1] != '\n':
+				output('\n')
+			output("%5s %-5s - %s ", bits[0], bits[1], " ".join(bits[2:]))
+
+	# Saving bit stream in 
+	if sline.startswith("Saving bit stream in"):
+		output("\n%s", sline)
+
 	# If the line wasn't caught elsewhere, just output a dot.
 	if not keepalive_thread.output:
 		output(".")
+
+for lineno, rawline in enumerate(sys.stdin.xreadlines()):
+	output(rawline)
