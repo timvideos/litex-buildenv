@@ -18,6 +18,8 @@ if [ ! -d $BUILD_DIR ]; then
 	mkdir -p $BUILD_DIR
 fi
 
+sudo apt-get install -y build-essential
+
 # Xilinx ISE
 
 # --------
@@ -36,7 +38,7 @@ set -x
 
 if [ -f $XILINX_PASSPHRASE_FILE ]; then
 	# Need gpg to do the unencryption
-	sudo apt-get install gnupg
+	sudo apt-get install -y gnupg
 
 	XILINX_DIR=$BUILD_DIR/Xilinx
 	if [ ! -d "$XILINX_DIR" ]; then
