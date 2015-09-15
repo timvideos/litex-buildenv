@@ -29,7 +29,7 @@ for BOARD in $BOARDS; do
 	else
 		TARGETS="$TARGET"
 	fi
-
+	(
 	for TARGET in $TARGETS; do
 		echo ""
 		echo ""
@@ -69,4 +69,5 @@ for BOARD in $BOARDS; do
 		BOARD=$BOARD TARGET=$TARGET make clean
 		echo "============================================="
 	done
+	)
 done
