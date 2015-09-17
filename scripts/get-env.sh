@@ -18,8 +18,6 @@ if [ ! -d $BUILD_DIR ]; then
 	mkdir -p $BUILD_DIR
 fi
 
-sudo apt-get install -y build-essential
-
 # Xilinx ISE
 
 # --------
@@ -38,8 +36,6 @@ set -x
 
 if [ -f $XILINX_PASSPHRASE_FILE ]; then
 	# Need gpg to do the unencryption
-	sudo apt-get install -y gnupg
-
 	XILINX_DIR=$BUILD_DIR/Xilinx
 	if [ ! -d "$XILINX_DIR" ]; then
 		(
@@ -106,11 +102,6 @@ export PATH=$CONDA_DIR/bin:$PATH
 # migen
 MIGEN_DIR=$BUILD_DIR/migen
 (
-	# Get iverilog
-	sudo apt-get install -y iverilog
-	# Install gtkwave
-	sudo apt-get install -y gtkwave
-
 	if [ ! -d $MIGEN_DIR ]; then
 		cd $BUILD_DIR
 		git clone https://github.com/m-labs/migen.git
@@ -119,9 +110,9 @@ MIGEN_DIR=$BUILD_DIR/migen
 		cd $MIGEN_DIR
 		git pull
 	fi
-	cd vpi
-	make all
-	sudo make install
+	#cd vpi
+	#make all
+	#sudo make install
 )
 export PYTHONPATH=$MIGEN_DIR:$PYTHONPATH
 python3 -c "import migen"
@@ -139,9 +130,6 @@ MISOC_DIR=$BUILD_DIR/misoc
 	fi
 	git submodule init
 	git submodule update
-	cd tools
-	make
-	sudo make install
 )
 export PYTHONPATH=$MISOC_DIR:$PYTHONPATH
 python3 -c "import misoclib"
@@ -164,8 +152,6 @@ python3 -c "import liteeth"
 # libfpgalink
 MAKESTUFF_DIR=$BUILD_DIR/makestuff
 (
-	sudo apt-get install -y libreadline-dev libusb-1.0-0-dev python-yaml sdcc fxload
-
 	if [ ! -d $MAKESTUFF_DIR ]; then
 		cd $BUILD_DIR
 		wget -qO- http://tiny.cc/msbil | tar zxf -
@@ -181,21 +167,6 @@ MAKESTUFF_DIR=$BUILD_DIR/makestuff
 export LD_LIBRARY_PATH=$MAKESTUFF_DIR/libs/libfpgalink/lin.x64/rel:$LD_LIBRARY_PATH
 export PYTHONPATH=$MAKESTUFF_DIR/libs/libfpgalink/examples/python/:$PYTHONPATH
 python3 -c "import fl"
-
-USER=$(whoami)
-# Load custom udev rules
-(
-	cd $SETUP_DIR
-	sudo cp -uf 52-hdmi2usb.rules /etc/udev/rules.d/
-	sudo adduser $USER dialout
-)
-# Get the vizzini module needed for the Atlys board
-(
-	sudo apt-get install -y software-properties-common
-	sudo add-apt-repository -y ppa:timvideos/fpga-support
-	sudo apt-get update
-	sudo apt-get install -y vizzini-dkms
-)
 
 echo "Completed.  To load environment:"
 echo "source HDMI2USB-misoc-firmware/scripts/setup-env.sh"
