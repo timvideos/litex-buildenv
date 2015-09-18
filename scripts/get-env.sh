@@ -97,6 +97,7 @@ export PATH=$CONDA_DIR/bin:$PATH
 	conda config --add channels timvideos
 	conda install binutils-lm32-elf
 	conda install gcc-lm32-elf
+	conda install sdcc
 )
 
 # migen

@@ -16,7 +16,6 @@ addons:
     - libreadline-dev
     - libusb-1.0-0-dev
     - python-yaml
-    - sdcc
     - fxload
 
 env:
