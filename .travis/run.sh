@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. scripts/setup-env.sh
+source scripts/setup-env.sh
 
 ls -l $XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/xreport
 if [ -f $XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/xreport ]; then
