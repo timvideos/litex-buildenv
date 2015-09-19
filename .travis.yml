@@ -6,13 +6,31 @@ language:
 compiler:
   - gcc
 
+sudo: false
+addons:
+  apt:
+    packages:
+    - realpath
+    - build-essential
+    - gnupg
+    - libreadline-dev
+    - libusb-1.0-0-dev
+    - python-yaml
+    - fxload
+
+env:
+  matrix:
+   - BOARD=atlys TARGET=base
+   - BOARD=atlys TARGET=hdmi2usb
+   - BOARD=atlys TARGET=hdmi2ethernet
+   - BOARD=opsis TARGET=base
+   - BOARD=opsis TARGET=hdmi2usb
+
 install:
- - wget -q -O- https://raw.githubusercontent.com/mithro/travis-trusty/master/setup.sh | bash
- - chmod a+rx $PWD/.travis/*.sh
- - /trusty/run.py $PWD/.travis/setup.sh
+ - $PWD/.travis/setup.sh
 
 script:
- - /trusty/run.py $PWD/.travis/run.sh
+ - $PWD/.travis/run.sh
 
 notifications:
  email:
