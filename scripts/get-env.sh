@@ -131,8 +131,11 @@ MISOC_DIR=$BUILD_DIR/misoc
 	fi
 	git submodule init
 	git submodule update
+	cd tools
+	make
 )
 export PYTHONPATH=$MISOC_DIR:$PYTHONPATH
+$MISOC_DIR/tools/flterm --help
 python3 -c "import misoclib"
 
 # liteeth
