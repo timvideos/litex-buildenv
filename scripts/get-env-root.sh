@@ -25,7 +25,6 @@ apt-get install -y iverilog gtkwave
 # libfpgalink
 sudo apt-get install -y libreadline-dev libusb-1.0-0-dev python-yaml sdcc fxload
 
-USER=$(whoami)
 # Load custom udev rules
 (
 	cd $SETUP_DIR
