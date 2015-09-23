@@ -27,8 +27,7 @@ sudo apt-get install -y libreadline-dev libusb-1.0-0-dev python-yaml sdcc fxload
 
 # Load custom udev rules
 (
-	cd $SETUP_DIR
-	sudo cp -uf 52-hdmi2usb.rules /etc/udev/rules.d/
+	cp -uf  ${BASH_SOURCE%/*}/52-hdmi2usb.rules /etc/udev/rules.d/
 	sudo adduser $USER dialout
 )
 
