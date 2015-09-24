@@ -83,7 +83,7 @@ fi
 echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
 
 # gcc+binutils for the target
-CONDA_DIR=$SETUP_DIR/build/conda
+CONDA_DIR=$BUILD_DIR/conda
 export PATH=$CONDA_DIR/bin:$PATH
 (
 	if [ ! -d $CONDA_DIR ]; then
