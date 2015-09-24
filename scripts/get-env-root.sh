@@ -1,4 +1,11 @@
 #!/bin/bash
+
+SETUP_SRC=$(realpath ${BASH_SOURCE[0]})
+SETUP_DIR=$(dirname $SETUP_SRC)
+
+set -x
+set -e
+
 apt-get install -y realpath
 apt-get install -y wget
 apt-get install -y build-essential
@@ -27,7 +34,7 @@ sudo apt-get install -y libreadline-dev libusb-1.0-0-dev python-yaml sdcc fxload
 
 # Load custom udev rules
 (
-	cp -uf  ${BASH_SOURCE%/*}/52-hdmi2usb.rules /etc/udev/rules.d/
+	cp -uf  $SETUP_DIR/52-hdmi2usb.rules /etc/udev/rules.d/
 	sudo adduser $USER dialout
 )
 
