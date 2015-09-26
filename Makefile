@@ -1,3 +1,8 @@
+
+ifneq "$(HDMI2USB_ENV)" "1"
+$(error "Please 'source scripts/setup-env.sh'")
+endif
+
 BOARD ?= atlys
 MSCDIR ?= build/misoc
 PROG ?= impact
