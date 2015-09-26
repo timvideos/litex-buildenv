@@ -31,8 +31,6 @@ else
 	FLTERM = $(MSCDIR)/tools/flterm
 endif
 
-include Makefile.$(TARGET)
-
 help:
 	@echo "Environment:"
 	@echo "  BOARD=atlys OR opsis  (current: $(BOARD))"
@@ -49,6 +47,8 @@ help:
 	@make -s help-$(TARGET)
 	@echo " make clean"
 	@echo " make all"
+
+include Makefile.$(TARGET)
 
 clean: clean-$(TARGET)
 	cd $(MSCDIR) && $(CMD) clean
