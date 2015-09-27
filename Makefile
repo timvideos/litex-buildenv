@@ -1,3 +1,8 @@
+
+ifneq "$(HDMI2USB_ENV)" "1"
+$(error "Please 'source scripts/setup-env.sh'")
+endif
+
 BOARD ?= atlys
 MSCDIR ?= build/misoc
 PROG ?= impact
@@ -26,8 +31,6 @@ else
 	FLTERM = $(MSCDIR)/tools/flterm
 endif
 
-include Makefile.$(TARGET)
-
 help:
 	@echo "Environment:"
 	@echo "  BOARD=atlys OR opsis  (current: $(BOARD))"
@@ -44,6 +47,8 @@ help:
 	@make -s help-$(TARGET)
 	@echo " make clean"
 	@echo " make all"
+
+include Makefile.$(TARGET)
 
 clean: clean-$(TARGET)
 	cd $(MSCDIR) && $(CMD) clean

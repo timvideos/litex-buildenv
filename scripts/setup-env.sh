@@ -75,4 +75,4 @@ python3 -c "import fl" || (echo "libfpgalink broken"; return)
 
 alias python=python3
 
-HDMI2USB_ENV=1
+export HDMI2USB_ENV=1
