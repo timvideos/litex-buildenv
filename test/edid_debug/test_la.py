@@ -1,23 +1,23 @@
-from litescope.software.driver.la import LiteScopeLADriver
+from litescope.software.driver.logic_analyzer import LiteScopeLogicAnalyzerDriver
 
 
 def main(wb):
     wb.open()
     # # #
-    la = LiteScopeLADriver(wb.regs, "la", debug=True)
+    logic_analyzer = LiteScopeLogicAnalyzerDriver(wb.regs, "logic_analyzer", debug=True)
 
 #    cond = {"hdmi_in0_edid_scl_raw" : 0}
     cond = {"hdmi_in0_edid_fsm_state" : 2}
 #    cond = {}
-    la.configure_term(port=0, cond=cond)
-    la.configure_sum("term")
-    la.configure_subsampler(64)
-    la.run(offset=128, length=8192)
+    logic_analyzer.configure_term(port=0, cond=cond)
+    logic_analyzer.configure_sum("term")
+    logic_analyzer.configure_subsampler(64)
+    logic_analyzer.run(offset=128, length=8192)
 
-    while not la.done():
+    while not logic_analyzer.done():
         pass
-    la.upload()
+    logic_analyzer.upload()
 
-    la.save("dump.vcd")
+    logic_analyzer.save("dump.vcd")
     # # #
     wb.close()

@@ -6,7 +6,7 @@ from misoclib.tools.wishbone import WishboneStreamingBridge
 
 from litescope.common import *
 from litescope.core.port import LiteScopeTerm
-from litescope.frontend.la import LiteScopeLA
+from litescope.frontend.logic_analyzer import LiteScopeLogicAnalyzer
 
 class UARTVirtualPhy:
     def __init__(self):
@@ -16,7 +16,7 @@ class UARTVirtualPhy:
 
 class EDIDDebugSoC(VideomixerSoC):
     csr_map = {
-        "la": 30
+        "logic_analyzer": 30
     }
     csr_map.update(VideomixerSoC.csr_map)
 
@@ -61,8 +61,8 @@ class EDIDDebugSoC(VideomixerSoC):
             self.hdmi_in0.edid.din,
             self.hdmi_in0_edid_fsm_state
         )
-        self.submodules.la = LiteScopeLA(self.debug, 32*1024, with_subsampler=True)
-        self.la.trigger.add_port(LiteScopeTerm(self.la.dw))
+        self.submodules.logic_analyzer = LiteScopeLogicAnalyzer(self.debug, 32*1024, with_subsampler=True)
+        self.logic_analyzer.trigger.add_port(LiteScopeTerm(self.logic_analyzer.dw))
 
     def do_finalize(self):
         VideomixerSoC.do_finalize(self)
@@ -71,6 +71,6 @@ class EDIDDebugSoC(VideomixerSoC):
         ]
 
     def do_exit(self, vns):
-        self.la.export(vns, "../../test/edid_debug/la.csv") # XXX
+        self.logic_analyzer.export(vns, "../../test/edid_debug/logic_analyzer.csv") # XXX
 
 default_subtarget = EDIDDebugSoC
