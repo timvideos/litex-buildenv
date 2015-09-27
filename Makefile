@@ -1,6 +1,8 @@
 
+ifneq ($(OS),Windows_NT)
 ifneq "$(HDMI2USB_ENV)" "1"
 $(error "Please 'source scripts/setup-env.sh'")
+endif
 endif
 
 BOARD ?= atlys
@@ -56,11 +58,15 @@ clean: clean-$(TARGET)
 load: load-gateware load-$(TARGET)
 
 # Gateware targets
-gateware: gateware-$(TARGET)
+gateware:
 	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv clean
 	cp hdl/encoder/vhdl/header.hex $(MSCDIR)/build/header.hex
+ifneq ($(OS),Windows_NT)
 	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream \
 	| $(FILTER) $(PWD)/build/output.$(DATE).log; (exit $${PIPESTATUS[0]})
+else
+	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream
+endif
 
 load-gateware:
 	cd $(MSCDIR) && $(CMD) load-bitstream
