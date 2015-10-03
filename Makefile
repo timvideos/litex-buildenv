@@ -52,8 +52,15 @@ help:
 
 include Makefile.$(TARGET)
 
-clean: clean-$(TARGET)
-	cd $(MSCDIR) && $(CMD) clean
+clean:
+	make -s clean-$(TARGET)
+	if [ -f $(MSCDIR)/software/include/generated/cpu.mak ]; then \
+		(cd $(MSCDIR) && $(CMD) clean) \
+	fi
+	# FIXME - This is a temporarily hack until misoc clean works better.
+	rm -rf $(MSCDIR)/software/include/generated && ( \
+		mkdir $(MSCDIR)/software/include/generated && \
+		touch $(MSCDIR)/software/include/generated/.keep_me)
 
 load: load-gateware load-$(TARGET)
 
