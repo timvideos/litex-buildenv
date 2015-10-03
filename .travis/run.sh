@@ -43,12 +43,22 @@ for BOARD in $BOARDS; do
 		echo "---------------------------------------------"
 		BOARD=$BOARD TARGET=$TARGET make help
 
+		# We build the firmware first as it is very quick to build and
+		# will let us find a whole classes of errors quickly.
+
 		echo ""
 		echo ""
 		echo ""
-		echo "- make firmware ($BOARD $TARGET)"
+		echo "- make firmware ($BOARD $TARGET) (prerun)"
 		echo "---------------------------------------------"
 		BOARD=$BOARD TARGET=$TARGET make firmware
+		# https://github.com/timvideos/HDMI2USB-misoc-firmware/issues/83
+		# We have to clean after doing this otherwise if the gateware
+		# has a dependency on the firmware that isn't correctly working
+		# the travis build will still pass.
+		echo "- make clean ($BOARD $TARGET) (prerun)"
+		echo "---------------------------------------------"
+		BOARD=$BOARD TARGET=$TARGET make clean
 
 		echo ""
 		echo ""
@@ -66,13 +76,16 @@ for BOARD in $BOARDS; do
 				echo ""
 				echo ""
 				echo ""
-				echo "- make load-gateware ($PROG $BOARD $TARGET)"
+				echo "- make load ($PROG $BOARD $TARGET)"
 				echo "---------------------------------------------"
 				# Allow the programming to fail.
-				PROG=$PROG BOARD=$BOARD TARGET=$TARGET make load-gateware || true
+				PROG=$PROG BOARD=$BOARD TARGET=$TARGET make load || true
 			done
 		fi
 
+		# FIXME(https://github.com/timvideos/HDMI2USB-misoc-firmware/issues/83):
+		# Check after a "make clean" that only the initial files
+		# remain.
 		echo ""
 		echo ""
 		echo ""

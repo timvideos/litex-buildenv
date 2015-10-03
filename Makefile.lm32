@@ -1,0 +1,45 @@
+# The lm32 is the softcore which is embedded inside the FPGA gateware. It acts
+# as a "master controller" for the firmware and responds to commands from the
+# user via the UART interface. This means most of our high level logic can be
+# written in C!
+#
+# The lm32 firmware is embedded into the gateware file. An updated firmware can
+# be temporarily loaded via the UART without needing to rebuild the gateware
+# making development fast!
+#
+# See the following links for more information;
+#  * https://en.wikipedia.org/wiki/LatticeMico32
+#  * https://github.com/m-labs/lm32
+#  * http://m-labs.hk/gateware.html
+
+TARGETS += lm32
+SERIAL ?= /dev/ttyVIZ0
+
+help-lm32:
+	@echo "  Set lm32 serial port with SERIAL=/dev/ttyXXXX"
+	@echo "  (current: $(SERIAL))"
+	@echo " make load-lm32"
+	@echo " make connect-lm32"
+
+# The gateware embeds the lm32 firmware, so we need to build that first.
+gateware-lm32: firmware-lm32
+	@true
+
+firmware-lm32:
+	cd $(MSCDIR) && $(CMD) build-headers
+	$(MAKE) -C firmware/lm32 all
+
+load-lm32: firmware-lm32
+	@echo "To load new firmware, reboot the running firmware and then"
+	@echo "select serialboot at the BIOS prompt."
+	$(FLTERM) --port $(SERIAL) --kernel=firmware/lm32/firmware.bin --kernel-adr=0x20000000 --speed 115200
+
+clean-lm32:
+	if [ -f $(MSCDIR)/software/include/generated/cpu.mak ]; then \
+		$(MAKE) -C firmware/lm32 clean; \
+	fi
+
+connect-lm32:
+	$(FLTERM) --port $(SERIAL) --speed 115200
+
+.PHONY: help-lm32 gateware-lm32 firmware-lm32 load-lm32 clean-lm32 connect-lm32

@@ -1,0 +1,39 @@
+# The Cypress FX2 is a programmable USB interface chip found on the Atlys and
+# Opsis board (and many other devices out there).
+#
+# The IC is an 8051 core with a hardware support for the USB protocol. Firmware
+# for the FX2 is developed using the fx2lib library and compiled with the SDCC
+# compiler.
+#
+# The firmware can be loaded via USB using a number of tools such as fxload or
+# fpgalink. Loading new firmware will cause the FX2 to disconnect and then
+# reconnect to the USB bus, often causing it to change USB IDs and device
+# files.
+#
+# Being a programmable device, the FX2 can emulate many other USB devices. We
+# use it to emulate a USB UVC Webcam and a USB CDC-ACM serial port.
+#
+
+TARGETS += fx2
+
+help-fx2:
+	@echo " make view"
+
+gateware-fx2:
+	cp hdl/encoder/vhdl/header.hex $(MSCDIR)/build/header.hex
+
+# Firmware for the Cypress FX2
+firmware-fx2:
+	$(MAKE) -C firmware/fx2
+
+load-fx2: firmware-fx2
+	firmware/fx2/download.sh firmware/fx2/hdmi2usb.hex
+
+clean-fx2:
+	$(MAKE) -C firmware/fx2 clean
+
+# Utility functions
+view:
+	./scripts/view.sh
+
+.PHONY: help-fx2 gateware-fx2 firmware-fx2 load-fx2 clean-fx2 view
