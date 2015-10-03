@@ -43,10 +43,13 @@ for BOARD in $BOARDS; do
 		echo "---------------------------------------------"
 		BOARD=$BOARD TARGET=$TARGET make help
 
+		# We build the firmware first as it is very quick to build and
+		# will let us find a whole classes of errors quickly.
+
 		echo ""
 		echo ""
 		echo ""
-		echo "- make firmware ($BOARD $TARGET)"
+		echo "- make firmware ($BOARD $TARGET) (prerun)"
 		echo "---------------------------------------------"
 		BOARD=$BOARD TARGET=$TARGET make firmware
 
