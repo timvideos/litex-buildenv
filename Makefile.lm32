@@ -16,7 +16,10 @@ TARGETS += lm32
 SERIAL ?= /dev/ttyVIZ0
 
 help-lm32:
-	@echo " make connect-lm32 (current: $(SERIAL))"
+	@echo "  Set lm32 serial port with SERIAL=/dev/ttyXXXX"
+	@echo "  (current: $(SERIAL))"
+	@echo " make load-lm32"
+	@echo " make connect-lm32"
 
 # The gateware embeds the lm32 firmware, so we need to build that first.
 gateware-lm32: firmware-lm32
@@ -39,4 +42,4 @@ clean-lm32:
 connect-lm32:
 	$(FLTERM) --port $(SERIAL) --speed 115200
 
-.PHONY: help-lm32 gateware-lm32 load-lm32 clean-lm32 connect-lm32
+.PHONY: help-lm32 gateware-lm32 firmware-lm32 load-lm32 clean-lm32 connect-lm32
