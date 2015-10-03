@@ -18,6 +18,9 @@ else
 	BOARDS="$BOARD"
 fi
 
+#create "clean" file list before build
+find |grep -v .git | sort > /tmp/filelist.before
+
 for BOARD in $BOARDS; do
 	if [ -z "$TARGET" ]; then
 		TARGETS="base hdmi2usb"
@@ -93,6 +96,23 @@ for BOARD in $BOARDS; do
 		echo "---------------------------------------------"
 		BOARD=$BOARD TARGET=$TARGET make clean
 		echo "============================================="
+		
+		#create file list after make clean
+		find | grep -v .git | sort > /tmp/filelist.after
+		
+                echo ""
+		echo ""
+		echo ""
+		if ! diff -u /tmp/filelist.before /tmp/filelist.after|grep -v "@@"|grep "+" > /dev/null; then
+			echo "- make clean did not leave any generated files behind"
+		else
+			echo "- make clean left these files behind"
+			echo "============================================="
+			diff -u /tmp/filelist.before /tmp/filelist.after|grep -v "@@"|grep "+"
+			echo "============================================="
+			exit 1
+		fi
+
 	done
 	)
 done
