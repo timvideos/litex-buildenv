@@ -74,10 +74,10 @@ for BOARD in $BOARDS; do
 				echo ""
 				echo ""
 				echo ""
-				echo "- make load-gateware ($PROG $BOARD $TARGET)"
+				echo "- make load ($PROG $BOARD $TARGET)"
 				echo "---------------------------------------------"
 				# Allow the programming to fail.
-				PROG=$PROG BOARD=$BOARD TARGET=$TARGET make load-gateware || true
+				PROG=$PROG BOARD=$BOARD TARGET=$TARGET make load || true
 			done
 		fi
 
