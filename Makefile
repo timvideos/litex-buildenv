@@ -53,11 +53,10 @@ help:
 	@echo "Targets avaliable:"
 	@echo " make help"
 	@echo " make all"
-	@echo " make release"
-	@echo " make load"
-	@echo " make flash"
 	@echo " make gateware"
 	@echo " make firmware"
+	@echo " make load"
+	@echo " make flash"
 	@for T in $(TARGETS); do make -s help-$$T; done
 	@echo " make clean"
 
@@ -102,4 +101,4 @@ clean:
 		touch $(MSCDIR)/software/include/generated/.keep_me)
 
 .DEFAULT_GOAL := help
-.PHONY: all load flash gateware firmware
+.PHONY: all load-gateware load flash gateware firmware
