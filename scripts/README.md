@@ -1,10 +1,10 @@
 # Building HDMI2USB-misoc-firmware
 
-These scripts are designed to bootstrap a firmware build environment on Ubuntu 14.04 LTS.
+These scripts are designed to bootstrap a firmware build environment on Ubuntu 14.04 LTS and also works on 15.04 though with less testing.
 
-Instructions:
+## Prerequisite
 
-1. Install Xilinx ISE WebPACK 14.7 + activate a licence:
+Install Xilinx ISE WebPACK 14.7 + activate a licence:
 
   * Download from [http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/design-tools.html]
   * Install into the default location in /opt (requires X11 GUI):
@@ -25,18 +25,29 @@ Instructions:
   ```
   Go to About > Licence, ensure under "information" you can see your ISE WebPACK licence.
  
-2.  Run the bootstrap script to build an environment required for flashing firmware:
+## Bootstrap
+ 
+Run the bootstrap script to build an environment required for flashing firmware:
   ```
   curl -fsS https://raw.githubusercontent.com/timvideos/HDMI2USB-misoc-firmware/master/scripts/bootstrap.sh | bash
   ```
 
-3. Initalise the environment (required for any of the build/load steps below[2]):
+This clones the HDMI2USB-misoc-firmware repository, adds the timvideos fpga-support PPA, installs packages required then downloads misoc and its dependencies. Depending on your connection speed this could take a while to download.
+
+## Building the firmware
+
+1. Initalise the environment (required for any of the build/load steps below[2]):
   ```
-  cd ~/HDMI2USB-misoc-firmware
+  cd HDMI2USB-misoc-firmware
   source scripts/setup-env.sh
   ```
 
-4.  Build the gateware:
+2.  Build the lm32-firmware for the softcore:
+  ```
+  make lm32-firmware
+  ```
+
+3.  Build the gateware:
   ```
   make gateware
   ```
@@ -50,7 +61,7 @@ Instructions:
 
    The built gateware will be in build/misoc/build/.
 
-5. You've now built the HDMI2USB firmware/gateware.  Ensure board has the right pins set before flashing anything, and plug it in:
+4. You've now built the HDMI2USB firmware/gateware.  Ensure board has the right pins set before flashing anything, and plug it in:
 
   As the HDMI2USB firmware manipulates the EDID information the following jumpers must be removed;
 
@@ -62,19 +73,19 @@ Instructions:
   * Plug board in using USB PROG port & switch on.  If using a VM, ensure the device is passed through.
   * Other USB port is for the HDMI2USB capture.  Recommend plugging this in too so you can use/test the device.
  
-6.  Flash the gateware and firmware - see [1] if using a VM:
+5.  Flash the gateware and firmware - see [1] if using a VM:
 
   ```
   PROG=fpgalink make load-gateware
   ```
   (may need to run several times)
 
-7.  Load fx2 firmware to enable USB capture:
+6.  Load fx2 firmware to enable USB capture:
   ```
   make load-fx2-firmware
   ```
 
-8. Connect to lm32 softcore to send direct commands to the HDMI2USB such as changing resolution:
+7. Connect to lm32 softcore to send direct commands to the HDMI2USB such as changing resolution:
   ```
   make connect-lm32
   ```
