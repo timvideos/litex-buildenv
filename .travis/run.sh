@@ -52,6 +52,11 @@ for BOARD in $BOARDS; do
 		echo "- make firmware ($BOARD $TARGET) (prerun)"
 		echo "---------------------------------------------"
 		BOARD=$BOARD TARGET=$TARGET make firmware
+		# https://github.com/timvideos/HDMI2USB-misoc-firmware/issues/83
+		# We have to clean after doing this otherwise if the gateware
+		# has a dependency on the firmware that isn't correctly working
+		# the travis build will still pass.
+		BOARD=$BOARD TARGET=$TARGET make clean
 
 		echo ""
 		echo ""
