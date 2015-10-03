@@ -1,0 +1,23 @@
+TARGETS += fx2
+
+help-fx2:
+	@echo " make view"
+
+gateware-fx2:
+	cp hdl/encoder/vhdl/header.hex $(MSCDIR)/build/header.hex
+
+# Firmware for the Cypress FX2
+firmware-fx2:
+	$(MAKE) -C firmware/fx2
+
+load-fx2: firmware-fx2
+	firmware/fx2/download.sh firmware/fx2/hdmi2usb.hex
+
+clean-fx2:
+	$(MAKE) -C firmware/fx2 clean
+
+# Utility functions
+view:
+	./scripts/view.sh
+
+.PHONY: help-fx2 gateware-fx2 firmware-fx2 load-fx2 clean-fx2 view

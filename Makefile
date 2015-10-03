@@ -8,7 +8,6 @@ endif
 BOARD ?= atlys
 MSCDIR ?= build/misoc
 PROG ?= impact
-SERIAL ?= /dev/ttyVIZ0
 TARGET ?= hdmi2usb
 FILTER ?= tee
 
@@ -33,27 +32,67 @@ else
 	FLTERM = $(MSCDIR)/tools/flterm
 endif
 
+# Every target except the base has a lm32 softcore
+ifneq ($(TARGET),base)
+include Makefile.lm32
+endif
+
+# The edid_debug and hdmi2usb also use the Cypress FX2
+ifneq ($(filter $(TARGET),edid_debug hdmi2usb),)
+include Makefile.fx2
+endif
+
 help:
 	@echo "Environment:"
 	@echo "  BOARD=atlys OR opsis  (current: $(BOARD))"
 	@echo " TARGET=base OR hdmi2usb OR hdmi2ethernet"
 	@echo "                        (current: $(TARGET))"
 	@echo "   PROG=programmer      (current: $(PROG))"
-	@echo " SERIAL=serial port     (current: $(SERIAL))"
 	@echo ""
+	@if [ ! -z "$(TARGETS)" ]; then echo " Extra firmware needed for: $(TARGETS)"; echo ""; fi
 	@echo "Targets avaliable:"
 	@echo " make help"
-	@echo " make gateware"
-	@echo " make load-gateware"
-	@echo " make connect-lm32"
-	@make -s help-$(TARGET)
-	@echo " make clean"
 	@echo " make all"
+	@echo " make release"
+	@echo " make load"
+	@echo " make flash"
+	@echo " make gateware"
+	@echo " make firmware"
+	@for T in $(TARGETS); do make -s help-$$T; done
+	@echo " make clean"
 
-include Makefile.$(TARGET)
+# All target
+all: clean gateware firmware
+	echo "Run 'make load' to load the firmware."
 
+# Gateware
+gateware: $(addprefix gateware-,$(TARGETS))
+ifneq ($(OS),Windows_NT)
+	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream \
+	| $(FILTER) $(PWD)/build/output.$(DATE).log; (exit $${PIPESTATUS[0]})
+else
+	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream
+endif
+
+# Firmware
+firmware: $(addprefix firmware-,$(TARGETS))
+	@true
+
+# Load
+load-gateware:
+	cd $(MSCDIR) && $(CMD) load-bitstream
+
+load: load-gateware $(addprefix load-,$(TARGETS))
+	@true
+
+# Flash
+flash:
+	@echo "Not implimented yet"
+	@exit 1
+
+# Clean
 clean:
-	make -s clean-$(TARGET)
+	@for T in $(TARGETS); do make clean-$$T; done
 	if [ -f $(MSCDIR)/software/include/generated/cpu.mak ]; then \
 		(cd $(MSCDIR) && $(CMD) clean) \
 	fi
@@ -62,33 +101,5 @@ clean:
 		mkdir $(MSCDIR)/software/include/generated && \
 		touch $(MSCDIR)/software/include/generated/.keep_me)
 
-load: load-gateware load-$(TARGET)
-
-# Gateware targets
-gateware:
-	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv clean
-	cp hdl/encoder/vhdl/header.hex $(MSCDIR)/build/header.hex
-ifneq ($(OS),Windows_NT)
-	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream \
-	| $(FILTER) $(PWD)/build/output.$(DATE).log; (exit $${PIPESTATUS[0]})
-else
-	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream
-endif
-
-load-gateware:
-	cd $(MSCDIR) && $(CMD) load-bitstream
-
-release-gateware:
-	cd $(MSCDIR)/build && tar -cvzf ../$(HDMI2USBDIR)/$(BOARD)_$(TARGET)_gateware_$(DATE).tar.gz *.bin *.bit
-
-# Firmware targets
-firmware: firmware-$(TARGET)
-	@true
-
-connect-lm32:
-	$(FLTERM) --port $(SERIAL) --speed 115200
-
-# All target
-all: gateware load-gateware load-$(TARGET)
-
-.PHONY: help clean load gateware load-gateware release-gateware connect-lm32 all
+.DEFAULT_GOAL := help
+.PHONY: all load flash gateware firmware

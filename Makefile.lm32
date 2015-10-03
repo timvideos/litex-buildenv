@@ -1,0 +1,28 @@
+TARGETS += lm32
+SERIAL ?= /dev/ttyVIZ0
+
+help-lm32:
+	@echo " make connect-lm32 (current: $(SERIAL))"
+
+# Firmware for the lm32 softcore
+
+# The gateware embeds the lm32 firmware, so we need to build that first.
+gateware-lm32: firmware-lm32
+	@true
+
+firmware-lm32:
+	cd $(MSCDIR) && $(CMD) build-headers
+	$(MAKE) -C firmware/lm32 all
+
+load-lm32: firmware-lm32
+	$(FLTERM) --port $(SERIAL) --kernel=firmware/lm32/firmware.bin --kernel-adr=0x20000000 --speed 115200
+
+clean-lm32:
+	if [ -f $(MSCDIR)/software/include/generated/cpu.mak ]; then \
+		$(MAKE) -C firmware/lm32 clean; \
+	fi
+
+connect-lm32:
+	$(FLTERM) --port $(SERIAL) --speed 115200
+
+.PHONY: help-lm32 gateware-lm32 load-lm32 clean-lm32 connect-lm32
