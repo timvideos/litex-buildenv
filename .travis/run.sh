@@ -81,6 +81,9 @@ for BOARD in $BOARDS; do
 			done
 		fi
 
+		# FIXME(https://github.com/timvideos/HDMI2USB-misoc-firmware/issues/83):
+		# Check after a "make clean" that only the initial files
+		# remain.
 		echo ""
 		echo ""
 		echo ""
