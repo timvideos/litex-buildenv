@@ -20,6 +20,12 @@ if [ ! -z $HDMI2USB_ENV ]; then
   return
 fi
 
+if [ ! -z $SETTINGS_FILE ]; then
+  echo "You appear to have sourced the Xilinx ISE settings, these are incompatible with building."
+  echo "Please exit this terminal and run again from a clean shell."
+  return
+fi
+
 echo "             This script is: $SETUP_SRC"
 echo "         Firmware directory: $TOP_DIR"
 echo "         Build directory is: $BUILD_DIR"
