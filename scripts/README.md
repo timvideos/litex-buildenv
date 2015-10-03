@@ -42,12 +42,7 @@ This clones the HDMI2USB-misoc-firmware repository, adds the timvideos fpga-supp
   source scripts/setup-env.sh
   ```
 
-2.  Build the lm32-firmware for the softcore:
-  ```
-  make lm32-firmware
-  ```
-
-3.  Build the gateware:
+2.  Build the gateware:
   ```
   make gateware
   ```
@@ -61,7 +56,7 @@ This clones the HDMI2USB-misoc-firmware repository, adds the timvideos fpga-supp
 
    The built gateware will be in build/misoc/build/.
 
-4. You've now built the HDMI2USB firmware/gateware.  Ensure board has the right pins set before flashing anything, and plug it in:
+3. You've now built the HDMI2USB firmware/gateware.  Ensure board has the right pins set before flashing anything, and plug it in:
 
   As the HDMI2USB firmware manipulates the EDID information the following jumpers must be removed;
 
@@ -73,19 +68,19 @@ This clones the HDMI2USB-misoc-firmware repository, adds the timvideos fpga-supp
   * Plug board in using USB PROG port & switch on.  If using a VM, ensure the device is passed through.
   * Other USB port is for the HDMI2USB capture.  Recommend plugging this in too so you can use/test the device.
  
-5.  Flash the gateware and firmware - see [1] if using a VM:
+4.  Flash the gateware and firmware - see [1] if using a VM:
 
   ```
   PROG=fpgalink make load-gateware
   ```
   (may need to run several times)
 
-6.  Load fx2 firmware to enable USB capture:
+5.  Load fx2 firmware to enable USB capture:
   ```
   make load-fx2-firmware
   ```
 
-7. Connect to lm32 softcore to send direct commands to the HDMI2USB such as changing resolution:
+6. Connect to lm32 softcore to send direct commands to the HDMI2USB such as changing resolution:
   ```
   make connect-lm32
   ```
