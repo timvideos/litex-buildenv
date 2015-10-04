@@ -23,7 +23,7 @@ gateware-fx2:
 	cp hdl/encoder/vhdl/header.hex $(MSCDIR)/build/header.hex
 
 # Firmware for the Cypress FX2
-firmware-fx2:
+firmware-fx2: third_party/fx2lib/.git
 	$(MAKE) -C firmware/fx2
 
 load-fx2: firmware-fx2

@@ -5,6 +5,7 @@ SETUP_SRC=$(realpath ${BASH_SOURCE[0]})
 SETUP_DIR=$(dirname $SETUP_SRC)
 TOP_DIR=$(realpath $SETUP_DIR/..)
 BUILD_DIR=$TOP_DIR/build
+THIRD_DIR=$TOP_DIR/third_party
 
 set -x
 set -e
@@ -12,6 +13,7 @@ set -e
 echo "             This script is: $SETUP_SRC"
 echo "         Firmware directory: $TOP_DIR"
 echo "         Build directory is: $BUILD_DIR"
+echo "     3rd party directory is: $THIRD_DIR"
 
 # Check the build dir
 if [ ! -d $BUILD_DIR ]; then
@@ -100,18 +102,16 @@ export PATH=$CONDA_DIR/bin:$PATH
 	conda install sdcc
 )
 
+# git submodules
+git submodule update --recursive
+git submodule foreach \
+	git submodule update --recursive --init
+
 # migen
-MIGEN_DIR=$BUILD_DIR/migen
+MIGEN_DIR=$THIRD_DIR/migen
 (
-	if [ ! -d $MIGEN_DIR ]; then
-		cd $BUILD_DIR
-		git clone https://github.com/m-labs/migen.git
-		cd migen
-	else
-		cd $MIGEN_DIR
-		git pull
-	fi
-	#cd vpi
+	cd $MIGEN_DIR
+	cd vpi
 	#make all
 	#sudo make install
 )
@@ -119,18 +119,9 @@ export PYTHONPATH=$MIGEN_DIR:$PYTHONPATH
 python3 -c "import migen"
 
 # misoc
-MISOC_DIR=$BUILD_DIR/misoc
+MISOC_DIR=$THIRD_DIR/misoc
 (
-	if [ ! -d $MISOC_DIR ]; then
-		cd $BUILD_DIR
-		git clone https://github.com/m-labs/misoc.git
-		cd misoc
-	else
-		cd $MISOC_DIR
-		git pull
-	fi
-	git submodule init
-	git submodule update
+	cd $MISOC_DIR
 	cd tools
 	make
 )
@@ -139,16 +130,10 @@ $MISOC_DIR/tools/flterm --help
 python3 -c "import misoclib"
 
 # liteeth
-LITEETH_DIR=$BUILD_DIR/liteeth
+LITEETH_DIR=$THIRD_DIR/liteeth
 (
-	if [ ! -d $LITEETH_DIR ]; then
-		cd $BUILD_DIR
-		git clone https://github.com/enjoy-digital/liteeth.git
-		cd liteeth
-	else
-		cd $LITEETH_DIR
-		git pull
-	fi
+	cd $LITEETH_DIR
+	true
 )
 export PYTHONPATH=$LITEETH_DIR:$PYTHONPATH
 python3 -c "import liteeth"

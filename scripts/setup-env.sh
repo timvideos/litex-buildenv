@@ -7,6 +7,7 @@ SETUP_SRC=$(realpath ${BASH_SOURCE[0]})
 SETUP_DIR=$(dirname $SETUP_SRC)
 TOP_DIR=$(realpath $SETUP_DIR/..)
 BUILD_DIR=$TOP_DIR/build
+THIRD_DIR=$TOP_DIR/third_party
 
 
 if [ $SOURCED = 0 ]; then
@@ -29,6 +30,7 @@ fi
 echo "             This script is: $SETUP_SRC"
 echo "         Firmware directory: $TOP_DIR"
 echo "         Build directory is: $BUILD_DIR"
+echo "     3rd party directory is: $THIRD_DIR"
 
 # Check the build dir
 if [ ! -d $BUILD_DIR ]; then
@@ -59,17 +61,18 @@ CONDA_DIR=$BUILD_DIR/conda
 export PATH=$CONDA_DIR/bin:$PATH
 
 # migen
-MIGEN_DIR=$BUILD_DIR/migen
+MIGEN_DIR=$THIRD_DIR/migen
 export PYTHONPATH=$MIGEN_DIR:$PYTHONPATH
 python3 -c "import migen" || (echo "migen broken"; return)
 
 # misoc
-MISOC_DIR=$BUILD_DIR/misoc
+MISOC_DIR=$THIRD_DIR/misoc
 export PYTHONPATH=$MISOC_DIR:$PYTHONPATH
+$MISOC_DIR/tools/flterm --help || (echo "misoc flterm broken"; return)
 python3 -c "import misoclib" || (echo "misoc broken"; return)
 
 # liteeth
-LITEETH_DIR=$BUILD_DIR/liteeth
+LITEETH_DIR=$THIRD_DIR/liteeth
 export PYTHONPATH=$LITEETH_DIR:$PYTHONPATH
 python3 -c "import liteeth" || (echo "liteeth broken"; return)
 
