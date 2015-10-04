@@ -18,8 +18,8 @@ else
 	BOARDS="$BOARD"
 fi
 
-#create "clean" file list before build
-find |grep -v .git | sort > /tmp/filelist.before
+# Create "clean" file list before build
+find | sort > /tmp/filelist.before
 
 for BOARD in $BOARDS; do
 	if [ -z "$TARGET" ]; then
@@ -86,9 +86,6 @@ for BOARD in $BOARDS; do
 			done
 		fi
 
-		# FIXME(https://github.com/timvideos/HDMI2USB-misoc-firmware/issues/83):
-		# Check after a "make clean" that only the initial files
-		# remain.
 		echo ""
 		echo ""
 		echo ""
@@ -96,19 +93,18 @@ for BOARD in $BOARDS; do
 		echo "---------------------------------------------"
 		BOARD=$BOARD TARGET=$TARGET make clean
 		echo "============================================="
-		
-		#create file list after make clean
-		find | grep -v .git | sort > /tmp/filelist.after
-		
+
+		# Check that make clean didn't leave anything behind
+		find | sort > /tmp/filelist.after
                 echo ""
 		echo ""
 		echo ""
-		if ! diff -u /tmp/filelist.before /tmp/filelist.after|grep -v "@@"|grep "+" > /dev/null; then
+		if ! diff -u /tmp/filelist.before /tmp/filelist.after > /tmp/filelist.diff; then
 			echo "- make clean did not leave any generated files behind"
 		else
 			echo "- make clean left these files behind"
 			echo "============================================="
-			diff -u /tmp/filelist.before /tmp/filelist.after|grep -v "@@"|grep "+"
+			cat /tmp/filelist.diff | grep "^+"
 			echo "============================================="
 			exit 1
 		fi
