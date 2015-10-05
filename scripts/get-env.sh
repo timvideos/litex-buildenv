@@ -103,9 +103,12 @@ export PATH=$CONDA_DIR/bin:$PATH
 )
 
 # git submodules
-git submodule update --recursive
-git submodule foreach \
-	git submodule update --recursive --init
+(
+	cd $TOP_DIR
+	git submodule update --recursive
+	git submodule foreach \
+		git submodule update --recursive --init
+)
 
 # migen
 MIGEN_DIR=$THIRD_DIR/migen
