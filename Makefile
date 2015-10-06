@@ -107,6 +107,8 @@ clean:
 	rm -rf $(MSCDIR)/software/include/generated && ( \
 		mkdir $(MSCDIR)/software/include/generated && \
 		touch $(MSCDIR)/software/include/generated/.keep_me)
+	# Cleanup Python3's __pycache__ directories
+	find . -name __pycache__ -type d -exec rm -r {} +
 
 .DEFAULT_GOAL := help
 .PHONY: all load-gateware load flash gateware firmware third_party/*
