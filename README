@@ -1,0 +1,36 @@
+         ___       __           ____     _____
+        / _ | ____/ /___ ______/ __/__  / ___/
+       / __ |/ __/ __/ // /___/\ \/ _ \/ /__  
+      /_/ |_/_/  \__/\_, /   /___/\___/\___/  
+                    /___/                     
+
+            Copyright 2015 / EnjoyDigital
+
+    Xilinx Arty SoC based on Migen/MiSoC
+
+[> Getting started
+------------------
+1. Follow MiSoC Quick start guide
+	https://github.com/m-labs/misoc
+
+2. Obtain LiteEth and install it:
+  git clone https://github.com/enjoy-digital/liteth
+  cd liteth
+  python3 setup.py install
+  cd ..
+
+2. Obtain LiteUSB and install it:
+  git clone https://github.com/enjoy-digital/liteeth
+  cd liteusb
+  python3 setup.py install
+  cd ..
+
+3. Build the gateware and software:
+	go to misoc dir
+	./make.py -X your_arty_soc_path -t arty -s BaseSoC all
+
+[> Status:
+TODO
+
+[> Contact
+E-mail: florent@enjoy-digital.fr
