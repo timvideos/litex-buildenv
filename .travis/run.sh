@@ -85,6 +85,67 @@ for BOARD in $BOARDS; do
 				PROG=$PROG BOARD=$BOARD TARGET=$TARGET make load || true
 			done
 		fi
+		
+		# Copy built files
+		if [ -z $GITHUB_TOKEN  ]; then
+			# Only if run by travis display error
+			if [ ! -z $TRAVIS_BUILD_NUMBER  ]; then
+				echo ""
+				echo ""
+				echo ""
+				echo "- No Github token so unable to copy built files"
+			fi
+		else
+			echo ""
+			echo ""
+			echo ""
+			echo "- Fetching non shallow to get git version"
+			echo "---------------------------------------------"
+			git fetch --unshallow && git fetch --tags
+			GIT_REVISION=`git describe`
+			echo "============================================="
+			COPY_REPO_OWNER="timvideos"
+			COPY_REPO="HDMI2USB-firmware-prebuilt"
+			COPY_DEST="archive/$GIT_REVISION/$BOARD/$TARGET"
+			ORIG_COMMITTER_NAME=`git log -1 --pretty=%an`
+			ORIG_COMMITTER_EMAIL=`git log -1 --pretty=%ae`
+			echo ""
+			echo ""
+			echo ""
+			echo "- Uploading built files to github.com/$COPY_REPO_OWNER/$COPY_REPO$COPY_DEST"
+			echo "---------------------------------------------"
+			rm -rf $COPY_REPO
+			git clone https://$GITHUB_TOKEN@github.com/$COPY_REPO_OWNER/$COPY_REPO.git			
+			cd $COPY_REPO
+			mkdir -p $COPY_DEST
+			# Not currently built so use .bit instead
+			#cp ../third_party/misoc/build/*.xsvf $COPY_DEST
+			cp ../third_party/misoc/build/*.bit $COPY_DEST
+			cp ../build/output.*.log $COPY_DEST
+			echo ""
+			echo "- Uploading .bit and logfile"
+			# Only hdmi2usb is considered usable just now
+			UNSTABLE_LINK="$BOARD/firmware/unstable"
+			if [ "$TARGET" = "hdmi2usb" ]; then
+				# Copy FX2 firmware
+				cp ../firmware/fx2/hdmi2usb.hex $COPY_DEST
+				# Create link to latest unstable build
+				echo ""
+				echo "- Uploading FX2 firmware"
+				rm $UNSTABLE_LINK
+				ln -s ../../$COPY_DEST $UNSTABLE_LINK
+				echo ""
+				echo "- Added symlink of $UNSTABLE_LINK -> $COPY_DEST"
+			fi
+			git config user.email "$ORIG_COMMITTER_EMAIL"
+			git config user.name "$ORIG_COMMITTER_NAME"
+			git add -A .
+			git commit -a -m "Travis build #$TRAVIS_BUILD_NUMBER of $GIT_REVISION"
+			git push --quiet origin master > /dev/null 2>&1
+			cd ..
+			rm -rf $COPY_REPO
+			echo "============================================="
+		fi
 
 		echo ""
 		echo ""
