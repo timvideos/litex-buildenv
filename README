@@ -21,7 +21,7 @@
 
 2. Build the gateware and software:
 	go to misoc dir
-	./make.py -X your_arty_soc_path -t arty -s BaseSoC all
+	./make.py -X your_arty_soc_path -t arty_base -s BaseSoC all
 
 [> Status:
 TODO
