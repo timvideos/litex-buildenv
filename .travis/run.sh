@@ -140,7 +140,7 @@ for BOARD in $BOARDS; do
 			git config user.email "$ORIG_COMMITTER_EMAIL"
 			git config user.name "$ORIG_COMMITTER_NAME"
 			git add -A .
-			git commit -a -m "Travis build #$TRAVIS_BUILD_NUMBER of $GIT_REVISION"
+			git commit -a -m "Travis build #$TRAVIS_BUILD_NUMBER of $GIT_REVISION for BOARD=$BOARD TARGET=$TARGET"
 			git push --quiet origin master > /dev/null 2>&1
 			cd ..
 			rm -rf $COPY_REPO
