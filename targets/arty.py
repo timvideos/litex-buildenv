@@ -3,12 +3,13 @@ from migen.fhdl.std import *
 from misoclib.soc import mem_decoder
 from misoclib.soc.sdram import SDRAMSoC
 from misoclib.mem.flash import spiflash
-from misoclib.mem.sdram.phy import k7ddrphy
 from misoclib.mem.sdram.module import SDRAMModule
 from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
 
 from liteeth.phy import LiteEthPHY
 from liteeth.core.mac import LiteEthMAC
+
+from hdl import a7ddrphy
 
 
 class MT41K128M16(SDRAMModule):
@@ -83,13 +84,15 @@ class BaseSoC(SDRAMSoC):
                  **kwargs):
         SDRAMSoC.__init__(self, platform,
                           clk_freq=int((1/platform.default_clk_period)*1e9),
+                          integrated_rom_size=0x8000,      #TODO: remove this when SPI Flash validated
+                          integrated_main_ram_size=0x8000, #TODO: remove this when SDRAM validated
                           sdram_controller_settings=sdram_controller_settings,
                           **kwargs)
 
         self.submodules.crg = _CRG(platform)
 
         if not self.integrated_main_ram_size:
-            ddrphy = k7ddrphy.K7DDRPHY(platform.request("ddram"),
+            ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"),
                                        MT41K128M16(self.clk_freq))
             self.submodules.ddrphy = ddrphy
             self.register_sdram_phy(ddrphy)
