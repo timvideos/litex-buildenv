@@ -9,7 +9,7 @@ from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
 from liteeth.phy import LiteEthPHY
 from liteeth.core.mac import LiteEthMAC
 
-from hdl import a7ddrphy
+from hdl import a7ddrphy, dna, xadc
 
 
 class MT41K128M16(SDRAMModule):
@@ -90,6 +90,8 @@ class BaseSoC(SDRAMSoC):
                           **kwargs)
 
         self.submodules.crg = _CRG(platform)
+        self.submodules.dna = dna.DNA()
+        self.submodules.xadc = xadc.XADC()
 
         if not self.integrated_main_ram_size:
             ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"),
