@@ -6,8 +6,9 @@ from misoclib.mem.flash import spiflash
 from misoclib.mem.sdram.phy import k7ddrphy
 from misoclib.mem.sdram.module import SDRAMModule
 from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
-from misoclib.com.liteethmini.phy import LiteEthPHY
-from misoclib.com.liteethmini.mac import LiteEthMAC
+
+from liteeth.phy import LiteEthPHY
+from liteeth.core.mac import LiteEthMAC
 
 
 class MT41K128M16(SDRAMModule):
