@@ -87,7 +87,7 @@ for BOARD in $BOARDS; do
 		fi
 		
 		# Copy built files
-		if [ -z $GITHUB_TOKEN  ]; then
+		if [ -z $GH_TOKEN  ]; then
 			# Only if run by travis display error
 			if [ ! -z $TRAVIS_BUILD_NUMBER  ]; then
 				echo ""
@@ -115,7 +115,7 @@ for BOARD in $BOARDS; do
 			echo "- Uploading built files to github.com/$COPY_REPO_OWNER/$COPY_REPO$COPY_DEST"
 			echo "---------------------------------------------"
 			rm -rf $COPY_REPO
-			git clone https://$GITHUB_TOKEN@github.com/$COPY_REPO_OWNER/$COPY_REPO.git			
+			git clone https://$GH_TOKEN@github.com/$COPY_REPO_OWNER/$COPY_REPO.git			
 			cd $COPY_REPO
 			mkdir -p $COPY_DEST
 			# Not currently built so use .bit instead
