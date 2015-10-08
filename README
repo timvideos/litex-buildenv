@@ -4,8 +4,8 @@
      /_//_/____/_/  /_/___/ /____/  \____/___/____/
                       alternative
 
+            Copyright 2015 / TimVideos.us
             Copyright 2015 / EnjoyDigital
-              florent@enjoy-digital.fr
 
     Alternative HDMI2USB gateware and firmware based on Migen/MiSoC
 
@@ -57,6 +57,11 @@ Original HDMI2USB firmware can be found at http://github.com/timvideos/HDMI2USB
 
 [> Contact
 
-Mailing List:
- * https://groups.google.com/forum/#!forum/hdmi2usb
- * hdmi2usb@googlegroups.com
+TimVideo.us:
+
+  Mailing List:
+   * https://groups.google.com/forum/#!forum/hdmi2usb
+   * hdmi2usb@googlegroups.com
+
+EnjoyDigital:
+  florent@enjoy-digital.fr
