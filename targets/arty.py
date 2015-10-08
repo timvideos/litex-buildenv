@@ -4,10 +4,30 @@ from misoclib.soc import mem_decoder
 from misoclib.soc.sdram import SDRAMSoC
 from misoclib.mem.flash import spiflash
 from misoclib.mem.sdram.phy import k7ddrphy
-from misoclib.mem.sdram.module import MT41K128M16
+from misoclib.mem.sdram.module import SDRAMModule
 from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
 from misoclib.com.liteethmini.phy import LiteEthPHY
 from misoclib.com.liteethmini.mac import LiteEthMAC
+
+
+class MT41K128M16(SDRAMModule):
+    geom_settings = {
+        "nbanks": 8,
+        "nrows":  16384,
+        "ncols":  1024,
+    }
+    timing_settings = {
+        "tRP":   13.75,
+        "tRCD":  13.75,
+        "tWR":   15,
+        "tWTR":  8,
+        "tREFI": 64*1000*1000/8192,
+        "tRFC":  160,
+    }
+
+    def __init__(self, clk_freq):
+        SDRAMModule.__init__(self, clk_freq, "DDR3", self.geom_settings,
+                             self.timing_settings)
 
 
 class _CRG(Module):
