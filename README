@@ -19,12 +19,18 @@
   python3 setup.py install
   cd ..
 
-2. Build the gateware and software:
+3. Obtain LiteScope and install it:
+  git clone https://github.com/enjoy-digital/litescope
+  cd litescope
+  python3 setup.py install
+  cd ..
+
+4. Build the gateware and software:
 	go to misoc dir
 	./make.py -X your_arty_soc_path -t arty_base -s BaseSoC all
 
 [> Status:
-TODO
+arty_base and arty_logic_analyzer targets to be validated.
 
 [> Contact
 E-mail: florent@enjoy-digital.fr
