@@ -118,9 +118,15 @@ for BOARD in $BOARDS; do
 			git clone https://$GH_TOKEN@github.com/$COPY_REPO_OWNER/$COPY_REPO.git			
 			cd $COPY_REPO
 			mkdir -p $COPY_DEST
+			SHA256SUM_FILE="sha256sum.txt"
 			# Not currently built so use .bit instead
 			#cp ../third_party/misoc/build/*.xsvf $COPY_DEST
-			cp ../third_party/misoc/build/*.bit $COPY_DEST
+			BIT_FILE="../third_party/misoc/build/*.bit"
+			cp $BIT_FILE $COPY_DEST
+			BIT_SHA256=$(sha256sum $BIT_FILE)
+			echo ""
+			echo "- Gateware SHA256: $BIT_SHA256"
+			echo $BIT_SHA256 >> $COPY_DEST/$SHA256SUM_FILE
 			cp ../build/output.*.log $COPY_DEST
 			echo ""
 			echo "- Uploading .bit and logfile"
@@ -128,7 +134,12 @@ for BOARD in $BOARDS; do
 			UNSTABLE_LINK="$BOARD/firmware/unstable"
 			if [ "$TARGET" = "hdmi2usb" ]; then
 				# Copy FX2 firmware
-				cp ../firmware/fx2/hdmi2usb.hex $COPY_DEST
+				HEX_FILE="../firmware/fx2/hdmi2usb.hex"
+				cp $HEX_FILE $COPY_DEST
+				HEX_SHA256=$(sha256sum $HEX_FILE)
+				echo ""
+				echo "- FX2 firmware SHA256: $HEX_SHA256"
+				echo $HEX_SHA256 >> $COPY_DEST/$SHA256SUM_FILE
 				# Create link to latest unstable build
 				echo ""
 				echo "- Uploading FX2 firmware"
@@ -139,6 +150,7 @@ for BOARD in $BOARDS; do
 			fi
 			git config user.email "$ORIG_COMMITTER_EMAIL"
 			git config user.name "$ORIG_COMMITTER_NAME"
+			echo ""
 			git add -A .
 			git commit -a -m "Travis build #$TRAVIS_BUILD_NUMBER of $GIT_REVISION for BOARD=$BOARD TARGET=$TARGET"
 			git push --quiet origin master > /dev/null 2>&1
