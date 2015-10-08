@@ -19,13 +19,7 @@
   python3 setup.py install
   cd ..
 
-2. Obtain LiteUSB and install it:
-  git clone https://github.com/enjoy-digital/liteeth
-  cd liteusb
-  python3 setup.py install
-  cd ..
-
-3. Build the gateware and software:
+2. Build the gateware and software:
 	go to misoc dir
 	./make.py -X your_arty_soc_path -t arty -s BaseSoC all
 
