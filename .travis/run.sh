@@ -104,11 +104,13 @@ for BOARD in $BOARDS; do
 			git fetch --unshallow && git fetch --tags
 			GIT_REVISION=`git describe`
 			echo "============================================="
-			COPY_REPO_OWNER="timvideos"
+			# Look at repo we are running in to determine where to try pushing to if in a fork
+			COPY_REPO_OWNER=$(echo $TRAVIS_REPO_SLUG|awk -F'/' '{print $1}')
+			echo "COPY_REPO_OWNER = $COPY_REPO_OWNER"
 			COPY_REPO="HDMI2USB-firmware-prebuilt"
 			COPY_DEST="archive/$GIT_REVISION/$BOARD/$TARGET"
-			ORIG_COMMITTER_NAME=`git log -1 --pretty=%an`
-			ORIG_COMMITTER_EMAIL=`git log -1 --pretty=%ae`
+			ORIG_COMMITTER_NAME=$(git log -1 --pretty=%an)
+			ORIG_COMMITTER_EMAIL=$(git log -1 --pretty=%ae)
 			echo ""
 			echo ""
 			echo ""
@@ -148,9 +150,18 @@ for BOARD in $BOARDS; do
 				echo ""
 				echo "- Added symlink of $UNSTABLE_LINK -> $COPY_DEST"
 			fi
-			git config user.email "$ORIG_COMMITTER_EMAIL"
-			git config user.name "$ORIG_COMMITTER_NAME"
+			export GIT_AUTHOR_EMAIL="$ORIG_COMMITTER_EMAIL"
+			echo $GIT_AUTHOR_EMAIL
+			export GIT_AUTHOR_NAME="$ORIG_COMMITTER_NAME"
+			echo $GIT_AUTHOR_NAME
+			#export GIT_COMMITTER_EMAIL=$GIT_EMAIL
+			#export GIT_COMMITTER_NAME=$GIT_NAME
+			export GIT_COMMITTER_EMAIL="robot@timvideos.us"
+			echo $GIT_COMMITTER_EMAIL
+			export GIT_COMMITTER_NAME="timvideos robot"
+			echo $GIT_COMMITTER_NAME
 			echo ""
+			git pull
 			git add -A .
 			git commit -a -m "Travis build #$TRAVIS_BUILD_NUMBER of $GIT_REVISION for BOARD=$BOARD TARGET=$TARGET"
 			git push --quiet origin master > /dev/null 2>&1
