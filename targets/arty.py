@@ -9,7 +9,7 @@ from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
 from liteeth.phy import LiteEthPHY
 from liteeth.core.mac import LiteEthMAC
 
-from hdl import a7ddrphy, dna, xadc
+from gateware import a7ddrphy, dna, xadc
 
 
 class MT41K128M16(SDRAMModule):
