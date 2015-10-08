@@ -120,15 +120,9 @@ for BOARD in $BOARDS; do
 			git clone https://$GH_TOKEN@github.com/$COPY_REPO_OWNER/$COPY_REPO.git			
 			cd $COPY_REPO
 			mkdir -p $COPY_DEST
-			SHA256SUM_FILE="sha256sum.txt"
 			# Not currently built so use .bit instead
 			#cp ../third_party/misoc/build/*.xsvf $COPY_DEST
-			BIT_FILE="../third_party/misoc/build/*.bit"
-			cp $BIT_FILE $COPY_DEST
-			BIT_SHA256=$(sha256sum $BIT_FILE)
-			echo ""
-			echo "- Gateware SHA256: $BIT_SHA256"
-			echo $BIT_SHA256 >> $COPY_DEST/$SHA256SUM_FILE
+			cp ../third_party/misoc/build/*.bit $COPY_DEST
 			cp ../build/output.*.log $COPY_DEST
 			echo ""
 			echo "- Uploading .bit and logfile"
@@ -136,12 +130,7 @@ for BOARD in $BOARDS; do
 			UNSTABLE_LINK="$BOARD/firmware/unstable"
 			if [ "$TARGET" = "hdmi2usb" ]; then
 				# Copy FX2 firmware
-				HEX_FILE="../firmware/fx2/hdmi2usb.hex"
-				cp $HEX_FILE $COPY_DEST
-				HEX_SHA256=$(sha256sum $HEX_FILE)
-				echo ""
-				echo "- FX2 firmware SHA256: $HEX_SHA256"
-				echo $HEX_SHA256 >> $COPY_DEST/$SHA256SUM_FILE
+				cp ../firmware/fx2/hdmi2usb.hex $COPY_DEST
 				# Create link to latest unstable build
 				echo ""
 				echo "- Uploading FX2 firmware"
@@ -150,16 +139,15 @@ for BOARD in $BOARDS; do
 				echo ""
 				echo "- Added symlink of $UNSTABLE_LINK -> $COPY_DEST"
 			fi
+			(
+			cd $COPY_DEST
+			sha256sum * > sha256sum.txt
+			cat sha256sum.txt
+			)
 			export GIT_AUTHOR_EMAIL="$ORIG_COMMITTER_EMAIL"
-			echo $GIT_AUTHOR_EMAIL
 			export GIT_AUTHOR_NAME="$ORIG_COMMITTER_NAME"
-			echo $GIT_AUTHOR_NAME
-			#export GIT_COMMITTER_EMAIL=$GIT_EMAIL
-			#export GIT_COMMITTER_NAME=$GIT_NAME
 			export GIT_COMMITTER_EMAIL="robot@timvideos.us"
-			echo $GIT_COMMITTER_EMAIL
-			export GIT_COMMITTER_NAME="timvideos robot"
-			echo $GIT_COMMITTER_NAME
+			export GIT_COMMITTER_NAME="Timvideos Robot"
 			echo ""
 			git pull
 			git add -A .
