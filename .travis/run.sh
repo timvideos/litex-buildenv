@@ -87,7 +87,7 @@ for BOARD in $BOARDS; do
 		fi
 		
 		# Copy built files
-		if [ -z $GITHUB_TOKEN  ]; then
+		if [ -z $GH_TOKEN  ]; then
 			# Only if run by travis display error
 			if [ ! -z $TRAVIS_BUILD_NUMBER  ]; then
 				echo ""
@@ -104,18 +104,20 @@ for BOARD in $BOARDS; do
 			git fetch --unshallow && git fetch --tags
 			GIT_REVISION=`git describe`
 			echo "============================================="
-			COPY_REPO_OWNER="timvideos"
+			# Look at repo we are running in to determine where to try pushing to if in a fork
+			COPY_REPO_OWNER=$(echo $TRAVIS_REPO_SLUG|awk -F'/' '{print $1}')
+			echo "COPY_REPO_OWNER = $COPY_REPO_OWNER"
 			COPY_REPO="HDMI2USB-firmware-prebuilt"
 			COPY_DEST="archive/$GIT_REVISION/$BOARD/$TARGET"
-			ORIG_COMMITTER_NAME=`git log -1 --pretty=%an`
-			ORIG_COMMITTER_EMAIL=`git log -1 --pretty=%ae`
+			ORIG_COMMITTER_NAME=$(git log -1 --pretty=%an)
+			ORIG_COMMITTER_EMAIL=$(git log -1 --pretty=%ae)
 			echo ""
 			echo ""
 			echo ""
 			echo "- Uploading built files to github.com/$COPY_REPO_OWNER/$COPY_REPO$COPY_DEST"
 			echo "---------------------------------------------"
 			rm -rf $COPY_REPO
-			git clone https://$GITHUB_TOKEN@github.com/$COPY_REPO_OWNER/$COPY_REPO.git			
+			git clone https://$GH_TOKEN@github.com/$COPY_REPO_OWNER/$COPY_REPO.git			
 			cd $COPY_REPO
 			mkdir -p $COPY_DEST
 			# Not currently built so use .bit instead
@@ -137,10 +139,19 @@ for BOARD in $BOARDS; do
 				echo ""
 				echo "- Added symlink of $UNSTABLE_LINK -> $COPY_DEST"
 			fi
-			git config user.email "$ORIG_COMMITTER_EMAIL"
-			git config user.name "$ORIG_COMMITTER_NAME"
+			(
+			cd $COPY_DEST
+			sha256sum * > sha256sum.txt
+			cat sha256sum.txt
+			)
+			export GIT_AUTHOR_EMAIL="$ORIG_COMMITTER_EMAIL"
+			export GIT_AUTHOR_NAME="$ORIG_COMMITTER_NAME"
+			export GIT_COMMITTER_EMAIL="robot@timvideos.us"
+			export GIT_COMMITTER_NAME="Timvideos Robot"
+			echo ""
+			git pull
 			git add -A .
-			git commit -a -m "Travis build #$TRAVIS_BUILD_NUMBER of $GIT_REVISION"
+			git commit -a -m "Travis build #$TRAVIS_BUILD_NUMBER of $GIT_REVISION for BOARD=$BOARD TARGET=$TARGET"
 			git push --quiet origin master > /dev/null 2>&1
 			cd ..
 			rm -rf $COPY_REPO
