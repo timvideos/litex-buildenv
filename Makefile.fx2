@@ -17,6 +17,7 @@
 TARGETS += fx2
 
 help-fx2:
+	@echo " make load-fx2"
 	@echo " make view"
 
 gateware-fx2:
