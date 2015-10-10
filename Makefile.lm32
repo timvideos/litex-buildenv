@@ -13,7 +13,12 @@
 #  * http://m-labs.hk/gateware.html
 
 TARGETS += lm32
+
+ifeq ($(BOARD),atlys)
 SERIAL ?= /dev/ttyVIZ0
+else
+SERIAL ?= /dev/ttyACM0
+endif
 
 help-lm32:
 	@echo "  Set lm32 serial port with SERIAL=/dev/ttyXXXX"
