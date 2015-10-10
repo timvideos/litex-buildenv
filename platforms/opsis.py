@@ -2,7 +2,9 @@
 
 from mibuild.generic_platform import *
 from mibuild.xilinx import XilinxPlatform
-from mibuild.xilinx import XC3SProg, iMPACT, Adept, UrJTAG
+from mibuild.xilinx import iMPACT
+from mibuild.xilinx import UrJTAG
+from mibuild.openocd import OpenOCD
 
 _io = [
     ## FXO-HC536R - component U17
@@ -329,7 +331,7 @@ class Platform(XilinxPlatform):
     default_clk_period = 10.0
     hdmi_infos = _hdmi_infos
 
-    def __init__(self, programmer="xc3sprog"):
+    def __init__(self, programmer="openocd"):
         # XC6SLX45T-3FGG484C
         XilinxPlatform.__init__(self,  "xc6slx45t-fgg484-3", _io, _connectors)
 
@@ -351,15 +353,12 @@ class Platform(XilinxPlatform):
         self.add_platform_command("""CONFIG VCCAUX="3.3";""")
 
     def create_programmer(self):
-        if self.programmer == "xc3sprog":
-            return XC3SProg("jtaghs1_fast", "bscan_spi_numato_opsis.bit")
+        if self.programmer == "urjtag":
+            return UrJTAG(cable="USBBlaster")
         elif self.programmer == "impact":
             return iMPACT()
-        elif self.programmer == "fpgalink":
-            from mibuild.fpgalink_programmer import FPGALink
-            return FPGALink("1443:0007")
-        elif self.programmer == "urjtag":
-            return UrJTAG(cable="USBBlaster", pld="spartan-6")
+        elif self.programmer == "openocd":
+            return OpenOCD(config="board/numato_opsis.cfg")
         else:
             raise ValueError("{} programmer is not supported".format(self.programmer))
 
