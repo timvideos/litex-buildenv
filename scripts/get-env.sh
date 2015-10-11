@@ -105,7 +105,7 @@ export PATH=$CONDA_DIR/bin:$PATH
 # git submodules
 (
 	cd $TOP_DIR
-	git submodule update --recursive
+	git submodule update --recursive --init
 	git submodule foreach \
 		git submodule update --recursive --init
 )
