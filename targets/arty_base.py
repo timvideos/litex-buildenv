@@ -1,4 +1,5 @@
 from migen.fhdl.std import *
+from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from misoclib.soc import mem_decoder
 from misoclib.soc.sdram import SDRAMSoC
@@ -68,6 +69,7 @@ class _CRG(Module):
             ),
             Instance("BUFG", i_I=self.pll_sys, o_O=self.cd_sys.clk),
             Instance("BUFG", i_I=pll_sys4x, o_O=self.cd_sys4x.clk),
+            AsyncResetSynchronizer(self.cd_sys, ~pll_locked),
         ]
 
 
