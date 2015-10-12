@@ -88,7 +88,7 @@ class Platform(XilinxPlatform):
     default_clk_period = 10.0
     identifier = 0x4152  # AR
 
-    def __init__(self, toolchain="vivado", programmer="xc3sprog"):
+    def __init__(self, toolchain="vivado"):
         XilinxPlatform.__init__(self, "xc7a35ticsg324-1L", _io,
                                 toolchain=toolchain)
         self.toolchain.bitstream_commands = \
@@ -96,15 +96,6 @@ class Platform(XilinxPlatform):
         self.toolchain.additional_commands = \
             ["write_cfgmem -force -format bin -interface spix4 -size 16 "
              "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
-        self.programmer = programmer
 
     def create_programmer(self):
-        if self.programmer == "xc3sprog":
-            return XC3SProg("jtaghs1_fast", "bscan_spi_kc705.bit")
-        elif self.programmer == "vivado":
-            return VivadoProgrammer()
-        elif self.programmer == "impact":
-            return iMPACT()
-        else:
-            raise ValueError("{} programmer is not supported"
-                             .format(self.programmer))
+        return VivadoProgrammer(flash_part="n25q128-3.3v-spi-x1_x2_x4")
