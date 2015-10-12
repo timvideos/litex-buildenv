@@ -86,6 +86,7 @@ _io = [
 class Platform(XilinxPlatform):
     default_clk_name = "clk100"
     default_clk_period = 10.0
+    identifier = 0x4152  # AR
 
     def __init__(self, toolchain="vivado", programmer="xc3sprog"):
         XilinxPlatform.__init__(self, "xc7a35ticsg324-1L", _io,
