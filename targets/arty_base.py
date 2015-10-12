@@ -79,6 +79,8 @@ class BaseSoC(SDRAMSoC):
     csr_map = {
         "spiflash": 16,
         "ddrphy":   17,
+        "dna":      18,
+        "xadc":     19,
     }
     csr_map.update(SDRAMSoC.csr_map)
 
