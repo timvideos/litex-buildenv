@@ -33,6 +33,8 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    ("eth_ref_clk", 0, Pins("G18"), IOStandard("LVCMOS33")),
+
     ("ddram", 0,
         Subsignal("a", Pins(
             "R2 M6 N4 T1 N6 R7 V6 U7",

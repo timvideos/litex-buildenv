@@ -39,11 +39,13 @@ class _CRG(Module):
         self.clock_domains.cd_sys4x = ClockDomain(reset_less=True)
 
         clk100 = platform.request("clk100")
+        eth_ref_clk = platform.request("eth_ref_clk")
 
         pll_locked = Signal()
         pll_fb = Signal()
         self.pll_sys = Signal()
         pll_sys4x = Signal()
+        eth_clk = Signal()
         self.specials += [
             Instance("PLLE2_BASE",
                      p_STARTUP_WAIT="FALSE", o_LOCKED=pll_locked,
@@ -61,7 +63,9 @@ class _CRG(Module):
                      p_CLKOUT1_DIVIDE=2, p_CLKOUT1_PHASE=0.0,
                      o_CLKOUT1=pll_sys4x,
 
-                     p_CLKOUT2_DIVIDE=5, p_CLKOUT2_PHASE=0.0, #o_CLKOUT2=,
+                     # 25 MHz
+                     p_CLKOUT2_DIVIDE=32, p_CLKOUT2_PHASE=0.0,
+                     o_CLKOUT2=eth_clk,
 
                      p_CLKOUT3_DIVIDE=2, p_CLKOUT3_PHASE=0.0, #o_CLKOUT3=,
 
@@ -69,7 +73,8 @@ class _CRG(Module):
             ),
             Instance("BUFG", i_I=self.pll_sys, o_O=self.cd_sys.clk),
             Instance("BUFG", i_I=pll_sys4x, o_O=self.cd_sys4x.clk),
-            AsyncResetSynchronizer(self.cd_sys, ~pll_locked),
+            Instance("BUFG", i_I=eth_clk, o_O=eth_ref_clk),
+            AsyncResetSynchronizer(self.cd_sys, ~pll_locked | ~rst_n),
         ]
 
 
