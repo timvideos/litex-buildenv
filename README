@@ -1,8 +1,8 @@
          ___       __           ____     _____
         / _ | ____/ /___ ______/ __/__  / ___/
-       / __ |/ __/ __/ // /___/\ \/ _ \/ /__  
-      /_/ |_/_/  \__/\_, /   /___/\___/\___/  
-                    /___/                     
+       / __ |/ __/ __/ // /___/\ \/ _ \/ /__
+      /_/ |_/_/  \__/\_, /   /___/\___/\___/
+                    /___/
 
             Copyright 2015 / EnjoyDigital
 
@@ -14,7 +14,7 @@
 	https://github.com/m-labs/misoc
 
 2. Obtain LiteEth and install it:
-  git clone https://github.com/enjoy-digital/liteth
+  git clone https://github.com/enjoy-digital/liteeth
   cd liteth
   python3 setup.py install
   cd ..
