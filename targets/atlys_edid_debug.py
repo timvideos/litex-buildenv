@@ -8,11 +8,22 @@ from litescope.common import *
 from litescope.core.port import LiteScopeTerm
 from litescope.frontend.logic_analyzer import LiteScopeLogicAnalyzer
 
+
 class UARTVirtualPhy:
     def __init__(self):
         self.sink = Sink([("data", 8)])
         self.source = Source([("data", 8)])
 
+# This SoC was used to debug EDID transactions between video sources and the board.
+# To use it:
+#  - build this SoC & load it
+#  - wait for HDMI2USB prompt
+#  - change state of SW0
+#  - go to test/edid_debug
+#  - do make.py --port <your_uart_port> test_regs and verify you are able to get sysid/revision/frequency
+#  - do make.py --port <your_uart_port> test_la
+#  - connect your video source, this will trigger litescope capture and upload data.
+#  - you now have a .vcd you can analyze in GTKwave or others vcd viewers!
 
 class EDIDDebugSoC(VideomixerSoC):
     csr_map = {
