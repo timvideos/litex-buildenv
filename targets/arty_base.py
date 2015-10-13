@@ -50,16 +50,16 @@ class _CRG(Module):
             Instance("PLLE2_BASE",
                      p_STARTUP_WAIT="FALSE", o_LOCKED=pll_locked,
 
-                     # VCO @ 800MHz
+                     # VCO @ 800 MHz
                      p_REF_JITTER1=0.01, p_CLKIN1_PERIOD=10.0,
                      p_CLKFBOUT_MULT=8, p_DIVCLK_DIVIDE=1,
                      i_CLKIN1=clk100, i_CLKFBIN=pll_fb, o_CLKFBOUT=pll_fb,
 
-                     # 100MHz
+                     # 100 MHz
                      p_CLKOUT0_DIVIDE=8, p_CLKOUT0_PHASE=0.0,
                      o_CLKOUT0=self.pll_sys,
 
-                     # 400MHz
+                     # 400 MHz
                      p_CLKOUT1_DIVIDE=2, p_CLKOUT1_PHASE=0.0,
                      o_CLKOUT1=pll_sys4x,
 

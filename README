@@ -15,7 +15,7 @@
 
 2. Obtain LiteEth and install it:
   git clone https://github.com/enjoy-digital/liteeth
-  cd liteth
+  cd liteeth
   python3 setup.py install
   cd ..
 
