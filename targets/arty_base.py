@@ -74,7 +74,7 @@ class _CRG(Module):
             Instance("BUFG", i_I=self.pll_sys, o_O=self.cd_sys.clk),
             Instance("BUFG", i_I=pll_sys4x, o_O=self.cd_sys4x.clk),
             Instance("BUFG", i_I=eth_clk, o_O=eth_ref_clk),
-            AsyncResetSynchronizer(self.cd_sys, ~pll_locked | ~rst_n),
+            AsyncResetSynchronizer(self.cd_sys, ~pll_locked),
         ]
 
 

@@ -5,12 +5,12 @@ from migen.bank.description import *
 class XADC(Module, AutoCSR):
     def __init__(self):
         # Temperature(°C) = adc_value*503.975/4096 - 273.15
-        self.temperature = CSRStatus(12)
+        self._temperature = CSRStatus(12)
 
         # Voltage(V) = adc_value*)/4096*3
-        self.vccint  = CSRStatus(12)
-        self.vccaux  = CSRStatus(12)
-        self.vccbram = CSRStatus(12)
+        self._vccint  = CSRStatus(12)
+        self._vccaux  = CSRStatus(12)
+        self._vccbram = CSRStatus(12)
 
         # Alarms
         self.alarm = Signal(8)
@@ -47,10 +47,10 @@ class XADC(Module, AutoCSR):
         )
 
         channels = {
-                0: self.temperature,
-                1: self.vccint,
-                2: self.vccaux,
-                6: self.vccbram
+                0: self._temperature,
+                1: self._vccint,
+                2: self._vccaux,
+                6: self._vccbram
         }
 
         self.sync += [

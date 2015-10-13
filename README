@@ -26,8 +26,11 @@
   cd ..
 
 4. Build the gateware and software:
-	go to misoc dir
-	./make.py -X your_arty_soc_path -t arty_base -s BaseSoC all
+  go to misoc dir
+  python3 make.py -X ../arty-soc/ -t arty_base -s BaseSoC all
+  or
+  python3 make.py -X ../arty-soc/ -t arty_logic_analyzer --csr_csv ../arty-soc/software/csr.csv build-csr-csv
+  python3 make.py -X ../arty-soc/ -t arty_logic_analyzer all
 
 [> Status:
 arty_base and arty_logic_analyzer targets to be validated.

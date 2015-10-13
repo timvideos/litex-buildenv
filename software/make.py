@@ -10,7 +10,7 @@ def _get_args():
     parser.add_argument("--baudrate", default=115200, help="UART baudrate")
     parser.add_argument("--ip_address", default="192.168.0.42", help="Etherbone IP address")
     parser.add_argument("--udp_port", default=20000, help="Etherbone UDP port")
-    parser.add_argument("--busword", default=32, help="CSR busword")
+    parser.add_argument("--busword", default=8, help="CSR busword")
 
     parser.add_argument("test", nargs="+", help="specify a test")
 
@@ -23,8 +23,8 @@ if __name__ == "__main__":
         port = args.port if not args.port.isdigit() else int(args.port)
         wb = UARTWishboneBridgeDriver(port, args.baudrate, "./csr.csv", int(args.busword), debug=False)
     elif args.bridge == "etherbone":
-        from liteeth.software.wishbone import LiteETHWishboneBridgeDriver
-        wb = LiteETHWishboneBridgeDriver(args.ip_address, int(args.udp_port), "./csr.csv", int(args.busword), debug=False)
+        from liteeth.software.wishbone import LiteEthWishboneBridgeDriver
+        wb = LiteEthWishboneBridgeDriver(args.ip_address, int(args.udp_port), "./csr.csv", int(args.busword), debug=False)
     else:
         ValueError("Invalid bridge {}".format(args.bridge))
 
