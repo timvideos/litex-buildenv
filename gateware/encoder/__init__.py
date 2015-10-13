@@ -113,4 +113,4 @@ class Encoder(Module, AutoCSR):
         self.comb += Record.connect(fifo.source, self.source)
 
         # add VHDL sources
-        platform.add_source_dir(os.path.join(platform.soc_ext_path, "hdl", "encoder", "vhdl"))
+        platform.add_source_dir(os.path.join(platform.soc_ext_path, "gateware", "encoder", "vhdl"))
