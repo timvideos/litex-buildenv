@@ -100,7 +100,7 @@ TIMESPEC "TSise_sucks10" = FROM "GRPsys_clk" TO "GRPpix1_clk" TIG;
         for k, v in platform.hdmi_infos.items():
             self.add_constant(k, v)
 
-class HDMI2EthernetSoC(VideomixerSoC):
+class HDMI2ETHSoC(VideomixerSoC):
     csr_map = {
         "encoder_reader": 26,
         "encoder":        27,
@@ -130,4 +130,4 @@ class HDMI2EthernetSoC(VideomixerSoC):
         self.add_memory_region("encoder", self.mem_map["encoder"]+self.shadow_base, 0x2000)
 
 
-default_subtarget = HDMI2EthernetSoC
+default_subtarget = HDMI2ETHSoC

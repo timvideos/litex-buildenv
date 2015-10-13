@@ -36,10 +36,10 @@ opsis_base:
 * BaseSoC validated: CPU + DDR3 + UART
 * MiniSoC validated: BaseSoC + 1Gbps Ethernet MAC handled by the CPU
 
-atlys_hdmi2ethernet:
+atlys_hdmi2eth:
 * EtherboneSoC validated: BaseSoC + 10/100Mbps HW Ethernet UDP/IP stack and Etherbone
 * VideomixerSoC validated: EtherboneSoC + HDMI in + HDMI out
-* HDMI2EthernetSoC validated: VideomixerSoC + JPEG encoder + UDP streaming
+* HDMI2ETHSoC validated: VideomixerSoC + JPEG encoder + UDP streaming
 
 atlys_hdmi2usb:
 * VideomixerSoC validated: MiniSoC + 2 x HDMI in + 2 x HDMI out

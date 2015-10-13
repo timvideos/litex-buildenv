@@ -33,15 +33,15 @@ These label refers to issues which are related to the various firmware which exi
 
 #### `hdmi2XXXX` Labels
 
-These label refers to issues which are related to a **specific** board configuration. 
+These label refers to issues which are related to a **specific** board configuration.
 
- * `hdmi2***`      - This issue relates to all HDMI capture devices.
- * `hdmi2usb`      - This issue relates to capturing via the USB port.
- * `hdmi2ethernet` - This issue relates to capturing via the Ethernet port.
+ * `hdmi2***` - This issue relates to all HDMI capture devices.
+ * `hdmi2usb` - This issue relates to capturing via the USB port.
+ * `hdmi2eth` - This issue relates to capturing via the Ethernet port.
 
 #### `board-XXXX` Labels
 
-These label refers to issues which are related to a **specific** board configuration. 
+These label refers to issues which are related to a **specific** board configuration.
 
  * `board-***`   - This issue relates to all boards.
  * `board-atlys` - This issue relates to the Digilent Atlys board.

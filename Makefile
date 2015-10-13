@@ -48,7 +48,7 @@ endif
 help:
 	@echo "Environment:"
 	@echo "  BOARD=atlys OR opsis  (current: $(BOARD))"
-	@echo " TARGET=base OR hdmi2usb OR hdmi2ethernet"
+	@echo " TARGET=base OR hdmi2usb OR hdmi2eth"
 	@echo "                        (current: $(TARGET))"
 	@echo "   PROG=programmer      (current: $(PROG))"
 	@echo ""

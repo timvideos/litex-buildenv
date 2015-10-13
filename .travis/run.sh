@@ -24,10 +24,10 @@ find | sort > /tmp/filelist.before
 for BOARD in $BOARDS; do
 	if [ -z "$TARGET" ]; then
 		TARGETS="base hdmi2usb"
-		# FIXME: Get hdmi2ethernet working on the Opsis
+		# FIXME: Get hdmi2eth working on the Opsis
 		# https://github.com/timvideos/HDMI2USB-misoc-firmware/issues/51
 		if [ "$BOARD" = "atlys" ]; then
-			TARGETS="$TARGETS hdmi2ethernet"
+			TARGETS="$TARGETS hdmi2eth"
 		fi
 	else
 		TARGETS="$TARGET"
@@ -85,7 +85,7 @@ for BOARD in $BOARDS; do
 				PROG=$PROG BOARD=$BOARD TARGET=$TARGET make load || true
 			done
 		fi
-		
+
 		# Copy built files
 		if [ -z $GH_TOKEN  ]; then
 			# Only if run by travis display error
@@ -117,7 +117,7 @@ for BOARD in $BOARDS; do
 			echo "- Uploading built files to github.com/$COPY_REPO_OWNER/$COPY_REPO$COPY_DEST"
 			echo "---------------------------------------------"
 			rm -rf $COPY_REPO
-			git clone https://$GH_TOKEN@github.com/$COPY_REPO_OWNER/$COPY_REPO.git			
+			git clone https://$GH_TOKEN@github.com/$COPY_REPO_OWNER/$COPY_REPO.git
 			cd $COPY_REPO
 			mkdir -p $COPY_DEST
 			# Not currently built so use .bit instead

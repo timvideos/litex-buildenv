@@ -22,7 +22,7 @@ env:
   matrix:
    - BOARD=atlys TARGET=base
    - BOARD=atlys TARGET=hdmi2usb
-   - BOARD=atlys TARGET=hdmi2ethernet
+   - BOARD=atlys TARGET=hdmi2eth
    - BOARD=opsis TARGET=base
    - BOARD=opsis TARGET=hdmi2usb
 
