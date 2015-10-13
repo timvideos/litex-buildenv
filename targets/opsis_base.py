@@ -17,7 +17,7 @@ from misoclib.soc.sdram import SDRAMSoC
 from liteeth.phy.s6rgmii import LiteEthPHYRGMII
 from liteeth.core.mac import LiteEthMAC
 
-from gateware import i2c
+from gateware import dna
 
 
 class _CRG(Module):
@@ -131,7 +131,7 @@ class BaseSoC(SDRAMSoC):
 
     csr_map = {
         "ddrphy": 16,
-        "i2c":    17
+        "dna":    17
     }
     csr_map.update(SDRAMSoC.csr_map)
 
@@ -151,8 +151,7 @@ class BaseSoC(SDRAMSoC):
                           **kwargs)
 
         self.submodules.crg = _CRG(platform, clk_freq)
-
-        self.submodules.i2c = i2c.I2C(platform.request("i2c"))
+        self.submodules.dna = dna.DNA()
 
         self.submodules.firmware_ram = wishbone.SRAM(firmware_ram_size, init=_get_firmware_data(firmware_filename))
         self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)

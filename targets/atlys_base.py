@@ -18,6 +18,8 @@ from liteeth.common import *
 from liteeth.phy.mii import LiteEthPHYMII
 from liteeth.core.mac import LiteEthMAC
 
+from gateware import dna
+
 
 class _CRG(Module):
     def __init__(self, platform, clk_freq):
@@ -127,6 +129,7 @@ class BaseSoC(SDRAMSoC):
 
     csr_map = {
         "ddrphy":   16,
+        "dna":      17,
     }
     csr_map.update(SDRAMSoC.csr_map)
 
@@ -146,6 +149,7 @@ class BaseSoC(SDRAMSoC):
                           **kwargs)
 
         self.submodules.crg = _CRG(platform, clk_freq)
+        self.submodules.dna = dna.DNA()
 
         self.submodules.firmware_ram = wishbone.SRAM(firmware_ram_size, init=_get_firmware_data(firmware_filename))
         self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
@@ -171,8 +175,8 @@ NET "{sys_clk}" TNM_NET = "GRPsys_clk";
 
 class MiniSoC(BaseSoC):
     csr_map = {
-        "ethphy": 17,
-        "ethmac": 18,
+        "ethphy": 18,
+        "ethmac": 19,
     }
     csr_map.update(BaseSoC.csr_map)
 
