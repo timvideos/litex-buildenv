@@ -2,10 +2,10 @@ from migen.fhdl.std import *
 from migen.sim.generic import run_simulation
 from migen.flow.actor import EndpointDescription
 
-from hdl.csc.common import *
-from hdl.csc.ycbcr2rgb import ycbcr2rgb_coefs, YCbCr2RGB
+from gateware.csc.common import *
+from gateware.csc.ycbcr2rgb import ycbcr2rgb_coefs, YCbCr2RGB
 
-from hdl.csc.test.common import *
+from gateware.csc.test.common import *
 
 class TB(Module):
     def __init__(self):

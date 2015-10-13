@@ -3,7 +3,7 @@ from migen.genlib.cdc import MultiReg
 from migen.genlib.misc import optree
 from migen.bank.description import *
 
-from hdl.hdmi_in.common import control_tokens
+from gateware.hdmi_in.common import control_tokens
 
 
 class CharSync(Module, AutoCSR):

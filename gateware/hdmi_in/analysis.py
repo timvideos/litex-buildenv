@@ -5,10 +5,10 @@ from migen.genlib.record import Record
 from migen.bank.description import *
 from migen.flow.actor import *
 
-from hdl.hdmi_in.common import channel_layout
+from gateware.hdmi_in.common import channel_layout
 
-from hdl.csc.rgb2ycbcr import RGB2YCbCr
-from hdl.csc.ycbcr444to422 import YCbCr444to422
+from gateware.csc.rgb2ycbcr import RGB2YCbCr
+from gateware.csc.ycbcr444to422 import YCbCr444to422
 
 class SyncPolarity(Module):
     def __init__(self):

@@ -5,8 +5,8 @@ from migen.bank.description import AutoCSR
 from migen.actorlib import structuring, misc
 
 from misoclib.mem.sdram.frontend import dma_lasmi
-from hdl.hdmi_out.format import bpp, pixel_layout, FrameInitiator, VTG
-from hdl.hdmi_out.phy import Driver
+from gateware.hdmi_out.format import bpp, pixel_layout, FrameInitiator, VTG
+from gateware.hdmi_out.phy import Driver
 
 
 class HDMIOut(Module, AutoCSR):

@@ -17,7 +17,7 @@ from misoclib.soc.sdram import SDRAMSoC
 from liteeth.phy.s6rgmii import LiteEthPHYRGMII
 from liteeth.core.mac import LiteEthMAC
 
-from hdl import i2c
+from gateware import i2c
 
 
 class _CRG(Module):

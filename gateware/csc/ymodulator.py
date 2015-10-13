@@ -6,7 +6,7 @@ from migen.genlib.cdc import MultiReg
 from migen.bank.description import *
 from migen.flow.actor import *
 
-from hdl.csc.common import *
+from gateware.csc.common import *
 
 datapath_latency = 1
 

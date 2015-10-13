@@ -2,11 +2,11 @@ from migen.fhdl.std import *
 from migen.sim.generic import run_simulation
 from migen.flow.actor import EndpointDescription
 
-from hdl.csc.common import *
-from hdl.csc.ycbcr444to422 import YCbCr444to422
-from hdl.csc.ycbcr422to444 import YCbCr422to444
+from gateware.csc.common import *
+from gateware.csc.ycbcr444to422 import YCbCr444to422
+from gateware.csc.ycbcr422to444 import YCbCr422to444
 
-from hdl.csc.test.common import *
+from gateware.csc.test.common import *
 
 
 class TB(Module):

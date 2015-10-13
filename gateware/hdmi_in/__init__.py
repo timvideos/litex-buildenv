@@ -1,15 +1,15 @@
 from migen.fhdl.std import *
 from migen.bank.description import AutoCSR
 
-from hdl.hdmi_in.edid import EDID
-from hdl.hdmi_in.clocking import Clocking
-from hdl.hdmi_in.datacapture import DataCapture
-from hdl.hdmi_in.charsync import CharSync
-from hdl.hdmi_in.wer import WER
-from hdl.hdmi_in.decoding import Decoding
-from hdl.hdmi_in.chansync import ChanSync
-from hdl.hdmi_in.analysis import SyncPolarity, ResolutionDetection, FrameExtraction
-from hdl.hdmi_in.dma import DMA
+from gateware.hdmi_in.edid import EDID
+from gateware.hdmi_in.clocking import Clocking
+from gateware.hdmi_in.datacapture import DataCapture
+from gateware.hdmi_in.charsync import CharSync
+from gateware.hdmi_in.wer import WER
+from gateware.hdmi_in.decoding import Decoding
+from gateware.hdmi_in.chansync import ChanSync
+from gateware.hdmi_in.analysis import SyncPolarity, ResolutionDetection, FrameExtraction
+from gateware.hdmi_in.dma import DMA
 
 
 class HDMIIn(Module, AutoCSR):

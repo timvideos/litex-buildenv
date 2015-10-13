@@ -13,8 +13,8 @@ from migen.bank.eventmanager import *
 
 from misoclib.mem.sdram.frontend import dma_lasmi
 
-from hdl.csc.ycbcr422to444 import YCbCr422to444
-from hdl.csc.ymodulator import YModulator
+from gateware.csc.ycbcr422to444 import YCbCr422to444
+from gateware.csc.ymodulator import YModulator
 
 class EncoderReader(Module, AutoCSR):
     def __init__(self, lasmim):

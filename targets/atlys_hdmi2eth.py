@@ -6,10 +6,10 @@ from liteeth.phy.mii import LiteEthPHYMII
 from liteeth.core import LiteEthUDPIPCore
 from liteeth.frontend.etherbone import LiteEthEtherbone
 
-from hdl.hdmi_in import HDMIIn
-from hdl.hdmi_out import HDMIOut
-from hdl.encoder import EncoderReader, Encoder
-from hdl.streamer import UDPStreamer
+from gateware.hdmi_in import HDMIIn
+from gateware.hdmi_out import HDMIOut
+from gateware.encoder import EncoderReader, Encoder
+from gateware.streamer import UDPStreamer
 
 class EtherboneSoC(BaseSoC):
     csr_map = {

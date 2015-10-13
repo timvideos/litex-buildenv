@@ -4,7 +4,7 @@ from migen.fhdl.std import *
 from migen.genlib.record import *
 from migen.flow.actor import *
 
-from hdl.csc.common import *
+from gateware.csc.common import *
 
 # TODO:
 # - see if we can regroup some stages without impacting timings (would reduce latency and registers).

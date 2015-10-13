@@ -4,7 +4,7 @@ from migen.fhdl.std import *
 from migen.genlib.record import *
 from migen.flow.actor import *
 
-from hdl.csc.common import *
+from gateware.csc.common import *
 
 def ycbcr2rgb_coefs(dw, cw=None):
     ca = 0.1819

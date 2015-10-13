@@ -3,7 +3,7 @@ from migen.bank.description import *
 from migen.genlib.misc import optree
 from migen.genlib.cdc import PulseSynchronizer
 
-from hdl.hdmi_in.common import control_tokens
+from gateware.hdmi_in.common import control_tokens
 
 
 class WER(Module, AutoCSR):

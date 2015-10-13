@@ -4,12 +4,12 @@ from migen.genlib.cdc import MultiReg
 from migen.bank.description import *
 from migen.flow.actor import *
 
-from hdl.hdmi_out.format import bpc_phy, phy_layout
-from hdl.hdmi_out import hdmi
+from gateware.hdmi_out.format import bpc_phy, phy_layout
+from gateware.hdmi_out import hdmi
 
-from hdl.csc.ycbcr2rgb import YCbCr2RGB
-from hdl.csc.ycbcr422to444 import YCbCr422to444
-from hdl.csc.ymodulator import YModulator
+from gateware.csc.ycbcr2rgb import YCbCr2RGB
+from gateware.csc.ycbcr422to444 import YCbCr422to444
+from gateware.csc.ymodulator import YModulator
 
 class _FIFO(Module):
     def __init__(self, pack_factor):

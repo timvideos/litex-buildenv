@@ -1,10 +1,10 @@
 from targets.atlys_base import *
 from targets.atlys_base import default_subtarget as opsis_base_soc
 
-from hdl.hdmi_in import HDMIIn
-from hdl.hdmi_out import HDMIOut
-from hdl.encoder import EncoderReader, Encoder
-from hdl.streamer import USBStreamer
+from gateware.hdmi_in import HDMIIn
+from gateware.hdmi_out import HDMIOut
+from gateware.encoder import EncoderReader, Encoder
+from gateware.streamer import USBStreamer
 
 class VideomixerSoC(opsis_base_soc):
     csr_map = {
