@@ -40,6 +40,7 @@ class _CRG(Module):
 
         clk100 = platform.request("clk100")
         eth_ref_clk = platform.request("eth_ref_clk")
+        cpu_rst = platform.request("cpu_reset")
 
         pll_locked = Signal()
         pll_fb = Signal()
@@ -74,7 +75,7 @@ class _CRG(Module):
             Instance("BUFG", i_I=self.pll_sys, o_O=self.cd_sys.clk),
             Instance("BUFG", i_I=pll_sys4x, o_O=self.cd_sys4x.clk),
             Instance("BUFG", i_I=eth_clk, o_O=eth_ref_clk),
-            AsyncResetSynchronizer(self.cd_sys, ~pll_locked),
+            AsyncResetSynchronizer(self.cd_sys, ~pll_locked | ~cpu_rst),
         ]
 
 

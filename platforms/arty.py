@@ -22,6 +22,8 @@ _io = [
 
     ("clk100", 0, Pins("E3"), IOStandard("LVCMOS33")),
 
+    ("cpu_reset", 0, Pins("C2"), IOStandard("LVCMOS33")),
+
     ("serial", 0,
         Subsignal("tx", Pins("D10")),
         Subsignal("rx", Pins("A9")),
