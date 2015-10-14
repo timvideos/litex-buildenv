@@ -16,7 +16,7 @@ class EtherboneSoC(BaseSoC):
     csr_map.update(BaseSoC.csr_map)
 
     def __init__(self, platform,
-    	         mac_address=0x10e2d5000000,
+                 mac_address=0x10e2d5000000,
                  ip_address="192.168.1.42",
                  **kwargs):
         BaseSoC.__init__(self, platform, **kwargs)
@@ -25,7 +25,7 @@ class EtherboneSoC(BaseSoC):
         self.submodules.ethphy = LiteEthPHYMII(platform.request("eth_clocks"),
                                                platform.request("eth"))
         self.submodules.ethcore = LiteEthUDPIPCore(self.ethphy,
-        	                                       mac_address,
+                                                   mac_address,
                                                    convert_ip(ip_address),
                                                    self.clk_freq,
                                                    with_icmp=False)
@@ -50,8 +50,8 @@ TIMESPEC "TIG4" = FROM "GRPsys_clk" TO "GRPeth_tx_clk" TIG;
 TIMESPEC "TIG5" = FROM "GRPeth_rx_clk" TO "GRPsys_clk" TIG;
 TIMESPEC "TIG6" = FROM "GRPsys_clk" TO "GRPeth_rx_clk" TIG;
 """, eth_clocks_rx=platform.lookup_request("eth_clocks").rx,
-     eth_rx_clk=self.ethphy.crg.cd_eth_rx.clk,
-     eth_tx_clk=self.ethphy.crg.cd_eth_tx.clk)
+                                      eth_rx_clk=self.ethphy.crg.cd_eth_rx.clk,
+                                      eth_tx_clk=self.ethphy.crg.cd_eth_tx.clk)
 
 
 class LogicAnalyzerSoC(EtherboneSoC):

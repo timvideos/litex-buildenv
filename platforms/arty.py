@@ -2,7 +2,7 @@
 # License: BSD
 
 from mibuild.generic_platform import *
-from mibuild.xilinx import XilinxPlatform, XC3SProg, VivadoProgrammer, iMPACT
+from mibuild.xilinx import XilinxPlatform, XC3SProg, VivadoProgrammer
 
 _io = [
     ("user_led", 0, Pins("H5"), IOStandard("LVCMOS33")),
@@ -47,16 +47,13 @@ _io = [
         Subsignal("cas_n", Pins("M4"), IOStandard("SSTL15")),
         Subsignal("we_n", Pins("P5"), IOStandard("SSTL15")),
         Subsignal("cs_n", Pins("U8"), IOStandard("SSTL15")),
-        Subsignal("dm", Pins("L1 U1"),
-            IOStandard("SSTL15")),
+        Subsignal("dm", Pins("L1 U1"), IOStandard("SSTL15")),
         Subsignal("dq", Pins(
             "K5 L3 K3 L6 M3 M1 L4 M2",
             "V4 T5 U4 V5 V1 T3 U3 R3"),
             IOStandard("SSTL15_T_DCI")),
-        Subsignal("dqs_p", Pins("N2 U2"),
-            IOStandard("DIFF_SSTL15")),
-        Subsignal("dqs_n", Pins("N1 V2"),
-            IOStandard("DIFF_SSTL15")),
+        Subsignal("dqs_p", Pins("N2 U2"), IOStandard("DIFF_SSTL15")),
+        Subsignal("dqs_n", Pins("N1 V2"), IOStandard("DIFF_SSTL15")),
         Subsignal("clk_p", Pins("U9"), IOStandard("DIFF_SSTL15")),
         Subsignal("clk_n", Pins("V9"), IOStandard("DIFF_SSTL15")),
         Subsignal("cke", Pins("N5"), IOStandard("SSTL15")),

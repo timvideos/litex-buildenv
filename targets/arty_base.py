@@ -68,9 +68,9 @@ class _CRG(Module):
                      p_CLKOUT2_DIVIDE=32, p_CLKOUT2_PHASE=0.0,
                      o_CLKOUT2=eth_clk,
 
-                     p_CLKOUT3_DIVIDE=2, p_CLKOUT3_PHASE=0.0, #o_CLKOUT3=,
+                     p_CLKOUT3_DIVIDE=2, p_CLKOUT3_PHASE=0.0,  # o_CLKOUT3=,
 
-                     p_CLKOUT4_DIVIDE=4, p_CLKOUT4_PHASE=0.0, #o_CLKOUT4=
+                     p_CLKOUT4_DIVIDE=4, p_CLKOUT4_PHASE=0.0,  # o_CLKOUT4=
             ),
             Instance("BUFG", i_I=self.pll_sys, o_O=self.cd_sys.clk),
             Instance("BUFG", i_I=pll_sys4x, o_O=self.cd_sys4x.clk),
@@ -94,8 +94,8 @@ class BaseSoC(SDRAMSoC):
                  **kwargs):
         SDRAMSoC.__init__(self, platform,
                           clk_freq=int((1/platform.default_clk_period)*1e9),
-                          integrated_rom_size=0x8000,      #TODO: remove this when SPI Flash validated
-                          integrated_main_ram_size=0x8000, #TODO: remove this when SDRAM validated
+                          integrated_rom_size=0x8000,      # TODO: remove this when SPI Flash validated
+                          integrated_main_ram_size=0x8000,  # TODO: remove this when SDRAM validated
                           sdram_controller_settings=sdram_controller_settings,
                           **kwargs)
 
