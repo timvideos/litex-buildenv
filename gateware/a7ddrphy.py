@@ -21,10 +21,6 @@ class A7DDRPHY(Module, AutoCSR):
         self._rdly_dq_rst = CSR()
         self._rdly_dq_inc = CSR()
         self._rdly_dq_bitslip = CSR()
-        self._wdly_dq_rst = CSR()
-        self._wdly_dq_inc = CSR()
-        self._wdly_dqs_rst = CSR()
-        self._wdly_dqs_inc = CSR()
 
         self.settings = sdram.PhySettings(
             memtype=module.memtype,
@@ -43,7 +39,7 @@ class A7DDRPHY(Module, AutoCSR):
 
         self.dfi = Interface(addressbits, bankbits, 2*databits, nphases)
 
-        ###
+        # # #
 
         # Clock
         sd_clk_se = Signal()
@@ -131,14 +127,14 @@ class A7DDRPHY(Module, AutoCSR):
                 dqs_serdes_pattern.eq(0b01010101)
             )
         for i in range(databits//8):
-            dm_o_nodelay = Signal()
+            dm_o = Signal()
             self.specials += \
                 Instance("OSERDESE2",
                          p_DATA_WIDTH=8, p_TRISTATE_WIDTH=1,
                          p_DATA_RATE_OQ="DDR", p_DATA_RATE_TQ="BUF",
                          p_SERDES_MODE="MASTER",
 
-                         o_OQ=dm_o_nodelay,
+                         o_OQ=dm_o,
                          i_OCE=1,
                          i_RST=ResetSignal(),
                          i_CLK=ClockSignal("sys4x"), i_CLKDIV=ClockSignal(),
@@ -147,22 +143,8 @@ class A7DDRPHY(Module, AutoCSR):
                          i_D5=self.dfi.phases[2].wrdata_mask[i], i_D6=self.dfi.phases[2].wrdata_mask[databits//8+i],
                          i_D7=self.dfi.phases[3].wrdata_mask[i], i_D8=self.dfi.phases[3].wrdata_mask[databits//8+i]
                 )
-            self.specials += \
-                Instance("ODELAYE2",
-                         p_DELAY_SRC="ODATAIN", p_SIGNAL_PATTERN="DATA",
-                         p_CINVCTRL_SEL="FALSE", p_HIGH_PERFORMANCE_MODE="TRUE", p_REFCLK_FREQUENCY=200.0,
-                         p_PIPE_SEL="FALSE", p_ODELAY_TYPE="VARIABLE", p_ODELAY_VALUE=0,
 
-                         i_C=ClockSignal(),
-                         i_LD=self._dly_sel.storage[i] & self._wdly_dq_rst.re,
-                         i_CE=self._dly_sel.storage[i] & self._wdly_dq_inc.re,
-                         i_LDPIPEEN=0, i_INC=1,
-
-                         o_ODATAIN=dm_o_nodelay, o_DATAOUT=pads.dm[i]
-                )
-
-            dqs_nodelay = Signal()
-            dqs_delayed = Signal()
+            dqs = Signal()
             dqs_t = Signal()
             self.specials += [
                 Instance("OSERDESE2",
@@ -170,7 +152,7 @@ class A7DDRPHY(Module, AutoCSR):
                          p_DATA_RATE_OQ="DDR", p_DATA_RATE_TQ="BUF",
                          p_SERDES_MODE="MASTER",
 
-                         o_OFB=dqs_nodelay, o_TQ=dqs_t,
+                         o_OQ=dqs, o_TQ=dqs_t,
                          i_OCE=1, i_TCE=1,
                          i_RST=ResetSignal(),
                          i_CLK=ClockSignal("sys4x"), i_CLKDIV=ClockSignal(),
@@ -180,20 +162,8 @@ class A7DDRPHY(Module, AutoCSR):
                          i_D7=dqs_serdes_pattern[6], i_D8=dqs_serdes_pattern[7],
                          i_T1=~oe_dqs
                 ),
-                Instance("ODELAYE2",
-                         p_DELAY_SRC="ODATAIN", p_SIGNAL_PATTERN="DATA",
-                         p_CINVCTRL_SEL="FALSE", p_HIGH_PERFORMANCE_MODE="TRUE", p_REFCLK_FREQUENCY=200.0,
-                         p_PIPE_SEL="FALSE", p_ODELAY_TYPE="VARIABLE", p_ODELAY_VALUE=6,
-
-                         i_C=ClockSignal(),
-                         i_LD=self._dly_sel.storage[i] & self._wdly_dqs_rst.re,
-                         i_CE=self._dly_sel.storage[i] & self._wdly_dqs_inc.re,
-                         i_LDPIPEEN=0, i_INC=1,
-
-                         o_ODATAIN=dqs_nodelay, o_DATAOUT=dqs_delayed
-                ),
                 Instance("OBUFTDS",
-                         i_I=dqs_delayed, i_T=dqs_t,
+                         i_I=dqs, i_T=dqs_t,
                          o_O=pads.dqs_p[i], o_OB=pads.dqs_n[i]
                 )
             ]
@@ -201,8 +171,7 @@ class A7DDRPHY(Module, AutoCSR):
         # DQ
         oe_dq = Signal()
         for i in range(databits):
-            dq_o_nodelay = Signal()
-            dq_o_delayed = Signal()
+            dq_o = Signal()
             dq_i_nodelay = Signal()
             dq_i_delayed = Signal()
             dq_t = Signal()
@@ -212,7 +181,7 @@ class A7DDRPHY(Module, AutoCSR):
                          p_DATA_RATE_OQ="DDR", p_DATA_RATE_TQ="BUF",
                          p_SERDES_MODE="MASTER",
 
-                         o_OQ=dq_o_nodelay, o_TQ=dq_t,
+                         o_OQ=dq_o, o_TQ=dq_t,
                          i_OCE=1, i_TCE=1,
                          i_RST=ResetSignal(),
                          i_CLK=ClockSignal("sys4x"), i_CLKDIV=ClockSignal(),
@@ -229,25 +198,13 @@ class A7DDRPHY(Module, AutoCSR):
 
                          i_DDLY=dq_i_delayed,
                          i_CE1=1,
-                         i_RST=ResetSignal() | (self._dly_sel.storage[i//8] & self._wdly_dq_rst.re),
+                         i_RST=ResetSignal(),
                          i_CLK=ClockSignal("sys4x"), i_CLKB=~ClockSignal("sys4x"), i_CLKDIV=ClockSignal(),
                          i_BITSLIP=self._dly_sel.storage[i//8] & self._rdly_dq_bitslip.re,
                          o_Q8=self.dfi.phases[0].rddata[i], o_Q7=self.dfi.phases[0].rddata[databits+i],
                          o_Q6=self.dfi.phases[1].rddata[i], o_Q5=self.dfi.phases[1].rddata[databits+i],
                          o_Q4=self.dfi.phases[2].rddata[i], o_Q3=self.dfi.phases[2].rddata[databits+i],
                          o_Q2=self.dfi.phases[3].rddata[i], o_Q1=self.dfi.phases[3].rddata[databits+i]
-                ),
-                Instance("ODELAYE2",
-                         p_DELAY_SRC="ODATAIN", p_SIGNAL_PATTERN="DATA",
-                         p_CINVCTRL_SEL="FALSE", p_HIGH_PERFORMANCE_MODE="TRUE", p_REFCLK_FREQUENCY=200.0,
-                         p_PIPE_SEL="FALSE", p_ODELAY_TYPE="VARIABLE", p_ODELAY_VALUE=0,
-
-                         i_C=ClockSignal(),
-                         i_LD=self._dly_sel.storage[i//8] & self._wdly_dq_rst.re,
-                         i_CE=self._dly_sel.storage[i//8] & self._wdly_dq_inc.re,
-                         i_LDPIPEEN=0, i_INC=1,
-
-                         o_ODATAIN=dq_o_nodelay, o_DATAOUT=dq_o_delayed
                 ),
                 Instance("IDELAYE2",
                          p_DELAY_SRC="IDATAIN", p_SIGNAL_PATTERN="DATA",
@@ -262,7 +219,7 @@ class A7DDRPHY(Module, AutoCSR):
                          i_IDATAIN=dq_i_nodelay, o_DATAOUT=dq_i_delayed
                 ),
                 Instance("IOBUF",
-                         i_I=dq_o_delayed, o_O=dq_i_nodelay, i_T=dq_t,
+                         i_I=dq_o, o_O=dq_i_nodelay, i_T=dq_t,
                          io_IO=pads.dq[i]
                 )
             ]
