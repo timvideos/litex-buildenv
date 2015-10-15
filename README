@@ -9,7 +9,6 @@
     Xilinx Arty SoC based on Migen/MiSoC
 
 [> Getting started
-------------------
 1. Follow MiSoC Quick start guide
 	https://github.com/m-labs/misoc
 
@@ -29,11 +28,14 @@
   go to misoc dir
   python3 make.py -X ../arty-soc/ -t arty_base -s BaseSoC all
   or
-  python3 make.py -X ../arty-soc/ -t arty_logic_analyzer --csr_csv ../arty-soc/software/csr.csv build-csr-csv
-  python3 make.py -X ../arty-soc/ -t arty_logic_analyzer all
+  python3 make.py -X ../arty-soc/ -t arty_base -s MiniSoC all
+  or
+  python3 make.py -X ../arty-soc/ -t arty_logic_analyzer -s EtherboneSoC all
 
 [> Status:
-arty_base and arty_logic_analyzer targets to be validated.
+BaseSoC partially validated (DDR3 and SPI sill missing).
+MiniSoC validated.
+EtherboneSoC validated.
 
 [> Contact
 E-mail: florent@enjoy-digital.fr
