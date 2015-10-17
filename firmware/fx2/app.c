@@ -265,9 +265,8 @@ uint8 handleVendorCommand(uint8 cmd) {
 	if (handleCDCCommand(cmd))
             return true;
 
-
+/*
 	switch(cmd) {
-
 	// Set various mode bits, or fetch status information
 	//
 	case CMD_MODE_STATUS:
@@ -424,6 +423,8 @@ uint8 handleVendorCommand(uint8 cmd) {
 		}
 		return true;
 	}
+*/
+
 	return false;  // unrecognised command
 }
 

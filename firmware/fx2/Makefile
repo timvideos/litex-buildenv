@@ -43,7 +43,7 @@ USE_16K := 1
 # Must only be hex numbers
 FIRMWARE_VERSION := $(shell date +%Y%m%d)
 
-CC_SRCS := app.c cdc.c debug.c livePatch.c prog.c prom.c softserial.c uvc.c firmware.c
+CC_SRCS := app.c cdc.c debug.c softserial.c uvc.c firmware.c read-serialno.c
 AS_SRCS := descriptors_hdmi2usb.a51
 CC_OBJS := $(CC_SRCS:%.c=%.rel)
 AS_OBJS := $(AS_SRCS:%.a51=%.rel)
