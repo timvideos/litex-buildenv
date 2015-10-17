@@ -182,3 +182,8 @@ BOOL handle_set_interface(BYTE ifc, BYTE alt_ifc)
 
     return TRUE;
 }
+
+
+BOOL handle_get_descriptor() {
+    return FALSE;
+}
