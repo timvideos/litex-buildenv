@@ -143,11 +143,18 @@ BOOL handle_set_interface(BYTE ifc, BYTE alt_ifc)
 		CDC_H2D_EP(BCL)=0X80;
 		SYNCDELAY;
 		CDC_D2H_RESET(FIFO);
-		return TRUE;
-	} else {
-		return FALSE;
 	}
+
+    if (AlternateSetting == 1) {
+        // reset UVC fifo
+        SYNCDELAY; FIFORESET = 0x80;
+        SYNCDELAY; FIFORESET = 0x06;
+        SYNCDELAY; FIFORESET = 0x00;
+    }
+
+    return TRUE;
 }
+
 
 BOOL handle_get_descriptor() {
     return FALSE;

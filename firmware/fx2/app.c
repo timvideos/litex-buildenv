@@ -191,21 +191,31 @@ void TD_Init(void)             // Called once at startup
      *                      |   1  |   1  |  Triple   |
      *                      |______|______|___________|
      */
-    
+
     // Used by the video data
 	SYNCDELAY; EP6CFG = 0xDA;  // Activate, IN  Direction, ISO  Type, 1024 bytes Size, Double buffered
 	SYNCDELAY; EP8CFG = 0x00;  // Disable Endpoint 8
 	
 	// 0 INFM1 OEP1 AUTOOUT AUTOIN ZEROLENIN 0 WORDWIDE
+	SYNCDELAY; EP2FIFOCFG = 0x00;
+	SYNCDELAY; EP4FIFOCFG = 0x00;
 	SYNCDELAY; EP6FIFOCFG = 0x0C;
+	SYNCDELAY; EP8FIFOCFG = 0x00;
+
+	//SYNCDELAY; EP4AUTOINLENH = 0x02;
+	//SYNCDELAY; EP4AUTOINLENL = 0x00;
+
 	SYNCDELAY; EP6AUTOINLENH = 0x04;
 	SYNCDELAY; EP6AUTOINLENL = 0x00;
-
-	SYNCDELAY; EP8FIFOCFG = 0x00;
 	
-	//SYNCDELAY; REVCTL = 0x03; // REVCTL.0 and REVCTL.1 set to 1
+	//SYNCDELAY; REVCTL = 0x00; // REVCTL.0 and REVCTL.1 set to 1
 	SYNCDELAY; REVCTL = 0x00; // REVCTL.0 and REVCTL.1 set to 1
-	RESETFIFOS();
+	SYNCDELAY; FIFORESET = 0x80; // Reset the FIFO
+	SYNCDELAY; FIFORESET = 0x82;
+	SYNCDELAY; FIFORESET = 0x84;
+	SYNCDELAY; FIFORESET = 0x86;
+	SYNCDELAY; FIFORESET = 0x00;
+	//RESETFIFOS();
 }
 
 void TD_Poll(void)             // Called repeatedly while the device is idle
