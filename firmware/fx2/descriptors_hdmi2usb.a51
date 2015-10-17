@@ -337,6 +337,7 @@ vsheaderend:
         .db 0x00                         ;/* Interface descriptor string index */
 
         ;/* Endpoint descriptor for streaming video data */
+        ;; EP6 Descriptor
         .db 0x07                         ;/* Descriptor size */
         .db DSCR_ENDPOINT_TYPE           ;/* Endpoint descriptor type */
         .db 0x86                         ;/* Endpoint address and description */

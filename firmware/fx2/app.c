@@ -458,10 +458,6 @@ void TD_Init(void)             // Called once at startup
      */
      
     SYNCDELAY; IFCONFIG = 0xE3; // Internal Clock, 48MHz, IFCLK output enable to pin, Normal Polarity, Synchronous FIFO, Nothing to do with GSTATE, Set interface mode to Slave FIFO.
-	
-    
-    
-    
     
 	// EP1OUT & EP1IN
     /* 
@@ -481,12 +477,10 @@ void TD_Init(void)             // Called once at startup
      * 
      *          BIT 3-0 : Unused
      */
-    
+
+    // Used by the CDC serial port (Polling / Interrupt?)
     SYNCDELAY; EP1OUTCFG = 0x00;  // Disable Endpoint1 OUT
 	SYNCDELAY; EP1INCFG  = 0xA0;  // Activate Endpoint1 IN,BULK Type
-	
-	
-    
     
     // VALID DIR TYPE1 TYPE0 SIZE 0 BUF1 BUF0
     /* EPxCGF Register for configuring Endpoints
@@ -520,8 +514,10 @@ void TD_Init(void)             // Called once at startup
      *                      |______|______|___________|
      */
     
+    // Used by the CDC serial port (EP2 == TX, EP4 == RX)
 	SYNCDELAY; EP2CFG = 0xA2;  // Activate, OUT Direction, BULK Type, 512  bytes Size, Double buffered
 	SYNCDELAY; EP4CFG = 0xE2;  // Activate, IN  Direction, BULK Type, 512  bytes Size, Double buffered
+    // Used by the video data
 	SYNCDELAY; EP6CFG = 0xDA;  // Activate, IN  Direction, ISO  Type, 1024 bytes Size, Double buffered
 	SYNCDELAY; EP8CFG = 0x00;  // Disable Endpoint 8
 	
@@ -549,7 +545,7 @@ void TD_Init(void)             // Called once at startup
 void TD_Poll(void)             // Called repeatedly while the device is idle
 {
 
-
+// CDC Polling?
 if (!(EP1INCS & 0x02))      // check if EP1IN is available
   {
 	EP1INBUF[0] = 0x0A;       // if it is available, then fill the first 10 bytes of the buffer with 
