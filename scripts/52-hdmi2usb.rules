@@ -1,14 +1,17 @@
+# The ENV{ID_MM_DEVICE_IGNORE}="1" part will make modem-manager ignore the
+# device.
+
 # Grant permission to makestuff usb devices.
-ATTR{idVendor}=="1d50", MODE:="666"
+ATTR{idVendor}=="1d50", MODE:="666", ENV{ID_MM_DEVICE_IGNORE}="1"
 
 # Grant permissions to hdmi2usb usb devices.
-ATTR{idVendor}=="fb9a", MODE:="666"
+ATTR{idVendor}=="fb9a", MODE:="666", ENV{ID_MM_DEVICE_IGNORE}="1"
 
 # Grant permissions to unconfigured cypress chips.
-ATTR{idVendor}=="04b4", MODE:="666" 
+ATTR{idVendor}=="04b4", MODE:="666", ENV{ID_MM_DEVICE_IGNORE}="1"
 
 # Grant permissions to Digilent Development board JTAG
-ATTR{idVendor}=="1443", MODE:="666"
+ATTR{idVendor}=="1443", MODE:="666", ENV{ID_MM_DEVICE_IGNORE}="1"
 
 # Grant permissions to Numato usb devices.
-ATTR{idVendor}=="2a19", MODE:="666"
+ATTR{idVendor}=="2a19", MODE:="666", ENV{ID_MM_DEVICE_IGNORE}="1"
