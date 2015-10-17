@@ -61,9 +61,20 @@ else
 	CFLAGS += --code-size 0x1e00 --xram-size 0x0200 -Wl"-b DSCR_AREA=0x1e00" -Wl"-b INT2JT=0x1f00"
 endif
 
+ifeq (${BOARD},atlys)
 VID := 1D50
 PID := 60B7
 DID := 0002
+else
+ifeq (${BOARD},opsis)
+VID := 2A19
+PID := 5442
+DID := 0002
+else
+$(error "Unknown board type '$(BOARD)'")
+endif
+endif
+
 
 # Use make V=1 for a verbose build.
 ifndef V
