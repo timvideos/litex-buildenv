@@ -7,48 +7,78 @@
 
 #define SYNCDELAY SYNCDELAY4
 
-BYTE __xdata LineCode[7] = {0x60,0x09,0x00,0x00,0x00,0x00,0x08};
+volatile WORD cdc_queued_bytes = 0;
 
-BOOL handleCDCCommand(BYTE cmd) {
-    int i;
+struct usb_cdc_line_coding cdc_current_line_coding = {
+  .bDTERate0 = LSB(2400),
+  .bDTERate1 = MSB(2400),
+  .bDTERate2 = 0,
+  .bDTERate3 = 0,
+  .bCharFormat = USB_CDC_1_STOP_BITS,
+  .bParityType = USB_CDC_NO_PARITY,
+  .bDataBits = 8
+};
 
-    switch(cmd) {
-    case SET_LINE_CODING:
-        
-        EUSB = 0 ;
-        SUDPTRCTL = 0x01;
-        EP0BCL = 0x00;
-        SUDPTRCTL = 0x00;
-        EUSB = 1;
-        
-        while (EP0BCL != 7);
-            SYNCDELAY;
+void cdc_receive_poll() {
+	if ( !(EP2468STAT & bmCDC_H2D_EP(EMPTY)) ) {
+		WORD bytes = MAKEWORD(CDC_H2D_EP(BCH),CDC_H2D_EP(BCL));
+		cdcuser_receive_data(CDC_H2D_EP(FIFOBUF), bytes);
+		CDC_H2D_EP(BCL) = 0x80; // Mark us ready to receive again.
+	}
+	// FIXME: Send the interrupt thingy
+}
 
-        for (i=0;i<7;i++)
-            LineCode[i] = EP0BUF[i];
+BOOL cdc_handle_command(BYTE cmd) {
+	int i;
+	BYTE* line_coding = (BYTE*)&cdc_current_line_coding;
+        DWORD baud_rate = 0;
 
-        return TRUE;
+	switch(cmd) {
+	case USB_CDC_REQ_SET_LINE_CODING:
+		EUSB = 0 ;
+		SUDPTRCTL = 0x01;
+		EP0BCL = 0x00;
+		SUDPTRCTL = 0x00;
+		EUSB = 1;
 
-    case GET_LINE_CODING:
-        
-        SUDPTRCTL = 0x01;
-        
-        for (i=0;i<7;i++)
-            EP0BUF[i] = LineCode[i];
+		while (EP0BCL != 7);
+			SYNCDELAY;
 
-        EP0BCH = 0x00;
-        SYNCDELAY;
-        EP0BCL = 7;
-        SYNCDELAY;
-        while (EP0CS & 0x02);
-        SUDPTRCTL = 0x00;
-        
-        return TRUE;
+		for (i=0;i<7;i++)
+			line_coding[i] = EP0BUF[i];
 
-    case SET_CONTROL_STATE:
-        return TRUE;
+		// FIXME: Make this following line work rather then the if statement chain!
+//                baud_rate = MAKEDWORD(
+//			MAKEWORD(cdc_current_line_coding.bDTERate3, cdc_current_line_coding.bDTERate2),
+//			MAKEWORD(cdc_current_line_coding.bDTERate1, cdc_current_line_coding.bDTERate0));
+		baud_rate = MAKEDWORD(
+			MAKEWORD(line_coding[3], line_coding[2]),
+			MAKEWORD(line_coding[1], line_coding[0]));
 
-    default:
-        return FALSE;
-    }
+		if (!cdcuser_set_line_rate(baud_rate))
+			; //EP0STALL();
+
+		return TRUE;
+
+	case USB_CDC_REQ_GET_LINE_CODING:
+		SUDPTRCTL = 0x01;
+				
+		for (i=0;i<7;i++)
+			EP0BUF[i] = line_coding[i];
+
+		EP0BCH = 0x00;
+		SYNCDELAY;
+		EP0BCL = 7;
+		SYNCDELAY;
+		while (EP0CS & 0x02);
+		SUDPTRCTL = 0x00;
+				
+		return TRUE;
+
+	case USB_CDC_REQ_SET_CONTROL_LINE_STATE:
+		return TRUE;
+
+	default:
+		return FALSE;
+	}
 }

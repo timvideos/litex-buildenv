@@ -31,8 +31,9 @@
 #include <delay.h>
 #include <setupdat.h>
 
+#include "cdc.h"
 
-
+#define SYNCDELAY SYNCDELAY4
 
 volatile __bit dosud=FALSE;
 volatile __bit dosuspend=FALSE;
@@ -136,3 +137,23 @@ void suspend_isr() __interrupt SUSPEND_ISR {
  dosuspend=TRUE;
  CLEAR_SUSPEND();
 }
+
+
+void ISR_USART0(void) __interrupt 4 __critical {
+	if (RI) {
+		RI=0;
+		if (!cdc_can_send()) {
+			// Mark overflow
+		} else {
+			cdc_queue_data(SBUF0);
+		}
+		// FIXME: Should use a timer, rather then sending one byte at a
+		// time.
+		cdc_send_queued_data();
+	}
+	if (TI) {
+		TI=0;
+//		transmit();
+	}
+}
+

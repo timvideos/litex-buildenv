@@ -403,8 +403,7 @@ vsheaderend:
         .db ENDPOINT_TYPE_INT            ; Endpoint type
         .db 0x10                         ; Maximum packet size (LSB)
         .db 0x00                         ; Max packet size (MSB)
-        .db 0x08                         ; Polling interval
-
+        .db 0x40                         ; Polling interval
 
         ;; Virtual COM Port Data Interface Descriptor
         .db DSCR_INTERFACE_LEN              ; Descriptor length
@@ -417,19 +416,19 @@ vsheaderend:
         .db 0x00                         ; Interface protocol code class
         .db 1                            ; Interface descriptor string index
 
-        ;; EP4 Descriptor
+        ;; EP2OUT Descriptor
         .db DSCR_ENDPOINT_LEN              ; Descriptor length
         .db DSCR_ENDPOINT_TYPE           ; Descriptor type
-        .db 0x84                         ; Endpoint number, and direction
+        .db 0x02                         ; Endpoint number, and direction
         .db ENDPOINT_TYPE_BULK           ; Endpoint type
         .db 0x00                         ; Maximum packet size (LSB)
         .db 0x02                         ; Max packet size (MSB)
         .db 0x00                         ; Polling interval
 
-        ;; EP2OUT Descriptor
+        ;; EP4 Descriptor
         .db DSCR_ENDPOINT_LEN              ; Descriptor length
         .db DSCR_ENDPOINT_TYPE           ; Descriptor type
-        .db 0x02                         ; Endpoint number, and direction
+        .db 0x84                         ; Endpoint number, and direction
         .db ENDPOINT_TYPE_BULK           ; Endpoint type
         .db 0x00                         ; Maximum packet size (LSB)
         .db 0x02                         ; Max packet size (MSB)
