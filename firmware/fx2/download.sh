@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-DEVS=$(lsusb|grep -E '(04b4|1d50|fb9a|1443)' |sed 's/:.*//;s/Bus //;s/Device //;s/ /\//')
+DEVS=$(lsusb|grep -E '(16c0|04b4|1d50|fb9a|1443)' |sed 's/:.*//;s/Bus //;s/Device //;s/ /\//')
 
 if [ -z "$1" ]; then
     echo "$0: usage: $0 <file>"
