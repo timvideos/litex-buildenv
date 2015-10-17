@@ -16,18 +16,20 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  **/
 
+#ifdef DEBUG 
+#include "softserial.h"
+#include <stdio.h>
+#define putchar soft_putchar
+#define getchar soft_getchar
+#else
+#define printf(...)
+#endif
+
 #include <fx2macros.h>
 #include <fx2ints.h>
 #include <autovector.h>
 #include <delay.h>
 #include <setupdat.h>
-
-#ifdef DEBUG 
-#include "softserial.h"
-#include <stdio.h>
-#else
-#define printf(...)
-#endif
 
 
 
@@ -45,7 +47,7 @@ void main() {
 #ifdef DEBUG
  SETCPUFREQ(CLK_48M); // required for sio0_init 
  // main_init can still set this to whatever you want.
- sio0_init(57600); // needed for printf if debug defined 
+ soft_sio0_init(57600); // needed for printf if debug defined
 #endif
 
  main_init();

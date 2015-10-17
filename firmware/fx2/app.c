@@ -30,31 +30,10 @@
 extern const uint8 dev_strings[];
 void TD_Init(void);
 void TD_Poll(void);
-void livePatch(uint8 patchClass, uint8 newByte);
-
-// General-purpose diagnostic code, for debugging. See CMD_GET_DIAG_CODE vendor command.
-__xdata uint8 m_diagnosticCode = 0;
-
-void fifoSetEnabled(uint8 mode) {
-	// Ensure that CTL1 & CTL2 (fx2GotData_in & fx2GotRoom_in) default low (unasserted). This
-	// prevents the FX2 from falsely informing the FPGA that it's ready to talk when fifo mode is
-	// disabled.
-	GPIFIDLECTL = 0x00;
-
-	if ( mode == 0x01 ) {
-		IFCONFIG = (bmIFCLKSRC | bm3048MHZ | bmIFCLKOE | bmFIFOS);
-	} else {
-		IFCONFIG = (bmIFCLKSRC | bm3048MHZ | bmIFCLKOE | bmPORTS);
-	}
-}
 
 // Called once at startup
 //
 void mainInit(void) {
-
-	__xdata uint8 thisByte = 0xFF;
-	__xdata uint16 blockSize;
-
 #ifdef BOARD_opsis
 	patch_usb_serial_number_with_eeprom_macaddress();
 #endif
@@ -66,10 +45,6 @@ void mainInit(void) {
 	RENUMERATE_UNCOND();
 #endif
 
-// Needs to be matched to stuff in HDMI2USB/cypress/hdmi2usb.c TD_Init
-// void TD_Init(void)             // Called once at startup
-
-	
 	// Clear wakeup (see AN15813: http://www.cypress.com/?docID=4633)
 	WAKEUPCS = bmWU | bmDPEN | bmWUEN;
 	WAKEUPCS = bmWU | bmDPEN | bmWUEN;
@@ -109,7 +84,6 @@ void mainInit(void) {
 // Called repeatedly while the device is idle
 //
 void mainLoop(void) {
-
 	TD_Poll();
 }
 
@@ -239,20 +213,19 @@ void TD_Init(void)             // Called once at startup
 
 void TD_Poll(void)             // Called repeatedly while the device is idle
 {
-
-// CDC Polling?
-if (!(EP1INCS & 0x02))      // check if EP1IN is available
-  {
-	EP1INBUF[0] = 0x0A;       // if it is available, then fill the first 10 bytes of the buffer with 
-	EP1INBUF[1] = 0x20;       // appropriate data. 
-	EP1INBUF[2] = 0x00;
-	EP1INBUF[3] = 0x00;
-	EP1INBUF[4] = 0x00;
-	EP1INBUF[5] = 0x00;
-	EP1INBUF[6] = 0x00;
-	EP1INBUF[7] = 0x02;
-	EP1INBUF[8] = 0x00;
-	EP1INBUF[9] = 0x00;
-	EP1INBC = 10;            // manually commit once the buffer is filled
-  }
+	// CDC Polling?
+	if (!(EP1INCS & 0x02))      // check if EP1IN is available
+ 	{
+		EP1INBUF[0] = 0x0A;       // if it is available, then fill the first 10 bytes of the buffer with 
+		EP1INBUF[1] = 0x20;       // appropriate data. 
+		EP1INBUF[2] = 0x00;
+		EP1INBUF[3] = 0x00;
+		EP1INBUF[4] = 0x00;
+		EP1INBUF[5] = 0x00;
+		EP1INBUF[6] = 0x00;
+		EP1INBUF[7] = 0x02;
+		EP1INBUF[8] = 0x00;
+		EP1INBUF[9] = 0x00;
+		EP1INBC = 10;            // manually commit once the buffer is filled
+	}
 }
