@@ -28,6 +28,7 @@
 
 #include "cdc.h"
 #include "uvc.h"
+#include "read-serialno.h"
 
 extern const uint8 dev_strings[];
 void TD_Init(void);
@@ -57,7 +58,9 @@ void mainInit(void) {
 	__xdata uint8 thisByte = 0xFF;
 	__xdata uint16 blockSize;
 
-	
+#ifdef BOARD_opsis
+	patch_usb_serial_number_with_eeprom_macaddress();
+#endif
 
 	// This is only necessary for cases where you want to load firmware into the RAM of an FX2 that
 	// has already loaded firmware from an EEPROM. It should definitely be removed for firmwares

@@ -37,7 +37,8 @@ LIBS := $(FX2LIBDIR)/lib/fx2.lib
 INCS := -I sdcc -I$(FX2LIBDIR)/include -I.
 
 # Settings specific for the TimVideo hdmi2usb firmware
-FLAGS +="-DDEBUG"
+BOARD ?= atlys
+FLAGS +=-DDEBUG -DBOARD_${BOARD}
 USE_16K := 1
 
 # Must only be hex numbers

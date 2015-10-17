@@ -56,7 +56,7 @@ VID_LE=((VID&0x00FF)<<8)+(VID>>8)
 PID_LE=((PID&0x00FF)<<8)+(PID>>8)
 DID_LE=((DID&0x00FF)<<8)+(DID>>8)
 
-	.globl _dev_dscr, _dev_qual_dscr, _highspd_dscr, _fullspd_dscr, _dev_strings, _dev_strings_end
+	.globl _dev_dscr, _dev_qual_dscr, _highspd_dscr, _fullspd_dscr, _dev_strings, _dev_strings_end, _dev_serial
 
 ; These need to be in code memory. If they aren't you'll have to
 ; manually copy them somewhere in code memory otherwise SUDPTRH:L
