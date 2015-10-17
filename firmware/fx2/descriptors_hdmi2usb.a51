@@ -78,7 +78,7 @@ _dev_dscr:
 	.dw    DID_LE                         ; 12 bcdDevice 2 Device release number (BCD)
 	.db    1                              ; 14 iManufacturer 1 Index of string descriptor for the manufacturer
 	.db    2                              ; 15 iProduct 1 Index of string descriptor for the product
-	.db    0                              ; 16 iSerialNumber 1 Index of string descriptor for the serial number
+	.db    3                              ; 16 iSerialNumber 1 Index of string descriptor for the serial number
 	.db    1                              ; 17 bNumConfigurations 1 Number of possible configurations
 dev_dscr_end:
 
@@ -489,6 +489,45 @@ string2:
 	.db    'S', 00
 	.db    'B', 00
 string2end:
+
+; Serial Number
+_string3:
+	.db    string3end-_string3
+	.db    DSCR_STRING_TYPE
+_dev_serial:
+	.ascii '0'
+	.db    0
+	.ascii '1'
+	.db    0
+	.ascii '2'
+	.db    0
+	.ascii '3'
+	.db    0
+	.ascii '4'
+	.db    0
+	.ascii '5'
+	.db    0
+	.ascii '6'
+	.db    0
+	.ascii '7'
+	.db    0
+	.ascii '8'
+	.db    0
+	.ascii '9'
+	.db    0
+	.ascii 'a'
+	.db    0
+	.ascii 'b'
+	.db    0
+	.ascii 'c'
+	.db    0
+	.ascii 'd'
+	.db    0
+	.ascii 'e'
+	.db    0
+	.ascii 'f'
+	.db    0
+string3end:
 
 _dev_strings_end:
 	.dw 0x0000                       ; in case you wanted to look at memory between _dev_strings and _dev_strings_end
