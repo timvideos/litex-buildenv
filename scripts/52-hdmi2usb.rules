@@ -9,3 +9,6 @@ ATTR{idVendor}=="04b4", MODE:="666"
 
 # Grant permissions to Digilent Development board JTAG
 ATTR{idVendor}=="1443", MODE:="666"
+
+# Grant permissions to Numato usb devices.
+ATTR{idVendor}=="2a19", MODE:="666"
