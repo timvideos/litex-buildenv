@@ -66,8 +66,9 @@ all: clean gateware firmware
 	echo "Run 'make load' to load the firmware."
 
 # Initialize submodules automatically
-third_party/%/.git:
+third_party/%/.git: .gitmodules
 	git submodule update --recursive --init $(dir $@)
+	touch $@ -r .gitmodules
 
 # Gateware
 MODULES=migen misoc liteeth litescope
