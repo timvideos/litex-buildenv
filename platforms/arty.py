@@ -88,7 +88,7 @@ class Platform(XilinxPlatform):
     default_clk_period = 10.0
     identifier = 0x4152  # AR
 
-    def __init__(self, toolchain="vivado", programmer="xc3sprog"):
+    def __init__(self, toolchain="vivado", programmer="vivado"):
         XilinxPlatform.__init__(self, "xc7a35ticsg324-1L", _io,
                                 toolchain=toolchain)
         self.toolchain.bitstream_commands = \
