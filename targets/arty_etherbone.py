@@ -28,7 +28,7 @@ class EtherboneSoC(BaseSoC):
                                                    mac_address,
                                                    convert_ip(ip_address),
                                                    self.clk_freq,
-                                                   with_icmp=False)
+                                                   with_icmp=True)
 
         # Etherbone bridge
         self.submodules.etherbone = LiteEthEtherbone(self.ethcore.udp, 20000)
