@@ -39,18 +39,15 @@ class EtherboneSoC(BaseSoC):
             Keep(self.ethphy.crg.cd_eth_tx.clk)
         ]
         platform.add_platform_command("""
-NET "{eth_clocks_rx}" CLOCK_DEDICATED_ROUTE = FALSE;
-NET "{eth_clocks_rx}" TNM_NET = "GRPeth_clocks_rx";
-NET "{eth_rx_clk}" TNM_NET = "GRPeth_rx_clk";
-NET "{eth_tx_clk}" TNM_NET = "GRPeth_tx_clk";
-TIMESPEC "TIG1" = FROM "GRPeth_clocks_rx" TO "GRPsys_clk" TIG;
-TIMESPEC "TIG2" = FROM "GRPsys_clk" TO "GRPeth_clocks_rx" TIG;
-TIMESPEC "TIG3" = FROM "GRPeth_tx_clk" TO "GRPsys_clk" TIG;
-TIMESPEC "TIG4" = FROM "GRPsys_clk" TO "GRPeth_tx_clk" TIG;
-TIMESPEC "TIG5" = FROM "GRPeth_rx_clk" TO "GRPsys_clk" TIG;
-TIMESPEC "TIG6" = FROM "GRPsys_clk" TO "GRPeth_rx_clk" TIG;
-""", eth_clocks_rx=platform.lookup_request("eth_clocks").rx,
-     eth_rx_clk=self.ethphy.crg.cd_eth_rx.clk,
+create_clock -name sys_clk -period 10 [get_nets sys_clk]
+create_clock -name eth_rx_clk -period 40 [get_nets {eth_rx_clk}]
+create_clock -name eth_tx_clk -period 40 [get_nets {eth_tx_clk}]
+
+set_false_path -from [get_clocks eth_rx_clk] -to [get_clocks sys_clk]
+set_false_path -from [get_clocks sys_clk] -to [get_clocks eth_rx_clk]
+set_false_path -from [get_clocks eth_tx_clk] -to [get_clocks sys_clk]
+set_false_path -from [get_clocks sys_clk] -to [get_clocks eth_tx_clk]
+""", eth_rx_clk=self.ethphy.crg.cd_eth_rx.clk,
      eth_tx_clk=self.ethphy.crg.cd_eth_tx.clk)
 
 
