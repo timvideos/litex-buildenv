@@ -108,7 +108,7 @@ class BaseSoC(SDRAMSoC):
     def __init__(self, platform, sdram_controller_settings=LASMIconSettings(),
                  **kwargs):
         SDRAMSoC.__init__(self, platform,
-                          clk_freq=int((1/platform.default_clk_period)*1e9),
+                          clk_freq=100000000,
                           integrated_rom_size=0x8000,      # TODO: remove this when SPI Flash validated
                           integrated_main_ram_size=0x8000,  # TODO: remove this when SDRAM validated
                           sdram_controller_settings=sdram_controller_settings,
@@ -170,4 +170,4 @@ class MiniSoC(BaseSoC):
                                self.mem_map["ethmac"] | self.shadow_base,
                                0x2000)
 
-default_subtarget = BaseSoC
+default_subtarget = MiniSoC
