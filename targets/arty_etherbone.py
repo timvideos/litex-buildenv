@@ -10,8 +10,8 @@ from migen.fhdl.specials import Keep
 
 class EtherboneSoC(BaseSoC):
     csr_map = {
-        "ethphy":  20,
-        "ethcore": 21,
+        "ethphy":  30,
+        "ethcore": 31,
     }
     csr_map.update(BaseSoC.csr_map)
 

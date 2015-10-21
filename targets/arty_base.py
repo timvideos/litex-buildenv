@@ -10,7 +10,7 @@ from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
 from liteeth.phy import LiteEthPHY
 from liteeth.core.mac import LiteEthMAC
 
-from gateware import a7ddrphy, dna, xadc
+from gateware import a7ddrphy, dna, xadc, led
 
 
 class MT41K128M16(SDRAMModule):
@@ -102,6 +102,8 @@ class BaseSoC(SDRAMSoC):
         "ddrphy":   17,
         "dna":      18,
         "xadc":     19,
+        "leds":     20,
+        "rgb_leds": 21
     }
     csr_map.update(SDRAMSoC.csr_map)
 
@@ -117,6 +119,9 @@ class BaseSoC(SDRAMSoC):
         self.submodules.crg = _CRG(platform)
         self.submodules.dna = dna.DNA()
         self.submodules.xadc = xadc.XADC()
+
+        self.submodules.leds = led.ClassicLed(Cat(platform.request("user_led", i) for i in range(4)))
+        self.submodules.rgb_leds = led.RGBLed(platform.request("rgb_leds"))
 
         if not self.integrated_main_ram_size:
             ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"),
