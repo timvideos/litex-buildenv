@@ -37,10 +37,10 @@ def main(wb):
     for led in rgb_leds:
         for c in "rgb":
             pwm = getattr(led, c)
-            for i in range(128):
-                pwm.enable()
+            pwm.enable()
+            for i in range(64):
                 pwm.configure(128, i)
-                time.sleep(0.005)
+                time.sleep(0.001)
             pwm.disable()
     # # #
     wb.close()
