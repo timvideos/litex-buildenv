@@ -147,8 +147,8 @@ class BaseSoC(SDRAMSoC):
 
 class MiniSoC(BaseSoC):
     csr_map = {
-        "ethphy": 20,
-        "ethmac": 21
+        "ethphy": 30,
+        "ethmac": 31
     }
     csr_map.update(BaseSoC.csr_map)
 
