@@ -23,6 +23,7 @@ class EtherboneSoC(BaseSoC):
                          cpu_type="none",
                          integrated_rom_size=0,
                          integrated_main_ram_size=0,
+                         csr_data_width=32,
                          **kwargs)
 
         # Ethernet PHY and UDP/IP stack
