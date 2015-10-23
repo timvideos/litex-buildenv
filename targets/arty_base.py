@@ -108,11 +108,13 @@ class BaseSoC(SDRAMSoC):
     csr_map.update(SDRAMSoC.csr_map)
 
     def __init__(self, platform, sdram_controller_settings=LASMIconSettings(),
+                 integrated_rom_size=0x8000,       # TODO: remove this when SPI Flash validated
+                 integrated_main_ram_size=0x8000,  # TODO: remove this when SDRAM validated
                  **kwargs):
         SDRAMSoC.__init__(self, platform,
                           clk_freq=100000000,
-                          integrated_rom_size=0x8000,      # TODO: remove this when SPI Flash validated
-                          integrated_main_ram_size=0x8000,  # TODO: remove this when SDRAM validated
+                          integrated_rom_size=integrated_rom_size,
+                          integrated_main_ram_size=integrated_main_ram_size,
                           sdram_controller_settings=sdram_controller_settings,
                           **kwargs)
 
