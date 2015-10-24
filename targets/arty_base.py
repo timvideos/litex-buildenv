@@ -5,7 +5,7 @@ from misoclib.soc import mem_decoder
 from misoclib.soc.sdram import SDRAMSoC
 from misoclib.mem.flash import spiflash
 from misoclib.mem.sdram.module import SDRAMModule
-from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
+from misoclib.mem.sdram.core.minicon import MiniconSettings
 
 from liteeth.phy import LiteEthPHY
 from liteeth.core.mac import LiteEthMAC
@@ -37,6 +37,7 @@ class _CRG(Module):
     def __init__(self, platform):
         self.clock_domains.cd_sys = ClockDomain()
         self.clock_domains.cd_sys4x = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys4x_shifted = ClockDomain(reset_less=True)
         self.clock_domains.cd_clk200 = ClockDomain()
 
         clk100 = platform.request("clk100")
@@ -47,6 +48,7 @@ class _CRG(Module):
         pll_fb = Signal()
         self.pll_sys = Signal()
         pll_sys4x = Signal()
+        pll_sys4x_shifted = Signal()
         pll_clk200 = Signal()
         eth_clk = Signal()
         self.specials += [
@@ -71,12 +73,16 @@ class _CRG(Module):
                      o_CLKOUT2=eth_clk,
 
                      # 200MHz
-                     p_CLKOUT3_DIVIDE=4, p_CLKOUT3_PHASE=0.0,  o_CLKOUT3=pll_clk200,
+                     p_CLKOUT3_DIVIDE=4, p_CLKOUT3_PHASE=0.0,
+                     o_CLKOUT3=pll_clk200,
 
-                     p_CLKOUT4_DIVIDE=4, p_CLKOUT4_PHASE=0.0,  # o_CLKOUT4=
+                     # 266 MHz shifted
+                     p_CLKOUT4_DIVIDE=3, p_CLKOUT4_PHASE=0.0,
+                     o_CLKOUT4=pll_sys4x_shifted
             ),
             Instance("BUFG", i_I=self.pll_sys, o_O=self.cd_sys.clk),
             Instance("BUFG", i_I=pll_sys4x, o_O=self.cd_sys4x.clk),
+            Instance("BUFG", i_I=pll_sys4x_shifted, o_O=self.cd_sys4x_shifted.clk),
             Instance("BUFG", i_I=pll_clk200, o_O=self.cd_clk200.clk),
             Instance("BUFG", i_I=eth_clk, o_O=eth_ref_clk),
             AsyncResetSynchronizer(self.cd_sys, ~pll_locked | ~rst),
@@ -107,7 +113,7 @@ class BaseSoC(SDRAMSoC):
     }
     csr_map.update(SDRAMSoC.csr_map)
 
-    def __init__(self, platform, sdram_controller_settings=LASMIconSettings(),
+    def __init__(self, platform, sdram_controller_settings=MiniconSettings(),
                  integrated_rom_size=0x8000,       # TODO: remove this when SPI Flash validated
                  integrated_main_ram_size=0x8000,  # TODO: remove this when SDRAM validated
                  **kwargs):
