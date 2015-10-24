@@ -10,7 +10,7 @@ export PYTHONHASHSEED=0
 
 BOARD ?= atlys
 MSCDIR ?= third_party/misoc
-PROG ?= impact
+PROG ?= openocd
 TARGET ?= hdmi2usb
 FILTER ?= tee
 
