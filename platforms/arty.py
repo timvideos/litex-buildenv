@@ -58,7 +58,8 @@ _io = [
         Subsignal("dq", Pins(
             "K5 L3 K3 L6 M3 M1 L4 M2",
             "V4 T5 U4 V5 V1 T3 U3 R3"),
-            IOStandard("SSTL135")),
+            IOStandard("SSTL135"),
+            Misc("IN_TERM=UNTUNED_SPLIT_50")),
         Subsignal("dqs_p", Pins("N2 U2"), IOStandard("DIFF_SSTL135")),
         Subsignal("dqs_n", Pins("N1 V2"), IOStandard("DIFF_SSTL135")),
         Subsignal("clk_p", Pins("U9"), IOStandard("DIFF_SSTL135")),

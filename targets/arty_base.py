@@ -58,12 +58,12 @@ class _CRG(Module):
                      p_CLKFBOUT_MULT=8, p_DIVCLK_DIVIDE=1,
                      i_CLKIN1=clk100, i_CLKFBIN=pll_fb, o_CLKFBOUT=pll_fb,
 
-                     # 100 MHz
-                     p_CLKOUT0_DIVIDE=8, p_CLKOUT0_PHASE=0.0,
+                     # 66.667 MHz
+                     p_CLKOUT0_DIVIDE=12, p_CLKOUT0_PHASE=0.0,
                      o_CLKOUT0=self.pll_sys,
 
-                     # 400 MHz
-                     p_CLKOUT1_DIVIDE=2, p_CLKOUT1_PHASE=0.0,
+                     # 266 MHz
+                     p_CLKOUT1_DIVIDE=3, p_CLKOUT1_PHASE=0.0,
                      o_CLKOUT1=pll_sys4x,
 
                      # 25 MHz
@@ -112,7 +112,7 @@ class BaseSoC(SDRAMSoC):
                  integrated_main_ram_size=0x8000,  # TODO: remove this when SDRAM validated
                  **kwargs):
         SDRAMSoC.__init__(self, platform,
-                          clk_freq=100000000,
+                          clk_freq=66667000,
                           integrated_rom_size=integrated_rom_size,
                           integrated_main_ram_size=integrated_main_ram_size,
                           sdram_controller_settings=sdram_controller_settings,
