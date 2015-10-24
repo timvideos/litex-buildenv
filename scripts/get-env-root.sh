@@ -30,7 +30,7 @@ apt-get install -y iverilog gtkwave
 # Nothing needed
 
 # libfpgalink
-sudo apt-get install -y libreadline-dev libusb-1.0-0-dev python-yaml sdcc fxload
+sudo apt-get install -y libreadline-dev libusb-1.0-0-dev python-yaml fxload
 
 # Load custom udev rules
 (
@@ -43,3 +43,4 @@ sudo apt-get install -y software-properties-common
 sudo add-apt-repository -y ppa:timvideos/fpga-support
 sudo apt-get update
 sudo apt-get install -y vizzini-dkms
+sudo apt-get install -y ixo-usb-jtag
