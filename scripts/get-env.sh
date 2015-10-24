@@ -1,5 +1,7 @@
 #!/bin/bash
 
+CALLED=$_
+[[ "${BASH_SOURCE[0]}" != "${0}" ]] && SOURCED=1 || SOURCED=0
 
 SETUP_SRC=$(realpath ${BASH_SOURCE[0]})
 SETUP_DIR=$(dirname $SETUP_SRC)
@@ -7,8 +9,13 @@ TOP_DIR=$(realpath $SETUP_DIR/..)
 BUILD_DIR=$TOP_DIR/build
 THIRD_DIR=$TOP_DIR/third_party
 
-set -x
 set -e
+
+if [ $SOURCED = 1 ]; then
+	echo "You must run this script, rather then try to source it."
+	echo "$SETUP_SRC"
+	return
+fi
 
 echo "             This script is: $SETUP_SRC"
 echo "         Firmware directory: $TOP_DIR"
@@ -26,14 +33,12 @@ fi
 # Save the passphrase to a file so we don't echo it in the logs
 XILINX_PASSPHRASE_FILE=$(tempfile)
 trap "rm -f -- '$XILINX_PASSPHRASE_FILE'" EXIT
-set +x
 if [ ! -z "$XILINX_PASSPHRASE" ]; then
 	echo $XILINX_PASSPHRASE >> $XILINX_PASSPHRASE_FILE
 else
 	rm $XILINX_PASSPHRASE_FILE
 	trap - EXIT
 fi
-set -x
 # --------
 
 if [ -f $XILINX_PASSPHRASE_FILE ]; then
@@ -84,7 +89,36 @@ else
 fi
 echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
 
-# gcc+binutils for the target
+function check_version {
+	TOOL=$1
+	VERSION=$2
+	if $TOOL --version 2>&1 | grep -q $VERSION > /dev/null; then
+		echo "$TOOL found at $VERSION"
+		return 0
+	else
+		$TOOL --version
+		echo "$TOOL (version $VERSION) *NOT* found"
+		echo "Please try running the $SETUP_DIR/get-env.sh script again."
+		return 1
+	fi
+}
+
+function check_import {
+	MODULE=$1
+	if python3 -c "import $MODULE"; then
+		echo "$MODULE found"
+		return 0
+	else
+		echo "$MODULE *NOT* found!"
+		echo "Please try running the $SETUP_DIR/get-env.sh script again."
+		return 1
+	fi
+}
+
+# Install and setup conda for downloading packages
+echo ""
+echo "Install modules from conda"
+echo "---------------------------"
 CONDA_DIR=$BUILD_DIR/conda
 export PATH=$CONDA_DIR/bin:$PATH
 (
@@ -97,12 +131,36 @@ export PATH=$CONDA_DIR/bin:$PATH
 		conda update -q conda
 	fi
 	conda config --add channels timvideos
-	conda install binutils-lm32-elf
-	conda install gcc-lm32-elf
-	conda install sdcc
 )
 
+# binutils for the target
+(
+	conda install binutils-lm32-elf
+)
+check_version lm32-elf-ld 2.25.1
+
+# gcc+binutils for the target
+(
+	conda install gcc-lm32-elf
+)
+check_version lm32-elf-gcc 4.9.3
+
+# sdcc for compiling Cypress FX2 firmware
+(
+	conda install sdcc
+)
+check_version sdcc 3.5.0
+
+# openocd for programming via Cypress FX2
+(
+	conda install openocd
+)
+check_version openocd 0.10.0-dev-00044-g3edb157
+
 # git submodules
+echo ""
+echo "Updating git submodules"
+echo "-----------------------"
 (
 	cd $TOP_DIR
 	git submodule update --recursive --init
@@ -119,7 +177,7 @@ MIGEN_DIR=$THIRD_DIR/migen
 	#sudo make install
 )
 export PYTHONPATH=$MIGEN_DIR:$PYTHONPATH
-python3 -c "import migen"
+check_import migen
 
 # misoc
 MISOC_DIR=$THIRD_DIR/misoc
@@ -129,8 +187,8 @@ MISOC_DIR=$THIRD_DIR/misoc
 	make
 )
 export PYTHONPATH=$MISOC_DIR:$PYTHONPATH
-$MISOC_DIR/tools/flterm --help
-python3 -c "import misoclib"
+$MISOC_DIR/tools/flterm --help 2> /dev/null
+check_import misoclib
 
 # liteeth
 LITEETH_DIR=$THIRD_DIR/liteeth
@@ -139,26 +197,9 @@ LITEETH_DIR=$THIRD_DIR/liteeth
 	true
 )
 export PYTHONPATH=$LITEETH_DIR:$PYTHONPATH
-python3 -c "import liteeth"
+check_import liteeth
 
-# libfpgalink
-MAKESTUFF_DIR=$BUILD_DIR/makestuff
-(
-	if [ ! -d $MAKESTUFF_DIR ]; then
-		cd $BUILD_DIR
-		wget -qO- http://tiny.cc/msbil | tar zxf -
-		cd makestuff/libs
-		../scripts/msget.sh makestuff/libfpgalink
-		cd libfpgalink
-	else
-		cd $MAKESTUFF_DIR
-		cd libs/libfpgalink
-	fi
-	make deps 2>&1 | grep -E "^make"
-)
-export LD_LIBRARY_PATH=$MAKESTUFF_DIR/libs/libfpgalink/lin.x64/rel:$LD_LIBRARY_PATH
-export PYTHONPATH=$MAKESTUFF_DIR/libs/libfpgalink/examples/python/:$PYTHONPATH
-python3 -c "import fl"
-
+echo "-----------------------"
+echo ""
 echo "Completed.  To load environment:"
 echo "source HDMI2USB-misoc-firmware/scripts/setup-env.sh"
