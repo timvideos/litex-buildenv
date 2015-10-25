@@ -12,6 +12,7 @@ from liteeth.core.mac import LiteEthMAC
 
 from gateware import a7ddrphy, dna, xadc, led
 
+# TODO: use half-rate DDR3 phy and use 100Mhz CPU clock
 
 class MT41K128M16(SDRAMModule):
     geom_settings = {
@@ -37,20 +38,18 @@ class _CRG(Module):
     def __init__(self, platform):
         self.clock_domains.cd_sys = ClockDomain()
         self.clock_domains.cd_sys4x = ClockDomain(reset_less=True)
-        self.clock_domains.cd_sys4x_shifted = ClockDomain(reset_less=True)
+        self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
         self.clock_domains.cd_clk200 = ClockDomain()
 
         clk100 = platform.request("clk100")
-        eth_ref_clk = platform.request("eth_ref_clk")
         rst = platform.request("cpu_reset")
 
         pll_locked = Signal()
         pll_fb = Signal()
         self.pll_sys = Signal()
         pll_sys4x = Signal()
-        pll_sys4x_shifted = Signal()
+        pll_sys4x_dqs = Signal()
         pll_clk200 = Signal()
-        eth_clk = Signal()
         self.specials += [
             Instance("PLLE2_BASE",
                      p_STARTUP_WAIT="FALSE", o_LOCKED=pll_locked,
@@ -60,31 +59,30 @@ class _CRG(Module):
                      p_CLKFBOUT_MULT=8, p_DIVCLK_DIVIDE=1,
                      i_CLKIN1=clk100, i_CLKFBIN=pll_fb, o_CLKFBOUT=pll_fb,
 
-                     # 66.667 MHz
-                     p_CLKOUT0_DIVIDE=12, p_CLKOUT0_PHASE=0.0,
+                     # 50 MHz
+                     p_CLKOUT0_DIVIDE=16, p_CLKOUT0_PHASE=0.0,
                      o_CLKOUT0=self.pll_sys,
 
-                     # 266 MHz
-                     p_CLKOUT1_DIVIDE=3, p_CLKOUT1_PHASE=0.0,
+                     # 200 MHz
+                     p_CLKOUT1_DIVIDE=4, p_CLKOUT1_PHASE=0.0,
                      o_CLKOUT1=pll_sys4x,
 
-                     # 25 MHz
-                     p_CLKOUT2_DIVIDE=32, p_CLKOUT2_PHASE=0.0,
-                     o_CLKOUT2=eth_clk,
+                     # 200 MHz dqs
+                     p_CLKOUT2_DIVIDE=4, p_CLKOUT2_PHASE=135.0,
+                     o_CLKOUT2=pll_sys4x_dqs,
 
-                     # 200MHz
+                     # 200 MHz
                      p_CLKOUT3_DIVIDE=4, p_CLKOUT3_PHASE=0.0,
                      o_CLKOUT3=pll_clk200,
 
-                     # 266 MHz shifted
-                     p_CLKOUT4_DIVIDE=3, p_CLKOUT4_PHASE=0.0,
-                     o_CLKOUT4=pll_sys4x_shifted
+                     # 200MHz
+                     p_CLKOUT4_DIVIDE=4, p_CLKOUT4_PHASE=0.0,
+                     #o_CLKOUT4=
             ),
             Instance("BUFG", i_I=self.pll_sys, o_O=self.cd_sys.clk),
             Instance("BUFG", i_I=pll_sys4x, o_O=self.cd_sys4x.clk),
-            Instance("BUFG", i_I=pll_sys4x_shifted, o_O=self.cd_sys4x_shifted.clk),
+            Instance("BUFG", i_I=pll_sys4x_dqs, o_O=self.cd_sys4x_dqs.clk),
             Instance("BUFG", i_I=pll_clk200, o_O=self.cd_clk200.clk),
-            Instance("BUFG", i_I=eth_clk, o_O=eth_ref_clk),
             AsyncResetSynchronizer(self.cd_sys, ~pll_locked | ~rst),
             AsyncResetSynchronizer(self.cd_clk200, ~pll_locked | rst),
         ]
@@ -99,6 +97,11 @@ class _CRG(Module):
             )
         self.specials += Instance("IDELAYCTRL", i_REFCLK=ClockSignal("clk200"), i_RST=ic_reset)
 
+        eth_clk = Signal()
+        self.specials += [
+            Instance("BUFR", p_BUFR_DIVIDE="4", i_CE=1, i_CLR=0, i_I=clk100, o_O=eth_clk),
+            Instance("BUFG", i_I=eth_clk, o_O=platform.request("eth_ref_clk")),
+        ]
 
 class BaseSoC(SDRAMSoC):
     default_platform = "arty"
@@ -118,7 +121,7 @@ class BaseSoC(SDRAMSoC):
                  integrated_main_ram_size=0x8000,  # TODO: remove this when SDRAM validated
                  **kwargs):
         SDRAMSoC.__init__(self, platform,
-                          clk_freq=66667000,
+                          clk_freq=50000000,
                           integrated_rom_size=integrated_rom_size,
                           integrated_main_ram_size=integrated_main_ram_size,
                           sdram_controller_settings=sdram_controller_settings,

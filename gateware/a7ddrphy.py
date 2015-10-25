@@ -1,5 +1,5 @@
 # tCK=5ns CL=7 CWL=6
-# TODO: adapt from Kintex7 to Artix7
+# TODO: switch to half-rate instead of quarter-rate
 
 from migen.fhdl.std import *
 from migen.bank.description import *
@@ -137,7 +137,7 @@ class A7DDRPHY(Module, AutoCSR):
                          o_OQ=dm_o,
                          i_OCE=1,
                          i_RST=ResetSignal(),
-                         i_CLK=ClockSignal("sys4x_shifted"), i_CLKDIV=ClockSignal(),
+                         i_CLK=ClockSignal("sys4x"), i_CLKDIV=ClockSignal(),
                          i_D1=self.dfi.phases[0].wrdata_mask[i], i_D2=self.dfi.phases[0].wrdata_mask[databits//8+i],
                          i_D3=self.dfi.phases[1].wrdata_mask[i], i_D4=self.dfi.phases[1].wrdata_mask[databits//8+i],
                          i_D5=self.dfi.phases[2].wrdata_mask[i], i_D6=self.dfi.phases[2].wrdata_mask[databits//8+i],
@@ -155,7 +155,7 @@ class A7DDRPHY(Module, AutoCSR):
                          o_OQ=dqs, o_TQ=dqs_t,
                          i_OCE=1, i_TCE=1,
                          i_RST=ResetSignal(),
-                         i_CLK=ClockSignal("sys4x_shifted"), i_CLKDIV=ClockSignal(),
+                         i_CLK=ClockSignal("sys4x_dqs"), i_CLKDIV=ClockSignal(),
                          i_D1=dqs_serdes_pattern[0], i_D2=dqs_serdes_pattern[1],
                          i_D3=dqs_serdes_pattern[2], i_D4=dqs_serdes_pattern[3],
                          i_D5=dqs_serdes_pattern[4], i_D6=dqs_serdes_pattern[5],
@@ -184,7 +184,7 @@ class A7DDRPHY(Module, AutoCSR):
                          o_OQ=dq_o, o_TQ=dq_t,
                          i_OCE=1, i_TCE=1,
                          i_RST=ResetSignal(),
-                         i_CLK=ClockSignal("sys4x_shifted"), i_CLKDIV=ClockSignal(),
+                         i_CLK=ClockSignal("sys4x"), i_CLKDIV=ClockSignal(),
                          i_D1=self.dfi.phases[0].wrdata[i], i_D2=self.dfi.phases[0].wrdata[databits+i],
                          i_D3=self.dfi.phases[1].wrdata[i], i_D4=self.dfi.phases[1].wrdata[databits+i],
                          i_D5=self.dfi.phases[2].wrdata[i], i_D6=self.dfi.phases[2].wrdata[databits+i],
