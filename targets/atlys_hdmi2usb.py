@@ -1,12 +1,12 @@
 from targets.atlys_base import *
-from targets.atlys_base import default_subtarget as opsis_base_soc
+from targets.atlys_base import default_subtarget as BaseSoC
 
 from gateware.hdmi_in import HDMIIn
 from gateware.hdmi_out import HDMIOut
 from gateware.encoder import EncoderReader, Encoder
 from gateware.streamer import USBStreamer
 
-class VideomixerSoC(opsis_base_soc):
+class VideomixerSoC(BaseSoC):
     csr_map = {
         "hdmi_out0":         20,
         "hdmi_out1":         21,
@@ -15,16 +15,16 @@ class VideomixerSoC(opsis_base_soc):
         "hdmi_in1":          24,
         "hdmi_in1_edid_mem": 25,
     }
-    csr_map.update(opsis_base_soc.csr_map)
+    csr_map.update(BaseSoC.csr_map)
 
     interrupt_map = {
         "hdmi_in0": 3,
         "hdmi_in1": 4,
     }
-    interrupt_map.update(opsis_base_soc.interrupt_map)
+    interrupt_map.update(BaseSoC.interrupt_map)
 
     def __init__(self, platform, **kwargs):
-        opsis_base_soc.__init__(self, platform, **kwargs)
+        BaseSoC.__init__(self, platform, **kwargs)
         self.submodules.hdmi_in0 = HDMIIn(platform.request("hdmi_in", 0),
                                           self.sdram.crossbar.get_master(),
                                           fifo_depth=1024)
