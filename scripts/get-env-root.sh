@@ -30,7 +30,7 @@ apt-get install -y iverilog gtkwave
 # Nothing needed
 
 # libfpgalink
-sudo apt-get install -y libreadline-dev libusb-1.0-0-dev python-yaml fxload
+sudo apt-get install -y libreadline-dev libusb-1.0-0-dev libftdi-dev python-yaml fxload
 
 # Load custom udev rules
 (
