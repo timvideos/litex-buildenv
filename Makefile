@@ -35,10 +35,8 @@ else
 	FLTERM = $(MSCDIR)/tools/flterm
 endif
 
-# Every target except the base has a lm32 softcore
-ifneq ($(TARGET),base)
+# Every target has a lm32 softcore
 include Makefile.lm32
-endif
 
 # The edid_debug and hdmi2usb also use the Cypress FX2
 ifneq ($(filter $(TARGET),edid_debug hdmi2usb),)
