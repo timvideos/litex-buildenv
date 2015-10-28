@@ -94,7 +94,7 @@ load: load-gateware $(addprefix load-,$(TARGETS))
 
 # Flash
 flash:
-	@echo "Not implimented yet"
+	@echo "Not implemented yet"
 	@exit 1
 
 # Clean
