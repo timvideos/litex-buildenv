@@ -269,9 +269,11 @@ static void fb_clkgen_write(int cmd, int data)
 	int word;
 
 	word = (data << 2) | cmd;
+#ifdef CSR_HDMI_OUT0_BASE
 	hdmi_out0_driver_clocking_cmd_data_write(word);
 	hdmi_out0_driver_clocking_send_cmd_data_write(1);
 	while(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_BUSY);
+#endif
 }
 
 static void fb_get_clock_md(unsigned int pixel_clock, unsigned int *best_m, unsigned int *best_d)
@@ -307,6 +309,7 @@ static void fb_set_mode(const struct video_timing *mode)
 
 	fb_get_clock_md(mode->pixel_clock, &clock_m, &clock_d);
 
+#ifdef CSR_HDMI_OUT0_BASE
 	hdmi_out0_fi_hres_write(mode->h_active);
 	hdmi_out0_fi_hsync_start_write(mode->h_active + mode->h_sync_offset);
 	hdmi_out0_fi_hsync_end_write(mode->h_active + mode->h_sync_offset + mode->h_sync_width);
@@ -317,7 +320,9 @@ static void fb_set_mode(const struct video_timing *mode)
 	hdmi_out0_fi_vscan_write(mode->v_active + mode->v_blanking);
 
 	hdmi_out0_fi_length_write(mode->h_active*mode->v_active*2);
+#endif
 
+#ifdef CSR_HDMI_OUT1_BASE
 	hdmi_out1_fi_hres_write(mode->h_active);
 	hdmi_out1_fi_hsync_start_write(mode->h_active + mode->h_sync_offset);
 	hdmi_out1_fi_hsync_end_write(mode->h_active + mode->h_sync_offset + mode->h_sync_width);
@@ -328,25 +333,32 @@ static void fb_set_mode(const struct video_timing *mode)
 	hdmi_out1_fi_vscan_write(mode->v_active + mode->v_blanking);
 
 	hdmi_out1_fi_length_write(mode->h_active*mode->v_active*2);
+#endif
 
 	fb_clkgen_write(0x1, clock_d-1);
 	fb_clkgen_write(0x3, clock_m-1);
+
+#ifdef CSR_HDMI_OUT0_BASE
 	hdmi_out0_driver_clocking_send_go_write(1);
 	while(!(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_PROGDONE));
 	while(!(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_LOCKED));
+#endif
 }
 
 static void edid_set_mode(const struct video_timing *mode)
 {
 	unsigned char edid[128];
 	int i;
-
+#ifdef CSR_HDMI_OUT0_BASE
 	generate_edid(&edid, "OHW", "TV", 2015, "HDMI2USB 1", mode);
 	for(i=0;i<sizeof(edid);i++)
 		MMPTR(CSR_HDMI_IN0_EDID_MEM_BASE+4*i) = edid[i];
+#endif
+#ifdef CSR_HDMI_OUT1_BASE
 	generate_edid(&edid, "OHW", "TV", 2015, "HDMI2USB 2", mode);
 	for(i=0;i<sizeof(edid);i++)
 		MMPTR(CSR_HDMI_IN1_EDID_MEM_BASE+4*i) = edid[i];
+#endif
 }
 
 int processor_mode = 0;
@@ -369,29 +381,53 @@ void processor_start(int mode)
 	processor_v_active = m->v_active;
 	processor_refresh = calculate_refresh_rate(m);
 
+#ifdef CSR_HDMI_OUT0_BASE
 	hdmi_out0_fi_enable_write(0);
-	hdmi_out1_fi_enable_write(0);
 	hdmi_out0_driver_clocking_pll_reset_write(1);
+#endif
+#ifdef CSR_HDMI_OUT1_BASE
+	hdmi_out1_fi_enable_write(0);
+#endif
+#ifdef CSR_HDMI_IN0_BASE
 	hdmi_in0_edid_hpd_en_write(0);
+#endif
+#ifdef CSR_HDMI_IN1_BASE
 	hdmi_in1_edid_hpd_en_write(0);
+#endif
 
+#ifdef CSR_HDMI_IN0_BASE
 	hdmi_in0_disable();
-	hdmi_in1_disable();
 	hdmi_in0_clear_framebuffers();
+#endif
+#ifdef CSR_HDMI_IN1_BASE
+	hdmi_in1_disable();
 	hdmi_in1_clear_framebuffers();
+#endif
 	pattern_fill_framebuffer(m->h_active, m->v_active);
 
 	pll_config_for_clock(m->pixel_clock);
 	fb_set_mode(m);
 	edid_set_mode(m);
+#ifdef CSR_HDMI_IN0_BASE
 	hdmi_in0_init_video(m->h_active, m->v_active);
+#endif
+#ifdef CSR_HDMI_IN1_BASE
 	hdmi_in1_init_video(m->h_active, m->v_active);
+#endif
 
+#ifdef CSR_HDMI_OUT0_BASE
 	hdmi_out0_driver_clocking_pll_reset_write(0);
 	hdmi_out0_fi_enable_write(1);
+#endif
+#ifdef CSR_HDMI_OUT1_BASE
 	hdmi_out1_fi_enable_write(1);
+#endif
+#ifdef CSR_HDMI_IN0_BASE
 	hdmi_in0_edid_hpd_en_write(1);
+#endif
+#ifdef CSR_HDMI_IN1_BASE
 	hdmi_in1_edid_hpd_en_write(1);
+#endif
 }
 
 void processor_set_hdmi_out0_source(int source) {
@@ -417,39 +453,59 @@ char * processor_get_source_name(int source) {
 
 void processor_update(void)
 {
+#ifdef CSR_HDMI_OUT0_BASE
 	/*  hdmi_out0 */
+#ifdef CSR_HDMI_IN0_BASE
 	if(processor_hdmi_out0_source == VIDEO_IN_HDMI_IN0)
 		hdmi_out0_fi_base0_write(hdmi_in0_framebuffer_base(hdmi_in0_fb_index));
-	else if(processor_hdmi_out0_source == VIDEO_IN_HDMI_IN1)
+#endif
+#ifdef CSR_HDMI_IN1_BASE
+	if(processor_hdmi_out0_source == VIDEO_IN_HDMI_IN1)
 		hdmi_out0_fi_base0_write(hdmi_in1_framebuffer_base(hdmi_in1_fb_index));
-	else if(processor_hdmi_out0_source == VIDEO_IN_PATTERN)
+#endif
+	if(processor_hdmi_out0_source == VIDEO_IN_PATTERN)
 		hdmi_out0_fi_base0_write(pattern_framebuffer_base());
+#endif
 
+#ifdef CSR_HDMI_OUT1_BASE
 	/*  hdmi_out1 */
+#ifdef CSR_HDMI_IN0_BASE
 	if(processor_hdmi_out1_source == VIDEO_IN_HDMI_IN0)
 		hdmi_out1_fi_base0_write(hdmi_in0_framebuffer_base(hdmi_in0_fb_index));
-	else if(processor_hdmi_out1_source == VIDEO_IN_HDMI_IN1)
+#endif
+#ifdef CSR_HDMI_IN1_BASE
+	if(processor_hdmi_out1_source == VIDEO_IN_HDMI_IN1)
 		hdmi_out1_fi_base0_write(hdmi_in1_framebuffer_base(hdmi_in1_fb_index));
-	else if(processor_hdmi_out1_source == VIDEO_IN_PATTERN)
+#endif
+	if(processor_hdmi_out1_source == VIDEO_IN_PATTERN)
 		hdmi_out1_fi_base0_write(pattern_framebuffer_base());
+#endif
 
 #ifdef ENCODER_BASE
 	/*  encoder */
+#ifdef CSR_HDMI_IN0_BASE
 	if(processor_encoder_source == VIDEO_IN_HDMI_IN0) {
 		encoder_reader_dma_base_write((hdmi_in0_framebuffer_base(hdmi_in0_fb_index)));
 	}
-	else if(processor_encoder_source == VIDEO_IN_HDMI_IN1) {
+#endif
+#ifdef CSR_HDMI_IN1_BASE
+	if(processor_encoder_source == VIDEO_IN_HDMI_IN1) {
 		encoder_reader_dma_base_write((hdmi_in1_framebuffer_base(hdmi_in1_fb_index)));
 	}
-	else if(processor_encoder_source == VIDEO_IN_PATTERN)
+#endif
+	if(processor_encoder_source == VIDEO_IN_PATTERN)
 		encoder_reader_dma_base_write(pattern_framebuffer_base());
 #endif
 }
 
 void processor_service(void)
 {
+#ifdef CSR_HDMI_IN0_BASE
 	hdmi_in0_service();
+#endif
+#ifdef CSR_HDMI_IN1_BASE
 	hdmi_in1_service();
+#endif
 	processor_update();
 #ifdef ENCODER_BASE
 		encoder_service();

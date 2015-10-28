@@ -34,24 +34,30 @@ static void program_data(const unsigned short *data)
 	 * so we start at word 6.
 	 * PLLs also seem to dislike any write to the last words.
 	 */
+#ifdef CSR_HDMI_OUT0_BASE
 	for(i=6;i<32-5;i++) {
 		hdmi_out0_driver_clocking_pll_adr_write(i);
 		hdmi_out0_driver_clocking_pll_dat_w_write(data[i]);
 		hdmi_out0_driver_clocking_pll_write_write(1);
 		while(!hdmi_out0_driver_clocking_pll_drdy_read());
 	}
+#endif
+#ifdef CSR_HDMI_IN0_BASE
 	for(i=6;i<32-5;i++) {
 		hdmi_in0_clocking_pll_adr_write(i);
 		hdmi_in0_clocking_pll_dat_w_write(data[i]);
 		hdmi_in0_clocking_pll_write_write(1);
 		while(!hdmi_in0_clocking_pll_drdy_read());
 	}
+#endif
+#ifdef CSR_HDMI_IN1_BASE
 	for(i=6;i<32-5;i++) {
 		hdmi_in1_clocking_pll_adr_write(i);
 		hdmi_in1_clocking_pll_dat_w_write(data[i]);
 		hdmi_in1_clocking_pll_write_write(1);
 		while(!hdmi_in1_clocking_pll_drdy_read());
 	}
+#endif
 }
 
 void pll_config_for_clock(int freq)
@@ -80,6 +86,7 @@ void pll_dump(void)
 {
 	int i;
 
+#ifdef CSR_HDMI_OUT0_BASE
 	printf("framebuffer PLL:\n");
 	for(i=0;i<32;i++) {
 		hdmi_out0_driver_clocking_pll_adr_write(i);
@@ -88,6 +95,8 @@ void pll_dump(void)
 		printf("%04x ", hdmi_out0_driver_clocking_pll_dat_r_read());
 	}
 	printf("\n");
+#endif
+#ifdef CSR_HDMI_IN0_BASE
 	printf("dvisampler0 PLL:\n");
 	for(i=0;i<32;i++) {
 		hdmi_in0_clocking_pll_adr_write(i);
@@ -96,6 +105,8 @@ void pll_dump(void)
 		printf("%04x ", hdmi_in0_clocking_pll_dat_r_read());
 	}
 	printf("\n");
+#endif
+#ifdef CSR_HDMI_IN1_BASE
 	printf("dvisampler1 PLL:\n");
 	for(i=0;i<32;i++) {
 		hdmi_in1_clocking_pll_adr_write(i);
@@ -104,4 +115,5 @@ void pll_dump(void)
 		printf("%04x ", hdmi_in1_clocking_pll_dat_r_read());
 	}
 	printf("\n");
+#endif
 }

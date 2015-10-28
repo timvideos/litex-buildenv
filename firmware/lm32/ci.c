@@ -35,17 +35,21 @@ static void help_hdp_toggle(void)
 	puts("hdp_toggle <source>            - toggle HDP on source for EDID rescan");
 }
 
+#ifdef CSR_HDMI_OUT0_BASE
 static void help_output0(void)
 {
 	puts("output0 on                     - enable output0");
 	puts("output0 off                    - disable output0");
 }
+#endif
 
+#ifdef CSR_HDMI_OUT1_BASE
 static void help_output1(void)
 {
 	puts("output1 on                     - enable output1");
 	puts("output1 off                    - disable output1");
 }
+#endif
 
 #ifdef ENCODER_BASE
 static void help_encoder(void)
@@ -75,10 +79,14 @@ static void help(void)
 	puts("");
 	help_hdp_toggle();
 	puts("");
+#ifdef CSR_HDMI_OUT0_BASE
 	help_output0();
 	puts("");
+#endif
+#ifdef CSR_HDMI_OUT1_BASE
 	help_output1();
 	puts("");
+#endif
 #ifdef ENCODER_BASE
 	help_encoder();
 	puts("");
@@ -116,18 +124,23 @@ static void debug_ddr(void);
 
 static void status_print(void)
 {
+#ifdef CSR_HDMI_IN0_BASE
 	printf(
 		"input0:  %dx%d",
 		hdmi_in0_resdetection_hres_read(),
 		hdmi_in0_resdetection_vres_read());
 	printf("\n");
+#endif
 
+#ifdef CSR_HDMI_IN1_BASE
 	printf(
 		"input1:  %dx%d",
 		hdmi_in1_resdetection_hres_read(),
 		hdmi_in1_resdetection_vres_read());
 	printf("\n");
+#endif
 
+#ifdef CSR_HDMI_OUT0_BASE
 	printf("output0: ");
 	if(hdmi_out0_fi_enable_read())
 		printf(
@@ -139,7 +152,9 @@ static void status_print(void)
 	else
 		printf("off");
 	printf("\n");
+#endif
 
+#ifdef CSR_HDMI_OUT1_BASE
 	printf("output1: ");
 	if(hdmi_out1_fi_enable_read())
 		printf(
@@ -151,6 +166,7 @@ static void status_print(void)
 	else
 		printf("off");
 	printf("\n");
+#endif
 
 #ifdef ENCODER_BASE
 	printf("encoder: ");
@@ -187,18 +203,26 @@ static void status_service(void)
 static void video_matrix_list(void)
 {
 	printf("Video sources:\n");
+#ifdef CSR_HDMI_IN0_BASE
 	printf("input0: %s\n", HDMI_IN0_MNEMONIC);
 	puts(HDMI_IN0_DESCRIPTION);
+#endif
+#ifdef CSR_HDMI_IN1_BASE
 	printf("input1: %s\n", HDMI_IN1_MNEMONIC);
 	puts(HDMI_IN1_DESCRIPTION);
+#endif
 	printf("pattern:\n");
 	printf("  Video pattern\n");
 	puts(" ");
 	printf("Video sinks:\n");
+#ifdef CSR_HDMI_OUT0_BASE
 	printf("output0: %s\n", HDMI_OUT0_MNEMONIC);
 	puts(HDMI_OUT0_DESCRIPTION);
+#endif
+#ifdef CSR_HDMI_OUT1_BASE
 	printf("output1: %s\n", HDMI_OUT1_MNEMONIC);
 	puts(HDMI_OUT1_DESCRIPTION);
+#endif
 #ifdef ENCODER_BASE
 	printf("encoder:\n");
 	printf("  JPEG Encoder\n");
@@ -213,9 +237,17 @@ static void video_matrix_connect(int source, int sink)
 		if(sink >= 0 && sink <= VIDEO_OUT_HDMI_OUT1) {
 			printf("Connecting %s to output%d\n", processor_get_source_name(source), sink);
 			if(sink == VIDEO_OUT_HDMI_OUT0)
+#ifdef CSR_HDMI_OUT0_BASE
 				processor_set_hdmi_out0_source(source);
+#else
+				printf("hdmi_out0 is missing.\n");
+#endif
 			else if(sink == VIDEO_OUT_HDMI_OUT1)
+#ifdef CSR_HDMI_OUT1_BASE
 				processor_set_hdmi_out1_source(source);
+#else
+				printf("hdmi_out1 is missing.\n");
+#endif
 			processor_update();
 		}
 #ifdef ENCODER_BASE
@@ -255,18 +287,27 @@ static void hdp_toggle(int source)
 {
 	int i;
 	printf("Toggling HDP on output%d\n", source);
+#ifdef CSR_HDMI_IN0_BASE
 	if(source ==  VIDEO_IN_HDMI_IN0) {
 		hdmi_in0_edid_hpd_en_write(0);
 		for(i=0; i<65536; i++);
 		hdmi_in0_edid_hpd_en_write(1);
 	}
-	else if(source == VIDEO_IN_HDMI_IN1) {
+#else
+	printf("hdmi_in0 is missing.\n");
+#endif
+#ifdef CSR_HDMI_IN1_BASE
+	if(source == VIDEO_IN_HDMI_IN1) {
 		hdmi_in1_edid_hpd_en_write(0);
 		for(i=0; i<65536; i++);
 		hdmi_in1_edid_hpd_en_write(1);
 	}
+#else
+	printf("hdmi_in1 is missing.\n");
+#endif
 }
 
+#ifdef CSR_HDMI_OUT0_BASE
 static void output0_on(void)
 {
 	printf("Enabling output0\n");
@@ -278,7 +319,9 @@ static void output0_off(void)
 	printf("Disabling output0\n");
 	hdmi_out0_fi_enable_write(0);
 }
+#endif
 
+#ifdef CSR_HDMI_OUT1_BASE
 static void output1_on(void)
 {
 	printf("Enabling output1\n");
@@ -290,6 +333,7 @@ static void output1_off(void)
 	printf("Disabling output1\n");
 	hdmi_out1_fi_enable_write(0);
 }
+#endif
 
 #ifdef ENCODER_BASE
 static void encoder_on(void)
@@ -421,10 +465,14 @@ void ci_service(void)
 			help_video_mode();
 		else if(strcmp(token, "hdp_toggle") == 0)
 			help_hdp_toggle();
+#ifdef CSR_HDMI_OUT0_BASE
 		else if(strcmp(token, "output0") == 0)
 			help_output0();
+#endif
+#ifdef CSR_HDMI_OUT1_BASE
 		else if(strcmp(token, "output1") == 0)
 			help_output1();
+#endif
 #ifdef ENCODER_BASE
 		else if(strcmp(token, "encoder") == 0)
 			help_encoder();
@@ -487,6 +535,7 @@ void ci_service(void)
 		token = get_token(&str);
 		hdp_toggle(atoi(token));
 	}
+#ifdef CSR_HDMI_OUT0_BASE
 	else if(strcmp(token, "output0") == 0) {
 		token = get_token(&str);
 		if(strcmp(token, "on") == 0)
@@ -496,6 +545,8 @@ void ci_service(void)
 		else
 			help_output0();
 	}
+#endif
+#ifdef CSR_HDMI_OUT1_BASE
 	else if(strcmp(token, "output1") == 0) {
 		token = get_token(&str);
 		if(strcmp(token, "on") == 0)
@@ -505,6 +556,7 @@ void ci_service(void)
 		else
 			help_output1();
 	}
+#endif
 #ifdef ENCODER_BASE
 	else if(strcmp(token, "encoder") == 0) {
 		token = get_token(&str);

@@ -10,6 +10,8 @@
 #include <generated/mem.h>
 #include <hw/flags.h>
 
+#ifdef CSR_HDMI_IN0_BASE
+
 #include "hdmi_in0.h"
 
 int hdmi_in0_debug;
@@ -376,3 +378,5 @@ void hdmi_in0_service(void)
 	}
 	hdmi_in0_check_overflow();
 }
+
+#endif
