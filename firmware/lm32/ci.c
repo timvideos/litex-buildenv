@@ -102,7 +102,7 @@ static void status_enable(void)
 	printf("Enabling status\n");
 	status_enabled = 1;
 #ifdef ENCODER_BASE
-	encoder_nwrites_clear_write(1);
+	encoder_bandwidth_nbytes_clear_write(1);
 #endif
 }
 
@@ -160,10 +160,10 @@ static void status_print(void)
 			processor_h_active,
 			processor_v_active,
 			encoder_fps,
-			encoder_nwrites_read()*8/1000000,
+			encoder_bandwidth_nbytes_read()*8/1000000,
 			processor_get_source_name(processor_encoder_source),
 			encoder_quality);
-		encoder_nwrites_clear_write(1);
+		encoder_bandwidth_nbytes_clear_write(1);
 	} else
 		printf("off");
 	printf("\n");
