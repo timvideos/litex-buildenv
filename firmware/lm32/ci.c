@@ -17,6 +17,15 @@
 
 int status_enabled;
 
+static void print_board_dna(void) {
+	int i;
+	printf("Board's DNA: ");
+	for(i=0; i<CSR_DNA_ID_SIZE; i++) {
+		printf("%02x", MMPTR(CSR_DNA_ID_ADDR+4*i));
+	}
+	printf("\n");
+}
+
 static void help_video_matrix(void)
 {
 	puts("video_matrix list              - list available video sinks and sources");
@@ -64,6 +73,7 @@ static void help_debug(void)
 {
 	puts("debug pll                      - dump pll configuration");
 	puts("debug ddr                      - show DDR bandwidth");
+	puts("debug dna                      - show Board's DNA");
 }
 
 static void help(void)
@@ -585,6 +595,8 @@ void ci_service(void)
 			debug_pll();
 		else if(strcmp(token, "ddr") == 0)
 			debug_ddr();
+		else if(strcmp(token, "dna") == 0)
+			print_board_dna();
 		else
 			help_debug();
 	} else {

@@ -22,7 +22,7 @@ int main(void)
 	uart_init();
 
 	puts("\nHDMI2USB firmware  http://timvideos.us/");
-	printf("Board's DNA: %016x\n", dna_id_read());
+	print_board_dna();
 	printf("Revision %08x built "__DATE__" "__TIME__"\n", MSC_GIT_ID);
 
 	ci_prompt();
