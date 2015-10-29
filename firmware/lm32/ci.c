@@ -17,7 +17,7 @@
 
 int status_enabled;
 
-static void print_board_dna(void) {
+void print_board_dna(void) {
 	int i;
 	printf("Board's DNA: ");
 	for(i=0; i<CSR_DNA_ID_SIZE; i++) {
