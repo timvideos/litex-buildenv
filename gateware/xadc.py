@@ -19,7 +19,7 @@ class XADC(Module, AutoCSR):
         # # #
 
         busy = Signal()
-        channel = Signal(5)
+        channel = Signal(7)
         eoc = Signal()
         eos = Signal()
         data = Signal(16)
