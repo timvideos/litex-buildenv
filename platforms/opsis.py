@@ -2,9 +2,10 @@
 
 from mibuild.generic_platform import *
 from mibuild.xilinx import XilinxPlatform
-from mibuild.xilinx import iMPACT
-from mibuild.xilinx import UrJTAG
+
 from mibuild.openocd import OpenOCD
+from mibuild.xilinx import UrJTAG
+from mibuild.xilinx import iMPACT
 
 _io = [
     ## FXO-HC536R - component U17
@@ -353,12 +354,14 @@ class Platform(XilinxPlatform):
         self.add_platform_command("""CONFIG VCCAUX="3.3";""")
 
     def create_programmer(self):
-        if self.programmer == "urjtag":
+	# Preferred programmer - Needs ixo-usb-jtag and latest openocd.
+        if self.programmer == "openocd":
+            return OpenOCD(config="board/numato_opsis.cfg")
+	# Alternative programmers - not regularly tested.
+        elif self.programmer == "urjtag":
             return UrJTAG(cable="USBBlaster")
         elif self.programmer == "impact":
             return iMPACT()
-        elif self.programmer == "openocd":
-            return OpenOCD(config="board/numato_opsis.cfg")
         else:
             raise ValueError("{} programmer is not supported".format(self.programmer))
 

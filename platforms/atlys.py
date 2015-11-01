@@ -2,7 +2,14 @@
 
 from mibuild.generic_platform import *
 from mibuild.xilinx import XilinxPlatform
-from mibuild.xilinx import XC3SProg, iMPACT, Adept, UrJTAG
+
+from mibuild.openocd import OpenOCD
+# Alternative programmers
+from mibuild.xilinx import Adept
+from mibuild.xilinx import UrJTAG
+from mibuild.xilinx import XC3SProg
+from mibuild.xilinx import iMPACT
+
 
 # There appear to be 4 x LTC2481C on the U1-SCL / U1-SDA lines connected to the Cypress
 
@@ -580,7 +587,11 @@ class Platform(XilinxPlatform):
         self.add_platform_command("""CONFIG VCCAUX="2.5";""")
 
     def create_programmer(self):
-        if self.programmer == "xc3sprog":
+	# Preferred programmer - Needs ixo-usb-jtag and latest openocd.
+        if self.programmer == "openocd":
+            return OpenOCD(config="board/digilent_atlys.cfg")
+	# Alternative programmers - not regularly tested.
+        elif self.programmer == "xc3sprog":
             return XC3SProg("jtaghs1_fast", "bscan_spi_digilent_atlys.bit")
         elif self.programmer == "impact":
             return iMPACT()
