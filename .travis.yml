@@ -10,13 +10,14 @@ sudo: false
 addons:
   apt:
     packages:
-    - realpath
     - build-essential
+    - fxload
     - gnupg
+    - libftdi-dev
     - libreadline-dev
     - libusb-1.0-0-dev
     - python-yaml
-    - fxload
+    - realpath
 
 env:
   matrix:

@@ -9,11 +9,10 @@ TOP_DIR=$(realpath $SETUP_DIR/..)
 BUILD_DIR=$TOP_DIR/build
 THIRD_DIR=$TOP_DIR/third_party
 
-
 if [ $SOURCED = 0 ]; then
-  echo "You must source this script, rather then try and run it."
-  echo ". $SETUP_SRC"
-  exit 1
+	echo "You must source this script, rather then try and run it."
+	echo ". $SETUP_SRC"
+	exit 1
 fi
 
 if [ ! -z $HDMI2USB_ENV ]; then
@@ -56,31 +55,74 @@ echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
 # understands the $MISOC_EXTRA_CMDLINE option.
 export PATH=$PATH:$XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64
 
-# gcc+binutils for the target
+function check_version {
+	TOOL=$1
+	VERSION=$2
+	if $TOOL --version 2>&1 | grep -q $VERSION > /dev/null; then
+		echo "$TOOL found at $VERSION"
+		return 0
+	else
+		$TOOL --version
+		echo "$TOOL (version $VERSION) *NOT* found"
+		echo "Please try running the $SETUP_DIR/get-env.sh script again."
+		return 1
+	fi
+}
+
+function check_import {
+	MODULE=$1
+	if python3 -c "import $MODULE"; then
+		echo "$MODULE found"
+		return 0
+	else
+		echo "$MODULE *NOT* found!"
+		echo "Please try running the $SETUP_DIR/get-env.sh script again."
+		return 1
+	fi
+}
+
+# Install and setup conda for downloading packages
+echo ""
+echo "Checking modules from conda"
+echo "---------------------------"
 CONDA_DIR=$BUILD_DIR/conda
 export PATH=$CONDA_DIR/bin:$PATH
+
+# binutils for the target
+check_version lm32-elf-ld 2.25.1 || return 1
+
+# gcc+binutils for the target
+check_version lm32-elf-gcc 4.9.3 || return 1
+
+# sdcc for compiling Cypress FX2 firmware
+check_version sdcc 3.5.0 || return 1
+
+# openocd for programming via Cypress FX2
+check_version openocd 0.10.0-dev-00044-g3edb157 || return 1
+
+# git submodules
+echo ""
+echo "Checking git submodules"
+echo "-----------------------"
 
 # migen
 MIGEN_DIR=$THIRD_DIR/migen
 export PYTHONPATH=$MIGEN_DIR:$PYTHONPATH
-python3 -c "import migen" || (echo "migen broken"; return)
+check_import migen || return 1
 
 # misoc
 MISOC_DIR=$THIRD_DIR/misoc
 export PYTHONPATH=$MISOC_DIR:$PYTHONPATH
-$MISOC_DIR/tools/flterm --help || (echo "misoc flterm broken"; return)
-python3 -c "import misoclib" || (echo "misoc broken"; return)
+$MISOC_DIR/tools/flterm --help 2> /dev/null || (echo "misoc flterm broken" && return 1)
+check_import misoclib || return 1
 
 # liteeth
 LITEETH_DIR=$THIRD_DIR/liteeth
 export PYTHONPATH=$LITEETH_DIR:$PYTHONPATH
-python3 -c "import liteeth" || (echo "liteeth broken"; return)
+check_import liteeth || return 1
 
-# libfpgalink
-MAKESTUFF_DIR=$BUILD_DIR/makestuff
-export LD_LIBRARY_PATH=$MAKESTUFF_DIR/libs/libfpgalink/lin.x64/rel:$LD_LIBRARY_PATH
-export PYTHONPATH=$MAKESTUFF_DIR/libs/libfpgalink/examples/python/:$PYTHONPATH
-python3 -c "import fl" || (echo "libfpgalink broken"; return)
+echo "-----------------------"
+echo ""
 
 alias python=python3
 
