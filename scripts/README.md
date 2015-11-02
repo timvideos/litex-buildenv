@@ -71,13 +71,13 @@ This clones the HDMI2USB-misoc-firmware repository, adds the timvideos fpga-supp
 4.  Flash the gateware and firmware - see [1] if using a VM:
 
   ```
-  PROG=fpgalink make load-gateware
+  make load-gateware
   ```
   (may need to run several times)
 
 5.  Load fx2 firmware to enable USB capture:
   ```
-  make load-fx2-firmware
+  make load-fx2 
   ```
 
 6. Connect to lm32 softcore to send direct commands to the HDMI2USB such as changing resolution:
@@ -88,6 +88,16 @@ This clones the HDMI2USB-misoc-firmware repository, adds the timvideos fpga-supp
   You likely need to enable a video mode, framebuffer & encoder.
   'status' helps to see what the firmware is doing.
 
+```
+encoder on
+encoder quality 85
+video_matrix connect input1 output0
+video_matrix connect input1 output1
+video_matrix connect input1 encoder
+video_matrix connect pattern encoder
+
+mplayer tv:// -tv driver=v4l2:device=/dev/video1
+```
 ---
 
 Once everything has been built, get HDMI2USB running again after a power cycle by running this script, possibly multiple times if errors first attempt (does non-build steps above):
