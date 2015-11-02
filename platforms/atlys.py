@@ -542,7 +542,7 @@ _hdmi_infos = {
       "  To use J1, make sure:\\n"
       "   * JP4 has a jumper (it connects / disconnects 5V to HDMI pin 18).\\n"
       "   * JP2 (marked only as SDA/SCL - not to be confused with JP6 and JP6)\\n"
-      "   has *two* jumpers.\\n"
+      "   has *two* jumpers (horizontally).\\n"
     ),
 
     "HDMI_IN1_MNEMONIC": "J3",
