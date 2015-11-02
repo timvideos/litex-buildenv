@@ -77,7 +77,7 @@ This clones the HDMI2USB-misoc-firmware repository, adds the timvideos fpga-supp
 
 5.  Load fx2 firmware to enable USB capture:
   ```
-  make load-fx2 
+  make load-fx2
   ```
 
 6. Connect to lm32 softcore to send direct commands to the HDMI2USB such as changing resolution:
@@ -85,20 +85,31 @@ This clones the HDMI2USB-misoc-firmware repository, adds the timvideos fpga-supp
   make connect-lm32
   ```
   Set a mode/capture - type 'help' and read instructions.
+
   You likely need to enable a video mode, framebuffer & encoder.
+
   'status' helps to see what the firmware is doing.
 
-```
-encoder on
-encoder quality 85
-video_matrix connect input1 output0
-video_matrix connect input1 output1
-video_matrix connect input1 encoder
-video_matrix connect pattern encoder
+  The following commands are an example of what is needed;
+  ```
+  encoder on
+  encoder quality 85
+  video_matrix connect input1 output0
+  video_matrix connect input1 output1
+  video_matrix connect input1 encoder
+  ```
 
-mplayer tv:// -tv driver=v4l2:device=/dev/video1
-```
+7. View the video output on your computer with your preferred tool.
+
+  The scripts/view-hdmi2usb.sh script will try and find a suitable tool to display.
+  ```
+  make view
+  # or
+  scripts/view-hdmi2usb.sh
+  ```
+
 ---
+
 
 Once everything has been built, get HDMI2USB running again after a power cycle by running this script, possibly multiple times if errors first attempt (does non-build steps above):
    ```
