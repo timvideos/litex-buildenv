@@ -1,11 +1,11 @@
 #include "debug.h"
 #include "softserial.h"
 
-void sio0_init( WORD baud_rate ) {
+void soft_sio0_init( WORD baud_rate ) {
 	usartInit();
 }
 
-void putchar(char c) {
+void soft_putchar(char c) {
 	switch (c) {
 	case '\r':
 	case '\n':
@@ -17,6 +17,6 @@ void putchar(char c) {
 	}
 }
 
-char getchar(void) {
+char soft_getchar(void) {
         return '0';
 }

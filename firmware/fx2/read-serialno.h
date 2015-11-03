@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2012 Chris McClelland
+ * Copyright 2015 Tim Ansell <mithro@mithis.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -14,21 +14,5 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <makestuff.h>
-#include "progOffsets.h"
 
-const uint16 *__xdata classList[] = {tdoList, tdiList, tmsList, tckList, ioaList};
-
-// Base address of JTAG code
-void progClockFSM(uint32 bitPattern, uint8 transitionCount);
-
-void livePatch(uint8 patchClass, uint8 newByte) {
-	__xdata uint8 *__xdata const codeBase = (__xdata uint8 *)progClockFSM;
-	__xdata uint16 thisOffset;
-	const uint16 *__xdata ptr = classList[patchClass];
-	thisOffset = *ptr++;
-	while ( thisOffset ) {
-		*(codeBase + thisOffset) = newByte;
-		thisOffset = *ptr++;
-	}	
-}
+void patch_usb_serial_number_with_eeprom_macaddress();

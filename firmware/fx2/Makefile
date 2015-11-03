@@ -37,13 +37,14 @@ LIBS := $(FX2LIBDIR)/lib/fx2.lib
 INCS := -I sdcc -I$(FX2LIBDIR)/include -I.
 
 # Settings specific for the TimVideo hdmi2usb firmware
-FLAGS +="-DDEBUG"
+BOARD ?= atlys
+FLAGS +=-DDEBUG -DBOARD_${BOARD}
 USE_16K := 1
 
 # Must only be hex numbers
 FIRMWARE_VERSION := $(shell date +%Y%m%d)
 
-CC_SRCS := app.c cdc.c debug.c livePatch.c prog.c prom.c softserial.c uvc.c firmware.c
+CC_SRCS := app.c cdc.c debug.c softserial.c uvc.c firmware.c read-serialno.c to-uart.c
 AS_SRCS := descriptors_hdmi2usb.a51
 CC_OBJS := $(CC_SRCS:%.c=%.rel)
 AS_OBJS := $(AS_SRCS:%.a51=%.rel)
@@ -60,9 +61,20 @@ else
 	CFLAGS += --code-size 0x1e00 --xram-size 0x0200 -Wl"-b DSCR_AREA=0x1e00" -Wl"-b INT2JT=0x1f00"
 endif
 
+ifeq (${BOARD},atlys)
 VID := 1D50
 PID := 60B7
 DID := 0002
+else
+ifeq (${BOARD},opsis)
+VID := 2A19
+PID := 5442
+DID := 0002
+else
+$(error "Unknown board type '$(BOARD)'")
+endif
+endif
+
 
 # Use make V=1 for a verbose build.
 ifndef V

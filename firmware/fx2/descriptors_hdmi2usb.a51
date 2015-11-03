@@ -56,7 +56,7 @@ VID_LE=((VID&0x00FF)<<8)+(VID>>8)
 PID_LE=((PID&0x00FF)<<8)+(PID>>8)
 DID_LE=((DID&0x00FF)<<8)+(DID>>8)
 
-	.globl _dev_dscr, _dev_qual_dscr, _highspd_dscr, _fullspd_dscr, _dev_strings, _dev_strings_end
+	.globl _dev_dscr, _dev_qual_dscr, _highspd_dscr, _fullspd_dscr, _dev_strings, _dev_strings_end, _dev_serial
 
 ; These need to be in code memory. If they aren't you'll have to
 ; manually copy them somewhere in code memory otherwise SUDPTRH:L
@@ -78,7 +78,7 @@ _dev_dscr:
 	.dw    DID_LE                         ; 12 bcdDevice 2 Device release number (BCD)
 	.db    1                              ; 14 iManufacturer 1 Index of string descriptor for the manufacturer
 	.db    2                              ; 15 iProduct 1 Index of string descriptor for the product
-	.db    0                              ; 16 iSerialNumber 1 Index of string descriptor for the serial number
+	.db    3                              ; 16 iSerialNumber 1 Index of string descriptor for the serial number
 	.db    1                              ; 17 bNumConfigurations 1 Number of possible configurations
 dev_dscr_end:
 
@@ -337,6 +337,7 @@ vsheaderend:
         .db 0x00                         ;/* Interface descriptor string index */
 
         ;/* Endpoint descriptor for streaming video data */
+        ;; EP6 Descriptor
         .db 0x07                         ;/* Descriptor size */
         .db DSCR_ENDPOINT_TYPE           ;/* Endpoint descriptor type */
         .db 0x86                         ;/* Endpoint address and description */
@@ -402,8 +403,7 @@ vsheaderend:
         .db ENDPOINT_TYPE_INT            ; Endpoint type
         .db 0x10                         ; Maximum packet size (LSB)
         .db 0x00                         ; Max packet size (MSB)
-        .db 0x08                         ; Polling interval
-
+        .db 0x40                         ; Polling interval
 
         ;; Virtual COM Port Data Interface Descriptor
         .db DSCR_INTERFACE_LEN              ; Descriptor length
@@ -416,19 +416,19 @@ vsheaderend:
         .db 0x00                         ; Interface protocol code class
         .db 1                            ; Interface descriptor string index
 
-        ;; EP4 Descriptor
+        ;; EP2OUT Descriptor
         .db DSCR_ENDPOINT_LEN              ; Descriptor length
         .db DSCR_ENDPOINT_TYPE           ; Descriptor type
-        .db 0x84                         ; Endpoint number, and direction
+        .db 0x02                         ; Endpoint number, and direction
         .db ENDPOINT_TYPE_BULK           ; Endpoint type
         .db 0x00                         ; Maximum packet size (LSB)
         .db 0x02                         ; Max packet size (MSB)
         .db 0x00                         ; Polling interval
 
-        ;; EP2OUT Descriptor
+        ;; EP4 Descriptor
         .db DSCR_ENDPOINT_LEN              ; Descriptor length
         .db DSCR_ENDPOINT_TYPE           ; Descriptor type
-        .db 0x02                         ; Endpoint number, and direction
+        .db 0x84                         ; Endpoint number, and direction
         .db ENDPOINT_TYPE_BULK           ; Endpoint type
         .db 0x00                         ; Maximum packet size (LSB)
         .db 0x02                         ; Max packet size (MSB)
@@ -488,6 +488,45 @@ string2:
 	.db    'S', 00
 	.db    'B', 00
 string2end:
+
+; Serial Number
+_string3:
+	.db    string3end-_string3
+	.db    DSCR_STRING_TYPE
+_dev_serial:
+	.ascii '0'
+	.db    0
+	.ascii '1'
+	.db    0
+	.ascii '2'
+	.db    0
+	.ascii '3'
+	.db    0
+	.ascii '4'
+	.db    0
+	.ascii '5'
+	.db    0
+	.ascii '6'
+	.db    0
+	.ascii '7'
+	.db    0
+	.ascii '8'
+	.db    0
+	.ascii '9'
+	.db    0
+	.ascii 'a'
+	.db    0
+	.ascii 'b'
+	.db    0
+	.ascii 'c'
+	.db    0
+	.ascii 'd'
+	.db    0
+	.ascii 'e'
+	.db    0
+	.ascii 'f'
+	.db    0
+string3end:
 
 _dev_strings_end:
 	.dw 0x0000                       ; in case you wanted to look at memory between _dev_strings and _dev_strings_end

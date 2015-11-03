@@ -232,33 +232,33 @@ _io = [
         Subsignal("hpd_en", Pins("V19"), IOStandard("LVCMOS33"))
     ),
 
-    ## USB UART Connector
+    # Debug header?
+    #("debug", 0, Pins("AA2"), IOStandard("LVCMOS15")), # (/FPGA_Bank_0_3/DEBUG_IO0)
+
+    ## UARTs
     # To Cypress FX2 UART0
-    ("debug", 0, Pins("AA2"), IOStandard("LVCMOS15")), # (/FPGA_Bank_0_3/DEBUG_IO0)
-
-
-    ## UART (requires desoldering 2 resistors on the SD card connector)
+    # WARNING: This was labelled incorrectly - https://github.com/timvideos/HDMI2USB-numato-opsis-hardware/issues/13
+    # Current use FX2 firmware from https://github.com/mithro/fx2lib/tree/cdc-usb-serialno-from-eeprom/examples/cdc/to-uart
+    # FIXME: Will be supported by opsis-mode-switch --mode=serial soon.
+    # FIXME: Will be supported by opsis-mode-siwtch --mode=jtag longer term.
     ("serial", 0,
-        # SD_CMD
-        Subsignal("tx", Pins("U6"), IOStandard("LVCMOS33")),
-        # SD_DAT0
-        Subsignal("rx", Pins("AA4"), IOStandard("LVCMOS33")),
+        # CY_RXD1 - P18 - Cypress RXD0
+        Subsignal("tx", Pins("P18"), IOStandard("LVCMOS33")),
+        # CY_TXD1 - T17 - Cypress TXD0
+        Subsignal("rx", Pins("T17"), IOStandard("LVCMOS33")),
     ),
-
-    #("serial", 0,
-    #    # CY_RXD1 - P18 - Cypress RXD0
-    #    Subsignal("tx", Pins("P18"), IOStandard("LVCMOS33")),
-    #    # CY_TXD1 - T17 - Cypress TXD0
-    #    Subsignal("rx", Pins("T17"), IOStandard("LVCMOS33")),
-    #),
+    # To Cypress FX2 UART1
     #("serial", 1,
     #    Subsignal("rx", Pins("A16"), IOStandard("LVCMOS33")),
     #    Subsignal("tx", Pins("B16"), IOStandard("LVCMOS33")),
     #),
-    # To Cypress FX2 UART1
-    #("serial", 2,
-    #    Subsignal("rx", Pins("A16"), IOStandard("LVCMOS33")),
-    #    Subsignal("tx", Pins("B16"), IOStandard("LVCMOS33")),
+    #
+    # Florent's UART (requires desoldering 2 resistors on the SD card connector)
+    #("serial", 0,
+    #    # SD_CMD
+    #    Subsignal("tx", Pins("U6"), IOStandard("LVCMOS33")),
+    #    # SD_DAT0
+    #    Subsignal("rx", Pins("AA4"), IOStandard("LVCMOS33")),
     #),
 
     ## onboard HDMI OUT
