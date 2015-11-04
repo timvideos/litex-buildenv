@@ -1,7 +1,7 @@
 #ifndef __PROCESSOR_H
 #define __PROCESSOR_H
 
-#define PROCESSOR_MODE_COUNT 11
+#define PROCESSOR_MODE_COUNT 12
 #define PROCESSOR_MODE_DESCLEN 32
 
 enum {
