@@ -11,7 +11,7 @@
 [> Getting started
 ------------------
 1. Follow MiSoC Quick start guide
-	https://github.com/m-labs/misoc
+	https://github.com/enjoy-digital/misoc
 
 2. Obtain LiteUSB and install it:
   git clone https://github.com/enjoy-digital/liteusb
