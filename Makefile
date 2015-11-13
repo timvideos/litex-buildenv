@@ -10,10 +10,14 @@ export PYTHONHASHSEED=0
 
 BOARD ?= atlys
 MSCDIR ?= third_party/misoc
-PROG ?= openocd
+ifneq ($(BOARD),pipistrello)
+    PROG ?= openocd
+endif
 TARGET ?= hdmi2usb
 FILTER ?= tee
-
+ifneq ($(PROG),)
+    PROGRAMMER_OPTION ?= -Op programmer $(PROG)
+endif
 HDMI2USBDIR = ../..
 PYTHON = python3
 DATE = `date +%Y_%m_%d`
@@ -26,7 +30,7 @@ CMD = $(PYTHON) \
   -X $(HDMI2USBDIR) \
   -t $(BOARD)_$(TARGET) \
   -Ot firmware_filename $(HDMI2USBDIR)/firmware/lm32/firmware.bin \
-  -Op programmer $(PROG) \
+  $(PROGRAMMER_OPTION) \
   $(MISOC_EXTRA_CMDLINE)
 
 ifeq ($(OS),Windows_NT)
@@ -45,7 +49,7 @@ endif
 
 help:
 	@echo "Environment:"
-	@echo "  BOARD=atlys OR opsis  (current: $(BOARD))"
+	@echo "  BOARD=atlys OR opsis OR pipistrello  (current: $(BOARD))"
 	@echo " TARGET=base OR hdmi2usb OR hdmi2eth"
 	@echo "                        (current: $(TARGET))"
 	@echo "   PROG=programmer      (current: $(PROG))"
