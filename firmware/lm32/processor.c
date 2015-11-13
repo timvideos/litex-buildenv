@@ -363,12 +363,12 @@ static void edid_set_mode(const struct video_timing *mode)
 {
 	unsigned char edid[128];
 	int i;
-#ifdef CSR_HDMI_OUT0_BASE
+#ifdef CSR_HDMI_IN0_BASE
 	generate_edid(&edid, "OHW", "TV", 2015, "HDMI2USB 1", mode);
 	for(i=0;i<sizeof(edid);i++)
 		MMPTR(CSR_HDMI_IN0_EDID_MEM_BASE+4*i) = edid[i];
 #endif
-#ifdef CSR_HDMI_OUT1_BASE
+#ifdef CSR_HDMI_IN1_BASE
 	generate_edid(&edid, "OHW", "TV", 2015, "HDMI2USB 2", mode);
 	for(i=0;i<sizeof(edid);i++)
 		MMPTR(CSR_HDMI_IN1_EDID_MEM_BASE+4*i) = edid[i];
