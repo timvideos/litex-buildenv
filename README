@@ -10,16 +10,16 @@
 
 [> Getting started
 1. Follow MiSoC Quick start guide
-	https://github.com/enjoy-digital/misoc
+	https://github.com/m-labs/misoc (use legacy branch)
 
 2. Obtain LiteEth and install it:
-  git clone https://github.com/enjoy-digital/liteeth
+  git clone -b legacy https://github.com/enjoy-digital/liteeth
   cd liteeth
   python3 setup.py install
   cd ..
 
 3. Obtain LiteScope and install it:
-  git clone https://github.com/enjoy-digital/litescope
+  git clone -b legacy https://github.com/enjoy-digital/litescope
   cd litescope
   python3 setup.py install
   cd ..
