@@ -32,12 +32,21 @@ fi
 
 for TARGET in $TARGETS; do
 	(
+		case $TARGET in
+		lite*|mi*)
+			BRANCH=legacy
+			;;
+		*)
+			BRANCH=master
+			;;
+		esac
+
 		cd $TARGET
 		echo
 		echo "$TARGET checking for updates.."
 		BEFORE_VER=$(git describe --always --dirty)
 		git fetch origin | sed -e's/^/    /'
-		git checkout origin/master | sed -e's/^/    /'
+		git checkout origin/$BRANCH | sed -e's/^/    /'
 		AFTER_VER=$(git describe --always --dirty)
 		if [ x"$BEFORE_VER" = x"$AFTER_VER" ]; then
 			echo "$TARGET is unchanged"
