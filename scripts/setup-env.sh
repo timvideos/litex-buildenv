@@ -141,6 +141,11 @@ LITEETH_DIR=$THIRD_DIR/liteeth
 export PYTHONPATH=$LITEETH_DIR:$PYTHONPATH
 check_import liteeth || return 1
 
+# liteusb
+LITEUSB_DIR=$THIRD_DIR/liteusb
+export PYTHONPATH=$LITEUSB_DIR:$PYTHONPATH
+check_import liteusb || return 1
+
 echo "-----------------------"
 echo ""
 
