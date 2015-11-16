@@ -18,12 +18,13 @@ This firmware is supported on the following to boards;
    The original board used for HDMI2USB prototyping.
    Use `BOARD=atlys` with this board.
 
- * Numato Opsis
+ * Numato Opsis - http://crowdsupply.com/numato-lab/opsis
    The first production board made in conjunction with TimVideos.us project.
    Use `BOARD=opsis` with this board.
 
- * Pipistrello
-   A small and affordable FPGA board with one HDMI output port - http://pipistrello.saanlima.com/
+ * Pipistrello - http://pipistrello.saanlima.com/
+   A small FPGA board with only one HDMI output port.
+   Due to the lack of video *inputs*, this board is only useful for developers.
    Use `BOARD=pipistrello` with this board.
 
 [> Getting started
