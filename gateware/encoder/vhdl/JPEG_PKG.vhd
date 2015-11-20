@@ -57,6 +57,17 @@ package JPEG_PKG is
   -- do not change, constant
   constant C_HDR_SIZE         : integer := 623;
 
+  -- warning! this parameter heavily affects memory size required
+  -- if expected image width is known change this parameter to match this
+  -- otherwise some onchip RAM will be wasted and never used
+  constant C_MAX_LINE_WIDTH   : integer := 1280;
+
+  -- memory/performance tradeoff
+  -- 8 extra lines highest performance
+  -- 0 extra lines lowest area
+  constant C_EXTRA_LINES  : integer := 8; -- from 0 to 8
+
+
   -- 24 bit format RGB 888 bits
   -- 16 bit format RGB 565 bits
   constant C_PIXEL_BITS    : integer := 24;

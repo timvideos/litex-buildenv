@@ -3,7 +3,7 @@ from targets.opsis_base import default_subtarget as BaseSoC
 
 from gateware.hdmi_in import HDMIIn
 from gateware.hdmi_out import HDMIOut
-from gateware.encoder import EncoderReader, EncoderBuffer, Encoder
+from gateware.encoder import EncoderReader, Encoder
 from gateware.streamer import USBStreamer
 
 class VideomixerSoC(BaseSoC):
@@ -69,15 +69,12 @@ class HDMI2USBSoC(VideomixerSoC):
     def __init__(self, platform, **kwargs):
         VideomixerSoC.__init__(self, platform, **kwargs)
 
-        lasmim = self.sdram.crossbar.get_master()
-        self.submodules.encoder_reader = EncoderReader(lasmim)
-        self.submodules.encoder_buffer = EncoderBuffer(lasmim.dw)
+        self.submodules.encoder_reader = EncoderReader(self.sdram.crossbar.get_master())
         self.submodules.encoder = Encoder(platform)
         self.submodules.usb_streamer = USBStreamer(platform, platform.request("fx2"))
 
         self.comb += [
-            Record.connect(self.encoder_reader.source, self.encoder_buffer.sink),
-            Record.connect(self.encoder_buffer.source, self.encoder.sink),
+            Record.connect(self.encoder_reader.source, self.encoder.sink),
             Record.connect(self.encoder.source, self.usb_streamer.sink)
         ]
         self.add_wb_slave(mem_decoder(self.mem_map["encoder"]), self.encoder.bus)
