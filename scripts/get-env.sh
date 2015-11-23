@@ -155,7 +155,7 @@ check_version sdcc 3.5.0
 (
 	conda install openocd
 )
-check_version openocd 0.10.0-dev-00044-g3edb157
+check_version openocd 0.10.0-dev
 
 # git submodules
 echo ""
