@@ -98,7 +98,7 @@ check_version lm32-elf-gcc 4.9.3 || return 1
 check_version sdcc 3.5.0 || return 1
 
 # openocd for programming via Cypress FX2
-check_version openocd 0.10.0-dev-00044-g3edb157 || return 1
+check_version openocd 0.10.0-dev || return 1
 
 # git submodules
 echo ""
