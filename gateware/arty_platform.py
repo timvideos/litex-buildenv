@@ -1,8 +1,9 @@
 # This file is Copyright (c) 2015 Yann Sionneau <yann@sionneau.net>
+# This file is Copyright (c) 2015 Florent Kermarrec <florent@enjoy-digital.fr>
 # License: BSD
 
-from mibuild.generic_platform import *
-from mibuild.xilinx import XilinxPlatform, XC3SProg, VivadoProgrammer
+from litex.build.generic_platform import *
+from litex.build.xilinx import XilinxPlatform, XC3SProg, VivadoProgrammer
 
 _io = [
     ("user_led", 0, Pins("H5"), IOStandard("LVCMOS33")),

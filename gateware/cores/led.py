@@ -1,9 +1,9 @@
-from migen.fhdl.std import *
-from migen.bank.description import *
+from litex.gen import *
 
-from misoclib.com import gpio
+from litex.soc.interconnect.csr import *
+from litex.soc.cores import gpio
 
-from gateware.pwm import PWM
+from cores.pwm import PWM
 
 
 class ClassicLed(gpio.GPIOOut):
@@ -13,7 +13,7 @@ class ClassicLed(gpio.GPIOOut):
 
 class RGBLed(Module, AutoCSR):
     def __init__(self, pads):
-        nleds = flen(pads.r)
+        nleds = len(pads.r)
 
         # # #
 

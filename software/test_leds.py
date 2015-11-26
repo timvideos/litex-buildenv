@@ -1,3 +1,5 @@
+from litex.soc.tools.remote import RemoteClient
+
 import time
 
 
@@ -25,22 +27,26 @@ class RGBLed:
             self.b = PWM(regs, "rgb_leds_b"+str(n))
 
 
-def main(wb):
-    wb.open()
-    regs = wb.regs
-    # # #
-    for i in range(16):
-        regs.leds_out.write(i)
-        time.sleep(0.1)
+wb = RemoteClient()
+wb.open()
+regs = wb.regs
 
-    rgb_leds = [RGBLed(regs, "rgb_leds", i) for i in range(4)]
-    for led in rgb_leds:
-        for c in "rgb":
-            pwm = getattr(led, c)
-            pwm.enable()
-            for i in range(64):
-                pwm.configure(128, i)
-                time.sleep(0.001)
-            pwm.disable()
-    # # #
-    wb.close()
+# # #
+
+for i in range(16):
+    regs.leds_out.write(i)
+    time.sleep(0.1)
+
+rgb_leds = [RGBLed(regs, "rgb_leds", i) for i in range(4)]
+for led in rgb_leds:
+    for c in "rgb":
+        pwm = getattr(led, c)
+        pwm.enable()
+        for i in range(64):
+            pwm.configure(128, i)
+            time.sleep(0.001)
+        pwm.disable()
+
+# # #
+
+wb.close()

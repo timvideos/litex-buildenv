@@ -1,11 +1,13 @@
-from targets.arty_base import *
+#!/usr/bin/env python3
 
-from liteeth.common import *
+from arty_base import *
+
+from liteeth.common import convert_ip
 from liteeth.phy.mii import LiteEthPHYMII
 from liteeth.core import LiteEthUDPIPCore
 from liteeth.frontend.etherbone import LiteEthEtherbone
 
-from migen.fhdl.specials import Keep
+from litex.gen.fhdl.specials import Keep
 
 
 class EtherboneSoC(BaseSoC):
@@ -15,12 +17,12 @@ class EtherboneSoC(BaseSoC):
     }
     csr_map.update(BaseSoC.csr_map)
 
-    def __init__(self, platform,
+    def __init__(self,
                  mac_address=0x10e2d5000000,
                  ip_address="192.168.1.42",
                  **kwargs):
-        BaseSoC.__init__(self, platform,
-                         cpu_type="none",
+        platform = arty.Platform()
+        BaseSoC.__init__(self, cpu_type=None,
                          integrated_rom_size=0,
                          integrated_main_ram_size=0,
                          csr_data_width=32,
@@ -55,4 +57,28 @@ set_false_path -from [get_clocks sys_clk] -to [get_clocks eth_tx_clk]
 """, eth_rx_clk=self.ethphy.crg.cd_eth_rx.clk,
      eth_tx_clk=self.ethphy.crg.cd_eth_tx.clk)
 
-default_subtarget = EtherboneSoC
+
+def main():
+    parser = argparse.ArgumentParser(description="LiteX SoC port to Arty")
+    builder_args(parser)
+    soc_sdram_args(parser)
+    parser.add_argument("--build", action="store_true",
+                        help="build bitstream")   
+    parser.add_argument("--load", action="store_true",
+                        help="load bitstream")   
+    args = parser.parse_args()
+
+    soc = EtherboneSoC(**soc_sdram_argdict(args))
+    builder = Builder(soc, **builder_argdict(args))
+
+    if args.build:
+        builder.build()
+
+    if args.load:
+        prog = soc.platform.create_programmer()
+        prog.load_bitstream(os.path.join(builder.output_dir, "gateware", "top.bit"))
+
+
+if __name__ == "__main__":
+    main()
+

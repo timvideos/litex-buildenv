@@ -1,5 +1,6 @@
-from migen.fhdl.std import *
-from migen.bank.description import *
+from litex.gen import *
+
+from litex.soc.interconnect.csr import *
 
 
 class PWM(Module, AutoCSR):

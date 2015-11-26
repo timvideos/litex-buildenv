@@ -1,16 +1,21 @@
-from migen.fhdl.std import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
+#!/usr/bin/env python3
+import argparse
+import os
 
-from misoclib.soc import mem_decoder
-from misoclib.soc.sdram import SDRAMSoC
-from misoclib.mem.flash import spiflash
-from misoclib.mem.sdram.module import SDRAMModule
-from misoclib.mem.sdram.core.minicon import MiniconSettings
+from litex.gen import *
+from litex.gen.genlib.resetsync import AsyncResetSynchronizer
+
+from litex.soc.integration.soc_core import mem_decoder
+from litex.soc.integration.soc_sdram import *
+from litex.soc.cores.flash import spi_flash
+from litex.soc.cores.sdram.settings import SDRAMModule
+from litex.soc.integration.builder import *
 
 from liteeth.phy import LiteEthPHY
 from liteeth.core.mac import LiteEthMAC
 
-from gateware import a7ddrphy, dna, xadc, led
+from cores import a7ddrphy, dna, xadc, led
+import arty_platform as arty
 
 # TODO: use half-rate DDR3 phy and use 100Mhz CPU clock
 
@@ -103,7 +108,7 @@ class _CRG(Module):
             Instance("BUFG", i_I=eth_clk, o_O=platform.request("eth_ref_clk")),
         ]
 
-class BaseSoC(SDRAMSoC):
+class BaseSoC(SoCSDRAM):
     default_platform = "arty"
 
     csr_map = {
@@ -114,17 +119,18 @@ class BaseSoC(SDRAMSoC):
         "leds":     20,
         "rgb_leds": 21
     }
-    csr_map.update(SDRAMSoC.csr_map)
+    csr_map.update(SoCSDRAM.csr_map)
 
-    def __init__(self, platform, sdram_controller_settings=MiniconSettings(),
-                 integrated_rom_size=0x8000,       # TODO: remove this when SPI Flash validated
-                 integrated_main_ram_size=0x8000,  # TODO: remove this when SDRAM validated
+    def __init__(self,
+                 integrated_rom_size=0x8000,
+                 integrated_main_ram_size=0x8000,
+                 sdram_controller_type="minicon",
                  **kwargs):
-        SDRAMSoC.__init__(self, platform,
-                          clk_freq=50000000,
+        platform = arty.Platform()
+        SoCSDRAM.__init__(self, platform,
+                          clk_freq=50*1000000,
                           integrated_rom_size=integrated_rom_size,
                           integrated_main_ram_size=integrated_main_ram_size,
-                          sdram_controller_settings=sdram_controller_settings,
                           **kwargs)
 
         self.submodules.crg = _CRG(platform)
@@ -135,21 +141,18 @@ class BaseSoC(SDRAMSoC):
         self.submodules.rgb_leds = led.RGBLed(platform.request("rgb_leds"))
 
         if not self.integrated_main_ram_size:
-            ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"),
-                                       MT41K128M16(self.clk_freq))
-            self.submodules.ddrphy = ddrphy
-            self.register_sdram_phy(ddrphy)
+            self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
+            sdram_module = MT41K128M16(self.clk_freq)
+            self.register_sdram(self.ddrphy, sdram_controller_type,
+                                sdram_module.geom_settings, sdram_module.timing_settings)
 
         if not self.integrated_rom_size:
             spiflash_pads = platform.request("spiflash")
             spiflash_pads.clk = Signal()
             self.specials += Instance("STARTUPE2",
-                                      i_CLK=0, i_GSR=0, i_GTS=0, i_KEYCLEARB=0,
-                                      i_PACK=0, i_USRCCLKO=spiflash_pads.clk,
-                                      i_USRCCLKTS=0, i_USRDONEO=1,
-                                      i_USRDONETS=1)
-            self.submodules.spiflash = spiflash.SpiFlash(spiflash_pads,
-                                                         dummy=11, div=2)
+                                      i_CLK=0, i_GSR=0, i_GTS=0, i_KEYCLEARB=0, i_PACK=0,
+                                      i_USRCCLKO=spiflash_pads.clk, i_USRCCLKTS=0, i_USRDONEO=1, i_USRDONETS=1)
+            self.submodules.spiflash = spi_flash.SpiFlash(spiflash_pads, dummy=11, div=2)
             self.add_constant("SPIFLASH_PAGE_SIZE", 256)
             self.add_constant("SPIFLASH_SECTOR_SIZE", 0x10000)
             self.flash_boot_address = 0xb00000
@@ -178,12 +181,34 @@ class MiniSoC(BaseSoC):
 
         self.submodules.ethphy = LiteEthPHY(platform.request("eth_clocks"),
                                             platform.request("eth"))
-        self.submodules.ethmac = LiteEthMAC(phy=self.ethphy, dw=32,
-                                            interface="wishbone",
-                                            with_preamble_crc=False)
+        self.submodules.ethmac = LiteEthMAC(phy=self.ethphy, dw=32, interface="wishbone")
         self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)
-        self.add_memory_region("ethmac",
-                               self.mem_map["ethmac"] | self.shadow_base,
-                               0x2000)
+        self.add_memory_region("ethmac", self.mem_map["ethmac"] | self.shadow_base, 0x2000)
 
-default_subtarget = MiniSoC
+
+def main():
+    parser = argparse.ArgumentParser(description="LiteX SoC port to Arty")
+    builder_args(parser)
+    soc_sdram_args(parser)
+    parser.add_argument("--with-ethernet", action="store_true",
+                        help="enable Ethernet support")
+    parser.add_argument("--build", action="store_true",
+                        help="build bitstream")   
+    parser.add_argument("--load", action="store_true",
+                        help="load bitstream")   
+    args = parser.parse_args()
+
+    cls = MiniSoC if args.with_ethernet else BaseSoC
+    soc = cls(**soc_sdram_argdict(args))
+    builder = Builder(soc, **builder_argdict(args))
+
+    if args.build:
+        builder.build()
+
+    if args.load:
+        prog = soc.platform.create_programmer()
+        prog.load_bitstream(os.path.join(builder.output_dir, "gateware", "top.bit"))
+
+
+if __name__ == "__main__":
+    main()

@@ -1,18 +1,18 @@
 # tCK=5ns CL=7 CWL=6
 # TODO: switch to half-rate instead of quarter-rate
 
-from migen.fhdl.std import *
-from migen.bank.description import *
+from litex.gen import *
 
-from misoclib.mem.sdram.phy.dfi import *
-from misoclib.mem import sdram
+from litex.soc.interconnect.dfi import *
+from litex.soc.interconnect.csr import *
+from litex.soc.cores.sdram import settings as sdram_settings
 
 
 class A7DDRPHY(Module, AutoCSR):
-    def __init__(self, pads, module):
-        addressbits = flen(pads.a)
-        bankbits = flen(pads.ba)
-        databits = flen(pads.dq)
+    def __init__(self, pads):
+        addressbits = len(pads.a)
+        bankbits = len(pads.ba)
+        databits = len(pads.dq)
         nphases = 4
 
         self._wlevel_en = CSRStorage()
@@ -22,8 +22,8 @@ class A7DDRPHY(Module, AutoCSR):
         self._rdly_dq_inc = CSR()
         self._rdly_dq_bitslip = CSR()
 
-        self.settings = sdram.PhySettings(
-            memtype=module.memtype,
+        self.settings = sdram_settings.PhySettings(
+            memtype="DDR3",
             dfi_databits=2*databits,
             nphases=nphases,
             rdphase=0,
@@ -35,7 +35,6 @@ class A7DDRPHY(Module, AutoCSR):
             read_latency=6,
             write_latency=2
         )
-        self.module = module
 
         self.dfi = Interface(addressbits, bankbits, 2*databits, nphases)
 
