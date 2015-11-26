@@ -5,6 +5,8 @@ import os
 from litex.gen import *
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.boards.platforms import arty
+
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
 from litex.soc.cores.flash import spi_flash
@@ -15,7 +17,6 @@ from liteeth.phy import LiteEthPHY
 from liteeth.core.mac import LiteEthMAC
 
 from cores import a7ddrphy, dna, xadc, led
-import arty_platform as arty
 
 # TODO: use half-rate DDR3 phy and use 100Mhz CPU clock
 
@@ -176,11 +177,11 @@ class MiniSoC(BaseSoC):
     }
     mem_map.update(BaseSoC.mem_map)
 
-    def __init__(self, platform, **kwargs):
-        BaseSoC.__init__(self, platform, **kwargs)
+    def __init__(self, **kwargs):
+        BaseSoC.__init__(self, **kwargs)
 
-        self.submodules.ethphy = LiteEthPHY(platform.request("eth_clocks"),
-                                            platform.request("eth"))
+        self.submodules.ethphy = LiteEthPHY(self.platform.request("eth_clocks"),
+                                            self.platform.request("eth"))
         self.submodules.ethmac = LiteEthMAC(phy=self.ethphy, dw=32, interface="wishbone")
         self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)
         self.add_memory_region("ethmac", self.mem_map["ethmac"] | self.shadow_base, 0x2000)
