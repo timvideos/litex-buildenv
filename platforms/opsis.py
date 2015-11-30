@@ -273,8 +273,8 @@ _io = [
         Subsignal("data1_n", Pins("AB10"), IOStandard("TMDS_33")),
         Subsignal("data2_p", Pins("Y9"), IOStandard("TMDS_33")),
         Subsignal("data2_n", Pins("AB9"), IOStandard("TMDS_33")),
-        Subsignal("scl", Pins("Y7"), IOStandard("LVCMOS33")),
-        Subsignal("sda", Pins("Y10"), IOStandard("LVCMOS33")),
+        Subsignal("scl", Pins("Y7"), IOStandard("I2C")),
+        Subsignal("sda", Pins("Y10"), IOStandard("I2C")),
         Subsignal("hpd_notif", Pins("AB7"), IOStandard("LVCMOS33"))
     ),
 
@@ -288,8 +288,8 @@ _io = [
         Subsignal("data1_n", Pins("AB16"), IOStandard("TMDS_33")),
         Subsignal("data2_p", Pins("U14"), IOStandard("TMDS_33")),
         Subsignal("data2_n", Pins("U13"), IOStandard("TMDS_33")),
-        Subsignal("scl", Pins("Y17"), IOStandard("LVCMOS33")),
-        Subsignal("sda", Pins("AB17"), IOStandard("LVCMOS33")),
+        Subsignal("scl", Pins("Y17"), IOStandard("I2C")),
+        Subsignal("sda", Pins("AB17"), IOStandard("I2C")),
         Subsignal("hpd_notif", Pins("AB18"), IOStandard("LVCMOS33"))
     ),
 

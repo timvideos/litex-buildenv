@@ -293,8 +293,8 @@ _io = [
         Subsignal("data2_n", Pins("A8"), IOStandard("TMDS_33")),
         # Disconnect JP6 and JP7 for FPGA SCL/SDA control, otherwise
         # this is connected to J3's SCL/SDA pins.
-        Subsignal("scl", Pins("D9"), IOStandard("LVCMOS33")),
-        Subsignal("sda", Pins("C9"), IOStandard("LVCMOS33")),
+        Subsignal("scl", Pins("D9"), IOStandard("I2C")),
+        Subsignal("sda", Pins("C9"), IOStandard("I2C")),
     ),
 
     ## onboard HDMI IN1 (PMODA)
@@ -423,8 +423,8 @@ _io = [
         Subsignal("data2_p", Pins("N5"), IOStandard("TMDS_33")),
         Subsignal("data2_n", Pins("P6"), IOStandard("TMDS_33")),
         # Make sure JP2 is connected. Shared with JA.
-        #Subsignal("scl", Pins("C13"), IOStandard("LVCMOS33")),
-        #Subsignal("sda", Pins("A13"), IOStandard("LVCMOS33")),
+        Subsignal("scl", Pins("C13"), IOStandard("I2C")),
+        Subsignal("sda", Pins("A13"), IOStandard("I2C")),
     ),
 
 #        ("fpga_cfg",

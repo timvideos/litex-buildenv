@@ -5,7 +5,7 @@ from migen.bank.description import *
 
 class I2C(Module, AutoCSR):
     def __init__(self, pads):
-        self._w = CSRStorage(8, name="w")
+        self._w = CSRStorage(8, name="w", reset=1)
         self._r = CSRStatus(1, name="r")
 
     # # #

@@ -14,8 +14,11 @@
 #include "pll.h"
 #include "ci.h"
 #include "encoder.h"
+#include "hdmi_out0.h"
+#include "hdmi_out1.h"
 
 int status_enabled;
+int edid_debug_enabled = 0;
 
 void print_board_dna(void) {
 	int i;
@@ -74,6 +77,7 @@ static void help_debug(void)
 	puts("debug pll                      - dump pll configuration");
 	puts("debug ddr                      - show DDR bandwidth");
 	puts("debug dna                      - show Board's DNA");
+	puts("debug edid                     - dump monitor EDID");
 }
 
 static void help(void)
@@ -597,6 +601,25 @@ void ci_service(void)
 			debug_ddr();
 		else if(strcmp(token, "dna") == 0)
 			print_board_dna();
+#ifdef CSR_HDMI_OUT0_BASE
+		else if(strcmp(token, "edid") == 0)
+		{
+		    token = get_token(&str);
+		    if(strcmp(token, "0") == 0)
+		        hdmi_out0_print_edid();
+#ifdef CSR_HDMI_OUT1_BASE
+		    else if(strcmp(token, "1") == 0)
+		        hdmi_out1_print_edid();
+#endif
+		    else
+		        printf("Unknown output %s, enter "
+#ifdef CSR_HDMI_OUT1_BASE
+                       "either 0 or 1\n", token);
+#else
+                       "0\n", token);
+#endif
+	    }
+#endif
 		else
 			help_debug();
 	} else {
