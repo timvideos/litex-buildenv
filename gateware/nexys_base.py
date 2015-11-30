@@ -4,6 +4,7 @@ import os
 
 from litex.gen import *
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
+from litex.gen.fhdl.specials import Keep
 
 from litex.boards.platforms import nexys_video as nexys
 
@@ -12,7 +13,7 @@ from litex.soc.integration.soc_sdram import *
 from litex.soc.cores.sdram.settings import SDRAMModule
 from litex.soc.integration.builder import *
 
-from liteeth.phy import LiteEthPHY
+from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 from liteeth.core.mac import LiteEthMAC
 
 from cores import a7ddrphy, dna, xadc
@@ -65,7 +66,7 @@ class _CRG(Module):
                      i_CLKIN1=clk100, i_CLKFBIN=pll_fb, o_CLKFBOUT=pll_fb,
 
                      # 50 MHz
-                     p_CLKOUT0_DIVIDE=16, p_CLKOUT0_PHASE=0.0,
+                     p_CLKOUT0_DIVIDE=8, p_CLKOUT0_PHASE=0.0,
                      o_CLKOUT0=self.pll_sys,
 
                      # 200 MHz
@@ -118,7 +119,7 @@ class BaseSoC(SoCSDRAM):
                  **kwargs):
         platform = nexys.Platform()
         SoCSDRAM.__init__(self, platform,
-                          clk_freq=50*1000000,
+                          clk_freq=100*1000000,
                           integrated_rom_size=integrated_rom_size,
                           integrated_main_ram_size=integrated_main_ram_size,
                           **kwargs)
@@ -133,17 +134,71 @@ class BaseSoC(SoCSDRAM):
             self.register_sdram(self.ddrphy, sdram_controller_type,
                                 sdram_module.geom_settings, sdram_module.timing_settings)
 
+
+class MiniSoC(BaseSoC):
+    csr_map = {
+        "ethphy": 30,
+        "ethmac": 31
+    }
+    csr_map.update(BaseSoC.csr_map)
+
+    interrupt_map = {
+        "ethmac": 2,
+    }
+    interrupt_map.update(BaseSoC.interrupt_map)
+
+    mem_map = {
+        "ethmac": 0x30000000,  # (shadow @0xb0000000)
+    }
+    mem_map.update(BaseSoC.mem_map)
+
+    def __init__(self, **kwargs):
+        BaseSoC.__init__(self, **kwargs)
+
+        self.submodules.ethphy = LiteEthPHYRGMII(self.platform.request("eth_clocks"),
+                                                 self.platform.request("eth"))
+        self.submodules.ethmac = LiteEthMAC(phy=self.ethphy, dw=32, interface="wishbone")
+        self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)
+        self.add_memory_region("ethmac", self.mem_map["ethmac"] | self.shadow_base, 0x2000)
+
+        self.configure_ip("localip", [192, 168, 1, 42])
+        self.configure_ip("remoteip", [192, 168, 1, 10])
+
+        self.specials += [
+            Keep(self.ethphy.crg.cd_eth_rx.clk),
+            Keep(self.ethphy.crg.cd_eth_tx.clk)
+        ]
+        self.platform.add_platform_command("""
+create_clock -name sys_clk -period 10 [get_nets sys_clk]
+create_clock -name eth_rx_clk -period 8 [get_nets eth_clocks_tx]
+create_clock -name eth_tx_clk -period 8 [get_nets eth_clocks_rx]
+
+set_false_path -from [get_clocks eth_rx_clk] -to [get_clocks sys_clk]
+set_false_path -from [get_clocks sys_clk] -to [get_clocks eth_rx_clk]
+set_false_path -from [get_clocks eth_tx_clk] -to [get_clocks sys_clk]
+set_false_path -from [get_clocks sys_clk] -to [get_clocks eth_tx_clk]
+""")
+
+    def configure_ip(self, ip_type, ip):
+        for i, e in enumerate(ip):
+            s = ip_type + str(i + 1)
+            s = s.upper()
+            self.add_constant(s, e)
+
 def main():
     parser = argparse.ArgumentParser(description="LiteX SoC port to Arty")
     builder_args(parser)
     soc_sdram_args(parser)
+    parser.add_argument("--with-ethernet", action="store_true",
+                        help="enable Ethernet support")
     parser.add_argument("--build", action="store_true",
                         help="build bitstream")
     parser.add_argument("--load", action="store_true",
                         help="load bitstream")
     args = parser.parse_args()
 
-    soc = BaseSoC(**soc_sdram_argdict(args))
+    cls = MiniSoC if args.with_ethernet else BaseSoC
+    soc = cls(**soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
 
     if args.build:
