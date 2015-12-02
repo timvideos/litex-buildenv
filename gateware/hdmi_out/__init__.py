@@ -7,11 +7,14 @@ from migen.actorlib import structuring, misc
 from misoclib.mem.sdram.frontend import dma_lasmi
 from gateware.hdmi_out.format import bpp, pixel_layout, FrameInitiator, VTG
 from gateware.hdmi_out.phy import Driver
+from gateware.i2c import I2C
 
 
 class HDMIOut(Module, AutoCSR):
     def __init__(self, pads, lasmim, external_clocking=None):
         pack_factor = lasmim.dw//bpp
+
+        self.submodules.i2c = I2C(pads)
 
         g = DataFlowGraph()
 

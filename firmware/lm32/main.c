@@ -14,12 +14,20 @@
 #include "processor.h"
 #include "encoder.h"
 #include "pattern.h"
+#include "hdmi_out0.h"
+#include "hdmi_out1.h"
 
 int main(void)
 {
 	irq_setmask(0);
 	irq_setie(1);
 	uart_init();
+#ifdef CSR_HDMI_OUT0_BASE
+	hdmi_out0_i2c_init();
+#endif
+#ifdef CSR_HDMI_OUT1_BASE
+	hdmi_out1_i2c_init();
+#endif
 
 	puts("\nHDMI2USB firmware  http://timvideos.us/");
 	print_board_dna();
