@@ -423,8 +423,8 @@ _io = [
         Subsignal("data2_p", Pins("N5"), IOStandard("TMDS_33")),
         Subsignal("data2_n", Pins("P6"), IOStandard("TMDS_33")),
         # Make sure JP2 is connected. Shared with JA.
-        Subsignal("scl", Pins("C13"), IOStandard("I2C")),
-        Subsignal("sda", Pins("A13"), IOStandard("I2C")),
+        #Subsignal("scl", Pins("C13"), IOStandard("LVCMOS33")),
+        #Subsignal("sda", Pins("A13"), IOStandard("LVCMOS33")),
     ),
 
 #        ("fpga_cfg",

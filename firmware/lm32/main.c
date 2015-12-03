@@ -22,10 +22,10 @@ int main(void)
 	irq_setmask(0);
 	irq_setie(1);
 	uart_init();
-#ifdef CSR_HDMI_OUT0_BASE
+#ifdef CSR_HDMI_OUT0_I2C_W_ADDR
 	hdmi_out0_i2c_init();
 #endif
-#ifdef CSR_HDMI_OUT1_BASE
+#ifdef CSR_HDMI_OUT1_I2C_W_ADDR
 	hdmi_out1_i2c_init();
 #endif
 

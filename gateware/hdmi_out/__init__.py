@@ -14,7 +14,8 @@ class HDMIOut(Module, AutoCSR):
     def __init__(self, pads, lasmim, external_clocking=None):
         pack_factor = lasmim.dw//bpp
 
-        self.submodules.i2c = I2C(pads)
+        if hasattr(pads, "scl"):
+            self.submodules.i2c = I2C(pads)
 
         g = DataFlowGraph()
 

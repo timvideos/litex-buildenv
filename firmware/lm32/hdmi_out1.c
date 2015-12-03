@@ -4,6 +4,7 @@
 #include "i2c.h"
 #include "hdmi_out1.h"
 
+#ifdef CSR_HDMI_OUT1_I2C_W_ADDR
 /* I2C bit banging */
 int hdmi_out1_i2c_started;
 int hdmi_out1_debug_enabled = 0;
@@ -163,5 +164,7 @@ void hdmi_out1_print_edid(void) {
     }
     hdmi_out1_i2c_stop_cond();
 }
+
+#endif
 
 #endif
