@@ -4,6 +4,7 @@
 from mibuild.generic_platform import *
 from mibuild.xilinx import XilinxPlatform
 from mibuild.xilinx.programmer import XC3SProg, FpgaProg
+from mibuild.openocd import OpenOCD
 
 _io = [
     ("user_led", 0, Pins("P11"), IOStandard("LVCMOS33")),
@@ -128,5 +129,8 @@ class Platform(XilinxPlatform):
             return XC3SProg("minispartan6", "bscan_spi_minispartan6.bit")
         elif self.programmer == "fpgaprog":
             return FpgaProg()
+        elif self.programmer == "openocd":
+            return OpenOCD(config="board/minispartan6.cfg")
         else:
+
             raise ValueError("{} programmer is not supported".format(self.programmer))
