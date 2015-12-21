@@ -18,6 +18,19 @@ from liteeth.phy.s6rgmii import LiteEthPHYRGMII
 from liteeth.core.mac import LiteEthMAC
 
 from gateware import dna
+from gateware import i2c
+
+class CSRMap(dict):
+    def __init__(self, offset, values):
+        dict.__init__(self)
+        self.offset = offset
+        for k, v in values.items():
+            self[k] = v
+
+    def __setitem__(self, k, v=None):
+        if v is None:
+            v = self.offset + len(self)
+        dict.__setitem__(self, k, v)
 
 
 class _CRG(Module):
@@ -131,7 +144,8 @@ class BaseSoC(SDRAMSoC):
 
     csr_map = {
         "ddrphy": 16,
-        "dna":    17
+        "dna":    17,
+        "eeprom_i2c": 18,
     }
     csr_map.update(SDRAMSoC.csr_map)
 
@@ -152,6 +166,7 @@ class BaseSoC(SDRAMSoC):
 
         self.submodules.crg = _CRG(platform, clk_freq)
         self.submodules.dna = dna.DNA()
+        self.submodules.eeprom_i2c = i2c.I2C(platform.request("eeprom"))
 
         self.submodules.firmware_ram = wishbone.SRAM(firmware_ram_size, init=_get_firmware_data(firmware_filename))
         self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
@@ -177,8 +192,8 @@ NET "{sys_clk}" TNM_NET = "GRPsys_clk";
 
 class MiniSoC(BaseSoC):
     csr_map = {
-        "ethphy": 18,
-        "ethmac": 19,
+        "ethphy": 19,
+        "ethmac": 20,
     }
     csr_map.update(BaseSoC.csr_map)
 

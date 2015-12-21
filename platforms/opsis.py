@@ -115,11 +115,6 @@ _io = [
         #Subsignal("sda", Pins("C1"), IOStandard("I2C")),
     ),
 
-    ("i2c", 0,
-        Subsignal("scl", Pins("G6"), IOStandard("LVCMOS15")),
-        Subsignal("sda", Pins("C1"), IOStandard("LVCMOS15")),
-    ),
-
     ## onBoard Quad-SPI Flash
     ## W25Q128FVEIG - component U3
     ## 128M (16M x 8) - 104MHz
@@ -164,7 +159,7 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
-	## 24AA02E48 - component U23
+    ## 24AA02E48 - component U23
     ## 2 Kbit Electrically Erasable PROM
     ## Pre-programmed Globally Unique, 48-bit Node Address
     ## The device is organized as two blocks of 128 x 8-bit memory with a 2-wire serial interface.
@@ -172,6 +167,10 @@ _io = [
     ## \/ Strongly pulled (2k) to VCC3V3 via R34
     #NET "eeprom_scl"           LOC =     "G6"       |IOSTANDARD =             I2C;     #                      (/Ethernet/MAC_SCL)
     #NET "eeprom_sda"           LOC =     "C1"       |IOSTANDARD =             I2C;     #                      (/Ethernet/MAC_SDA)
+    ("eeprom", 0,
+        Subsignal("scl", Pins("G6"), IOStandard("I2C")),
+        Subsignal("sda", Pins("C1"), IOStandard("I2C")),
+    ),
 
     ## DDR3
     # MT41J128M16JT-125:K - 16 Meg x 16 x 8 Banks - DDR3-1600 11-11-11

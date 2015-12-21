@@ -2,7 +2,7 @@
 MSCDIR=../../third_party/misoc
 include $(MSCDIR)/software/common.mak
 
-OBJECTS=isr.o processor.o hdmi_in0.o hdmi_in1.o pattern.o edid.o pll.o ci.o config.o encoder.o i2c.o main.o hdmi_out0.o hdmi_out1.o
+OBJECTS=isr.o processor.o hdmi_in0.o hdmi_in1.o pattern.o edid.o pll.o ci.o config.o encoder.o eeprom.o i2c.o main.o hdmi_out0.o hdmi_out1.o
 
 all: firmware.bin
 

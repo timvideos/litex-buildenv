@@ -14,6 +14,7 @@
 #include "pll.h"
 #include "ci.h"
 #include "encoder.h"
+#include "eeprom.h"
 #include "hdmi_out0.h"
 #include "hdmi_out1.h"
 
@@ -77,6 +78,9 @@ static void help_debug(void)
 	puts("debug ddr                      - show DDR bandwidth");
 	puts("debug dna                      - show Board's DNA");
 	puts("debug edid                     - dump monitor EDID");
+#ifdef CSR_EEPROM_I2C_W_ADDR
+	puts("debug eeprom                   - dump Opsis EEPROM");
+#endif
 }
 
 static void help(void)
@@ -600,6 +604,11 @@ void ci_service(void)
 			debug_ddr();
 		else if(strcmp(token, "dna") == 0)
 			print_board_dna();
+#ifdef CSR_EEPROM_I2C_W_ADDR
+		else if(strcmp(token, "eeprom") == 0) {
+			eeprom_dump();
+                }
+#endif
 		else if(strcmp(token, "edid") == 0) {
 			unsigned int found = 0;
 			token = get_token(&str);
