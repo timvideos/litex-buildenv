@@ -35,6 +35,6 @@ clean-fx2:
 
 # Utility functions
 view:
-	./scripts/view.sh
+	./scripts/view-hdmi2usb.sh
 
 .PHONY: help-fx2 gateware-fx2 firmware-fx2 load-fx2 clean-fx2 view
