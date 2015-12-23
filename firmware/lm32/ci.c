@@ -14,7 +14,8 @@
 #include "pll.h"
 #include "ci.h"
 #include "encoder.h"
-#include "eeprom.h"
+#include "opsis_eeprom.h"
+#include "tofe_eeprom.h"
 #include "hdmi_out0.h"
 #include "hdmi_out1.h"
 
@@ -78,8 +79,11 @@ static void help_debug(void)
 	puts("debug ddr                      - show DDR bandwidth");
 	puts("debug dna                      - show Board's DNA");
 	puts("debug edid                     - dump monitor EDID");
-#ifdef CSR_EEPROM_I2C_W_ADDR
-	puts("debug eeprom                   - dump Opsis EEPROM");
+#ifdef CSR_OPSIS_EEPROM_I2C_W_ADDR
+	puts("debug opsis_eeprom             - dump Opsis Info EEPROM");
+#endif
+#ifdef CSR_TOFE_EEPROM_I2C_W_ADDR
+	puts("debug tofe_eeprom              - dump TOFE Board Info EEPROM");
 #endif
 }
 
@@ -604,9 +608,14 @@ void ci_service(void)
 			debug_ddr();
 		else if(strcmp(token, "dna") == 0)
 			print_board_dna();
-#ifdef CSR_EEPROM_I2C_W_ADDR
-		else if(strcmp(token, "eeprom") == 0) {
-			eeprom_dump();
+#ifdef CSR_OPSIS_EEPROM_I2C_W_ADDR
+		else if(strcmp(token, "opsis_eeprom") == 0) {
+			opsis_eeprom_dump();
+                }
+#endif
+#ifdef CSR_TOFE_EEPROM_I2C_W_ADDR
+		else if(strcmp(token, "tofe_eeprom") == 0) {
+			tofe_eeprom_dump();
                 }
 #endif
 		else if(strcmp(token, "edid") == 0) {

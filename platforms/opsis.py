@@ -167,7 +167,7 @@ _io = [
     ## \/ Strongly pulled (2k) to VCC3V3 via R34
     #NET "eeprom_scl"           LOC =     "G6"       |IOSTANDARD =             I2C;     #                      (/Ethernet/MAC_SCL)
     #NET "eeprom_sda"           LOC =     "C1"       |IOSTANDARD =             I2C;     #                      (/Ethernet/MAC_SDA)
-    ("eeprom", 0,
+    ("opsis_eeprom", 0,
         Subsignal("scl", Pins("G6"), IOStandard("I2C")),
         Subsignal("sda", Pins("C1"), IOStandard("I2C")),
     ),
@@ -292,6 +292,11 @@ _io = [
         Subsignal("hpd_notif", Pins("AB18"), IOStandard("LVCMOS33"))
     ),
 
+    # TOFE connector
+    ("tofe_eeprom", 0,
+        Subsignal("scl", Pins("N6"), IOStandard("I2C")),
+        Subsignal("sda", Pins("N7"), IOStandard("I2C")),
+    ),
 
 #        ("fpga_cfg",
 #            Subsignal("din", Pins("T14")),

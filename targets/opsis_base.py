@@ -145,7 +145,8 @@ class BaseSoC(SDRAMSoC):
     csr_map = {
         "ddrphy": 16,
         "dna":    17,
-        "eeprom_i2c": 18,
+        "opsis_eeprom_i2c": 18,
+        "tofe_eeprom_i2c":  19,
     }
     csr_map.update(SDRAMSoC.csr_map)
 
@@ -166,7 +167,8 @@ class BaseSoC(SDRAMSoC):
 
         self.submodules.crg = _CRG(platform, clk_freq)
         self.submodules.dna = dna.DNA()
-        self.submodules.eeprom_i2c = i2c.I2C(platform.request("eeprom"))
+        self.submodules.opsis_eeprom_i2c = i2c.I2C(platform.request("opsis_eeprom"))
+        self.submodules.tofe_eeprom_i2c = i2c.I2C(platform.request("tofe_eeprom"))
 
         self.submodules.firmware_ram = wishbone.SRAM(firmware_ram_size, init=_get_firmware_data(firmware_filename))
         self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
@@ -192,8 +194,8 @@ NET "{sys_clk}" TNM_NET = "GRPsys_clk";
 
 class MiniSoC(BaseSoC):
     csr_map = {
-        "ethphy": 19,
-        "ethmac": 20,
+        "ethphy": 20,
+        "ethmac": 21,
     }
     csr_map.update(BaseSoC.csr_map)
 
