@@ -34,7 +34,6 @@ int main(void)
 	print_board_dna();
 	printf("Revision %08x built "__DATE__" "__TIME__"\n", MSC_GIT_ID);
 
-	ci_prompt();
 	config_init();
 	time_init();
 	processor_init();
@@ -59,6 +58,7 @@ int main(void)
 	fx2_reboot();
 #endif
 
+	ci_prompt();
 	while(1) {
 		processor_service();
 		ci_service();
