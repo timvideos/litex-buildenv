@@ -56,7 +56,7 @@ AS := $(AS8051)
 CFLAGS += -DDATE=0x$(FIRMWARE_VERSION) -mmcs51 $(FLAGS)
 
 ifeq ($(USE_16K),1)
-	CFLAGS += --code-size 0x3e00 --xram-size 0x0200 -Wl"-b DSCR_AREA=0x2e00" -Wl"-b INT2JT=0x3f00"
+	CFLAGS += --code-size 0x3e00 --xram-size 0x0200 -Wl"-b DSCR_AREA=0x2e00" -Wl"-b INT2JT=0x3d00"
 else
 	CFLAGS += --code-size 0x1e00 --xram-size 0x0200 -Wl"-b DSCR_AREA=0x1e00" -Wl"-b INT2JT=0x1f00"
 endif
