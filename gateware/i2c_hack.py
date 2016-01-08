@@ -118,8 +118,11 @@ class I2CShiftReg(Module, AutoCSR):
                                              reverse=True))
         self.submodules.fsm = fsm = FSM()
 
-        fsm.act("WAIT_START")
+        fsm.act("WAIT_START",
+            data_drv_stop.eq(1),
+	    )
         fsm.act("RCV_ADDRESS",
+            data_drv_stop.eq(1),
             If(counter == 8,
                 If(din[1:] == slave_addr.storage,
                     update_is_read.eq(1),
@@ -212,4 +215,6 @@ class I2CShiftReg(Module, AutoCSR):
         for state in fsm.actions.keys():
             fsm.act(state, If(start, NextState("RCV_ADDRESS")))
 
+        for state in fsm.actions.keys():
+            fsm.act(state, If(self.slave_addr.re, NextState("WAIT_START")))
 
