@@ -118,8 +118,8 @@ def _get_firmware_data(firmware_filename):
 from mibuild.generic_platform import *
 PipistrelloCustom = [
     ("fx2_hack", 0,
-        Subsignal("scl", Pins("K12")), # WINGC 14
-        Subsignal("sda", Pins("L12")), # WINGC 15
+        Subsignal("scl", Pins("K12"), IOStandard("I2C"), Misc("PULLUP")), # WINGC 14
+        Subsignal("sda", Pins("L12"), IOStandard("I2C"), Misc("PULLUP")), # WINGC 15
         IOStandard("I2C")
     ),
     ("fx2_reset", 0, Pins("K13"), IOStandard("LVCMOS33")), #, Misc("PULLUP")),
