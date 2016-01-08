@@ -625,7 +625,7 @@ void ci_service(void)
 #ifdef CSR_FX2_RESET_OUT_ADDR
 		else if(strcmp(token, "fx2_reboot") == 0) {
 			token = get_token(&str);
-			if(strcmp(token, "") || strcmp(token, "usbjtag") == 0) {
+			if(strcmp(token, "usbjtag") == 0) {
 				fx2_reboot(FX2FW_USBJTAG);
 			}
 #ifdef ENCODER_BASE
@@ -634,7 +634,7 @@ void ci_service(void)
 			}
 #endif
 			else {
-				printf("Unknown firmware\n");
+				fx2_debug();
 			}
                 }
 #endif

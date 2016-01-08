@@ -13,5 +13,6 @@ enum fx2_fw_version {
 void fx2_init(void);
 bool fx2_service(bool verbose);
 void fx2_reboot(enum fx2_fw_version fw);
+void fx2_debug(void);
 
 #endif

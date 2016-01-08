@@ -126,6 +126,14 @@ void fx2_reboot(enum fx2_fw_version fw)
 	fx2_load();
 }
 
+void fx2_debug(void) {
+	printf("Possible FX2 Firmware:\n");
+	printf(" [%s] USB JTAG (%02X)\n", fx2_fw_active == FX2FW_USBJTAG ? "*" : " ", FX2_MBFW_USBJTAG_END);
+#ifdef ENCODER_BASE
+	printf(" [%s] HDMI2USB (%02X)\n", fx2_fw_active == FX2FW_HDMI2USB ? "*" : " ", FX2_MBFW_HDMI2USB_END);
+#endif
+}
+
 void fx2_init(void)
 {
 #ifdef ENCODER_BASE
