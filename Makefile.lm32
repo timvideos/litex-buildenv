@@ -17,7 +17,12 @@ TARGETS += lm32
 ifeq ($(BOARD),atlys)
 SERIAL ?= /dev/ttyVIZ0
 else
+ifeq ($(BOARD),pipistrello)
+SERIAL ?= /dev/ttyUSB1
+else
+# Opsis fall through
 SERIAL ?= /dev/ttyACM0
+endif
 endif
 
 help-lm32:
