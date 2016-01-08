@@ -7,6 +7,7 @@ from migen.fhdl.std import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 from migen.bus import wishbone
 
+from misoclib.com import gpio
 from misoclib.mem.sdram.module import MT46H32M16
 from misoclib.mem.sdram.phy import s6ddrphy
 from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
@@ -14,7 +15,7 @@ from misoclib.mem.flash import spiflash
 from misoclib.soc.sdram import SDRAMSoC
 
 from gateware import dna
-
+from gateware import i2c_hack
 
 class _CRG(Module):
     def __init__(self, platform, clk_freq):
@@ -114,6 +115,16 @@ def _get_firmware_data(firmware_filename):
     return data
 
 
+from mibuild.generic_platform import *
+PipistrelloCustom = [
+    ("fx2_hack", 0,
+        Subsignal("scl", Pins("K12")), # WINGC 14
+        Subsignal("sda", Pins("L12")), # WINGC 15
+        IOStandard("I2C")
+    ),
+    ("fx2_reset", 0, Pins("K13"), IOStandard("LVCMOS33")), #, Misc("PULLUP")),
+]
+
 class BaseSoC(SDRAMSoC):
     default_platform = "pipistrello"
 
@@ -121,6 +132,8 @@ class BaseSoC(SDRAMSoC):
         "spiflash": 16,
         "ddrphy": 17,
         "dna": 18,
+        "fx2_reset": 19,
+        "fx2_hack": 20,
     }
     csr_map.update(SDRAMSoC.csr_map)
 
@@ -138,8 +151,12 @@ class BaseSoC(SDRAMSoC):
                           sdram_controller_settings=sdram_controller_settings,
                           **kwargs)
 
+        platform.add_extension(PipistrelloCustom)
         self.submodules.crg = _CRG(platform, clk_freq)
         self.submodules.dna = dna.DNA()
+        self.submodules.fx2_reset = gpio.GPIOOut(platform.request("fx2_reset"))
+        self.submodules.fx2_hack = i2c_hack.I2CShiftReg(platform.request("fx2_hack"))
+
         self.submodules.firmware_ram = wishbone.SRAM(firmware_ram_size, init=_get_firmware_data(firmware_filename))
         self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
         self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
@@ -174,7 +191,7 @@ _hdmi_infos = {
 class VideomixerSoC(BaseSoC):
 
     csr_map = {
-        "hdmi_out0":         20,
+        "hdmi_out0":         21,
     }
     csr_map.update(BaseSoC.csr_map)
 
