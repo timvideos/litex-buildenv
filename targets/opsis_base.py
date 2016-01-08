@@ -20,6 +20,7 @@ from liteeth.core.mac import LiteEthMAC
 
 from gateware import dna
 from gateware import i2c
+from gateware import i2c_hack
 
 class CSRMap(dict):
     def __init__(self, offset, values):
@@ -147,8 +148,9 @@ class BaseSoC(SDRAMSoC):
         "ddrphy": 16,
         "dna":    17,
         "fx2_reset": 18,
-        "opsis_eeprom_i2c": 19,
-        "tofe_eeprom_i2c":  20,
+        "fx2_hack": 19,
+#        "opsis_eeprom_i2c": 20,
+        "tofe_eeprom_i2c": 20,
     }
     csr_map.update(SDRAMSoC.csr_map)
 
@@ -169,9 +171,11 @@ class BaseSoC(SDRAMSoC):
 
         self.submodules.crg = _CRG(platform, clk_freq)
         self.submodules.dna = dna.DNA()
-        self.submodules.opsis_eeprom_i2c = i2c.I2C(platform.request("opsis_eeprom"))
-        self.submodules.tofe_eeprom_i2c = i2c.I2C(platform.request("tofe_eeprom"))
+#        self.submodules.opsis_eeprom_i2c = i2c.I2C(platform.request("opsis_eeprom"))
         self.submodules.fx2_reset = gpio.GPIOOut(platform.request("fx2_reset"))
+        self.submodules.fx2_hack = i2c_hack.I2CShiftReg(platform.request("opsis_eeprom"))
+
+        self.submodules.tofe_eeprom_i2c = i2c.I2C(platform.request("tofe_eeprom"))
 
         self.submodules.firmware_ram = wishbone.SRAM(firmware_ram_size, init=_get_firmware_data(firmware_filename))
         self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)

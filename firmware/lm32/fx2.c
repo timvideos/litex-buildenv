@@ -10,18 +10,18 @@ static void fx2_wait(void)
 
 static void fx2_load(void)
 {
-        printf("fx2: Waiting for FX2 to load firmware.\n");
+	printf("fx2: Waiting for FX2 to load firmware.\n");
 }
 
 void fx2_reboot(void)
 {
-        printf("fx2: Turning off.\n");
+	printf("fx2: Turning off.\n");
 	fx2_reset_out_write(0);
 	fx2_wait();
 	fx2_reset_out_write(1);
-        printf("fx2: Turning on.\n");
+	printf("fx2: Turning on.\n");
 	fx2_load();
-        printf("fx2: Booted.\n");
+	printf("fx2: Booted.\n");
 }
 
 #endif
