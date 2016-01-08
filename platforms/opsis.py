@@ -313,6 +313,14 @@ _io = [
 #            Subsignal("tck", Pins("A15")),
 #        ),
 
+#    TOFE LowSpeedIO board, USB UART
+#    ("serial", 0,
+#        # TX(USB->FPGA) == DIFF_IO_XP == C19
+#        Subsignal("rx", Pins("C19"), IOStandard("LVCMOS33")),
+#        # RX(USB<-FPGA) == DIFF_IO_XN == A19
+#        Subsignal("tx", Pins("A19"), IOStandard("LVCMOS33")),
+    )
+
 ]
 
 _connectors = [
