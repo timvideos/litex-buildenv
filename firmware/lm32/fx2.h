@@ -1,4 +1,5 @@
 #include <generated/csr.h>
+#include <generated/mem.h>
 #ifdef CSR_FX2_RESET_OUT_ADDR
 
 #include <stdbool.h>
