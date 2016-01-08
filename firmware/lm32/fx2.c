@@ -1,5 +1,3 @@
-#include <generated/csr.h>
-
 #include "fx2.h"
 
 #ifdef CSR_FX2_RESET_OUT_ADDR
@@ -28,7 +26,7 @@ static size_t end_addr;
 
 inline uint8_t fx2_fw_get_value(size_t addr) {
 	uint8_t r = 0xff;
-	if (addr < end_addr) {
+	if (addr <= end_addr) {
 		switch(fx2_fw_active) {
 		case FX2FW_USBJTAG:
 			r = fx2_mbfw_usbjtag.bytes[addr];
@@ -37,11 +35,10 @@ inline uint8_t fx2_fw_get_value(size_t addr) {
 		case FX2FW_HDMI2USB:
 			r = fx2_mbfw_hdmi2usb.bytes[addr];
 			break;
-
 #endif
 		}
 	} else {
-		printf("fx2: Read from invalid address for USB-JTAG firmware %02X\n", addr);
+		printf("fx2: Read from invalid address %02X (end: %02X)\n", addr, end_addr);
 	}
 	return r;
 }
