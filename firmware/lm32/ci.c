@@ -87,7 +87,7 @@ static void help_debug(void)
 	puts("debug tofe_eeprom              - dump TOFE Board Info EEPROM");
 #endif
 #ifdef CSR_FX2_RESET_OUT_ADDR
-	puts("debug fx2_reboot               - reboot the FX2 USB IC");
+	puts("debug fx2_reboot firmware      - reboot the FX2 USB IC into firmware");
 #endif
 }
 
@@ -624,7 +624,18 @@ void ci_service(void)
 #endif
 #ifdef CSR_FX2_RESET_OUT_ADDR
 		else if(strcmp(token, "fx2_reboot") == 0) {
-			fx2_reboot();
+			token = get_token(&str);
+			if(strcmp(token, "") || strcmp(token, "usbjtag") == 0) {
+				fx2_reboot(FX2FW_USBJTAG);
+			}
+#ifdef ENCODER_BASE
+			else if (strcmp(token, "hdmi2usb") == 0) {
+				fx2_reboot(FX2FW_HDMI2USB);
+			}
+#endif
+			else {
+				printf("Unknown firmware\n");
+			}
                 }
 #endif
 		else if(strcmp(token, "edid") == 0) {

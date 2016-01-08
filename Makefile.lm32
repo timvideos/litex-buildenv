@@ -35,7 +35,13 @@ help-lm32:
 gateware-lm32: firmware-lm32
 	@true
 
-firmware-lm32: third_party/misoc/.git
+ifeq ($(TARGET),hdmi2usb)
+EXTRA_DEPS = embed-fx2
+else
+EXTRA_DEPS =
+endif
+
+firmware-lm32: third_party/misoc/.git $(EXTRA_DEPS)
 	cd $(MSCDIR) && $(CMD) build-headers
 	$(MAKE) -C firmware/lm32 all
 

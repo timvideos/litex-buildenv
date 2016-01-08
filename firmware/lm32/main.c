@@ -55,7 +55,7 @@ int main(void)
 
 	// Reboot the FX2 chip into HDMI2USB mode
 #ifdef CSR_FX2_RESET_OUT_ADDR
-	fx2_reboot();
+	fx2_init();
 #endif
 
 	ci_prompt();
