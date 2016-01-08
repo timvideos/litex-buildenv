@@ -319,7 +319,7 @@ _io = [
 #        Subsignal("rx", Pins("C19"), IOStandard("LVCMOS33")),
 #        # RX(USB<-FPGA) == DIFF_IO_XN == A19
 #        Subsignal("tx", Pins("A19"), IOStandard("LVCMOS33")),
-    )
+#    )
 
 ]
 
@@ -328,16 +328,16 @@ _connectors = [
 
 _hdmi_infos = {
     "HDMI_IN0_MNEMONIC": "J5",
-    "HDMI_IN0_DESCRIPTION" : "XXX",
+    "HDMI_IN0_DESCRIPTION" : "The *fourth* HDMI port from the left. (Closest to the USB.)",
 
     "HDMI_IN1_MNEMONIC": "J4",
-    "HDMI_IN1_DESCRIPTION" : "XXX",
+    "HDMI_IN1_DESCRIPTION" : "The *third* HDMI port from the left.",
 
     "HDMI_OUT0_MNEMONIC": "J3",
-    "HDMI_OUT0_DESCRIPTION" : "XXX",
+    "HDMI_OUT0_DESCRIPTION" : "The *first* HDMI port from the left.",
 
     "HDMI_OUT1_MNEMONIC": "J2",
-    "HDMI_OUT1_DESCRIPTION" : "XXX"
+    "HDMI_OUT1_DESCRIPTION" : "The *second* HDMI port from the left.",
 }
 
 class Platform(XilinxPlatform):
