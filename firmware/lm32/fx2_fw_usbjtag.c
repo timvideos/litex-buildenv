@@ -22,7 +22,8 @@ typedef __u8 __le8;
 typedef __u8 __be8;
 #define htobe8c(x) (x)
 #define htole8c(x) (x)
-#define FX2_FIRMWARE_END offsetof(union fx2_mbfw_usbjtag_t, data58)+1
+#define FX2_MBFW_USBJTAG_END offsetof(union fx2_mbfw_usbjtag_t, data58)+1
+
 union fx2_mbfw_usbjtag_t {
     struct {
         struct {
