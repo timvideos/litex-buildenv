@@ -62,6 +62,11 @@ int main(void)
 	while(1) {
 		processor_service();
 		ci_service();
+
+#ifdef CSR_FX2_RESET_OUT_ADDR
+		fx2_service(true);
+#endif
+
 /* XXX FIX DDR conflict between DMA and L2 cache */
 #if 0
 		pattern_service();
