@@ -261,8 +261,7 @@ _io = [
     #    Subsignal("rx", Pins("AA4"), IOStandard("LVCMOS33")),
     #),
 
-    ## onboard HDMI OUT
-
+    ## onboard HDMI OUT1
     ## HDMI - connector J3 - Direction TX
     ("hdmi_out", 0,
         Subsignal("clk_p", Pins("Y11"), IOStandard("TMDS_33")),
@@ -278,6 +277,7 @@ _io = [
         Subsignal("hpd_notif", Pins("AB7"), IOStandard("LVCMOS33"))
     ),
 
+    ## onboard HDMI OUT2
     ## HDMI - connector J2 - Direction TX
     ("hdmi_out", 1,
         Subsignal("clk_p", Pins("T12"), IOStandard("TMDS_33")),
@@ -327,17 +327,29 @@ _connectors = [
 ]
 
 _hdmi_infos = {
-    "HDMI_IN0_MNEMONIC": "J5",
-    "HDMI_IN0_DESCRIPTION" : "The *fourth* HDMI port from the left. (Closest to the USB.)",
+    "HDMI_OUT0_MNEMONIC": "TX1",
+    "HDMI_OUT0_DESCRIPTION" : (
+      "  The *first* HDMI port from the left.\\n"
+      "  Labeled J3 and HDMI Out 1.\\n"
+    ),
 
-    "HDMI_IN1_MNEMONIC": "J4",
-    "HDMI_IN1_DESCRIPTION" : "The *third* HDMI port from the left.",
+    "HDMI_OUT1_MNEMONIC": "TX2",
+    "HDMI_OUT1_DESCRIPTION" : (
+      "  The *second* HDMI port from the left.\\n"
+      "  Labeled J2 and HDMI Out 2.\\n"
+    ),
 
-    "HDMI_OUT0_MNEMONIC": "J3",
-    "HDMI_OUT0_DESCRIPTION" : "The *first* HDMI port from the left.",
+    "HDMI_IN0_MNEMONIC": "RX1",
+    "HDMI_IN0_DESCRIPTION" : (
+      "  The *third* HDMI port from the left.\\n"
+      "  Labeled J5 and HDMI In 1.\\n"
+    ),
 
-    "HDMI_OUT1_MNEMONIC": "J2",
-    "HDMI_OUT1_DESCRIPTION" : "The *second* HDMI port from the left.",
+    "HDMI_IN1_MNEMONIC": "RX2",
+    "HDMI_IN1_DESCRIPTION" : (
+      "  The *fourth* HDMI port from the left. (Closest to the USB.)\\n"
+      "  Labeled J4 and HDMI In 2.\\n"
+    ),
 }
 
 class Platform(XilinxPlatform):
