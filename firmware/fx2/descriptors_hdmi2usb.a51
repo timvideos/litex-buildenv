@@ -498,6 +498,27 @@ string2:
 	.db    '.', 00
 	.db    't', 00
 	.db    'v', 00
+	.db    ' ', 00
+	.db    '-', 00
+	.db    ' ', 00
+	.db    'N', 00
+	.db    'u', 00
+	.db    'm', 00
+	.db    'a', 00
+	.db    't', 00
+	.db    'o', 00
+	.db    ' ', 00
+	.db    'O', 00
+	.db    'p', 00
+	.db    's', 00
+	.db    'i', 00
+	.db    's', 00
+	.db    ' ', 00
+	.db    'B', 00
+	.db    'o', 00
+	.db    'a', 00
+	.db    'r', 00
+	.db    'd', 00
 string2end:
 
 ; Serial Number
