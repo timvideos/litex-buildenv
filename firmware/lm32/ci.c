@@ -8,6 +8,7 @@
 #include <time.h>
 
 #include "config.h"
+#include "fx2.h"
 #include "hdmi_in0.h"
 #include "hdmi_in1.h"
 #include "processor.h"
@@ -84,6 +85,9 @@ static void help_debug(void)
 #endif
 #ifdef CSR_TOFE_EEPROM_I2C_W_ADDR
 	puts("debug tofe_eeprom              - dump TOFE Board Info EEPROM");
+#endif
+#ifdef CSR_FX2_RESET_OUT_ADDR
+	puts("debug fx2_reboot               - reboot the FX2 USB IC");
 #endif
 }
 
@@ -616,6 +620,11 @@ void ci_service(void)
 #ifdef CSR_TOFE_EEPROM_I2C_W_ADDR
 		else if(strcmp(token, "tofe_eeprom") == 0) {
 			tofe_eeprom_dump();
+                }
+#endif
+#ifdef CSR_FX2_RESET_OUT_ADDR
+		else if(strcmp(token, "fx2_reboot") == 0) {
+			fx2_reboot();
                 }
 #endif
 		else if(strcmp(token, "edid") == 0) {

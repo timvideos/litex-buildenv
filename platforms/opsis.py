@@ -114,6 +114,7 @@ _io = [
         #NET "fx2_sda"              LOC =     "C1"       |IOSTANDARD =             I2C;     #                      (/Ethernet/MAC_SDA)
         #Subsignal("sda", Pins("C1"), IOStandard("I2C")),
     ),
+    ("fx2_reset", 0, Pins("G22"), IOStandard("LVCMOS33")), #, Misc("PULLUP")),
 
     ## onBoard Quad-SPI Flash
     ## W25Q128FVEIG - component U3
