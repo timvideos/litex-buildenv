@@ -58,16 +58,16 @@ environment are found in the [scripts/README.md](scripts/) file.
 
 # Documentation
 
-User documentation is found on the [HDMI2USB website](https://hdmi2usb.tv).
+**User** documentation is found on the [HDMI2USB website](https://hdmi2usb.tv).
 
-High level documentation for the firmware can be found in the [docs](docs/)
-directory. More documentation is found in the source code.
+High level **developer** documentation for the firmware can be found in the
+[doc](doc/) directory. More documentation is found in the source code.
 
 ![System Diagram](doc/architecture.png)
 
 # License
 
-This code was original developed by [EnjoyDigital](https://enjoy-digital.fr)
+This code was original developed by [EnjoyDigital](http://enjoy-digital.fr)
 and unless otherwise noted is;
  * Copyright (C) 2015 / TimVideo.us
  * Copyright (C) 2015 / EnjoyDigital
