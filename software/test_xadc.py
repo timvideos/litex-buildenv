@@ -1,6 +1,6 @@
 from litex.soc.tools.remote import RemoteClient
 
-wb = RemoteClient()
+wb = RemoteClient(csr_data_width=8)
 wb.open()
 regs = wb.regs
 

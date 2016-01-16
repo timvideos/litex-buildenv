@@ -18,7 +18,7 @@ dfii_command_rddata = 0x20
 
 sdram_base = 0x40000000
 
-wb = RemoteClient()
+wb = RemoteClient(csr_data_width=8)
 wb.open()
 regs = wb.regs
 
