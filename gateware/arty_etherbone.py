@@ -25,7 +25,6 @@ class EtherboneSoC(BaseSoC):
         BaseSoC.__init__(self, cpu_type=None,
                          integrated_rom_size=0,
                          integrated_main_ram_size=0,
-                         csr_data_width=32,
                          **kwargs)
 
         # Ethernet PHY and UDP/IP stack
@@ -69,7 +68,7 @@ def main():
     args = parser.parse_args()
 
     soc = EtherboneSoC(**soc_sdram_argdict(args))
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, csr_csv="../software/csr.csv")
 
     if args.build:
         builder.build()

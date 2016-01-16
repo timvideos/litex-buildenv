@@ -242,7 +242,7 @@ def main():
 
     cls = MiniSoC if args.with_ethernet else BaseSoC
     soc = cls(**soc_sdram_argdict(args))
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, csr_csv="../software/csr.csv")
 
     if args.build:
         builder.build()
