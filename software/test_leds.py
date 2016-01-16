@@ -38,14 +38,34 @@ for i in range(16):
     time.sleep(0.1)
 
 rgb_leds = [RGBLed(regs, "rgb_leds", i) for i in range(4)]
-for led in rgb_leds:
-    for c in "rgb":
-        pwm = getattr(led, c)
+
+def knight_rider(color, value):
+    sequence = []
+    sequence = [0, 1, 2, 3, 2, 1, 0, 1, 2, 3]
+    for led in sequence:
+        pwm = getattr(rgb_leds[led], color)
         pwm.enable()
-        for i in range(64):
-            pwm.configure(128, i)
-            time.sleep(0.001)
+        pwm.configure(128, value)
+        time.sleep(0.05)
+        pwm.configure(128, 0)
         pwm.disable()
+
+def rgb_strip():
+    for led in rgb_leds:
+        for c in "rgb":
+            pwm = getattr(led, c)
+            pwm.enable()
+            for i in range(64):
+                pwm.configure(128, i)
+                time.sleep(0.005)
+            pwm.disable()
+
+knight_rider("r", 64)
+time.sleep(0.5)
+knight_rider("r", 64)
+time.sleep(0.5)
+rgb_strip()
+
 
 # # #
 
