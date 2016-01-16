@@ -50,7 +50,7 @@ def knight_rider(color, value):
         pwm.configure(128, 0)
         pwm.disable()
 
-def rgb_strip():
+def disco():
     for led in rgb_leds:
         for c in "rgb":
             pwm = getattr(led, c)
@@ -64,7 +64,8 @@ knight_rider("r", 64)
 time.sleep(0.5)
 knight_rider("r", 64)
 time.sleep(0.5)
-rgb_strip()
+
+disco()
 
 
 # # #
