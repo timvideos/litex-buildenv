@@ -11,7 +11,11 @@ from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
 from litex.soc.cores.flash import spi_flash
 from litex.soc.cores.sdram.settings import SDRAMModule
+from litex.soc.cores.uart.core import RS232PHY, UART
 from litex.soc.integration.builder import *
+from litex.soc.interconnect.wishbonebridge import WishboneStreamingBridge
+
+from litex.soc.interconnect.stream import *
 
 from liteeth.phy import LiteEthPHY
 from liteeth.core.mac import LiteEthMAC
@@ -19,6 +23,12 @@ from liteeth.core.mac import LiteEthMAC
 from cores import a7ddrphy, dna, xadc, led
 
 # TODO: use half-rate DDR3 phy and use 100Mhz CPU clock
+
+class UARTVirtualPhy:
+    def __init__(self):
+        self.sink = Sink([("data", 8)])
+        self.source = Source([("data", 8)])
+
 
 class MT41K128M16(SDRAMModule):
     geom_settings = {
@@ -132,6 +142,7 @@ class BaseSoC(SoCSDRAM):
                           clk_freq=50*1000000,
                           integrated_rom_size=integrated_rom_size,
                           integrated_main_ram_size=integrated_main_ram_size,
+                          with_uart=False,
                           **kwargs)
 
         self.submodules.crg = _CRG(platform)
@@ -141,12 +152,14 @@ class BaseSoC(SoCSDRAM):
         self.submodules.leds = led.ClassicLed(Cat(platform.request("user_led", i) for i in range(4)))
         self.submodules.rgb_leds = led.RGBLed(platform.request("rgb_leds"))
 
+        # DDR3
         if not self.integrated_main_ram_size:
             self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
             sdram_module = MT41K128M16(self.clk_freq)
             self.register_sdram(self.ddrphy, sdram_controller_type,
                                 sdram_module.geom_settings, sdram_module.timing_settings)
 
+        # SPI Flash
         if not self.integrated_rom_size:
             spiflash_pads = platform.request("spiflash")
             spiflash_pads.clk = Signal()
@@ -158,6 +171,34 @@ class BaseSoC(SoCSDRAM):
             self.add_constant("SPIFLASH_SECTOR_SIZE", 0x10000)
             self.flash_boot_address = 0xb00000
             self.register_rom(self.spiflash.bus)
+
+        # UART mux
+        uart_sel = platform.request("user_sw", 0)
+
+        self.submodules.uart_phy = RS232PHY(platform.request("serial"), self.clk_freq, 115200)
+        uart_phys = {
+            "cpu": UARTVirtualPhy(),
+            "bridge": UARTVirtualPhy()
+        }
+        self.comb += [
+            If(uart_sel,
+                self.uart_phy.source.connect(uart_phys["bridge"].source),
+                uart_phys["bridge"].sink.connect(self.uart_phy.sink),
+                uart_phys["cpu"].source.ack.eq(1) # avoid stalling cpu
+            ).Else(
+                self.uart_phy.source.connect(uart_phys["cpu"].source),
+                uart_phys["cpu"].sink.connect(self.uart_phy.sink),
+                uart_phys["bridge"].source.ack.eq(1) # avoid stalling bridge
+            )
+        ]
+
+        # UART cpu
+        self.submodules.uart = UART(uart_phys["cpu"])
+
+        # UART bridge
+        self.submodules.bridge = WishboneStreamingBridge(uart_phys["bridge"], self.clk_freq)
+        self.add_wb_master(self.bridge.wishbone)
+
 
 
 class MiniSoC(BaseSoC):
