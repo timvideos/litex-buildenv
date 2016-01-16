@@ -237,7 +237,9 @@ def main():
     parser.add_argument("--build", action="store_true",
                         help="build bitstream")   
     parser.add_argument("--load", action="store_true",
-                        help="load bitstream")   
+                        help="load bitstream")
+    parser.add_argument("--flash", action="store_true",
+                        help="flash bitstream")
     args = parser.parse_args()
 
     cls = MiniSoC if args.with_ethernet else BaseSoC
@@ -251,6 +253,9 @@ def main():
         prog = soc.platform.create_programmer()
         prog.load_bitstream(os.path.join(builder.output_dir, "gateware", "top.bit"))
 
+    if args.flash:
+        prog = soc.platform.create_programmer()
+        prog.flash(0, os.path.join(builder.output_dir, "gateware", "top.bin"))
 
 if __name__ == "__main__":
     main()
