@@ -127,3 +127,6 @@ echo ""
 alias python=python3
 
 export HDMI2USB_ENV=1
+
+# Set prompt
+PS1="(HDMI2USB)$PS1"

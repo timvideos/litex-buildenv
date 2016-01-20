@@ -16,7 +16,7 @@ Install Xilinx ISE WebPACK 14.7 + activate a licence:
   Ensure you select "ISE WebPACK" 17403 MB
 
 
-  * Ensure you have a free WebPACK license for ISE installed, see [http://license.xilinx.com/getLicense], ensure installed into ```~/.Xilinx/Xilinx.lic```
+  * Ensure you have a free WebPACK license for ISE installed, see [http://www.xilinx.com/getlicense], ensure installed into ```~/.Xilinx/Xilinx.lic```
 
   * Ensure licence is activated by checking ISE:
   ```
