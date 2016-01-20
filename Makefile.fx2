@@ -27,7 +27,7 @@ gateware-fx2:
 firmware-fx2: third_party/fx2lib/.git
 	$(MAKE) -C firmware/fx2
 
-embed-fx2:
+embed-fx2: firmware-fx2
 	firmware/fx2/generate_fx2_microboot.py firmware/fx2/hdmi2usb.hex > firmware/lm32/fx2_fw_hdmi2usb.c
 
 load-fx2: firmware-fx2
