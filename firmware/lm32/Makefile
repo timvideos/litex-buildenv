@@ -52,6 +52,19 @@ main.o: main.c
 %.o: %.S
 	$(assemble)
 
+define gen_i2c
+@echo " GEN " $@
+@sed -e "s/XI2C/I2C/g;s/Xi2c/i2c/g" $< > $@
+endef
+
+i2c.c: Xi2c.c
+	$(gen_i2c)
+
+i2c.h: Xi2c.h
+	$(gen_i2c)
+
+i2c.o: i2c.h
+
 libs:
 	$(MAKE) -C $(MSCDIR)/software/libcompiler-rt
 	$(MAKE) -C $(MSCDIR)/software/libbase
