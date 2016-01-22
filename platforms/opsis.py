@@ -114,11 +114,7 @@ _io = [
         #NET "fx2_sda"              LOC =     "C1"       |IOSTANDARD =             I2C;     #                      (/Ethernet/MAC_SDA)
         #Subsignal("sda", Pins("C1"), IOStandard("I2C")),
     ),
-
-    ("i2c", 0,
-        Subsignal("scl", Pins("G6"), IOStandard("LVCMOS15")),
-        Subsignal("sda", Pins("C1"), IOStandard("LVCMOS15")),
-    ),
+    ("fx2_reset", 0, Pins("G22"), IOStandard("LVCMOS33")), #, Misc("PULLUP")),
 
     ## onBoard Quad-SPI Flash
     ## W25Q128FVEIG - component U3
@@ -164,7 +160,7 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
-	## 24AA02E48 - component U23
+    ## 24AA02E48 - component U23
     ## 2 Kbit Electrically Erasable PROM
     ## Pre-programmed Globally Unique, 48-bit Node Address
     ## The device is organized as two blocks of 128 x 8-bit memory with a 2-wire serial interface.
@@ -172,6 +168,10 @@ _io = [
     ## \/ Strongly pulled (2k) to VCC3V3 via R34
     #NET "eeprom_scl"           LOC =     "G6"       |IOSTANDARD =             I2C;     #                      (/Ethernet/MAC_SCL)
     #NET "eeprom_sda"           LOC =     "C1"       |IOSTANDARD =             I2C;     #                      (/Ethernet/MAC_SDA)
+    ("opsis_eeprom", 0,
+        Subsignal("scl", Pins("G6"), IOStandard("I2C")),
+        Subsignal("sda", Pins("C1"), IOStandard("I2C")),
+    ),
 
     ## DDR3
     # MT41J128M16JT-125:K - 16 Meg x 16 x 8 Banks - DDR3-1600 11-11-11
@@ -261,8 +261,7 @@ _io = [
     #    Subsignal("rx", Pins("AA4"), IOStandard("LVCMOS33")),
     #),
 
-    ## onboard HDMI OUT
-
+    ## onboard HDMI OUT1
     ## HDMI - connector J3 - Direction TX
     ("hdmi_out", 0,
         Subsignal("clk_p", Pins("Y11"), IOStandard("TMDS_33")),
@@ -278,6 +277,7 @@ _io = [
         Subsignal("hpd_notif", Pins("AB7"), IOStandard("LVCMOS33"))
     ),
 
+    ## onboard HDMI OUT2
     ## HDMI - connector J2 - Direction TX
     ("hdmi_out", 1,
         Subsignal("clk_p", Pins("T12"), IOStandard("TMDS_33")),
@@ -293,6 +293,11 @@ _io = [
         Subsignal("hpd_notif", Pins("AB18"), IOStandard("LVCMOS33"))
     ),
 
+    # TOFE connector
+    ("tofe_eeprom", 0,
+        Subsignal("scl", Pins("N6"), IOStandard("I2C")),
+        Subsignal("sda", Pins("N7"), IOStandard("I2C")),
+    ),
 
 #        ("fpga_cfg",
 #            Subsignal("din", Pins("T14")),
@@ -308,23 +313,43 @@ _io = [
 #            Subsignal("tck", Pins("A15")),
 #        ),
 
+#    TOFE LowSpeedIO board, USB UART
+#    ("serial", 0,
+#        # TX(USB->FPGA) == DIFF_IO_XP == C19
+#        Subsignal("rx", Pins("C19"), IOStandard("LVCMOS33")),
+#        # RX(USB<-FPGA) == DIFF_IO_XN == A19
+#        Subsignal("tx", Pins("A19"), IOStandard("LVCMOS33")),
+#    )
+
 ]
 
 _connectors = [
 ]
 
 _hdmi_infos = {
-    "HDMI_IN0_MNEMONIC": "J5",
-    "HDMI_IN0_DESCRIPTION" : "XXX",
+    "HDMI_OUT0_MNEMONIC": "TX1",
+    "HDMI_OUT0_DESCRIPTION" : (
+      "  The *first* HDMI port from the left.\\n"
+      "  Labeled J3 and HDMI Out 1.\\n"
+    ),
 
-    "HDMI_IN1_MNEMONIC": "J4",
-    "HDMI_IN1_DESCRIPTION" : "XXX",
+    "HDMI_OUT1_MNEMONIC": "TX2",
+    "HDMI_OUT1_DESCRIPTION" : (
+      "  The *second* HDMI port from the left.\\n"
+      "  Labeled J2 and HDMI Out 2.\\n"
+    ),
 
-    "HDMI_OUT0_MNEMONIC": "J3",
-    "HDMI_OUT0_DESCRIPTION" : "XXX",
+    "HDMI_IN0_MNEMONIC": "RX1",
+    "HDMI_IN0_DESCRIPTION" : (
+      "  The *third* HDMI port from the left.\\n"
+      "  Labeled J5 and HDMI In 1.\\n"
+    ),
 
-    "HDMI_OUT1_MNEMONIC": "J2",
-    "HDMI_OUT1_DESCRIPTION" : "XXX"
+    "HDMI_IN1_MNEMONIC": "RX2",
+    "HDMI_IN1_DESCRIPTION" : (
+      "  The *fourth* HDMI port from the left. (Closest to the USB.)\\n"
+      "  Labeled J4 and HDMI In 2.\\n"
+    ),
 }
 
 class Platform(XilinxPlatform):

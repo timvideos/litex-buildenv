@@ -157,6 +157,12 @@ check_version sdcc 3.5.0
 )
 check_version openocd 0.10.0-dev
 
+# hexfile for embedding the Cypress FX2 firmware.
+(
+	pip install --upgrade git+https://github.com/mithro/hexfile.git
+)
+check_import hexfile
+
 # git submodules
 echo ""
 echo "Updating git submodules"

@@ -8,6 +8,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 from migen.bus import wishbone
 from migen.genlib.record import Record
 
+from misoclib.com import gpio
 from misoclib.mem.sdram.module import MT41J128M16
 from misoclib.mem.sdram.phy import s6ddrphy
 from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
@@ -18,6 +19,20 @@ from liteeth.phy.s6rgmii import LiteEthPHYRGMII
 from liteeth.core.mac import LiteEthMAC
 
 from gateware import dna
+from gateware import i2c
+from gateware import i2c_hack
+
+class CSRMap(dict):
+    def __init__(self, offset, values):
+        dict.__init__(self)
+        self.offset = offset
+        for k, v in values.items():
+            self[k] = v
+
+    def __setitem__(self, k, v=None):
+        if v is None:
+            v = self.offset + len(self)
+        dict.__setitem__(self, k, v)
 
 
 class _CRG(Module):
@@ -131,7 +146,11 @@ class BaseSoC(SDRAMSoC):
 
     csr_map = {
         "ddrphy": 16,
-        "dna":    17
+        "dna":    17,
+        "fx2_reset": 18,
+        "fx2_hack": 19,
+#        "opsis_eeprom_i2c": 20,
+        "tofe_eeprom_i2c": 20,
     }
     csr_map.update(SDRAMSoC.csr_map)
 
@@ -141,7 +160,7 @@ class BaseSoC(SDRAMSoC):
     mem_map.update(SDRAMSoC.mem_map)
 
     def __init__(self, platform,
-                 firmware_ram_size=0xa000,
+                 firmware_ram_size=0x10000,
                  firmware_filename=None,
                  **kwargs):
         clk_freq = 50*1000000
@@ -152,6 +171,11 @@ class BaseSoC(SDRAMSoC):
 
         self.submodules.crg = _CRG(platform, clk_freq)
         self.submodules.dna = dna.DNA()
+#        self.submodules.opsis_eeprom_i2c = i2c.I2C(platform.request("opsis_eeprom"))
+        self.submodules.fx2_reset = gpio.GPIOOut(platform.request("fx2_reset"))
+        self.submodules.fx2_hack = i2c_hack.I2CShiftReg(platform.request("opsis_eeprom"))
+
+        self.submodules.tofe_eeprom_i2c = i2c.I2C(platform.request("tofe_eeprom"))
 
         self.submodules.firmware_ram = wishbone.SRAM(firmware_ram_size, init=_get_firmware_data(firmware_filename))
         self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
@@ -177,8 +201,8 @@ NET "{sys_clk}" TNM_NET = "GRPsys_clk";
 
 class MiniSoC(BaseSoC):
     csr_map = {
-        "ethphy": 18,
-        "ethmac": 19,
+        "ethphy": 21,
+        "ethmac": 22,
     }
     csr_map.update(BaseSoC.csr_map)
 

@@ -469,10 +469,18 @@ string0end:
 string1:
        	.db    string1end-string1        ; String descriptor length
 	.db    DSCR_STRING_TYPE
-        .db    'J',00
-        .db    'A',00
-        .db    'N',00
-        .db    'I',00
+        .db    'T',00
+        .db    'i',00
+        .db    'm',00
+        .db    'V',00
+        .db    'i',00
+        .db    'd',00
+        .db    'e',00
+        .db    'o',00
+        .db    's',00
+        .db    '.',00
+        .db    'u',00
+        .db    's',00
 string1end:
 
 ; Product
@@ -487,6 +495,30 @@ string2:
 	.db    'U', 00
 	.db    'S', 00
 	.db    'B', 00
+	.db    '.', 00
+	.db    't', 00
+	.db    'v', 00
+	.db    ' ', 00
+	.db    '-', 00
+	.db    ' ', 00
+	.db    'N', 00
+	.db    'u', 00
+	.db    'm', 00
+	.db    'a', 00
+	.db    't', 00
+	.db    'o', 00
+	.db    ' ', 00
+	.db    'O', 00
+	.db    'p', 00
+	.db    's', 00
+	.db    'i', 00
+	.db    's', 00
+	.db    ' ', 00
+	.db    'B', 00
+	.db    'o', 00
+	.db    'a', 00
+	.db    'r', 00
+	.db    'd', 00
 string2end:
 
 ; Serial Number

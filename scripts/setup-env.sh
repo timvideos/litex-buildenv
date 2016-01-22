@@ -100,6 +100,9 @@ check_version sdcc 3.5.0 || return 1
 # openocd for programming via Cypress FX2
 check_version openocd 0.10.0-dev || return 1
 
+# hexfile for embedding the Cypress FX2 firmware.
+check_import hexfile
+
 # git submodules
 echo ""
 echo "Checking git submodules"

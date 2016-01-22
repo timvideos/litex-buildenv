@@ -8,12 +8,15 @@
 #include <time.h>
 
 #include "config.h"
+#include "fx2.h"
 #include "hdmi_in0.h"
 #include "hdmi_in1.h"
 #include "processor.h"
 #include "pll.h"
 #include "ci.h"
 #include "encoder.h"
+#include "opsis_eeprom.h"
+#include "tofe_eeprom.h"
 #include "hdmi_out0.h"
 #include "hdmi_out1.h"
 
@@ -77,6 +80,15 @@ static void help_debug(void)
 	puts("debug ddr                      - show DDR bandwidth");
 	puts("debug dna                      - show Board's DNA");
 	puts("debug edid                     - dump monitor EDID");
+#ifdef CSR_OPSIS_EEPROM_I2C_W_ADDR
+	puts("debug opsis_eeprom             - dump Opsis Info EEPROM");
+#endif
+#ifdef CSR_TOFE_EEPROM_I2C_W_ADDR
+	puts("debug tofe_eeprom              - dump TOFE Board Info EEPROM");
+#endif
+#ifdef CSR_FX2_RESET_OUT_ADDR
+	puts("debug fx2_reboot firmware      - reboot the FX2 USB IC into firmware");
+#endif
 }
 
 static void help(void)
@@ -600,6 +612,32 @@ void ci_service(void)
 			debug_ddr();
 		else if(strcmp(token, "dna") == 0)
 			print_board_dna();
+#ifdef CSR_OPSIS_EEPROM_I2C_W_ADDR
+		else if(strcmp(token, "opsis_eeprom") == 0) {
+			opsis_eeprom_dump();
+                }
+#endif
+#ifdef CSR_TOFE_EEPROM_I2C_W_ADDR
+		else if(strcmp(token, "tofe_eeprom") == 0) {
+			tofe_eeprom_dump();
+                }
+#endif
+#ifdef CSR_FX2_RESET_OUT_ADDR
+		else if(strcmp(token, "fx2_reboot") == 0) {
+			token = get_token(&str);
+			if(strcmp(token, "usbjtag") == 0) {
+				fx2_reboot(FX2FW_USBJTAG);
+			}
+#ifdef ENCODER_BASE
+			else if (strcmp(token, "hdmi2usb") == 0) {
+				fx2_reboot(FX2FW_HDMI2USB);
+			}
+#endif
+			else {
+				fx2_debug();
+			}
+                }
+#endif
 		else if(strcmp(token, "edid") == 0) {
 			unsigned int found = 0;
 			token = get_token(&str);
