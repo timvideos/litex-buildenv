@@ -18,6 +18,7 @@ OBJECTS=isr.o \
         hdmi_out0.o \
         hdmi_out1.o \
         opsis_eeprom.o \
+        opsis_eeprom_i2c.o \
         tofe_eeprom.o
 
 all: firmware.bin
@@ -64,6 +65,19 @@ i2c.h: Xi2c.h
 	$(gen_i2c)
 
 i2c.o: i2c.h
+
+define gen_opsis_eeprom_i2c
+@echo " GEN " $@
+@sed -e "s/XI2C/OPSIS_EEPROM_I2C/g;s/Xi2c/opsis_eeprom_i2c/g" $< > $@
+endef
+
+opsis_eeprom_i2c.c: Xi2c.c
+	$(gen_opsis_eeprom_i2c)
+
+opsis_eeprom_i2c.h: Xi2c.h
+	$(gen_opsis_eeprom_i2c)
+
+opsis_eeprom_i2c.o: opsis_eeprom_i2c.h
 
 libs:
 	$(MAKE) -C $(MSCDIR)/software/libcompiler-rt
