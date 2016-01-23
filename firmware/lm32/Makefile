@@ -2,7 +2,7 @@
 MSCDIR=../../third_party/misoc
 include $(MSCDIR)/software/common.mak
 
-CFLAGS += -Wno-unused-function -Werror
+CFLAGS += -Wno-unused-function
 
 OBJECTS=isr.o \
         processor.o \
