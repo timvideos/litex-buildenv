@@ -20,7 +20,10 @@ help-fx2:
 	@echo " make load-fx2"
 	@echo " make view"
 
-gateware-fx2:
+gateware-generate-fx2:
+	@true
+
+gateware-build-fx2:
 	cp gateware/encoder/vhdl/header.hex $(MSCDIR)/build/header.hex
 
 # Firmware for the Cypress FX2
