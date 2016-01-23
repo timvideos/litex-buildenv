@@ -8,9 +8,7 @@ OBJECTS=isr.o \
         processor.o \
         hdmi_in0.o \
         hdmi_in1.o \
-        hdmi_out0_i2c.o \
         hdmi_out0.o \
-        hdmi_out1_i2c.o \
         hdmi_out1.o \
         pattern.o \
         edid.o \
@@ -21,9 +19,7 @@ OBJECTS=isr.o \
         fx2.o \
         i2c.o \
         main.o \
-        opsis_eeprom_i2c.o \
         opsis_eeprom.o \
-        tofe_eeprom_i2c.o \
         tofe_eeprom.o \
 
 all: firmware.bin
@@ -57,71 +53,6 @@ main.o: main.c
 
 %.o: %.S
 	$(assemble)
-
-define gen_i2c
-@echo " GEN " $@
-@sed -e "s/XI2C/I2C/g;s/Xi2c/i2c/g" $< > $@
-endef
-
-i2c.c: Xi2c.c
-	$(gen_i2c)
-
-i2c.h: Xi2c.h
-	$(gen_i2c)
-
-i2c.o: i2c.h
-
-define gen_opsis_eeprom_i2c
-@echo " GEN " $@
-@sed -e "s/XI2C/OPSIS_EEPROM_I2C/g;s/Xi2c/opsis_eeprom_i2c/g" $< > $@
-endef
-
-opsis_eeprom_i2c.c: Xi2c.c
-	$(gen_opsis_eeprom_i2c)
-
-opsis_eeprom_i2c.h: Xi2c.h
-	$(gen_opsis_eeprom_i2c)
-
-opsis_eeprom_i2c.o: opsis_eeprom_i2c.h
-
-define gen_tofe_eeprom_i2c
-@echo " GEN " $@
-@sed -e "s/XI2C/TOFE_EEPROM_I2C/g;s/Xi2c/tofe_eeprom_i2c/g" $< > $@
-endef
-
-tofe_eeprom_i2c.c: Xi2c.c
-	$(gen_tofe_eeprom_i2c)
-
-tofe_eeprom_i2c.h: Xi2c.h
-	$(gen_tofe_eeprom_i2c)
-
-tofe_eeprom_i2c.o: tofe_eeprom_i2c.h
-
-define gen_hdmi_out0_i2c
-@echo " GEN " $@
-@sed -e "s/XI2C/HDMI_OUT0_I2C/g;s/Xi2c/hdmi_out0_i2c/g" $< > $@
-endef
-
-hdmi_out0_i2c.c: Xi2c.c
-	$(gen_hdmi_out0_i2c)
-
-hdmi_out0_i2c.h: Xi2c.h
-	$(gen_hdmi_out0_i2c)
-
-hdmi_out0_i2c.o: hdmi_out0_i2c.h
-
-define gen_hdmi_out1_i2c
-@echo " GEN " $@
-@sed -e "s/XI2C/HDMI_OUT1_I2C/g;s/Xi2c/hdmi_out1_i2c/g" $< > $@
-endef
-
-hdmi_out1_i2c.c: Xi2c.c
-	$(gen_hdmi_out1_i2c)
-
-hdmi_out1_i2c.h: Xi2c.h
-	$(gen_hdmi_out1_i2c)
-
-hdmi_out1_i2c.o: hdmi_out1_i2c.h
 
 libs:
 	$(MAKE) -C $(MSCDIR)/software/libcompiler-rt
