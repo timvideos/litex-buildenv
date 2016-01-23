@@ -76,13 +76,24 @@ third_party/%/.git: .gitmodules
 
 # Gateware
 MODULES=migen misoc liteeth litescope
-gateware: $(addprefix gateware-,$(TARGETS)) $(addsuffix /.git,$(addprefix third_party/,$(MODULES)))
+gateware-generate: $(addprefix gateware-generate-,$(TARGETS)) $(addsuffix /.git,$(addprefix third_party/,$(MODULES)))
+ifneq ($(OS),Windows_NT)
+	cd $(MSCDIR) && $(CMD) -Ob run False --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream \
+	| $(FILTER) $(PWD)/build/output.$(DATE).log; (exit $${PIPESTATUS[0]})
+else
+	cd $(MSCDIR) && $(CMD) -Ob run False --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream
+endif
+
+gateware-build: $(addprefix gateware-build-,$(TARGETS)) $(addsuffix /.git,$(addprefix third_party/,$(MODULES)))
 ifneq ($(OS),Windows_NT)
 	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream \
 	| $(FILTER) $(PWD)/build/output.$(DATE).log; (exit $${PIPESTATUS[0]})
 else
 	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream
 endif
+
+gateware: gateware-generate gateware-build
+	@true
 
 # Firmware
 firmware: $(addprefix firmware-,$(TARGETS))

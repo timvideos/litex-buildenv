@@ -32,7 +32,10 @@ help-lm32:
 	@echo " make connect-lm32"
 
 # The gateware embeds the lm32 firmware, so we need to build that first.
-gateware-lm32: firmware-lm32
+gateware-generate-lm32:
+	@true
+
+gateware-build-lm32: firmware-lm32
 	@true
 
 ifeq ($(TARGET),hdmi2usb)
