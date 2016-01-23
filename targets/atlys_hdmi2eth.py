@@ -1,3 +1,4 @@
+from targets.common import *
 from targets.atlys_base import *
 
 from liteeth.common import *

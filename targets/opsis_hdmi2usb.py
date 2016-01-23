@@ -1,3 +1,4 @@
+from targets.common import *
 from targets.opsis_base import *
 from targets.opsis_base import default_subtarget as BaseSoC
 
