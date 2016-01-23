@@ -266,10 +266,9 @@ void processor_list_modes(char *mode_descriptors)
 
 static void fb_clkgen_write(int cmd, int data)
 {
-	int word;
-
-	word = (data << 2) | cmd;
 #ifdef CSR_HDMI_OUT0_BASE
+	int word;
+	word = (data << 2) | cmd;
 	hdmi_out0_driver_clocking_cmd_data_write(word);
 	hdmi_out0_driver_clocking_send_cmd_data_write(1);
 	while(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_BUSY);

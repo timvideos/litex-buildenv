@@ -27,8 +27,9 @@ static const unsigned short int pll_config_10x[32] = {
 
 static void program_data(const unsigned short *data)
 {
+#if defined(CSR_HDMI_OUT0_BASE) || defined(CSR_HDMI_IN0_BASE) || defined(CSR_HDMI_IN1_BASE)
 	int i;
-
+#endif
 	/*
 	 * Some bits of words 4 and 5 appear to depend on PLL location,
 	 * so we start at word 6.
@@ -84,8 +85,9 @@ void pll_config_for_clock(int freq)
 
 void pll_dump(void)
 {
+#if defined(CSR_HDMI_OUT0_BASE) || defined(CSR_HDMI_IN0_BASE) || defined(CSR_HDMI_IN1_BASE)
 	int i;
-
+#endif
 #ifdef CSR_HDMI_OUT0_BASE
 	printf("framebuffer PLL:\n");
 	for(i=0;i<32;i++) {
