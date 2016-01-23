@@ -347,8 +347,10 @@ static void fb_set_mode(const struct video_timing *mode)
 
 static void edid_set_mode(const struct video_timing *mode)
 {
+#if defined(CSR_HDMI_IN0_BASE) || defined(CSR_HDMI_IN1_BASE)
 	unsigned char edid[128];
 	int i;
+#endif
 #ifdef CSR_HDMI_IN0_BASE
 	generate_edid(&edid, "OHW", "TV", 2015, "HDMI2USB 1", mode);
 	for(i=0;i<sizeof(edid);i++)

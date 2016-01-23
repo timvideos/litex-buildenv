@@ -2,6 +2,8 @@
 MSCDIR=../../third_party/misoc
 include $(MSCDIR)/software/common.mak
 
+CFLAGS += -Wno-unused-function -Werror
+
 OBJECTS=isr.o \
         processor.o \
         hdmi_in0.o \

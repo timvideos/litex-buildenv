@@ -24,7 +24,7 @@ enum fx2_fw_version fx2_fw_active;
 static size_t next_read_addr;
 static size_t end_addr;
 
-inline uint8_t fx2_fw_get_value(size_t addr) {
+static inline uint8_t fx2_fw_get_value(size_t addr) {
 	uint8_t r = 0xff;
 	if (addr <= end_addr) {
 		switch(fx2_fw_active) {
