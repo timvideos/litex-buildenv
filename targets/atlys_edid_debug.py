@@ -27,7 +27,7 @@ class UARTVirtualPhy:
 
 class EDIDDebugSoC(VideomixerSoC):
     csr_peripherals = (
-        "logic_analyzer"
+        "logic_analyzer",
     )
     csr_map_update(VideomixerSoC.csr_map, csr_peripherals)
 

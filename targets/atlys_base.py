@@ -131,7 +131,7 @@ class BaseSoC(SDRAMSoC):
 
     csr_peripherals = (
         "ddrphy",
-        "dna"
+        "dna",
     )
     csr_map_update(SDRAMSoC.csr_map, csr_peripherals)
 

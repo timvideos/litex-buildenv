@@ -137,7 +137,7 @@ class BaseSoC(SDRAMSoC):
         "ddrphy",
         "dna",
         "fx2_reset",
-        "fx2_hack"
+        "fx2_hack",
     )
     csr_map_update(SDRAMSoC.csr_map, csr_peripherals)
 
@@ -195,7 +195,7 @@ _hdmi_infos = {
 class VideomixerSoC(BaseSoC):
 
     csr_peripherals = (
-        "hdmi_out0"
+        "hdmi_out0",
     )
     csr_map_update(BaseSoC.csr_map, csr_peripherals)
 

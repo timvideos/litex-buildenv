@@ -7,15 +7,15 @@ from gateware.encoder import EncoderReader, Encoder
 from gateware.streamer import USBStreamer
 
 class VideomixerSoC(BaseSoC):
-    csr_map = {
-        "hdmi_out0":         21,
-        "hdmi_out1":         22,
-        "hdmi_in0":          23,
-        "hdmi_in0_edid_mem": 24,
-        "hdmi_in1":          25,
-        "hdmi_in1_edid_mem": 26,
-    }
-    csr_map.update(BaseSoC.csr_map)
+    csr_peripherals = (
+        "hdmi_out0",
+        "hdmi_out1",
+        "hdmi_in0",
+        "hdmi_in0_edid_mem",
+        "hdmi_in1",
+        "hdmi_in1_edid_mem",
+    )
+    csr_map_update(BaseSoC.csr_map, csr_peripherals)
 
     interrupt_map = {
         "hdmi_in0": 3,
@@ -57,7 +57,7 @@ TIMESPEC "TSise_sucks10" = FROM "GRPsys_clk" TO "GRPpix1_clk" TIG;
 class HDMI2USBSoC(VideomixerSoC):
     csr_peripherals = (
         "encoder_reader",
-        "encoder"
+        "encoder",
     )
     csr_map_update(VideomixerSoC.csr_map, csr_peripherals)
     mem_map = {

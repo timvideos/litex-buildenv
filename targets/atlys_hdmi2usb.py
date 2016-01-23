@@ -13,7 +13,7 @@ class VideomixerSoC(BaseSoC):
         "hdmi_in0",
         "hdmi_in0_edid_mem",
         "hdmi_in1",
-        "hdmi_in1_edid_mem"
+        "hdmi_in1_edid_mem",
     )
     csr_map_update(BaseSoC.csr_map, csr_peripherals)
 
@@ -57,7 +57,7 @@ TIMESPEC "TSise_sucks10" = FROM "GRPsys_clk" TO "GRPpix1_clk" TIG;
 class HDMI2USBSoC(VideomixerSoC):
     csr_peripherals = (
         "encoder_reader",
-        "encoder"
+        "encoder",
     )
     csr_map_update(VideomixerSoC.csr_map, csr_peripherals)
     mem_map = {

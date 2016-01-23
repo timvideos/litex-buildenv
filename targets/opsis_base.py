@@ -153,7 +153,7 @@ class BaseSoC(SDRAMSoC):
         "fx2_reset",
         "fx2_hack",
 #        "opsis_eeprom_i2c",
-        "tofe_eeprom_i2c"
+        "tofe_eeprom_i2c",
     )
     csr_map_update(SDRAMSoC.csr_map, csr_peripherals)
 
@@ -205,7 +205,7 @@ NET "{sys_clk}" TNM_NET = "GRPsys_clk";
 class MiniSoC(BaseSoC):
     csr_peripherals = (
         "ethphy",
-        "ethmac"
+        "ethmac",
     )
     csr_map_update(BaseSoC.csr_map, csr_peripherals)
 
