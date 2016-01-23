@@ -8,6 +8,10 @@ OBJECTS=isr.o \
         processor.o \
         hdmi_in0.o \
         hdmi_in1.o \
+        hdmi_out0_i2c.o \
+        hdmi_out0.o \
+        hdmi_out1_i2c.o \
+        hdmi_out1.o \
         pattern.o \
         edid.o \
         pll.o \
@@ -17,10 +21,6 @@ OBJECTS=isr.o \
         fx2.o \
         i2c.o \
         main.o \
-        hdmi_out0_i2c.o \
-        hdmi_out0.o \
-        hdmi_out1_i2c.o \
-        hdmi_out1.o \
         opsis_eeprom_i2c.o \
         opsis_eeprom.o \
         tofe_eeprom_i2c.o \
