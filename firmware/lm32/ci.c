@@ -310,11 +310,14 @@ static void video_mode_set(int mode)
 
 static void hdp_toggle(int source)
 {
+#if defined(CSR_HDMI_IN0_BASE) || defined(CSR_HDMI_IN1_BASE)
+	int i;
+#endif
 	printf("Toggling HDP on output%d\n", source);
 #ifdef CSR_HDMI_IN0_BASE
 	if(source ==  VIDEO_IN_HDMI_IN0) {
 		hdmi_in0_edid_hpd_en_write(0);
-		for(int i=0; i<65536; i++);
+		for(i=0; i<65536; i++);
 		hdmi_in0_edid_hpd_en_write(1);
 	}
 #else
@@ -323,7 +326,7 @@ static void hdp_toggle(int source)
 #ifdef CSR_HDMI_IN1_BASE
 	if(source == VIDEO_IN_HDMI_IN1) {
 		hdmi_in1_edid_hpd_en_write(0);
-		for(int i=0; i<65536; i++);
+		for(i=0; i<65536; i++);
 		hdmi_in1_edid_hpd_en_write(1);
 	}
 #else

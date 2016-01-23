@@ -17,7 +17,9 @@ OBJECTS=isr.o \
         fx2.o \
         i2c.o \
         main.o \
+        hdmi_out0_i2c.o \
         hdmi_out0.o \
+        hdmi_out1_i2c.o \
         hdmi_out1.o \
         opsis_eeprom_i2c.o \
         opsis_eeprom.o \
@@ -94,6 +96,32 @@ tofe_eeprom_i2c.h: Xi2c.h
 	$(gen_tofe_eeprom_i2c)
 
 tofe_eeprom_i2c.o: tofe_eeprom_i2c.h
+
+define gen_hdmi_out0_i2c
+@echo " GEN " $@
+@sed -e "s/XI2C/HDMI_OUT0_I2C/g;s/Xi2c/hdmi_out0_i2c/g" $< > $@
+endef
+
+hdmi_out0_i2c.c: Xi2c.c
+	$(gen_hdmi_out0_i2c)
+
+hdmi_out0_i2c.h: Xi2c.h
+	$(gen_hdmi_out0_i2c)
+
+hdmi_out0_i2c.o: hdmi_out0_i2c.h
+
+define gen_hdmi_out1_i2c
+@echo " GEN " $@
+@sed -e "s/XI2C/HDMI_OUT1_I2C/g;s/Xi2c/hdmi_out1_i2c/g" $< > $@
+endef
+
+hdmi_out1_i2c.c: Xi2c.c
+	$(gen_hdmi_out1_i2c)
+
+hdmi_out1_i2c.h: Xi2c.h
+	$(gen_hdmi_out1_i2c)
+
+hdmi_out1_i2c.o: hdmi_out1_i2c.h
 
 libs:
 	$(MAKE) -C $(MSCDIR)/software/libcompiler-rt
