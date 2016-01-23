@@ -266,10 +266,9 @@ void processor_list_modes(char *mode_descriptors)
 
 static void fb_clkgen_write(int cmd, int data)
 {
-	int word;
-
-	word = (data << 2) | cmd;
 #ifdef CSR_HDMI_OUT0_BASE
+	int word;
+	word = (data << 2) | cmd;
 	hdmi_out0_driver_clocking_cmd_data_write(word);
 	hdmi_out0_driver_clocking_send_cmd_data_write(1);
 	while(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_BUSY);
@@ -349,16 +348,15 @@ static void edid_set_mode(const struct video_timing *mode)
 {
 #if defined(CSR_HDMI_IN0_BASE) || defined(CSR_HDMI_IN1_BASE)
 	unsigned char edid[128];
-	int i;
 #endif
 #ifdef CSR_HDMI_IN0_BASE
 	generate_edid(&edid, "OHW", "TV", 2015, "HDMI2USB 1", mode);
-	for(i=0;i<sizeof(edid);i++)
+	for(int i=0;i<sizeof(edid);i++)
 		MMPTR(CSR_HDMI_IN0_EDID_MEM_BASE+4*i) = edid[i];
 #endif
 #ifdef CSR_HDMI_IN1_BASE
 	generate_edid(&edid, "OHW", "TV", 2015, "HDMI2USB 2", mode);
-	for(i=0;i<sizeof(edid);i++)
+	for(int i=0;i<sizeof(edid);i++)
 		MMPTR(CSR_HDMI_IN1_EDID_MEM_BASE+4*i) = edid[i];
 #endif
 }
