@@ -12,11 +12,11 @@ from gateware.encoder import EncoderReader, Encoder
 from gateware.streamer import UDPStreamer
 
 class EtherboneSoC(BaseSoC):
-    csr_map = {
-        "ethphy":  18,
-        "ethcore": 19,
-    }
-    csr_map.update(BaseSoC.csr_map)
+    csr_peripherals = (
+        "ethphy",
+        "ethcore"
+    )
+    csr_map_update(BaseSoC.csr_map, csr_peripherals)
 
     def __init__(self, platform,
         mac_address=0x10e2d5000000,
@@ -53,15 +53,15 @@ TIMESPEC "TSise_sucks6" = FROM "GRPsys_clk" TO "GRPeth_rx_clk" TIG;
 
 
 class VideomixerSoC(EtherboneSoC):
-    csr_map = {
-        "hdmi_out0":         20,
-        "hdmi_out1":         21,
-        "hdmi_in0":          22,
-        "hdmi_in0_edid_mem": 23,
-        "hdmi_in1":          24,
-        "hdmi_in1_edid_mem": 25,
-    }
-    csr_map.update(EtherboneSoC.csr_map)
+    csr_peripherals = (
+        "hdmi_out0",
+        "hdmi_out1",
+        "hdmi_in0",
+        "hdmi_in0_edid_mem",
+        "hdmi_in1",
+        "hdmi_in1_edid_mem"
+    )
+    csr_map_update(EtherboneSoC.csr_map, csr_peripherals)
 
     interrupt_map = {
         "hdmi_in0": 3,
@@ -101,11 +101,11 @@ TIMESPEC "TSise_sucks10" = FROM "GRPsys_clk" TO "GRPpix1_clk" TIG;
             self.add_constant(k, v)
 
 class HDMI2ETHSoC(VideomixerSoC):
-    csr_map = {
-        "encoder_reader": 26,
-        "encoder":        27,
-    }
-    csr_map.update(VideomixerSoC.csr_map)
+    csr_peripherals = (
+        "encoder_reader",
+        "encoder"
+    )
+    csr_map_update(VideomixerSoC.csr_map, csr_peripherals)
     mem_map = {
         "encoder": 0x50000000,  # (shadow @0xd0000000)
     }

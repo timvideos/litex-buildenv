@@ -125,17 +125,21 @@ PipistrelloCustom = [
     ("fx2_reset", 0, Pins("K13"), IOStandard("LVCMOS33")), #, Misc("PULLUP")),
 ]
 
+def csr_map_update(csr_map, csr_peripherals):
+  csr_map.update(dict((n, v) for v, n in enumerate(csr_peripherals, start=max(csr_map.values()) + 1)))
+
+
 class BaseSoC(SDRAMSoC):
     default_platform = "pipistrello"
 
-    csr_map = {
-        "spiflash": 16,
-        "ddrphy": 17,
-        "dna": 18,
-        "fx2_reset": 19,
-        "fx2_hack": 20,
-    }
-    csr_map.update(SDRAMSoC.csr_map)
+    csr_peripherals = (
+        "spiflash",
+        "ddrphy",
+        "dna",
+        "fx2_reset",
+        "fx2_hack"
+    )
+    csr_map_update(SDRAMSoC.csr_map, csr_peripherals)
 
     mem_map = {
         "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
@@ -190,10 +194,10 @@ _hdmi_infos = {
 
 class VideomixerSoC(BaseSoC):
 
-    csr_map = {
-        "hdmi_out0":         21,
-    }
-    csr_map.update(BaseSoC.csr_map)
+    csr_peripherals = (
+        "hdmi_out0"
+    )
+    csr_map_update(BaseSoC.csr_map, csr_peripherals)
 
     def __init__(self, platform, **kwargs):
         BaseSoC.__init__(self, platform, **kwargs)

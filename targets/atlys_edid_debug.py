@@ -26,10 +26,10 @@ class UARTVirtualPhy:
 #  - you now have a .vcd you can analyze in GTKwave or others vcd viewers!
 
 class EDIDDebugSoC(VideomixerSoC):
-    csr_map = {
-        "logic_analyzer": 30
-    }
-    csr_map.update(VideomixerSoC.csr_map)
+    csr_peripherals = (
+        "logic_analyzer"
+    )
+    csr_map_update(VideomixerSoC.csr_map, csr_peripherals)
 
     def __init__(self, platform, with_uart=False, **kwargs):
         VideomixerSoC.__init__(self, platform, with_uart=with_uart, **kwargs)

@@ -54,13 +54,12 @@ TIMESPEC "TSise_sucks10" = FROM "GRPsys_clk" TO "GRPpix1_clk" TIG;
         for k, v in platform.hdmi_infos.items():
             self.add_constant(k, v)
 
-
 class HDMI2USBSoC(VideomixerSoC):
-    csr_map = {
-        "encoder_reader": 27,
-        "encoder":        28,
-    }
-    csr_map.update(VideomixerSoC.csr_map)
+    csr_peripherals = (
+        "encoder_reader",
+        "encoder"
+    )
+    csr_map_update(VideomixerSoC.csr_map, csr_peripherals)
     mem_map = {
         "encoder": 0x50000000,  # (shadow @0xd0000000)
     }

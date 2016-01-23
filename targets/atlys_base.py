@@ -123,15 +123,17 @@ def _get_firmware_data(firmware_filename):
         pass
     return data
 
+def csr_map_update(csr_map, csr_peripherals):
+  csr_map.update(dict((n, v) for v, n in enumerate(csr_peripherals, start=max(csr_map.values()) + 1)))
 
 class BaseSoC(SDRAMSoC):
     default_platform = "atlys"
 
-    csr_map = {
-        "ddrphy":   16,
-        "dna":      17,
-    }
-    csr_map.update(SDRAMSoC.csr_map)
+    csr_peripherals = (
+        "ddrphy",
+        "dna"
+    )
+    csr_map_update(SDRAMSoC.csr_map, csr_peripherals)
 
     mem_map = {
         "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
@@ -174,11 +176,11 @@ NET "{sys_clk}" TNM_NET = "GRPsys_clk";
 
 
 class MiniSoC(BaseSoC):
-    csr_map = {
-        "ethphy": 18,
-        "ethmac": 19,
-    }
-    csr_map.update(BaseSoC.csr_map)
+    csr_peripherals = (
+        "ethphy",
+        "ethmac",
+    )
+    csr_map_update(BaseSoC.csr_map, csr_peripherals)
 
     interrupt_map = {
         "ethmac": 2,
