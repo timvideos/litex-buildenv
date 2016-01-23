@@ -1,0 +1,31 @@
+
+ifneq ($(OS),Windows_NT)
+ifneq "$(HDMI2USB_ENV)" "1"
+$(error "Please 'source scripts/setup-env.sh'")
+endif
+endif
+
+# Turn off Python's hash randomization
+export PYTHONHASHSEED=0
+
+gateware:
+	BOARD=atlys TARGET=base		make gateware
+	BOARD=atlys TARGET=hdmi2usb	make gateware
+	BOARD=atlys TARGET=hdmi2eth	make gateware
+	BOARD=opsis TARGET=base		make gateware
+	BOARD=opsis TARGET=hdmi2usb	make gateware
+	BOARD=pipistrello TARGET=base	make gateware
+
+firmware:
+	BOARD=atlys TARGET=base		make firmware
+	BOARD=atlys TARGET=hdmi2usb	make firmware
+	BOARD=atlys TARGET=hdmi2eth	make firmware
+	BOARD=opsis TARGET=base		make firmware
+	BOARD=opsis TARGET=hdmi2usb	make firmware
+	BOARD=pipistrello TARGET=base	make firmware
+	
+all: firmware gateware
+	true
+
+.DEFAULT_GOAL := all
+.PHONY: all load-gateware load flash gateware firmware third_party/*
