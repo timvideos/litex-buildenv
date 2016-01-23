@@ -19,8 +19,8 @@ OBJECTS=isr.o \
         hdmi_out1.o \
         opsis_eeprom_i2c.o \
         opsis_eeprom.o \
+        tofe_eeprom_i2c.o \
         tofe_eeprom.o \
-        tofe_eeprom_i2c.o
 
 all: firmware.bin
 
