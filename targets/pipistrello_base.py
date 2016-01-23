@@ -1,5 +1,3 @@
-from gateware.hdmi_out import HDMIOut
-
 from fractions import Fraction
 import struct
 
@@ -16,6 +14,9 @@ from misoclib.soc.sdram import SDRAMSoC
 
 from gateware import dna
 from gateware import i2c_hack
+from gateware.hdmi_out import HDMIOut
+from targets.common import *
+
 
 class _CRG(Module):
     def __init__(self, platform, clk_freq):
@@ -101,20 +102,6 @@ class _CRG(Module):
                                   o_Q=clk.n)
 
 
-def _get_firmware_data(firmware_filename):
-    data = []
-    try:
-        with open(firmware_filename, "rb") as firmware_file:
-            while True:
-                w = firmware_file.read(4)
-                if not w:
-                    break
-                data.append(struct.unpack(">I", w)[0])
-    except:
-        pass
-    return data
-
-
 from mibuild.generic_platform import *
 PipistrelloCustom = [
     ("fx2_hack", 0,
@@ -124,9 +111,6 @@ PipistrelloCustom = [
     ),
     ("fx2_reset", 0, Pins("K13"), IOStandard("LVCMOS33")), #, Misc("PULLUP")),
 ]
-
-def csr_map_update(csr_map, csr_peripherals):
-  csr_map.update(dict((n, v) for v, n in enumerate(csr_peripherals, start=max(csr_map.values()) + 1)))
 
 
 class BaseSoC(SDRAMSoC):
@@ -161,7 +145,7 @@ class BaseSoC(SDRAMSoC):
         self.submodules.fx2_reset = gpio.GPIOOut(platform.request("fx2_reset"))
         self.submodules.fx2_hack = i2c_hack.I2CShiftReg(platform.request("fx2_hack"))
 
-        self.submodules.firmware_ram = wishbone.SRAM(firmware_ram_size, init=_get_firmware_data(firmware_filename))
+        self.submodules.firmware_ram = wishbone.SRAM(firmware_ram_size, init=get_firmware_data(firmware_filename))
         self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
         self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
 

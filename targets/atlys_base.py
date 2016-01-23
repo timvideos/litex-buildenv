@@ -19,7 +19,7 @@ from liteeth.phy.mii import LiteEthPHYMII
 from liteeth.core.mac import LiteEthMAC
 
 from gateware import dna
-
+from targets.common import *
 
 class _CRG(Module):
     def __init__(self, platform, clk_freq):
@@ -110,22 +110,6 @@ class _CRG(Module):
         platform.add_period_constraint(self.cd_base50.clk, 20)
 
 
-def _get_firmware_data(firmware_filename):
-    data = []
-    try:
-        with open(firmware_filename, "rb") as firmware_file:
-            while True:
-                w = firmware_file.read(4)
-                if not w:
-                    break
-                data.append(struct.unpack(">I", w)[0])
-    except:
-        pass
-    return data
-
-def csr_map_update(csr_map, csr_peripherals):
-  csr_map.update(dict((n, v) for v, n in enumerate(csr_peripherals, start=max(csr_map.values()) + 1)))
-
 class BaseSoC(SDRAMSoC):
     default_platform = "atlys"
 
@@ -153,7 +137,7 @@ class BaseSoC(SDRAMSoC):
         self.submodules.crg = _CRG(platform, clk_freq)
         self.submodules.dna = dna.DNA()
 
-        self.submodules.firmware_ram = wishbone.SRAM(firmware_ram_size, init=_get_firmware_data(firmware_filename))
+        self.submodules.firmware_ram = wishbone.SRAM(firmware_ram_size, init=get_firmware_data(firmware_filename))
         self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
         self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
 

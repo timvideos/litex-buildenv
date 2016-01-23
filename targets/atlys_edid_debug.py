@@ -1,3 +1,4 @@
+from targets.common import *
 from targets.atlys_hdmi2usb import *
 
 from misoclib.com.uart.phy import UARTPHY
