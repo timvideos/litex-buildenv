@@ -9,8 +9,8 @@ from gateware.csc.common import *
 def ycbcr2rgb_coefs(dw, cw=None):
     ca = 0.1819
     cb = 0.0618
-    cc = 0.5512
-    cd = 0.6495
+    cc = 0.6495
+    cd = 0.5512
     xcoef_w = None if cw is None else cw-2
     return {
         "ca" : coef(ca, cw),
