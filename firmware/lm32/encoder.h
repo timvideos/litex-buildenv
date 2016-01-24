@@ -23,6 +23,7 @@ const char chroma_rom_75[64];
 const char chroma_rom_50[64];
 
 char encoder_enabled;
+int encoder_target_fps;
 int encoder_fps;
 int encoder_quality;
 
@@ -33,6 +34,7 @@ void encoder_start(short resx, short resy);
 int encoder_done(void);
 void encoder_enable(char enable);
 int encoder_set_quality(int quality);
+int encoder_set_fps(int fps);
 void encoder_service(void);
 
 #endif

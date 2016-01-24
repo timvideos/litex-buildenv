@@ -160,21 +160,33 @@ int encoder_set_quality(int quality) {
 	return 1;
 }
 
+int encoder_set_fps(int fps) {
+	if(encoder_target_fps > 0 && encoder_target_fps <= 60) {
+		encoder_target_fps = fps;
+		return 0;
+	}
+	else {
+		encoder_target_fps = 30;
+		return 1;
+	}
+}
+
 void encoder_service(void) {
 
 	static int last_event;
 	static int last_fps_event;
 	static int frame_cnt;
+	static int can_start;
 
 	if(encoder_enabled) {
-		if(elapsed(&last_event, identifier_frequency_read()/30)) {
-			if (encoder_done() == 1) {
+		if(elapsed(&last_event, identifier_frequency_read()/encoder_target_fps))
+			can_start = 1;
+		if(can_start & encoder_done()) {
 				encoder_init(encoder_quality);
 				encoder_start(processor_h_active, processor_v_active);
 				encoder_reader_dma_length_write(processor_h_active*processor_v_active*2);
 				encoder_reader_dma_shoot_write(1);
 				frame_cnt++;
-			}
 		}
 		if(elapsed(&last_fps_event, identifier_frequency_read())) {
 			encoder_fps = frame_cnt;

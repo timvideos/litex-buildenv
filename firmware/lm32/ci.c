@@ -71,6 +71,7 @@ static void help_encoder(void)
 	puts("encoder on                     - enable encoder");
 	puts("encoder off                    - disable encoder");
 	puts("encoder quality <quality>      - select quality");
+	puts("encoder fps <fps>              - configure target fps");
 }
 #endif
 
@@ -375,6 +376,11 @@ static void encoder_configure_quality(int quality)
 	encoder_set_quality(quality);
 }
 
+static void encoder_configure_fps(int fps)
+{
+	printf("Setting encoder fps to %d\r\n", fps);
+	encoder_set_fps(fps);
+}
 
 static void encoder_off(void)
 {
@@ -593,6 +599,8 @@ void ci_service(void)
 			encoder_off();
 		else if(strcmp(token, "quality") == 0)
 			encoder_configure_quality(atoi(get_token(&str)));
+		else if(strcmp(token, "fps") == 0)
+			encoder_configure_fps(atoi(get_token(&str)));
 		else
 			help_encoder();
 	}

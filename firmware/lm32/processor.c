@@ -371,6 +371,7 @@ void processor_init(void)
 	processor_encoder_source = VIDEO_IN_HDMI_IN0;
 #ifdef ENCODER_BASE
 		encoder_enable(0);
+		encoder_target_fps = 30;
 #endif
 }
 
