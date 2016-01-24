@@ -24,5 +24,5 @@ done
 WIDTH=1024
 HEIGHT=768
 
-mplayer tv:// -tv driver=v4l2:width=$WIDTH:height=$HEIGHT:device=$HDMI2USB -vo xv
+mplayer tv:// -tv driver=v4l2:width=$WIDTH:height=$HEIGHT:device=$HDMI2USB -vf screenshot -vo xv
 #guvcview --device=$HDMI2USB --show_fps=1 --size=$WIDTHx$HEIGHT
