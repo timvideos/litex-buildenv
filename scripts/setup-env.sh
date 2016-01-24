@@ -132,4 +132,19 @@ alias python=python3
 export HDMI2USB_ENV=1
 
 # Set prompt
-PS1="(HDMI2USB)$PS1"
+ORIG_PS1="$PS1"
+hdmi2usb_prompt() {
+	P="(H2U"
+	if [ ! -z "$BOARD" ]; then
+		P="$P B=$BOARD"
+	fi
+	if [ ! -z "$TARGET" ]; then
+		P="$P T=$TARGET"
+	fi
+	if [ ! -z "$PROG" ]; then
+		P="$P P=$PROG"
+	fi
+	P="$P) $ORIG_PS1"
+	PS1=$P
+}
+PROMPT_COMMAND=hdmi2usb_prompt
