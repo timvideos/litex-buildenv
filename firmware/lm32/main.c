@@ -30,9 +30,9 @@ int main(void)
 	hdmi_out1_i2c_init();
 #endif
 
-	puts("\nHDMI2USB firmware  http://timvideos.us/");
+	puts("\r\nHDMI2USB firmware  http://timvideos.us/");
 	print_board_dna();
-	printf("Revision %08x built "__DATE__" "__TIME__"\n", MSC_GIT_ID);
+	printf("Revision %08x built "__DATE__" "__TIME__"\r\n", MSC_GIT_ID);
 
 	config_init();
 	time_init();

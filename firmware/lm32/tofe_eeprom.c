@@ -21,21 +21,21 @@ void tofe_eeprom_dump(void) {
     i2c_start_cond(&tofe_eeprom_i2c);
     b = i2c_write(&tofe_eeprom_i2c, 0xa0);
     if (!b && tofe_eeprom_debug_enabled)
-        printf("tofe_eeprom: NACK while writing slave address!\n");
+        printf("tofe_eeprom: NACK while writing slave address!\r\n");
     b = i2c_write(&tofe_eeprom_i2c, 0x00);
     if (!b && tofe_eeprom_debug_enabled)
-        printf("tofe_eeprom: NACK while writing tofe_eeprom address!\n");
+        printf("tofe_eeprom: NACK while writing tofe_eeprom address!\r\n");
 
     i2c_start_cond(&tofe_eeprom_i2c);
     b = i2c_write(&tofe_eeprom_i2c, 0xa1);
     if (!b && tofe_eeprom_debug_enabled)
-        printf("tofe_eeprom: NACK while writing slave address (2)!\n");
+        printf("tofe_eeprom: NACK while writing slave address (2)!\r\n");
 
     for (tofe_eeprom_addr = 0 ; tofe_eeprom_addr < 256 ; tofe_eeprom_addr++) {
         b = i2c_read(&tofe_eeprom_i2c, 1);
         printf("%02X ", b);
         if(!((tofe_eeprom_addr+1) % 16))
-            printf("\n");
+            printf("\r\n");
     }
     i2c_stop_cond(&tofe_eeprom_i2c);
 }
