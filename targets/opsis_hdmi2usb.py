@@ -78,7 +78,7 @@ class HDMI2USBSoC(VideomixerSoC):
         self.submodules.encoder_cdc = RenameClockDomains(AsyncFIFO([("data", 128)], 4),
                                           {"write": "sys", "read": "encoder"})
         self.submodules.encoder_buffer = RenameClockDomains(EncoderBuffer(), "encoder")
-        self.submodules.encoder_fifo = RenameClockDomains(SyncFIFO(EndpointDescription([("data", 16)], packetized=True), 128), "encoder")
+        self.submodules.encoder_fifo = RenameClockDomains(SyncFIFO(EndpointDescription([("data", 16)], packetized=True), 16), "encoder")
         self.submodules.encoder = Encoder(platform)
         self.submodules.usb_streamer = USBStreamer(platform, platform.request("fx2"))
 

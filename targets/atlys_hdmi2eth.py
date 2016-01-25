@@ -125,7 +125,7 @@ class HDMI2ETHSoC(VideomixerSoC):
         self.submodules.encoder_cdc = RenameClockDomains(AsyncFIFO([("data", 128)], 4),
                                           {"write": "sys", "read": "encoder"})
         self.submodules.encoder_buffer = RenameClockDomains(EncoderBuffer(), "encoder")
-        self.submodules.encoder_fifo = RenameClockDomains(SyncFIFO(EndpointDescription([("data", 16)], packetized=True), 128), "encoder")
+        self.submodules.encoder_fifo = RenameClockDomains(SyncFIFO(EndpointDescription([("data", 16)], packetized=True), 16), "encoder")
         self.submodules.encoder = Encoder(platform)
         encoder_port = self.ethcore.udp.crossbar.get_port(8000, 8)
         self.submodules.encoder_streamer = UDPStreamer(convert_ip("192.168.1.15"), 8000)
