@@ -67,7 +67,7 @@ class _CRG(Module):
                                      o_CLKOUT4=pll[4], p_CLKOUT4_DUTY_CYCLE=.5,
                                      o_CLKOUT5=pll[5], p_CLKOUT5_DUTY_CYCLE=.5,
                                      p_CLKOUT0_PHASE=0., p_CLKOUT0_DIVIDE=p//8,  # sdram wr rd
-                                     p_CLKOUT1_PHASE=0., p_CLKOUT1_DIVIDE=p//8,
+                                     p_CLKOUT1_PHASE=0., p_CLKOUT1_DIVIDE=6,
                                      p_CLKOUT2_PHASE=230., p_CLKOUT2_DIVIDE=p//4,  # sdram dqs adr ctrl
                                      p_CLKOUT3_PHASE=210., p_CLKOUT3_DIVIDE=p//4,  # off-chip ddr
                                      p_CLKOUT4_PHASE=0., p_CLKOUT4_DIVIDE=p//2,
@@ -116,7 +116,7 @@ class _CRG(Module):
         self.specials += AsyncResetSynchronizer(self.cd_base50, self.cd_sys.rst | ~dcm_base50_locked)
         platform.add_period_constraint(self.cd_base50.clk, 20)
 
-        self.comb += self.cd_encoder.clk.eq(self.cd_sys.clk)
+        self.specials += Instance("BUFG", i_I=pll[1], o_O=self.cd_encoder.clk) # 66 MHz
         self.specials += AsyncResetSynchronizer(self.cd_encoder, self.cd_sys.rst)
 
 
