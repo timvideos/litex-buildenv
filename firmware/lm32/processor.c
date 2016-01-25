@@ -266,6 +266,20 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 		.v_blanking = 45,
 		.v_sync_offset = 4,
 		.v_sync_width = 5
+	},
+    // 720x480 @ 60.00 Hz    Modeline "720x480" 26.72 720 736 808 896 480 481 484 497 -HSync +Vsync
+	{
+		.pixel_clock = 2672,
+
+		.h_active = 720,
+		.h_blanking = 176,
+		.h_sync_offset = 16,
+		.h_sync_width = 72,
+
+		.v_active = 480,
+		.v_blanking = 17,
+		.v_sync_offset = 1,
+		.v_sync_width = 3
 	}
 };
 
@@ -525,6 +539,6 @@ void processor_service(void)
 #endif
 	processor_update();
 #ifdef ENCODER_BASE
-		encoder_service();
+	encoder_service();
 #endif
 }
