@@ -15,8 +15,13 @@ class UDPStreamer(Module):
 
         # # #
 
+        self.submodules.async_fifo = async_fifo = RenameClockDomains(AsyncFIFO([("data", 8)], 4),
+                                          {"write": "encoder", "read": "sys"})
         self.submodules.fifo = fifo = SyncFIFO([("data", 8)], fifo_depth)
-        self.comb += Record.connect(sink, fifo.sink)
+        self.comb += [
+            Record.connect(sink, async_fifo.sink),
+            Record.connect(async_fifo.source, fifo.sink)
+        ]
 
         level = Signal(max=fifo_depth + 1)
         level_update = Signal()
@@ -87,7 +92,7 @@ class USBStreamer(Module):
         ]
 
         self.submodules.fifo = fifo = RenameClockDomains(AsyncFIFO([("data", 8)], 4),
-                                          {"write": "sys", "read": "usb"})
+                                          {"write": "encoder", "read": "usb"})
         self.comb += Record.connect(sink, fifo.sink)
 
 

@@ -182,11 +182,15 @@ void encoder_service(void) {
 		if(elapsed(&last_event, identifier_frequency_read()/encoder_target_fps))
 			can_start = 1;
 		if(can_start & encoder_done()) {
-				encoder_init(encoder_quality);
-				encoder_start(processor_h_active, processor_v_active);
-				encoder_reader_dma_length_write(processor_h_active*processor_v_active*2);
-				encoder_reader_dma_shoot_write(1);
-				frame_cnt++;
+			encoder_init(encoder_quality);
+			encoder_start(processor_h_active, processor_v_active);
+			can_start = 0;
+			frame_cnt++;
+		}
+		if(encoder_reader_done_read()) {
+			encoder_reader_h_width_write(processor_h_active);
+			encoder_reader_v_width_write(processor_v_active);
+			encoder_reader_start_write(1);
 		}
 		if(elapsed(&last_fps_event, identifier_frequency_read())) {
 			encoder_fps = frame_cnt;
