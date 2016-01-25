@@ -116,7 +116,7 @@ class _CRG(Module):
         self.specials += AsyncResetSynchronizer(self.cd_base50, self.cd_sys.rst | ~dcm_base50_locked)
         platform.add_period_constraint(self.cd_base50.clk, 20)
 
-        self.comb += self.cd_encoder.clk.eq(self.cd_encoder.clk)
+        self.comb += self.cd_encoder.clk.eq(self.cd_sys.clk)
         self.specials += AsyncResetSynchronizer(self.cd_encoder, self.cd_sys.rst)
 
 
