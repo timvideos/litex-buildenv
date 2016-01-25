@@ -138,7 +138,7 @@ class HDMI2ETHSoC(VideomixerSoC):
             Record.connect(self.encoder_buffer.source, self.encoder_fifo.sink),
             Record.connect(self.encoder_fifo.source, self.encoder.sink),
             Record.connect(self.encoder.source, self.encoder_streamer.sink),
-			Record.connect(self.encoder_streamer.source, self.encoder.port.sink)
+            Record.connect(self.encoder_streamer.source, encoder_port.sink)
         ]
         self.add_wb_slave(mem_decoder(self.mem_map["encoder"]), self.encoder.bus)
         self.add_memory_region("encoder", self.mem_map["encoder"]+self.shadow_base, 0x2000)

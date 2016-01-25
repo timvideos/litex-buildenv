@@ -1,6 +1,6 @@
 from targets.common import *
-from targets.opsis_base import *
-from targets.opsis_base import default_subtarget as BaseSoC
+from targets.atlys_base import *
+from targets.atlys_base import default_subtarget as BaseSoC
 
 from gateware.hdmi_in import HDMIIn
 from gateware.hdmi_out import HDMIOut

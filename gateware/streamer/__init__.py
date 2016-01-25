@@ -3,7 +3,7 @@ import os
 from migen.fhdl.std import *
 from migen.genlib.record import *
 from migen.flow.actor import *
-from migen.actorlib.fifo import AsyncFIFO
+from migen.actorlib.fifo import SyncFIFO, AsyncFIFO
 from migen.genlib.misc import WaitTimer
 
 from liteeth.common import *
@@ -15,9 +15,13 @@ class UDPStreamer(Module):
 
         # # #
 
-        self.submodules.fifo = fifo = RenameClockDomains(AsyncFIFO([("data", 8)], fifo_depth),
+        self.submodules.async_fifo = async_fifo = RenameClockDomains(AsyncFIFO([("data", 8)], 4),
                                           {"write": "encoder", "read": "sys"})
-        self.comb += Record.connect(sink, fifo.sink)
+        self.submodules.fifo = fifo = SyncFIFO([("data", 8)], fifo_depth)
+        self.comb += [
+            Record.connect(sink, async_fifo.sink),
+            Record.connect(async_fifo.source, fifo.sink)
+        ]
 
         level = Signal(max=fifo_depth + 1)
         level_update = Signal()
