@@ -4,8 +4,12 @@ from targets.opsis_base import default_subtarget as BaseSoC
 
 from gateware.hdmi_in import HDMIIn
 from gateware.hdmi_out import HDMIOut
-from gateware.encoder import EncoderReader, Encoder
+from gateware.encoder import Encoder
+from gateware.encoder.dma import EncoderDMAReader
+from gateware.encoder.buffer import EncoderBuffer
 from gateware.streamer import USBStreamer
+from migen.actorlib.fifo import AsyncFIFO, SyncFIFO
+from migen.flow.actor import *
 
 class VideomixerSoC(BaseSoC):
     csr_peripherals = (
@@ -69,12 +73,20 @@ class HDMI2USBSoC(VideomixerSoC):
     def __init__(self, platform, **kwargs):
         VideomixerSoC.__init__(self, platform, **kwargs)
 
-        self.submodules.encoder_reader = EncoderReader(self.sdram.crossbar.get_master())
+        lasmim = self.sdram.crossbar.get_master()
+        self.submodules.encoder_reader = EncoderDMAReader(lasmim)
+        self.submodules.encoder_cdc = RenameClockDomains(AsyncFIFO([("data", 128)], 4),
+                                          {"write": "sys", "read": "encoder"})
+        self.submodules.encoder_buffer = RenameClockDomains(EncoderBuffer(), "encoder")
+        self.submodules.encoder_fifo = RenameClockDomains(SyncFIFO(EndpointDescription([("data", 16)], packetized=True), 128), "encoder")
         self.submodules.encoder = Encoder(platform)
         self.submodules.usb_streamer = USBStreamer(platform, platform.request("fx2"))
 
         self.comb += [
-            Record.connect(self.encoder_reader.source, self.encoder.sink),
+            Record.connect(self.encoder_reader.source, self.encoder_cdc.sink),
+            Record.connect(self.encoder_cdc.source, self.encoder_buffer.sink),
+            Record.connect(self.encoder_buffer.source, self.encoder_fifo.sink),
+            Record.connect(self.encoder_fifo.source, self.encoder.sink),
             Record.connect(self.encoder.source, self.usb_streamer.sink)
         ]
         self.add_wb_slave(mem_decoder(self.mem_map["encoder"]), self.encoder.bus)

@@ -32,6 +32,7 @@ class _CRG(Module):
         self.clock_domains.cd_sdram_full_wr = ClockDomain()
         self.clock_domains.cd_sdram_full_rd = ClockDomain()
         self.clock_domains.cd_base50 = ClockDomain()
+        self.clock_domains.cd_encoder = ClockDomain()
 
         self.clk8x_wr_strb = Signal()
         self.clk8x_rd_strb = Signal()
@@ -114,6 +115,9 @@ class _CRG(Module):
                                   i_FREEZEDCM=0, i_RST=ResetSignal())
         self.specials += AsyncResetSynchronizer(self.cd_base50, self.cd_sys.rst | ~dcm_base50_locked)
         platform.add_period_constraint(self.cd_base50.clk, 20)
+
+        self.comb += self.cd_encoder.clk.eq(self.cd_encoder.clk)
+        self.specials += AsyncResetSynchronizer(self.cd_encoder, self.cd_sys.rst)
 
 
 class BaseSoC(SDRAMSoC):
