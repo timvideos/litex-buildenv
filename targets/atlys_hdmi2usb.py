@@ -80,7 +80,7 @@ class HDMI2USBSoC(VideomixerSoC):
         self.submodules.encoder_buffer = RenameClockDomains(EncoderBuffer(), "encoder")
         self.submodules.encoder_fifo = RenameClockDomains(SyncFIFO(EndpointDescription([("data", 16)], packetized=True), 128), "encoder")
         self.submodules.encoder = Encoder(platform)
-        self.submodules.usb_streamer = USBStreamer(platform, platform.request("fx2"))
+        self.submodules.encoder_streamer = USBStreamer(platform, platform.request("fx2"))
 
         self.comb += [
             platform.request("user_led", 0).eq(self.encoder_reader.source.stb),
@@ -89,7 +89,7 @@ class HDMI2USBSoC(VideomixerSoC):
             Record.connect(self.encoder_cdc.source, self.encoder_buffer.sink),
             Record.connect(self.encoder_buffer.source, self.encoder_fifo.sink),
             Record.connect(self.encoder_fifo.source, self.encoder.sink),
-            Record.connect(self.encoder.source, self.usb_streamer.sink)
+            Record.connect(self.encoder.source, self.encoder_streamer.sink)
         ]
         self.add_wb_slave(mem_decoder(self.mem_map["encoder"]), self.encoder.bus)
         self.add_memory_region("encoder", self.mem_map["encoder"]+self.shadow_base, 0x2000)

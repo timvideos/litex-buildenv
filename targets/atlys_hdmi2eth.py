@@ -9,8 +9,13 @@ from liteeth.frontend.etherbone import LiteEthEtherbone
 
 from gateware.hdmi_in import HDMIIn
 from gateware.hdmi_out import HDMIOut
-from gateware.encoder import EncoderReader, Encoder
+from gateware.encoder import Encoder
+from gateware.encoder.dma import EncoderDMAReader
+from gateware.encoder.buffer import EncoderBuffer
 from gateware.streamer import UDPStreamer
+from migen.actorlib.fifo import AsyncFIFO, SyncFIFO
+from migen.flow.actor import *
+
 
 class EtherboneSoC(BaseSoC):
     csr_peripherals = (
@@ -115,7 +120,12 @@ class HDMI2ETHSoC(VideomixerSoC):
     def __init__(self, platform, **kwargs):
         VideomixerSoC.__init__(self, platform, **kwargs)
 
-        self.submodules.encoder_reader = EncoderReader(self.sdram.crossbar.get_master())
+        lasmim = self.sdram.crossbar.get_master()
+        self.submodules.encoder_reader = EncoderDMAReader(lasmim)
+        self.submodules.encoder_cdc = RenameClockDomains(AsyncFIFO([("data", 128)], 4),
+                                          {"write": "sys", "read": "encoder"})
+        self.submodules.encoder_buffer = RenameClockDomains(EncoderBuffer(), "encoder")
+        self.submodules.encoder_fifo = RenameClockDomains(SyncFIFO(EndpointDescription([("data", 16)], packetized=True), 128), "encoder")
         self.submodules.encoder = Encoder(platform)
         encoder_port = self.ethcore.udp.crossbar.get_port(8000, 8)
         self.submodules.encoder_streamer = UDPStreamer(convert_ip("192.168.1.15"), 8000)
@@ -123,9 +133,12 @@ class HDMI2ETHSoC(VideomixerSoC):
         self.comb += [
             platform.request("user_led", 0).eq(self.encoder_reader.source.stb),
             platform.request("user_led", 1).eq(self.encoder_reader.source.ack),
-            Record.connect(self.encoder_reader.source, self.encoder.sink),
+            Record.connect(self.encoder_reader.source, self.encoder_cdc.sink),
+            Record.connect(self.encoder_cdc.source, self.encoder_buffer.sink),
+            Record.connect(self.encoder_buffer.source, self.encoder_fifo.sink),
+            Record.connect(self.encoder_fifo.source, self.encoder.sink),
             Record.connect(self.encoder.source, self.encoder_streamer.sink),
-            Record.connect(self.encoder_streamer.source, encoder_port.sink)
+			Record.connect(self.encoder_streamer.source, self.encoder.port.sink)
         ]
         self.add_wb_slave(mem_decoder(self.mem_map["encoder"]), self.encoder.bus)
         self.add_memory_region("encoder", self.mem_map["encoder"]+self.shadow_base, 0x2000)
