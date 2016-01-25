@@ -23,6 +23,9 @@ int hdmi_in0_fb_index;
 #define HDMI_IN0_FRAMEBUFFERS_BASE 0x00000000
 #define HDMI_IN0_FRAMEBUFFERS_SIZE 1920*1080*2
 
+//#define CLEAN_COMMUTATION
+//#define DEBUG
+
 unsigned int hdmi_in0_framebuffer_base(char n) {
 	return HDMI_IN0_FRAMEBUFFERS_BASE + n*HDMI_IN0_FRAMEBUFFERS_SIZE;
 }
@@ -49,6 +52,7 @@ void hdmi_in0_isr(void)
 		&& ((hdmi_in0_dma_slot1_address_read() < address_min) || (hdmi_in0_dma_slot1_address_read() > address_max)))
 		printf("dvisampler0: slot1: stray DMA\r\n");
 
+#ifdef CLEAN_COMMUTATION
 	if((hdmi_in0_resdetection_hres_read() != hdmi_in0_hres)
 	  || (hdmi_in0_resdetection_vres_read() != hdmi_in0_vres)) {
 		/* Dump frames until we get the expected resolution */
@@ -62,6 +66,7 @@ void hdmi_in0_isr(void)
 		}
 		return;
 	}
+#endif
 
 	expected_length = hdmi_in0_hres*hdmi_in0_vres*2;
 	if(hdmi_in0_dma_slot0_status_read() == DVISAMPLER_SLOT_PENDING) {
@@ -70,8 +75,11 @@ void hdmi_in0_isr(void)
 			fb_index = hdmi_in0_fb_slot_indexes[0];
 			hdmi_in0_fb_slot_indexes[0] = hdmi_in0_next_fb_index;
 			hdmi_in0_next_fb_index = (hdmi_in0_next_fb_index + 1) & FRAMEBUFFER_MASK;
-		} else
+		} else {
+#ifdef DEBUG
 			printf("dvisampler0: slot0: unexpected frame length: %d\r\n", length);
+#endif
+		}
 		hdmi_in0_dma_slot0_address_write(hdmi_in0_framebuffer_base(hdmi_in0_fb_slot_indexes[0]));
 		hdmi_in0_dma_slot0_status_write(DVISAMPLER_SLOT_LOADED);
 	}
@@ -81,8 +89,11 @@ void hdmi_in0_isr(void)
 			fb_index = hdmi_in0_fb_slot_indexes[1];
 			hdmi_in0_fb_slot_indexes[1] = hdmi_in0_next_fb_index;
 			hdmi_in0_next_fb_index = (hdmi_in0_next_fb_index + 1) & FRAMEBUFFER_MASK;
-		} else
+		} else {
+#ifdef DEBUG
 			printf("dvisampler0: slot1: unexpected frame length: %d\r\n", length);
+#endif
+		}
 		hdmi_in0_dma_slot1_address_write(hdmi_in0_framebuffer_base(hdmi_in0_fb_slot_indexes[1]));
 		hdmi_in0_dma_slot1_status_write(DVISAMPLER_SLOT_LOADED);
 	}
