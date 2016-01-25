@@ -92,7 +92,7 @@ class USBStreamer(Module):
         ]
 
         self.submodules.fifo = fifo = RenameClockDomains(AsyncFIFO([("data", 8)], 4),
-                                          {"write": "sys", "read": "usb"})
+                                          {"write": "encoder", "read": "usb"})
         self.comb += Record.connect(sink, fifo.sink)
 
 
