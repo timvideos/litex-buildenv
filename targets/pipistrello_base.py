@@ -14,8 +14,10 @@ from misoclib.soc.sdram import SDRAMSoC
 
 from gateware import dna
 from gateware import firmware
+from gateware import git_info
 from gateware import hdmi_out
 from gateware import i2c_hack
+from gateware import platform_info
 
 from targets.common import *
 
@@ -122,6 +124,8 @@ class BaseSoC(SDRAMSoC):
         "spiflash",
         "ddrphy",
         "dna",
+        "git_info",
+        "platform_info",
         "fx2_reset",
         "fx2_hack",
     )
@@ -144,6 +148,8 @@ class BaseSoC(SDRAMSoC):
         platform.add_extension(PipistrelloCustom)
         self.submodules.crg = _CRG(platform, clk_freq)
         self.submodules.dna = dna.DNA()
+        self.submodules.git_info = git_info.GitInfo()
+        self.submodules.platform_info = platform_info.PlatformInfo("pipistrello"[:8], self.__class__.__name__[:8])
         self.submodules.fx2_reset = gpio.GPIOOut(platform.request("fx2_reset"))
         self.submodules.fx2_hack = i2c_hack.I2CShiftReg(platform.request("fx2_hack"))
 

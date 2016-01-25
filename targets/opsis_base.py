@@ -20,9 +20,10 @@ from liteeth.core.mac import LiteEthMAC
 
 from gateware import dna
 from gateware import firmware
-from gateware import gitinfo
+from gateware import git_info
 from gateware import i2c
 from gateware import i2c_hack
+from gateware import platform_info
 
 from targets.common import *
 
@@ -129,7 +130,8 @@ class BaseSoC(SDRAMSoC):
     csr_peripherals = (
         "ddrphy",
         "dna",
-        "gitinfo",
+        "git_info",
+        "platform_info",
         "fx2_reset",
         "fx2_hack",
 #        "opsis_eeprom_i2c",
@@ -154,7 +156,8 @@ class BaseSoC(SDRAMSoC):
 
         self.submodules.crg = _CRG(platform, clk_freq)
         self.submodules.dna = dna.DNA()
-        self.submodules.gitinfo = gitinfo.GitInfo()
+        self.submodules.git_info = git_info.GitInfo()
+        self.submodules.platform_info = platform_info.PlatformInfo("opsis", self.__class__.__name__[:8])
 
 #        self.submodules.opsis_eeprom_i2c = i2c.I2C(platform.request("opsis_eeprom"))
         self.submodules.fx2_reset = gpio.GPIOOut(platform.request("fx2_reset"))

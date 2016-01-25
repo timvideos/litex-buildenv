@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <console.h>
 #include <string.h>
 #include <generated/csr.h>
@@ -138,11 +139,34 @@ static void help(void)
 	help_debug();
 }
 
+static void dump_csr(intptr_t addr, size_t size) {
+	int i = 0;
+	for(i = 0; i < size; i++) {
+		unsigned char c = MMPTR(addr+i);
+                if (c == '\0')
+                    break;
+                putchar(c);
+	}
+}
+
 static void version(void)
 {
+	int i = 0;
 	printf("gateware version info\r\n");
 	printf("===============================================\r\n");
-	printf(" misoc revision: %08x\r\n", identifier_revision_read());
+	printf("          platform: ");
+	dump_csr(CSR_PLATFORM_INFO_PLATFORM_ADDR, CSR_PLATFORM_INFO_PLATFORM_SIZE);
+	printf("\r\n");
+	printf("      target: ");
+	dump_csr(CSR_PLATFORM_INFO_TARGET_ADDR, CSR_PLATFORM_INFO_TARGET_SIZE);
+	printf("\r\n");
+	printf("     revision: ");
+	for(i = 0; i < CSR_GIT_INFO_COMMIT_SIZE; i++) {
+		unsigned char r = MMPTR(CSR_GIT_INFO_COMMIT_ADDR+i);
+		printf("%hhx", r);
+	}
+	printf("\r\n");
+	printf("misoc revision: %08x\r\n", identifier_revision_read());
 	printf("-----------------------------------------------\r\n");
 	printf("firmware version info\r\n");
 	printf("===============================================\r\n");

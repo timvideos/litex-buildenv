@@ -37,8 +37,8 @@ def git_status():
 
 class GitInfo(Module, AutoCSR):
     def __init__(self):
-        commit = git_commit()
-        self.commit = CSRStatus(128)
+        commit = sum(int(x) << (i*8) for i, x in enumerate(git_commit()))
+        self.commit = CSRStatus(160)
 
 	# FIXME: This should be a read-only Memory object
         #extradata = [ord(x) for x in "\0".join([
