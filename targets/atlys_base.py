@@ -19,6 +19,8 @@ from liteeth.phy.mii import LiteEthPHYMII
 from liteeth.core.mac import LiteEthMAC
 
 from gateware import dna
+from gateware import firmware
+
 from targets.common import *
 
 class _CRG(Module):
@@ -128,7 +130,7 @@ class BaseSoC(SDRAMSoC):
     mem_map.update(SDRAMSoC.mem_map)
 
     def __init__(self, platform,
-                 firmware_ram_size=0xa000,
+                 firmware_ram_size=0x10000,
                  firmware_filename=None,
                  **kwargs):
         clk_freq = 75*1000000
@@ -140,7 +142,7 @@ class BaseSoC(SDRAMSoC):
         self.submodules.crg = _CRG(platform, clk_freq)
         self.submodules.dna = dna.DNA()
 
-        self.submodules.firmware_ram = wishbone.SRAM(firmware_ram_size, init=get_firmware_data(firmware_filename))
+        self.submodules.firmware_ram = firmware.FirmwareROM(firmware_ram_size, firmware_filename)
         self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
         self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
 

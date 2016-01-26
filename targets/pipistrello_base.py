@@ -13,8 +13,10 @@ from misoclib.mem.flash import spiflash
 from misoclib.soc.sdram import SDRAMSoC
 
 from gateware import dna
+from gateware import firmware
+from gateware import hdmi_out
 from gateware import i2c_hack
-from gateware.hdmi_out import HDMIOut
+
 from targets.common import *
 
 
@@ -145,7 +147,7 @@ class BaseSoC(SDRAMSoC):
         self.submodules.fx2_reset = gpio.GPIOOut(platform.request("fx2_reset"))
         self.submodules.fx2_hack = i2c_hack.I2CShiftReg(platform.request("fx2_hack"))
 
-        self.submodules.firmware_ram = wishbone.SRAM(firmware_ram_size, init=get_firmware_data(firmware_filename))
+        self.submodules.firmware_ram = firmware.FirmwareROM(firmware_ram_size, firmware_filename)
         self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
         self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
 
@@ -185,8 +187,8 @@ class VideomixerSoC(BaseSoC):
 
     def __init__(self, platform, **kwargs):
         BaseSoC.__init__(self, platform, **kwargs)
-        self.submodules.hdmi_out0 = HDMIOut(platform.request("hdmi", 0),
-                                            self.sdram.crossbar.get_master())
+        self.submodules.hdmi_out0 = hdmi_out.HDMIOut(
+            platform.request("hdmi", 0), self.sdram.crossbar.get_master())
 
         for k, v in _hdmi_infos.items():
             self.add_constant(k, v)
