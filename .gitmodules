@@ -3,10 +3,10 @@
 	url = https://github.com/timvideos/fx2lib
 [submodule "third_party/misoc"]
 	path = third_party/misoc
-	url = https://github.com/m-labs/misoc.git
+	url = https://github.com/timvideos/misoc.git
 [submodule "third_party/migen"]
 	path = third_party/migen
-	url = https://github.com/m-labs/migen.git
+	url = https://github.com/timvideos/migen.git
 [submodule "third_party/liteeth"]
 	path = third_party/liteeth
 	url = https://github.com/enjoy-digital/liteeth.git
