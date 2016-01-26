@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <console.h>
@@ -19,17 +20,9 @@
 #include "tofe_eeprom.h"
 #include "hdmi_out0.h"
 #include "hdmi_out1.h"
+#include "version.h"
 
 int status_enabled;
-
-void print_board_dna(void) {
-	int i;
-	printf("Board's DNA: ");
-	for(i=0; i<CSR_DNA_ID_SIZE; i++) {
-		printf("%02x", MMPTR(CSR_DNA_ID_ADDR+4*i));
-	}
-	printf("\r\n");
-}
 
 static void help_video_matrix(void)
 {
@@ -135,12 +128,6 @@ static void help(void)
 	puts("");
 #endif
 	help_debug();
-}
-
-static void version(void)
-{
-	printf("gateware revision: %08x\r\n", identifier_revision_read());
-	printf("firmware revision: %08x, built "__DATE__" "__TIME__"\r\n", MSC_GIT_ID);
 }
 
 static void reboot(void)
@@ -534,7 +521,7 @@ void ci_service(void)
 		puts("");
 	}
 	else if(strcmp(token, "reboot") == 0) reboot();
-	else if(strcmp(token, "version") == 0) version();
+	else if(strcmp(token, "version") == 0) print_version();
 	else if((strcmp(token, "video_matrix") == 0) || (strcmp(token, "x") == 0)) {
 		token = get_token(&str);
 		if((strcmp(token, "list") == 0) || (strcmp(token, "l") == 0)) {

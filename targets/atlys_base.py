@@ -20,6 +20,8 @@ from liteeth.core.mac import LiteEthMAC
 
 from gateware import dna
 from gateware import firmware
+from gateware import git_info
+from gateware import platform_info
 
 from targets.common import *
 
@@ -121,6 +123,8 @@ class BaseSoC(SDRAMSoC):
     csr_peripherals = (
         "ddrphy",
         "dna",
+        "git_info",
+        "platform_info",
     )
     csr_map_update(SDRAMSoC.csr_map, csr_peripherals)
 
@@ -141,6 +145,8 @@ class BaseSoC(SDRAMSoC):
 
         self.submodules.crg = _CRG(platform, clk_freq)
         self.submodules.dna = dna.DNA()
+        self.submodules.git_info = git_info.GitInfo()
+        self.submodules.platform_info = platform_info.PlatformInfo("atlys", self.__class__.__name__[:8])
 
         self.submodules.firmware_ram = firmware.FirmwareROM(firmware_ram_size, firmware_filename)
         self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)

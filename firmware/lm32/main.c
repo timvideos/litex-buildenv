@@ -17,6 +17,7 @@
 #include "hdmi_out0.h"
 #include "hdmi_out1.h"
 #include "fx2.h"
+#include "version.h"
 
 int main(void)
 {
@@ -31,8 +32,7 @@ int main(void)
 #endif
 
 	puts("\r\nHDMI2USB firmware  http://timvideos.us/");
-	print_board_dna();
-	printf("Revision %08x built "__DATE__" "__TIME__"\r\n", MSC_GIT_ID);
+	print_version();
 
 	config_init();
 	time_init();
