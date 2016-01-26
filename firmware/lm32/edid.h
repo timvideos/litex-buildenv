@@ -17,6 +17,7 @@ struct video_timing {
 	unsigned int v_sync_width;
 
 	unsigned int established_timing;
+	const char* comment;
 };
 
 int validate_edid(const void *buf);
