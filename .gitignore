@@ -5,7 +5,7 @@ firmware/lm32/boot.bin
 firmware/lm32/firmware.bin
 firmware/lm32/firmware.elf
 firmware/lm32/fx2_fw_hdmi2usb.c
-firmware/lm32/version.h
+firmware/lm32/version_data.h
 test/dump.png
 build
 *.pyc

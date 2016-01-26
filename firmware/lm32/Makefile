@@ -21,6 +21,7 @@ OBJECTS=isr.o \
         main.o \
         opsis_eeprom.o \
         tofe_eeprom.o \
+	version.o \
 
 all: firmware.bin
 
@@ -48,8 +49,10 @@ firmware.elf: $(OBJECTS) libs
 main.o: main.c
 	$(compile-dep)
 
-%.o: %.c version.h
+%.o: %.c
 	$(compile-dep)
+
+version.o: version.h version_data.h
 
 %.o: %.S
 	$(assemble)
@@ -62,7 +65,7 @@ clean:
 	$(RM) $(OBJECTS) $(OBJECTS:.o=.d) firmware.elf firmware.bin
 	$(RM) .*~ *~
 
-version.h: version.sh
-	bash version.sh
+version_data.h: version_data.sh
+	bash version_data.sh
 
-.PHONY: all main.o clean libs load version.h
+.PHONY: all main.o clean libs load version_data.h

@@ -24,15 +24,6 @@
 
 int status_enabled;
 
-void print_board_dna(void) {
-	int i;
-	printf("Board's DNA: ");
-	for(i=0; i<CSR_DNA_ID_SIZE; i++) {
-		printf("%02x", MMPTR(CSR_DNA_ID_ADDR+4*i));
-	}
-	printf("\r\n");
-}
-
 static void help_video_matrix(void)
 {
 	puts("video_matrix commands (alias: 'x')");
@@ -137,44 +128,6 @@ static void help(void)
 	puts("");
 #endif
 	help_debug();
-}
-
-static void dump_csr(unsigned long long int v) {
-	int i = 0;
-	unsigned char* c = (unsigned char*)(&v);
-	for(i = 0; i < sizeof(unsigned long long int); i++) {
-                if (*(c+i) == '\0')
-                    break;
-                putchar(*(c+i));
-	}
-}
-
-static void version(void)
-{
-	int i = 0;
-	printf("gateware version info\r\n");
-	printf("===============================================\r\n");
-	printf("      platform: ");
-	dump_csr(platform_info_platform_read());
-	printf("\r\n");
-	printf("        target: ");
-	dump_csr(platform_info_target_read());
-	printf("\r\n");
-	printf("      revision: ");
-	for(i = 0; i < CSR_GIT_INFO_COMMIT_SIZE; i += sizeof(unsigned int)) {
-		unsigned int r = MMPTR(CSR_GIT_INFO_COMMIT_ADDR+i);
-		printf("%x", r);
-	}
-	printf("\r\n\r\n");
-	printf("misoc revision: %08x\r\n", identifier_revision_read());
-	printf("-----------------------------------------------\r\n");
-	printf("firmware version info\r\n");
-	printf("===============================================\r\n");
-	printf("  git commit: %s\n", git_commit);
-	printf("git describe: %s\n", git_describe);
-	printf("  git status:\n%s\n", git_status);
-	printf("       built: "__DATE__" "__TIME__"\r\n");
-	printf("-----------------------------------------------\r\n");
 }
 
 static void reboot(void)
@@ -568,7 +521,7 @@ void ci_service(void)
 		puts("");
 	}
 	else if(strcmp(token, "reboot") == 0) reboot();
-	else if(strcmp(token, "version") == 0) version();
+	else if(strcmp(token, "version") == 0) print_version();
 	else if((strcmp(token, "video_matrix") == 0) || (strcmp(token, "x") == 0)) {
 		token = get_token(&str);
 		if((strcmp(token, "list") == 0) || (strcmp(token, "l") == 0)) {
