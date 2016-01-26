@@ -123,7 +123,7 @@ for BOARD in $BOARDS; do
 			# Not currently built so use .bit instead
 			#cp ../third_party/misoc/build/*.xsvf $COPY_DEST
 			cp ../third_party/misoc/build/*.bit $COPY_DEST
-			cp ../build/output.*.log $COPY_DEST
+			cp ../build/output.*.log $COPY_DEST/output.log
 			echo ""
 			echo "- Uploading .bit and logfile"
 			# Only hdmi2usb is considered usable just now

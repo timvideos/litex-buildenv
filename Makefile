@@ -60,6 +60,7 @@ help:
 	@echo " make all"
 	@echo " make gateware"
 	@echo " make firmware"
+	@echo " make download-prebuilt"
 	@echo " make load"
 	@echo " make flash"
 	@for T in $(TARGETS); do make -s help-$$T; done
@@ -99,6 +100,10 @@ gateware: gateware-generate gateware-build
 firmware: $(addprefix firmware-,$(TARGETS))
 	@true
 
+# Download pre-built firmware
+download-prebuilt:
+	scripts/download-prebuilt.sh
+	
 # Load
 load-gateware:
 	cd $(MSCDIR) && $(CMD) load-bitstream
@@ -123,6 +128,10 @@ clean:
 		touch $(MSCDIR)/software/include/generated/.keep_me)
 	# Cleanup Python3's __pycache__ directories
 	find . -name __pycache__ -type d -exec rm -r {} +
+	# Delete any previously downloaded pre-built firmware
+	rm -rf build/prebuilt
+	rm -f third_party/misoc/build/*.bit
+	rm -f firmware/fx2/hdmi2usb.hex
 
 .DEFAULT_GOAL := help
-.PHONY: all load-gateware load flash gateware firmware third_party/*
+.PHONY: all load-gateware load flash gateware firmware download-prebuilt third_party/*
