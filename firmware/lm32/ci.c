@@ -154,13 +154,13 @@ static void version(void)
 	int i = 0;
 	printf("gateware version info\r\n");
 	printf("===============================================\r\n");
-	printf("          platform: ");
+	printf("      platform: ");
 	dump_csr(platform_info_platform_read());
 	printf("\r\n");
-	printf("      target: ");
+	printf("        target: ");
 	dump_csr(platform_info_target_read());
 	printf("\r\n");
-	printf("     revision: ");
+	printf("      revision: ");
 	for(i = 0; i < CSR_GIT_INFO_COMMIT_SIZE; i++) {
 		unsigned char r = MMPTR(CSR_GIT_INFO_COMMIT_ADDR+i);
 		printf("%hhx", r);
