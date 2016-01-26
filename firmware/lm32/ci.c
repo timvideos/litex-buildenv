@@ -161,11 +161,11 @@ static void version(void)
 	dump_csr(platform_info_target_read());
 	printf("\r\n");
 	printf("      revision: ");
-	for(i = 0; i < CSR_GIT_INFO_COMMIT_SIZE; i++) {
-		unsigned char r = MMPTR(CSR_GIT_INFO_COMMIT_ADDR+i);
-		printf("%hhx", r);
+	for(i = 0; i < CSR_GIT_INFO_COMMIT_SIZE; i += sizeof(unsigned int)) {
+		unsigned int r = MMPTR(CSR_GIT_INFO_COMMIT_ADDR+i);
+		printf("%x", r);
 	}
-	printf("\r\n");
+	printf("\r\n\r\n");
 	printf("misoc revision: %08x\r\n", identifier_revision_read());
 	printf("-----------------------------------------------\r\n");
 	printf("firmware version info\r\n");
