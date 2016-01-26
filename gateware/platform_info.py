@@ -6,7 +6,7 @@ def binify(s, size):
     blen = int(size / 8)
     assert len(s) <= blen
     s = s+'\0'*(blen-len(s))
-    return sum(ord(c) << i * 8 for i, c in enumerate(s))
+    return sum(ord(c) << i * 8 for i, c in enumerate(reversed(s)))
 
 
 class PlatformInfo(Module, AutoCSR):
