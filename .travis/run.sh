@@ -123,9 +123,10 @@ for BOARD in $BOARDS; do
 			# Not currently built so use .bit instead
 			#cp ../third_party/misoc/build/*.xsvf $COPY_DEST
 			cp ../third_party/misoc/build/*.bit $COPY_DEST
+			cp ../third_party/misoc/build/*.bin $COPY_DEST
 			cp ../build/output.*.log $COPY_DEST/output.log
 			echo ""
-			echo "- Uploading .bit and logfile"
+			echo "- Uploading .bit, .bin and logfile"
 			# Only hdmi2usb is considered usable just now
 			UNSTABLE_LINK="$BOARD/firmware/unstable"
 			if [ "$TARGET" = "hdmi2usb" ]; then
