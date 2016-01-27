@@ -78,7 +78,11 @@ third_party/%/.git: .gitmodules
 
 # Gateware
 MODULES=migen misoc liteeth litescope
-gateware-generate: $(addprefix gateware-generate-,$(TARGETS)) $(addsuffix /.git,$(addprefix third_party/,$(MODULES)))
+gateware-submodules: $(addsuffix /.git,$(addprefix third_party/,$(MODULES)))
+	@true
+
+gateware-generate: gateware-submodules $(addprefix gateware-generate-,$(TARGETS))
+	@echo 'Building target: $@. First dep: $<'
 ifneq ($(OS),Windows_NT)
 	cd $(MSCDIR) && $(CMD) -Ob run False --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream \
 	| $(FILTER) $(PWD)/build/output.$(DATE).log; (exit $${PIPESTATUS[0]})
@@ -86,7 +90,7 @@ else
 	cd $(MSCDIR) && $(CMD) -Ob run False --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream
 endif
 
-gateware-build: $(addprefix gateware-build-,$(TARGETS)) $(addsuffix /.git,$(addprefix third_party/,$(MODULES)))
+gateware-build: gateware-submodules $(addprefix gateware-build-,$(TARGETS))
 ifneq ($(OS),Windows_NT)
 	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream \
 	| $(FILTER) $(PWD)/build/output.$(DATE).log; (exit $${PIPESTATUS[0]})
@@ -135,4 +139,4 @@ clean:
 	rm -f firmware/fx2/hdmi2usb.hex
 
 .DEFAULT_GOAL := help
-.PHONY: all load-gateware load flash gateware firmware download-prebuilt third_party/*
+.PHONY: all load-gateware load flash gateware gateware-submodules gateware-generate gateware-build firmware download-prebuilt third_party/*
