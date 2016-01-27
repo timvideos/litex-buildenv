@@ -14,6 +14,8 @@ from misoclib.mem.sdram.phy import s6ddrphy
 from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
 from misoclib.soc import mem_decoder
 from misoclib.soc.sdram import SDRAMSoC
+from misoclib.com.uart.phy import UARTPHY
+from misoclib.com import uart
 
 from liteeth.phy.s6rgmii import LiteEthPHYRGMII
 from liteeth.core.mac import LiteEthMAC
@@ -124,6 +126,11 @@ class _CRG(Module):
         self.specials += AsyncResetSynchronizer(self.cd_encoder, self.cd_sys.rst)
 
 
+class UARTSharedPads:
+    def __init__(self):
+        self.tx = Signal()
+        self.rx = Signal()
+
 class BaseSoC(SDRAMSoC):
     default_platform = "opsis"
 
@@ -152,12 +159,27 @@ class BaseSoC(SDRAMSoC):
         SDRAMSoC.__init__(self, platform, clk_freq,
                           integrated_rom_size=0x8000,
                           sdram_controller_settings=LASMIconSettings(l2_size=32, with_bandwidth=True),
+                          with_uart=False,
                           **kwargs)
 
         self.submodules.crg = _CRG(platform, clk_freq)
         self.submodules.dna = dna.DNA()
         self.submodules.git_info = git_info.GitInfo()
         self.submodules.platform_info = platform_info.PlatformInfo("opsis", self.__class__.__name__[:8])
+
+
+        fx2_uart_pads = platform.request("serial_fx2")
+        sd_card_uart_pads = platform.request("serial_sd_card")
+        uart_pads = UARTSharedPads()
+        self.comb += [
+          # TX
+          fx2_uart_pads.tx.eq(uart_pads.tx),
+          sd_card_uart_pads.tx.eq(uart_pads.tx),
+          # RX
+          uart_pads.rx.eq(fx2_uart_pads.rx & sd_card_uart_pads.rx)
+        ]
+        self.submodules.uart_phy = UARTPHY(uart_pads, self.clk_freq, 115200)
+        self.submodules.uart = uart.UART(self.uart_phy)
 
 #        self.submodules.opsis_eeprom_i2c = i2c.I2C(platform.request("opsis_eeprom"))
         self.submodules.fx2_reset = gpio.GPIOOut(platform.request("fx2_reset"))
