@@ -241,11 +241,11 @@ _io = [
     # Current use FX2 firmware from https://github.com/mithro/fx2lib/tree/cdc-usb-serialno-from-eeprom/examples/cdc/to-uart
     # FIXME: Will be supported by opsis-mode-switch --mode=serial soon.
     # FIXME: Will be supported by opsis-mode-siwtch --mode=jtag longer term.
-    ("serial", 0,
+    ("serial_fx2", 0,
         # CY_RXD1 - P18 - Cypress RXD0
         Subsignal("tx", Pins("P18"), IOStandard("LVCMOS33")),
         # CY_TXD1 - T17 - Cypress TXD0
-        Subsignal("rx", Pins("T17"), IOStandard("LVCMOS33")),
+        Subsignal("rx", Pins("T17"), IOStandard("LVCMOS33"), Misc("PULLUP")),
     ),
     # To Cypress FX2 UART1
     #("serial", 1,
@@ -254,12 +254,12 @@ _io = [
     #),
     #
     # Florent's UART (requires desoldering 2 resistors on the SD card connector)
-    #("serial", 0,
-    #    # SD_CMD
-    #    Subsignal("tx", Pins("U6"), IOStandard("LVCMOS33")),
-    #    # SD_DAT0
-    #    Subsignal("rx", Pins("AA4"), IOStandard("LVCMOS33")),
-    #),
+    ("serial_sd_card", 0,
+        # SD_CMD
+        Subsignal("tx", Pins("U6"), IOStandard("LVCMOS33")),
+        # SD_DAT0
+        Subsignal("rx", Pins("AA4"), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ),
 
     ## onboard HDMI OUT1
     ## HDMI - connector J3 - Direction TX
