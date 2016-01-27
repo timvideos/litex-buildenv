@@ -96,18 +96,11 @@ for BOARD in $BOARDS; do
 				echo "- No Github token so unable to copy built files"
 			fi
 		else
-			echo ""
-			echo ""
-			echo ""
-			echo "- Fetching non shallow to get git version"
-			echo "---------------------------------------------"
-			git fetch --unshallow && git fetch --tags
-			GIT_REVISION=`git describe`
-			echo "============================================="
 			# Look at repo we are running in to determine where to try pushing to if in a fork
 			COPY_REPO_OWNER=$(echo $TRAVIS_REPO_SLUG|awk -F'/' '{print $1}')
 			echo "COPY_REPO_OWNER = $COPY_REPO_OWNER"
 			COPY_REPO="HDMI2USB-firmware-prebuilt"
+			GIT_REVISION=`git describe`
 			COPY_DEST="archive/$GIT_REVISION/$BOARD/$TARGET"
 			ORIG_COMMITTER_NAME=$(git log -1 --pretty=%an)
 			ORIG_COMMITTER_EMAIL=$(git log -1 --pretty=%ae)
