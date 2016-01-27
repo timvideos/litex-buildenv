@@ -542,7 +542,8 @@ _hdmi_infos = {
       "  To use J1, make sure:\\n"
       "   * JP4 has a jumper (it connects / disconnects 5V to HDMI pin 18).\\n"
       "   * JP2 (marked only as SDA/SCL - not to be confused with JP6 and JP6)\\n"
-      "   has *two* jumpers (horizontally).\\n"
+      "     has *two* jumpers (horizontally).\\n"
+      "   * JP5 has a jumper (it enables the HDMI input buffer).\\n"
     ),
 
     "HDMI_IN1_MNEMONIC": "J3",
@@ -552,7 +553,7 @@ _hdmi_infos = {
       "  To use J3, make sure:\\n"
       "  * JP8 has a jumper (it connects / disconnects 5V to HDMI pin 18)\\n"
       "  * JP6 and JP7 do *not* have any jumpers (it connect J3's and J2's\\n"
-      "  EDID lines together).\\n"
+      "    EDID lines together).\\n"
     ),
 
     "HDMI_OUT0_MNEMONIC": "J2",
@@ -561,7 +562,7 @@ _hdmi_infos = {
       "  To use J2, make sure:\\n"
       "  * JP8 has a jumper (it connects / disconnects 5V to HDMI pin 18)\\n"
       "  * JP6 and JP7 do *not* have any jumpers (it connect J3's and J2's\\n"
-      "  EDID lines together).\\n"
+      "    EDID lines together).\\n"
     ),
 
     "HDMI_OUT1_MNEMONIC": "JB",
