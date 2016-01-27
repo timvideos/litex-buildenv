@@ -7,6 +7,12 @@ from gateware.hdmi_in.common import control_tokens
 
 
 class WER(Module, AutoCSR):
+    """Word Error Rate calculation module.
+
+    https://en.wikipedia.org/wiki/Transition-minimized_differential_signaling
+
+    """
+
     def __init__(self, period_bits=24):
         self.data = Signal(10)
         self._update = CSR()
@@ -20,11 +26,15 @@ class WER(Module, AutoCSR):
         self.sync.pix += data_r.eq(self.data[:9])
 
         # pipeline stage 2
+	# Count the number of transitions in the TMDS word.
         transitions = Signal(8)
         self.comb += [transitions[i].eq(data_r[i] ^ data_r[i+1]) for i in range(8)]
         transition_count = Signal(max=9)
         self.sync.pix += transition_count.eq(optree("+", [transitions[i] for i in range(8)]))
 
+	# Control data characters are designed to have a large number (7) of
+	# transitions to help the receiver synchronize its clock with the
+	# transmitter clock.
         is_control = Signal()
         self.sync.pix += is_control.eq(optree("|", [data_r == ct for ct in control_tokens]))
 
