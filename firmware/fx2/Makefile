@@ -100,9 +100,10 @@ $(FX2LIBDIR)/lib/fx2.lib: $(FX2LIBDIR)/.git
 #
 # Note that although we have the variable FX2LIBDIR, the submodule
 # magic will always check it out in fx2lib/
-$(FX2LIBDIR)/.git:
-	git submodule init $@
-	git submodule update --recursive $@
+$(FX2LIBDIR)/.git: ../../.gitmodules
+	git submodule sync --recursive -- $$(dirname $@)
+	git submodule update --recursive --init $$(dirname $@)
+	touch $@ -r ../../.gitmodules
 
 $(TARGET).hex: $(CC_OBJS) $(AS_OBJS)
 	$(Q_LINK)$(CC) $(CFLAGS) -o $@ $+ $(LIBS)
