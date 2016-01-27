@@ -72,7 +72,8 @@ all: clean gateware firmware
 
 # Initialize submodules automatically
 third_party/%/.git: .gitmodules
-	git submodule update --recursive --init $(dir $@)
+	git submodule sync --recursive -- $$(dirname $@)
+	git submodule update --recursive --init $$(dirname $@)
 	touch $@ -r .gitmodules
 
 # Gateware

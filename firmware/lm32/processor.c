@@ -267,7 +267,7 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 		.v_sync_offset = 4,
 		.v_sync_width = 5
 	},
-    // 720x480 @ 60.00 Hz    Modeline "720x480" 26.72 720 736 808 896 480 481 484 497 -HSync +Vsync
+	// 720x480 @ 60.00 Hz    Modeline "720x480" 26.72 720 736 808 896 480 481 484 497 -HSync +Vsync
 	{
 		.pixel_clock = 2672,
 
@@ -279,7 +279,8 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 		.v_active = 480,
 		.v_blanking = 17,
 		.v_sync_offset = 1,
-		.v_sync_width = 3
+		.v_sync_width = 3,
+		.comment = "(HV20/HV30 in NTSC mode)"
 	}
 };
 
@@ -288,7 +289,11 @@ void processor_list_modes(char *mode_descriptors)
 	int i;
 	for(i=0;i<PROCESSOR_MODE_COUNT;i++) {
 		sprintf(&mode_descriptors[PROCESSOR_MODE_DESCLEN*i],
-			"%ux%u @%uHz", video_modes[i].h_active, video_modes[i].v_active, calculate_refresh_rate(&(video_modes[i])));
+			"%ux%u @%uHz %s",
+			video_modes[i].h_active,
+			video_modes[i].v_active,
+			calculate_refresh_rate(&(video_modes[i])),
+			video_modes[i].comment ? video_modes[i].comment : "");
 	}
 }
 

@@ -128,7 +128,7 @@ void get_monitor_name(const void *buf, char *name)
 
 	name[MAX_MONITOR_NAME_LEN] = 0;
 	memcpy(name, &data_block[5], MAX_MONITOR_NAME_LEN);
-	c = strchr(name, '\r\n');
+	c = strchr(name, '\n');
 	if(c)
 		*c = 0;
 }

@@ -96,18 +96,11 @@ for BOARD in $BOARDS; do
 				echo "- No Github token so unable to copy built files"
 			fi
 		else
-			echo ""
-			echo ""
-			echo ""
-			echo "- Fetching non shallow to get git version"
-			echo "---------------------------------------------"
-			git fetch --unshallow && git fetch --tags
-			GIT_REVISION=`git describe`
-			echo "============================================="
 			# Look at repo we are running in to determine where to try pushing to if in a fork
 			COPY_REPO_OWNER=$(echo $TRAVIS_REPO_SLUG|awk -F'/' '{print $1}')
 			echo "COPY_REPO_OWNER = $COPY_REPO_OWNER"
 			COPY_REPO="HDMI2USB-firmware-prebuilt"
+			GIT_REVISION=`git describe`
 			COPY_DEST="archive/$GIT_REVISION/$BOARD/$TARGET"
 			ORIG_COMMITTER_NAME=$(git log -1 --pretty=%an)
 			ORIG_COMMITTER_EMAIL=$(git log -1 --pretty=%ae)
@@ -123,9 +116,10 @@ for BOARD in $BOARDS; do
 			# Not currently built so use .bit instead
 			#cp ../third_party/misoc/build/*.xsvf $COPY_DEST
 			cp ../third_party/misoc/build/*.bit $COPY_DEST
+			cp ../third_party/misoc/build/*.bin $COPY_DEST
 			cp ../build/output.*.log $COPY_DEST/output.log
 			echo ""
-			echo "- Uploading .bit and logfile"
+			echo "- Uploading .bit, .bin and logfile"
 			# Only hdmi2usb is considered usable just now
 			UNSTABLE_LINK="$BOARD/firmware/unstable"
 			if [ "$TARGET" = "hdmi2usb" ]; then

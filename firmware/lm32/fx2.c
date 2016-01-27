@@ -43,8 +43,8 @@ static inline uint8_t fx2_fw_get_value(size_t addr) {
 	return r;
 }
 
-#define FX2_REPORT_PERIOD (1 << 22)
-#define FX2_WAIT_PERIOD FX2_REPORT_PERIOD*10
+#define FX2_REPORT_PERIOD (1 << 20)
+#define FX2_WAIT_PERIOD FX2_REPORT_PERIOD*5
 
 static void fx2_load_init(void)
 {
