@@ -630,6 +630,18 @@ void ci_service(void)
 		token = get_token(&str);
 		if(strcmp(token, "pll") == 0)
 			debug_pll();
+#ifdef CSR_HDMI_IN0_BASE
+		else if(strcmp(token, "input0") == 0) {
+			hdmi_in0_debug = !hdmi_in0_debug;
+			printf("HDMI Input 0 debug %s\r\n", hdmi_in0_debug ? "on" : "off");
+		}
+#endif
+#ifdef CSR_HDMI_IN1_BASE
+		else if(strcmp(token, "input1") == 0) {
+			hdmi_in1_debug = !hdmi_in1_debug;
+			printf("HDMI Input 1 debug %s\r\n", hdmi_in1_debug ? "on" : "off");
+		}
+#endif
 		else if(strcmp(token, "ddr") == 0)
 			debug_ddr();
 		else if(strcmp(token, "dna") == 0)
