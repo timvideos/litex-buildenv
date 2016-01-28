@@ -58,6 +58,7 @@ void print_version(void) {
 	printf("firmware version info\r\n");
 	printf("===============================================\r\n");
 	printf("    git commit: %s\n", git_commit);
+	printf("    git branch: %s\n", git_branch);
 	printf("  git describe: %s\n", git_describe);
 	printf("    git status:\n%s\n", git_status);
 	printf("         built: "__DATE__" "__TIME__"\r\n");

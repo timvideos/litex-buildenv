@@ -14,7 +14,7 @@ if [ ! -e $BUILD_DIR ]; then
 	exit 1
 fi
 
-CURRENT_GIT_REVISION=$(git describe)
+CURRENT_GIT_REVISION=$(git symbolic-ref --short HEAD)/$(git describe)
 
 : ${BOARD:="atlys"}
 : ${TARGET:="hdmi2usb"}

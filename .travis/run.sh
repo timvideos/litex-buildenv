@@ -87,7 +87,7 @@ for BOARD in $BOARDS; do
 		fi
 
 		# Copy built files
-		if [ -z $GH_TOKEN  ]; then
+		if [ -z "$GH_TOKEN" ]; then
 			# Only if run by travis display error
 			if [ ! -z $TRAVIS_BUILD_NUMBER  ]; then
 				echo ""
@@ -95,12 +95,17 @@ for BOARD in $BOARDS; do
 				echo ""
 				echo "- No Github token so unable to copy built files"
 			fi
+		elif [ -z "$TRAVIS_BRANCH" ]; then
+			echo ""
+			echo ""
+			echo ""
+			echo "- No branch name, unable to copy built files"
 		else
 			# Look at repo we are running in to determine where to try pushing to if in a fork
 			COPY_REPO_OWNER=$(echo $TRAVIS_REPO_SLUG|awk -F'/' '{print $1}')
 			echo "COPY_REPO_OWNER = $COPY_REPO_OWNER"
 			COPY_REPO="HDMI2USB-firmware-prebuilt"
-			GIT_REVISION=`git describe`
+			GIT_REVISION=$TRAVIS_BRANCH/$(git describe)
 			COPY_DEST="archive/$GIT_REVISION/$BOARD/$TARGET"
 			ORIG_COMMITTER_NAME=$(git log -1 --pretty=%an)
 			ORIG_COMMITTER_EMAIL=$(git log -1 --pretty=%ae)
