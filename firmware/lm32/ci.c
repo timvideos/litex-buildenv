@@ -302,7 +302,7 @@ static void video_mode_list(void)
 	printf("\r\n");
 }
 
-static void video_mode_set(int mode)
+void video_mode_set(int mode)
 {
 	char mode_descriptors[PROCESSOR_MODE_COUNT*PROCESSOR_MODE_DESCLEN];
 	if(mode < PROCESSOR_MODE_COUNT) {
@@ -368,19 +368,19 @@ static void output1_off(void)
 #endif
 
 #ifdef ENCODER_BASE
-static void encoder_on(void)
+void encoder_on(void)
 {
 	printf("Enabling encoder\r\n");
 	encoder_enable(1);
 }
 
-static void encoder_configure_quality(int quality)
+void encoder_configure_quality(int quality)
 {
 	printf("Setting encoder quality to %d\r\n", quality);
 	encoder_set_quality(quality);
 }
 
-static void encoder_configure_fps(int fps)
+void encoder_configure_fps(int fps)
 {
 	printf("Setting encoder fps to %d\r\n", fps);
 	encoder_set_fps(fps);

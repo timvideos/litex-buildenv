@@ -34,18 +34,30 @@ int main(void)
 	puts("\r\nHDMI2USB firmware  http://timvideos.us/");
 	print_version();
 
+/*
+https://github.com/xfxf/video-scripts/blob/master/carl/hu-mk-conf.sh
+video_mode 9
+video_matrix connect input1 output0
+video_matrix connect input1 output1
+video_matrix connect input1 encoder
+encoder on
+encoder quality 75
+*/
+
 	config_init();
 	time_init();
 	processor_init();
 	processor_start(config_get(CONFIG_KEY_RESOLUTION));
 
+	video_mode_set(10); // 1280x720 @50Hz
+
 	// Set HDMI Output 0 to be pattern
 #ifdef CSR_HDMI_OUT0_BASE
-	processor_set_hdmi_out0_source(VIDEO_IN_PATTERN);
+	processor_set_hdmi_out0_source(VIDEO_IN_HDMI_IN1);
 #endif
 	// Set HDMI Output 1 to be pattern
 #ifdef CSR_HDMI_OUT1_BASE
-	processor_set_hdmi_out1_source(VIDEO_IN_PATTERN);
+	processor_set_hdmi_out1_source(VIDEO_IN_HDMI_IN1);
 #endif
 	processor_update();
 
@@ -56,10 +68,13 @@ int main(void)
 
 	// Set Encoder to be pattern
 #ifdef ENCODER_BASE
-	processor_set_encoder_source(VIDEO_IN_PATTERN);
+	processor_set_encoder_source(VIDEO_IN_HDMI_IN1);
+	encoder_configure_quality(75);
+	encoder_configure_fps(25); // Half of 50Hz above
 	encoder_enable(1);
 	processor_update();
 #endif
+
 	ci_prompt();
 	while(1) {
 		processor_service();
