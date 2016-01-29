@@ -47,7 +47,7 @@
 
                             (1|a)    (2)    (3)  (4)
  ModeLine "640x480"    31.5  640    664    704  832    480  489  491  520
-                              |\-(c)-/\-(b)-/    |
+                              |\-(c)-/\-(d)-/    |
                               |   24    40       |
                               |                  |
                               \--------(b)-------/
@@ -281,7 +281,23 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 		.v_sync_offset = 1,
 		.v_sync_width = 3,
 		.comment = "(HV20/HV30 in NTSC mode)"
+	},
+	// 720x576 @ 50.00 Hz    Modeline 720x576" 32.67 720 744 816 912 576 577 580 597 -HSync +Vsyncc
+	{
+		.pixel_clock = 3267,
+
+		.h_active = 720,
+		.h_blanking = 192,
+		.h_sync_offset = 24,
+		.h_sync_width = 72,
+
+		.v_active = 576,
+		.v_blanking = 21,
+		.v_sync_offset = 1,
+		.v_sync_width = 3,
+		.comment = "(HV20/HV30 in PAL mode)"
 	}
+
 };
 
 void processor_list_modes(char *mode_descriptors)
