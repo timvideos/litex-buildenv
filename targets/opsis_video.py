@@ -44,7 +44,7 @@ def CreateVideoMixerSoC(base):
                 self.sdram.crossbar.get_master(),
                 self.hdmi_out0.driver.clocking,
                 fifo_depth=1024)
-    
+
             # all PLL_ADV are used: router needs help...
             platform.add_platform_command("""INST PLL_ADV LOC=PLL_ADV_X0Y0;""")
             # FIXME: Fix the HDMI out so this can be removed.
@@ -52,18 +52,18 @@ def CreateVideoMixerSoC(base):
                 """PIN "hdmi_out_pix_bufg.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
             platform.add_platform_command(
                 """PIN "hdmi_out_pix_bufg_1.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
-            platform.add_platform_command(
-                """
-NET "{pix0_clk}" TNM_NET = "GRPpix0_clk";
-NET "{pix1_clk}" TNM_NET = "GRPpix1_clk";
-TIMESPEC "TSise_sucks7" = FROM "GRPpix0_clk" TO "GRPsys_clk" TIG;
-TIMESPEC "TSise_sucks8" = FROM "GRPsys_clk" TO "GRPpix0_clk" TIG;
-TIMESPEC "TSise_sucks9" = FROM "GRPpix1_clk" TO "GRPsys_clk" TIG;
-TIMESPEC "TSise_sucks10" = FROM "GRPsys_clk" TO "GRPpix1_clk" TIG;
-""", 
-                pix0_clk=self.hdmi_out0.driver.clocking.cd_pix.clk,
-                pix1_clk=self.hdmi_out1.driver.clocking.cd_pix.clk,
-            )
+#            platform.add_platform_command(
+#                """
+#NET "{pix0_clk}" TNM_NET = "GRPpix0_clk";
+#NET "{pix1_clk}" TNM_NET = "GRPpix1_clk";
+#TIMESPEC "TSise_sucks7" = FROM "GRPpix0_clk" TO "GRPsys_clk" TIG;
+#TIMESPEC "TSise_sucks8" = FROM "GRPsys_clk" TO "GRPpix0_clk" TIG;
+#TIMESPEC "TSise_sucks9" = FROM "GRPpix1_clk" TO "GRPsys_clk" TIG;
+#TIMESPEC "TSise_sucks10" = FROM "GRPsys_clk" TO "GRPpix1_clk" TIG;
+#""",
+#                pix0_clk=self.hdmi_out0.driver.clocking.cd_pix.clk,
+#                pix1_clk=self.hdmi_out1.driver.clocking.cd_pix.clk,
+#            )
 
             for k, v in sorted(platform.hdmi_infos.items()):
                 self.add_constant(k, v)

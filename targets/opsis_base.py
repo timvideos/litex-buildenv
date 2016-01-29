@@ -44,63 +44,105 @@ class _CRG(Module):
         self.clk8x_wr_strb = Signal()
         self.clk8x_rd_strb = Signal()
 
+        # Input 100MHz clock
         f0 = 100*1000000
         clk100 = platform.request("clk100")
         clk100a = Signal()
+        # Input 100MHz clock (buffered)
         self.specials += Instance("IBUFG", i_I=clk100, o_O=clk100a)
         clk100b = Signal()
-        self.specials += Instance("BUFIO2", p_DIVIDE=1,
-                                  p_DIVIDE_BYPASS="TRUE", p_I_INVERT="FALSE",
-                                  i_I=clk100a, o_DIVCLK=clk100b)
+        self.specials += Instance(
+            "BUFIO2", p_DIVIDE=1,
+            p_DIVIDE_BYPASS="TRUE", p_I_INVERT="FALSE",
+            i_I=clk100a, o_DIVCLK=clk100b)
+
         f = Fraction(int(clk_freq), int(f0))
         n, m = f.denominator, f.numerator
         assert f0/n*m == clk_freq
         p = 8
         pll_lckd = Signal()
         pll_fb = Signal()
-        pll = Signal(6)
-        self.specials.pll = Instance("PLL_ADV", p_SIM_DEVICE="SPARTAN6",
-                                     p_BANDWIDTH="OPTIMIZED", p_COMPENSATION="INTERNAL",
-                                     p_REF_JITTER=.01, p_CLK_FEEDBACK="CLKFBOUT",
-                                     i_DADDR=0, i_DCLK=0, i_DEN=0, i_DI=0, i_DWE=0, i_RST=0, i_REL=0,
-                                     p_DIVCLK_DIVIDE=1, p_CLKFBOUT_MULT=m*p//n, p_CLKFBOUT_PHASE=0.,
-                                     i_CLKIN1=clk100b, i_CLKIN2=0, i_CLKINSEL=1,
-                                     p_CLKIN1_PERIOD=1e9/f0, p_CLKIN2_PERIOD=0.,
-                                     i_CLKFBIN=pll_fb, o_CLKFBOUT=pll_fb, o_LOCKED=pll_lckd,
-                                     o_CLKOUT0=pll[0], p_CLKOUT0_DUTY_CYCLE=.5,
-                                     o_CLKOUT1=pll[1], p_CLKOUT1_DUTY_CYCLE=.5,
-                                     o_CLKOUT2=pll[2], p_CLKOUT2_DUTY_CYCLE=.5,
-                                     o_CLKOUT3=pll[3], p_CLKOUT3_DUTY_CYCLE=.5,
-                                     o_CLKOUT4=pll[4], p_CLKOUT4_DUTY_CYCLE=.5,
-                                     o_CLKOUT5=pll[5], p_CLKOUT5_DUTY_CYCLE=.5,
-                                     p_CLKOUT0_PHASE=0., p_CLKOUT0_DIVIDE=p//8,  # sdram wr rd
-                                     p_CLKOUT1_PHASE=0., p_CLKOUT1_DIVIDE=6,
-                                     p_CLKOUT2_PHASE=230., p_CLKOUT2_DIVIDE=p//4,  # sdram dqs adr ctrl
-                                     p_CLKOUT3_PHASE=210., p_CLKOUT3_DIVIDE=p//4,  # off-chip ddr
-                                     p_CLKOUT4_PHASE=0., p_CLKOUT4_DIVIDE=p//2,
-                                     p_CLKOUT5_PHASE=0., p_CLKOUT5_DIVIDE=p//1,  # sys
+
+        unbuffered_sdram_full = Signal()
+        unbuffered_sdram_half_a = Signal()
+        unbuffered_sdram_half_b = Signal()
+        unbuffered_encoder = Signal()
+        unbuffered_sys = Signal()
+        unbuffered_sys2x = Signal()
+
+        self.specials.pll = Instance(
+            "PLL_ADV",
+            p_SIM_DEVICE="SPARTAN6", p_BANDWIDTH="OPTIMIZED", p_COMPENSATION="INTERNAL",
+            p_REF_JITTER=.01,
+            i_DADDR=0, i_DCLK=0, i_DEN=0, i_DI=0, i_DWE=0, i_RST=0, i_REL=0,
+            p_DIVCLK_DIVIDE=1,
+            # Input Clocks (100MHz)
+            i_CLKIN1=clk100b,
+            p_CLKIN1_PERIOD=1e9/f0,
+            i_CLKIN2=0,
+            p_CLKIN2_PERIOD=0.,
+            i_CLKINSEL=1,
+            # Feedback
+            i_CLKFBIN=pll_fb, o_CLKFBOUT=pll_fb, o_LOCKED=pll_lckd,
+            p_CLK_FEEDBACK="CLKFBOUT",
+            p_CLKFBOUT_MULT=m*p//n, p_CLKFBOUT_PHASE=0.,
+            # (800MHz) sdram wr rd
+            o_CLKOUT0=unbuffered_sdram_full, p_CLKOUT0_DUTY_CYCLE=.5,
+            p_CLKOUT0_PHASE=0., p_CLKOUT0_DIVIDE=p//8,
+            # ( 66MHz) encoder
+            o_CLKOUT1=unbuffered_encoder, p_CLKOUT1_DUTY_CYCLE=.5,
+            p_CLKOUT1_PHASE=0., p_CLKOUT1_DIVIDE=6,
+            # (400MHz) sdram_half - sdram dqs adr ctrl
+            o_CLKOUT2=unbuffered_sdram_half_a, p_CLKOUT2_DUTY_CYCLE=.5,
+            p_CLKOUT2_PHASE=230., p_CLKOUT2_DIVIDE=p//4,
+            # (400MHz) off-chip ddr
+            o_CLKOUT3=unbuffered_sdram_half_b, p_CLKOUT3_DUTY_CYCLE=.5,
+            p_CLKOUT3_PHASE=210., p_CLKOUT3_DIVIDE=p//4,
+            # (100MHz) sys2x
+            o_CLKOUT4=unbuffered_sys2x, p_CLKOUT4_DUTY_CYCLE=.5,
+            p_CLKOUT4_PHASE=0., p_CLKOUT4_DIVIDE=p//2,
+            # ( 50MHz) base50 / sys
+            o_CLKOUT5=unbuffered_sys, p_CLKOUT5_DUTY_CYCLE=.5,
+            p_CLKOUT5_PHASE=0., p_CLKOUT5_DIVIDE=p//1,
         )
-        self.specials += Instance("BUFG", i_I=pll[4], o_O=self.cd_sys2x.clk)
-        self.specials += Instance("BUFG", i_I=pll[5], o_O=self.cd_sys.clk)
+        # power on reset?
         reset = ~platform.request("cpu_reset")
         self.clock_domains.cd_por = ClockDomain()
         por = Signal(max=1 << 11, reset=(1 << 11) - 1)
         self.sync.por += If(por != 0, por.eq(por - 1))
-        self.comb += self.cd_por.clk.eq(self.cd_sys.clk)
         self.specials += AsyncResetSynchronizer(self.cd_por, reset)
-        self.specials += AsyncResetSynchronizer(self.cd_sys2x, ~pll_lckd | (por > 0))
+
+        # sys
+        self.specials += Instance("BUFG", i_I=unbuffered_sys, o_O=self.cd_sys.clk)
+        self.comb += self.cd_por.clk.eq(self.cd_sys.clk)
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~pll_lckd | (por > 0))
-        self.specials += Instance("BUFG", i_I=pll[2], o_O=self.cd_sdram_half.clk)
+
+        # base50
+        self.specials += Instance("BUFG", i_I=unbuffered_sys, o_O=self.cd_base50.clk)
+
+        # sys2x
+        self.specials += Instance("BUFG", i_I=unbuffered_sys2x, o_O=self.cd_sys2x.clk)
+        self.specials += AsyncResetSynchronizer(self.cd_sys2x, ~pll_lckd | (por > 0))
+
+        # encoder
+        self.specials += Instance("BUFG", i_I=unbuffered_encoder, o_O=self.cd_encoder.clk) # 66 MHz
+        self.specials += AsyncResetSynchronizer(self.cd_encoder, self.cd_sys.rst)
+
+        # SDRAM clocks
+        # ------------------------------------------------------------------------------
+        # sdram_full
         self.specials += Instance("BUFPLL", p_DIVIDE=4,
-                                  i_PLLIN=pll[0], i_GCLK=self.cd_sys2x.clk,
+                                  i_PLLIN=unbuffered_sdram_full, i_GCLK=self.cd_sys2x.clk,
                                   i_LOCKED=pll_lckd, o_IOCLK=self.cd_sdram_full_wr.clk,
                                   o_SERDESSTROBE=self.clk8x_wr_strb)
         self.comb += [
             self.cd_sdram_full_rd.clk.eq(self.cd_sdram_full_wr.clk),
             self.clk8x_rd_strb.eq(self.clk8x_wr_strb),
         ]
+        # sdram_half
+        self.specials += Instance("BUFG", i_I=unbuffered_sdram_half_a, o_O=self.cd_sdram_half.clk)
         clk_sdram_half_shifted = Signal()
-        self.specials += Instance("BUFG", i_I=pll[3], o_O=clk_sdram_half_shifted)
+        self.specials += Instance("BUFG", i_I=unbuffered_sdram_half_b, o_O=clk_sdram_half_shifted)
 
         output_clk = Signal()
         clk = platform.request("ddram_clock")
@@ -111,20 +153,25 @@ class _CRG(Module):
                                   o_Q=output_clk)
         self.specials += Instance("OBUFDS", i_I=output_clk, o_O=clk.p, o_OB=clk.n)
 
+        #dcm_base50_locked = Signal()
+        #
+        #   i_CLKIN = 100MHz
+        #   o_CLKFX = 50MHz
+        # o_CLKFXDV = ???
+        #    FCLKFX = FCLKIN * (CLKFX_MULTIPLY / CLKFX_DIVIDE)
+        #     50MHz = 100MHz * (2              / 4)
+        #  FCLKFXDV = FCLKFX / CLKFXDV_DIVIDE
+        #     25MHz =  50MHz / 2
+        #self.specials += Instance("DCM_CLKGEN",
+        #                          p_CLKFXDV_DIVIDE=2, p_CLKFX_DIVIDE=4, p_CLKFX_MD_MAX=1.0, p_CLKFX_MULTIPLY=2,
+        #                          p_CLKIN_PERIOD=10.0, p_SPREAD_SPECTRUM="NONE", p_STARTUP_WAIT="FALSE",
+        #
+        #                          i_CLKIN=clk100a, o_CLKFX=self.cd_base50.clk,
+        #                          o_LOCKED=dcm_base50_locked,
+        #                          i_FREEZEDCM=0, i_RST=ResetSignal())
+        #self.specials += AsyncResetSynchronizer(self.cd_base50, self.cd_sys.rst | ~dcm_base50_locked)
+        #platform.add_period_constraint(self.cd_base50.clk, 20)
 
-        dcm_base50_locked = Signal()
-        self.specials += Instance("DCM_CLKGEN",
-                                  p_CLKFXDV_DIVIDE=2, p_CLKFX_DIVIDE=4, p_CLKFX_MD_MAX=1.0, p_CLKFX_MULTIPLY=2,
-                                  p_CLKIN_PERIOD=10.0, p_SPREAD_SPECTRUM="NONE", p_STARTUP_WAIT="FALSE",
-
-                                  i_CLKIN=clk100a, o_CLKFX=self.cd_base50.clk,
-                                  o_LOCKED=dcm_base50_locked,
-                                  i_FREEZEDCM=0, i_RST=ResetSignal())
-        self.specials += AsyncResetSynchronizer(self.cd_base50, self.cd_sys.rst | ~dcm_base50_locked)
-        platform.add_period_constraint(self.cd_base50.clk, 20)
-
-        self.specials += Instance("BUFG", i_I=pll[1], o_O=self.cd_encoder.clk) # 66 MHz
-        self.specials += AsyncResetSynchronizer(self.cd_encoder, self.cd_sys.rst)
 
 
 class UARTSharedPads:
