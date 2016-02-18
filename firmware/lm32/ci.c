@@ -630,15 +630,88 @@ void ci_service(void)
 		token = get_token(&str);
 		if(strcmp(token, "pll") == 0)
 			debug_pll();
+		else if(strcmp(token, "input") == 0) {
+			token = get_token(&str);
+			if(strcmp(token, "on") == 0) {
 #ifdef CSR_HDMI_IN0_BASE
-		else if(strcmp(token, "input0") == 0) {
-			hdmi_in0_debug = !hdmi_in0_debug;
+				hdmi_in0_debug = 1;
+#endif
+#ifdef CSR_HDMI_IN1_BASE
+				hdmi_in1_debug = 1;
+#endif
+			}
+			else if(strcmp(token, "off") == 0) {
+#ifdef CSR_HDMI_IN0_BASE
+				hdmi_in0_debug = 0;
+#endif
+#ifdef CSR_HDMI_IN1_BASE
+				hdmi_in1_debug = 0;
+#endif
+			}
+			else if(strcmp(token, "?") != 0) {
+#ifdef CSR_HDMI_IN0_BASE
+				hdmi_in0_debug = !hdmi_in0_debug;
+#endif
+#ifdef CSR_HDMI_IN1_BASE
+				hdmi_in1_debug = !hdmi_in1_debug;
+#endif
+			}
+#ifdef CSR_HDMI_IN0_BASE
+            printf("HDMI Input 0 debug %s\r\n", hdmi_in0_debug ? "on" : "off");
+#endif
+#ifdef CSR_HDMI_IN1_BASE
+			printf("HDMI Input 1 debug %s\r\n", hdmi_in1_debug ? "on" : "off");
+#endif
+		}
+		else if(strcmp(token, "on") == 0) {
+#ifdef CSR_HDMI_IN0_BASE
+			hdmi_in0_debug = 1;
+			printf("HDMI Input 0 debug %s\r\n", hdmi_in0_debug ? "on" : "off");
+#endif
+#ifdef CSR_HDMI_IN1_BASE
+			hdmi_in1_debug = 1;
+			printf("HDMI Input 1 debug %s\r\n", hdmi_in1_debug ? "on" : "off");
+#endif
+		}
+		else if(strcmp(token, "off") == 0) {
+#ifdef CSR_HDMI_IN0_BASE
+			hdmi_in0_debug = 0;
+			printf("HDMI Input 0 debug %s\r\n", hdmi_in0_debug ? "on" : "off");
+#endif
+#ifdef CSR_HDMI_IN1_BASE
+			hdmi_in1_debug = 0;
+			printf("HDMI Input 1 debug %s\r\n", hdmi_in1_debug ? "on" : "off");
+#endif
+		}
+		else if(strcmp(token, "?") == 0) {
+#ifdef CSR_HDMI_IN0_BASE
+			printf("HDMI Input 0 debug %s\r\n", hdmi_in0_debug ? "on" : "off");
+#endif
+#ifdef CSR_HDMI_IN1_BASE
+			printf("HDMI Input 1 debug %s\r\n", hdmi_in1_debug ? "on" : "off");
+#endif
+		}
+#ifdef CSR_HDMI_IN0_BASE
+		else if(strcmp(token, "input0") == 0 || strcmp(token, "0") == 0) {
+			token = get_token(&str);
+			if(strcmp(token, "on") == 0)
+				hdmi_in0_debug = 1;
+			else if(strcmp(token, "off") == 0)
+				hdmi_in0_debug = 0;
+			else if(strcmp(token, "?") != 0)
+				hdmi_in0_debug = !hdmi_in0_debug;
 			printf("HDMI Input 0 debug %s\r\n", hdmi_in0_debug ? "on" : "off");
 		}
 #endif
 #ifdef CSR_HDMI_IN1_BASE
-		else if(strcmp(token, "input1") == 0) {
-			hdmi_in1_debug = !hdmi_in1_debug;
+		else if(strcmp(token, "input1") == 0 || strcmp(token, "1") == 0) {
+			token = get_token(&str);
+			if(strcmp(token, "on") == 0)
+				hdmi_in1_debug = 1;
+			else if(strcmp(token, "off") == 0)
+				hdmi_in1_debug = 0;
+			else if(strcmp(token, "?") != 0)
+				hdmi_in1_debug = !hdmi_in1_debug;
 			printf("HDMI Input 1 debug %s\r\n", hdmi_in1_debug ? "on" : "off");
 		}
 #endif
