@@ -21,6 +21,29 @@ class BaseSoC(SoCCore):
             **kwargs)
         self.submodules.crg = CRG(platform.request(platform.default_clk_name))
 
+        hdled = platform.request("hdled")
+        pwled = platform.request("pwled")
+        rstsw = platform.request("rstsw")
+        pwrsw = platform.request("pwrsw")
+        self.comb += [
+            rstsw.p.eq(1),
+            hdled.p.eq(rstsw.n),
+            hdled.n.eq(~rstsw.n),
+            pwrsw.p.eq(1),
+            pwled.p.eq(pwrsw.n),
+            pwled.n.eq(~pwrsw.n),
+        ]
+        user_led0 = platform.request("user_led", 0)
+        user_led1 = platform.request("user_led", 1)
+        user_led2 = platform.request("user_led", 2)
+        user_led3 = platform.request("user_led", 3)
+        self.comb += [
+            user_led0.eq(1),
+            user_led1.eq(0),
+            user_led2.eq(1),
+            user_led3.eq(0)
+        ]
+
 def main():
     parser = argparse.ArgumentParser(description="Opsis LiteX SoC")
     builder_args(parser)
