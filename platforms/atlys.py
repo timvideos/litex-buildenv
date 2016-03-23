@@ -538,39 +538,39 @@ _connectors = [
 _hdmi_infos = {
     "HDMI_IN0_MNEMONIC": "J1",
     "HDMI_IN0_DESCRIPTION" : (
-      "  Type A connector, marked as J1, on side with USB connectors.\\n"
-      "  To use J1, make sure:\\n"
-      "   * JP4 has a jumper (it connects / disconnects 5V to HDMI pin 18).\\n"
-      "   * JP2 (marked only as SDA/SCL - not to be confused with JP6 and JP6)\\n"
-      "     has *two* jumpers (horizontally).\\n"
-      "   * JP5 has a jumper (it enables the HDMI input buffer).\\n"
+      "  Type A connector, marked as J1, on side with USB connectors.\\r\\n"
+      "  To use J1, make sure:\\r\\n"
+      "   * JP4 has a jumper (it connects / disconnects 5V to HDMI pin 18).\\r\\n"
+      "   * JP2 (marked only as SDA/SCL - not to be confused with JP6 and JP6)\\r\\n"
+      "     has *two* jumpers (horizontally).\\r\\n"
+      "   * JP5 has a jumper (it enables the HDMI input buffer).\\r\\n"
     ),
 
     "HDMI_IN1_MNEMONIC": "J3",
     "HDMI_IN1_DESCRIPTION" : (
-      "  Type A connector, marked as J3, between audio connectors and\\n"
-      "  Ethernet RJ45 connector.\\n"
-      "  To use J3, make sure:\\n"
-      "  * JP8 has a jumper (it connects / disconnects 5V to HDMI pin 18)\\n"
-      "  * JP6 and JP7 do *not* have any jumpers (it connect J3's and J2's\\n"
-      "    EDID lines together).\\n"
+      "  Type A connector, marked as J3, between audio connectors and\\r\\n"
+      "  Ethernet RJ45 connector.\\r\\n"
+      "  To use J3, make sure:\\r\\n"
+      "  * JP8 has a jumper (it connects / disconnects 5V to HDMI pin 18)\\r\\n"
+      "  * JP6 and JP7 do *not* have any jumpers (it connect J3's and J2's\\r\\n"
+      "    EDID lines together).\\r\\n"
     ),
 
     "HDMI_OUT0_MNEMONIC": "J2",
     "HDMI_OUT0_DESCRIPTION" : (
-      "  Type A connector, marked as J2, next to the power connector.\\n"
-      "  To use J2, make sure:\\n"
-      "  * JP8 has a jumper (it connects / disconnects 5V to HDMI pin 18)\\n"
-      "  * JP6 and JP7 do *not* have any jumpers (it connect J3's and J2's\\n"
-      "    EDID lines together).\\n"
+      "  Type A connector, marked as J2, next to the power connector.\\r\\n"
+      "  To use J2, make sure:\\r\\n"
+      "  * JP8 has a jumper (it connects / disconnects 5V to HDMI pin 18)\\r\\n"
+      "  * JP6 and JP7 do *not* have any jumpers (it connect J3's and J2's\\r\\n"
+      "    EDID lines together).\\r\\n"
     ),
 
     "HDMI_OUT1_MNEMONIC": "JB",
     "HDMI_OUT1_DESCRIPTION" : (
-      "  Micro-D connector, marked as JB, on the same side as switches\\n"
-      "  + LEDs but on the underside of the board below MOD connector.\\n"
-      "  Works as either output or input because it isn't buffered.\\n"
-      "  Also often referred to as 'JA'.\\n"
+      "  Micro-D connector, marked as JB, on the same side as switches\\r\\n"
+      "  + LEDs but on the underside of the board below MOD connector.\\r\\n"
+      "  Works as either output or input because it isn't buffered.\\r\\n"
+      "  Also often referred to as 'JA'.\\r\\n"
     )
 }
 

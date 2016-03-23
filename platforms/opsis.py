@@ -329,26 +329,26 @@ _connectors = [
 _hdmi_infos = {
     "HDMI_OUT0_MNEMONIC": "TX1",
     "HDMI_OUT0_DESCRIPTION" : (
-      "  The *first* HDMI port from the left.\\n"
-      "  Labeled J3 and HDMI Out 1.\\n"
+      "  The *first* HDMI port from the left.\\r\\n"
+      "  Labeled J3 and HDMI Out 1.\\r\\n"
     ),
 
     "HDMI_OUT1_MNEMONIC": "TX2",
     "HDMI_OUT1_DESCRIPTION" : (
-      "  The *second* HDMI port from the left.\\n"
-      "  Labeled J2 and HDMI Out 2.\\n"
+      "  The *second* HDMI port from the left.\\r\\n"
+      "  Labeled J2 and HDMI Out 2.\\r\\n"
     ),
 
     "HDMI_IN0_MNEMONIC": "RX1",
     "HDMI_IN0_DESCRIPTION" : (
-      "  The *third* HDMI port from the left.\\n"
-      "  Labeled J5 and HDMI In 1.\\n"
+      "  The *third* HDMI port from the left.\\r\\n"
+      "  Labeled J5 and HDMI In 1.\\r\\n"
     ),
 
     "HDMI_IN1_MNEMONIC": "RX2",
     "HDMI_IN1_DESCRIPTION" : (
-      "  The *fourth* HDMI port from the left. (Closest to the USB.)\\n"
-      "  Labeled J4 and HDMI In 2.\\n"
+      "  The *fourth* HDMI port from the left. (Closest to the USB.)\\r\\n"
+      "  Labeled J4 and HDMI In 2.\\r\\n"
     ),
 }
 
