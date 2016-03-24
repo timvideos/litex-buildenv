@@ -224,8 +224,10 @@ NET "{base50_clk}" TNM_NET = "TIGbase50_clk";
             sys_clk=self.crg.cd_sys.clk,
             base50_clk=self.crg.cd_base50.clk,
         )
-        platform.add_period_constraint(self.crg.cd_sys.clk, math.floor(1e9/clk_freq))
-        platform.add_period_constraint(self.crg.cd_base50.clk, 20) # 50 MHz
+        # These constraints are unneeded because ISE will trace through the PLL
+        # block and calculate them.
+        #platform.add_period_constraint(self.crg.cd_sys.clk, math.floor(1e9/clk_freq))
+        #platform.add_period_constraint(self.crg.cd_base50.clk, 20) # 50 MHz
 
 
 class MiniSoC(BaseSoC):
