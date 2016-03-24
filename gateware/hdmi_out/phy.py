@@ -90,14 +90,36 @@ class _Clocking(Module, AutoCSR):
             pix_progen = Signal()
             pix_progdone = Signal()
             pix_locked = Signal()
-            self.specials += Instance("DCM_CLKGEN",
-                                      p_CLKFXDV_DIVIDE=2, p_CLKFX_DIVIDE=4, p_CLKFX_MD_MAX=1.0, p_CLKFX_MULTIPLY=2,
-                                      p_CLKIN_PERIOD=20.0, p_SPREAD_SPECTRUM="NONE", p_STARTUP_WAIT="FALSE",
+            self.specials += Instance(
+                "DCM_CLKGEN",
 
-                                      i_CLKIN=ClockSignal("base50"), o_CLKFX=clk_pix_unbuffered,
-                                      i_PROGCLK=ClockSignal(), i_PROGDATA=pix_progdata, i_PROGEN=pix_progen,
-                                      o_PROGDONE=pix_progdone, o_LOCKED=pix_locked,
-                                      i_FREEZEDCM=0, i_RST=ResetSignal())
+                # i_CLKIN = 50MHz
+                i_CLKIN=ClockSignal("base50"),
+                p_CLKIN_PERIOD=20.0,
+
+                #  FCLKFXDV = FCLKFX / CLKFXDV_DIVIDE
+                # o_CLKFXDV = unused
+                p_CLKFXDV_DIVIDE=2,
+
+                #  FCLKFX = FCLKIN * (CLKFX_MULTIPLY / CLKFX_DIVIDE)
+                #   25MHz =  50MHz * (2              / 4)
+                # o_CLKFX = 25MHz -> clk_pix_unbuffered
+                p_CLKFX_DIVIDE=4,
+                p_CLKFX_MD_MAX=1.0,
+                p_CLKFX_MULTIPLY=2,
+                o_CLKFX=clk_pix_unbuffered,
+
+                p_SPREAD_SPECTRUM="NONE",
+                p_STARTUP_WAIT="FALSE",
+
+                i_PROGCLK=ClockSignal(),
+                i_PROGDATA=pix_progdata,
+                i_PROGEN=pix_progen,
+                o_PROGDONE=pix_progdone,
+                o_LOCKED=pix_locked,
+                i_FREEZEDCM=0,
+                i_RST=ResetSignal(),
+            )
 
             remaining_bits = Signal(max=11)
             transmitting = Signal()
@@ -135,62 +157,91 @@ class _Clocking(Module, AutoCSR):
             # Generate 1x, 2x and 10x IO pixel clocks
             clkfbout = Signal()
             pll_locked = Signal()
-            pll_clk0 = Signal()
-            pll_clk1 = Signal()
-            pll_clk2 = Signal()
+            unbuffered_pix10x_clk = Signal()
+            unbuffered_pix2x_clk = Signal()
+            unbuffered_pix_clk = Signal()
             locked_async = Signal()
             pll_drdy = Signal()
-            self.sync += If(self._pll_read.re | self._pll_write.re,
+            self.sync += If(
+                self._pll_read.re | self._pll_write.re,
                 self._pll_drdy.status.eq(0)
-            ).Elif(pll_drdy,
+            ).Elif(
+                pll_drdy,
                 self._pll_drdy.status.eq(1)
             )
             self.specials += [
-                Instance("PLL_ADV",
-                         p_CLKFBOUT_MULT=10,
-                         p_CLKOUT0_DIVIDE=1,   # pix10x
-                         p_CLKOUT1_DIVIDE=5,   # pix2x
-                         p_CLKOUT2_DIVIDE=10,  # pix
-                         p_COMPENSATION="INTERNAL",
+                Instance(
+                    "PLL_ADV",
+                    # Feedback
+                    p_CLKFBOUT_MULT=10,
+                    p_COMPENSATION="INTERNAL",
+                    o_CLKFBOUT=clkfbout,
+                    i_CLKFBIN=clkfbout,
 
-                         i_CLKINSEL=1,
-                         i_CLKIN1=clk_pix_unbuffered,
-                         o_CLKOUT0=pll_clk0, o_CLKOUT1=pll_clk1, o_CLKOUT2=pll_clk2,
-                         o_CLKFBOUT=clkfbout, i_CLKFBIN=clkfbout,
-                         o_LOCKED=pll_locked,
-                         i_RST=~pix_locked | self._pll_reset.storage,
+                    # Clock in
+                    i_CLKIN1=clk_pix_unbuffered,
+                    i_CLKINSEL=1,
 
-                         i_DADDR=self._pll_adr.storage,
-                         o_DO=self._pll_dat_r.status,
-                         i_DI=self._pll_dat_w.storage,
-                         i_DEN=self._pll_read.re | self._pll_write.re,
-                         i_DWE=self._pll_write.re,
-                         o_DRDY=pll_drdy,
-                         i_DCLK=ClockSignal()),
-                Instance("BUFPLL", p_DIVIDE=5,
-                         i_PLLIN=pll_clk0, i_GCLK=ClockSignal("pix2x"), i_LOCKED=pll_locked,
-                         o_IOCLK=self.cd_pix10x.clk, o_LOCK=locked_async, o_SERDESSTROBE=self.serdesstrobe),
-                Instance("BUFG", i_I=pll_clk1, o_O=self.cd_pix2x.clk),
-                Instance("BUFG", name="hdmi_out_pix_bufg", i_I=pll_clk2, o_O=self.cd_pix.clk),
+                    # pix10x
+                    p_CLKOUT0_DIVIDE=1,
+                    o_CLKOUT0=unbuffered_pix10x_clk,
+
+                    # pix2x
+                    p_CLKOUT1_DIVIDE=5,
+                    o_CLKOUT1=unbuffered_pix2x_clk,
+
+                    # pix
+                    p_CLKOUT2_DIVIDE=10,
+                    o_CLKOUT2=unbuffered_pix_clk,
+
+                    o_LOCKED=pll_locked,
+                    i_RST=~pix_locked | self._pll_reset.storage,
+
+                    i_DCLK=ClockSignal(),
+                    i_DADDR=self._pll_adr.storage,
+                    o_DO=self._pll_dat_r.status,
+                    i_DI=self._pll_dat_w.storage,
+                    i_DEN=self._pll_read.re | self._pll_write.re,
+                    i_DWE=self._pll_write.re,
+                    o_DRDY=pll_drdy,
+                ),
+                Instance(
+                    "BUFPLL",
+                    p_DIVIDE=5,
+                    i_PLLIN=unbuffered_pix10x_clk,
+                    i_GCLK=ClockSignal("pix2x"),
+                    i_LOCKED=pll_locked,
+                    o_IOCLK=self.cd_pix10x.clk,
+                    o_LOCK=locked_async,
+                    o_SERDESSTROBE=self.serdesstrobe,
+                ),
+                Instance("BUFG", name="hdmi_out_pix2x_bufg", i_I=unbuffered_pix2x_clk, o_O=self.cd_pix2x.clk),
+                Instance("BUFG", name="hdmi_out_pix_bufg", i_I=unbuffered_pix_clk, o_O=self.cd_pix.clk),
                 MultiReg(locked_async, mult_locked, "sys")
             ]
 
-            self.pll_clk0 = pll_clk0
-            self.pll_clk1 = pll_clk1
-            self.pll_clk2 = pll_clk2
+            self.unbuffered_pix10x_clk = unbuffered_pix10x_clk
+            self.unbuffered_pix2x_clk = unbuffered_pix2x_clk
+            self.unbuffered_pix_clk = unbuffered_pix_clk
             self.pll_locked = pll_locked
 
         else:
             self.clock_domains.cd_pix = ClockDomain(reset_less=True)
-            self.specials +=  Instance("BUFG", name="hdmi_out_pix_bufg", i_I=external_clocking.pll_clk2, o_O=self.cd_pix.clk)
             self.clock_domains.cd_pix2x = ClockDomain(reset_less=True)
             self.clock_domains.cd_pix10x = ClockDomain(reset_less=True)
             self.serdesstrobe = Signal()
             self.specials += [
-                Instance("BUFG", i_I=external_clocking.pll_clk1, o_O=self.cd_pix2x.clk),
-                Instance("BUFPLL", p_DIVIDE=5,
-                         i_PLLIN=external_clocking.pll_clk0, i_GCLK=self.cd_pix2x.clk, i_LOCKED=external_clocking.pll_locked,
-                         o_IOCLK=self.cd_pix10x.clk, o_SERDESSTROBE=self.serdesstrobe),
+                Instance("BUFG", name="hdmi_out_pix_bufg", i_I=external_clocking.unbuffered_pix_clk, o_O=self.cd_pix.clk),
+                Instance("BUFG", i_I=external_clocking.unbuffered_pix2x_clk, o_O=self.cd_pix2x.clk),
+                Instance(
+                    "BUFPLL",
+                    p_DIVIDE=5,
+                    i_PLLIN=external_clocking.unbuffered_pix10x_clk,
+                    i_GCLK=self.cd_pix2x.clk,
+                    i_LOCKED=external_clocking.pll_locked,
+                    o_IOCLK=self.cd_pix10x.clk,
+                    o_SERDESSTROBE=self.serdesstrobe,
+                ),
             ]
 
         # Drive HDMI clock pads
