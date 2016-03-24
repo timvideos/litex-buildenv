@@ -1,4 +1,5 @@
 # Support for the Numato Opsis - The first HDMI2USB production board
+import math
 import struct
 from fractions import Fraction
 
@@ -170,7 +171,6 @@ class _CRG(Module):
         #                          o_LOCKED=dcm_base50_locked,
         #                          i_FREEZEDCM=0, i_RST=ResetSignal())
         #self.specials += AsyncResetSynchronizer(self.cd_base50, self.cd_sys.rst | ~dcm_base50_locked)
-        #platform.add_period_constraint(self.cd_base50.clk, 20)
 
 
 
@@ -262,15 +262,16 @@ class BaseSoC(SDRAMSoC):
 
         self.specials += Keep(self.crg.cd_sys.clk)
         self.specials += Keep(self.crg.cd_base50.clk)
-        platform.add_platform_command(
-            """
-NET "{sys_clk}" TNM_NET = "GRPsys_clk"; # Only used for PERIOD constraint
-NET "{sys_clk}" TNM_NET = "TIGsys_clk"; # Use for FROM:TO TIG constraints
-NET "{base50_clk}" TNM_NET = "GRPbase50_clk";
+        platform.add_platform_command("""
+# Separate TMNs for FROM:TO TIG constraints
+NET "{sys_clk}" TNM_NET = "TIGsys_clk";
+NET "{base50_clk}" TNM_NET = "TIGbase50_clk";
 """,
             sys_clk=self.crg.cd_sys.clk,
             base50_clk=self.crg.cd_base50.clk,
         )
+        platform.add_period_constraint(self.crg.cd_sys.clk, math.floor(1e9/clk_freq))
+        platform.add_period_constraint(self.crg.cd_base50.clk, math.floor(1e9/clk_freq))
 
 
 class MiniSoC(BaseSoC):
@@ -303,13 +304,15 @@ class MiniSoC(BaseSoC):
             Keep(self.ethphy.crg.cd_eth_tx.clk)
         ]
         platform.add_platform_command("""
+# Separate TMNs for FROM:TO TIG constraints
 NET "{eth_clocks_rx}" CLOCK_DEDICATED_ROUTE = FALSE;
-NET "{eth_rx_clk}" TNM_NET = "GRPeth_rx_clk";
-NET "{eth_tx_clk}" TNM_NET = "GRPeth_tx_clk";
-TIMESPEC "TSise_sucks1" = FROM "GRPeth_tx_clk" TO "GRPsys_clk" TIG;
-TIMESPEC "TSise_sucks2" = FROM "GRPsys_clk" TO "GRPeth_tx_clk" TIG;
-TIMESPEC "TSise_sucks3" = FROM "GRPeth_rx_clk" TO "GRPsys_clk" TIG;
-TIMESPEC "TSise_sucks4" = FROM "GRPsys_clk" TO "GRPeth_rx_clk" TIG;
+NET "{eth_rx_clk}" TNM_NET = "TIGeth_rx_clk";
+NET "{eth_tx_clk}" TNM_NET = "TIGeth_tx_clk";
+TIMESPEC "TSeth_tx_to_sys" = FROM "TIGeth_tx_clk" TO "TIGsys_clk" TIG;
+TIMESPEC "TSsys_to_eth_tx" = FROM "TIGsys_clk" TO "TIGeth_tx_clk" TIG;
+TIMESPEC "TSeth_rx_to_sys" = FROM "TIGeth_rx_clk" TO "TIGsys_clk" TIG;
+TIMESPEC "TSsys_to_eth_rx" = FROM "TIGsys_clk" TO "TIGeth_rx_clk" TIG;
+# FIXME: What is this?
 PIN "BUFG_4.O" CLOCK_DEDICATED_ROUTE = FALSE;
 """, eth_clocks_rx=platform.lookup_request("eth_clocks").rx,
      eth_rx_clk=self.ethphy.crg.cd_eth_rx.clk,

@@ -54,10 +54,13 @@ def CreateVideoMixerSoC(base):
                 """PIN "hdmi_out_pix_bufg_1.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
             # We have CDC to go from sys_clk to pixel domain
             platform.add_platform_command("""
-NET "{pix0_clk}" TNM_NET = "TIGpix_clk";
-NET "{pix1_clk}" TNM_NET = "TIGpix_clk";
-TIMESPEC "TSpix0_to_sys" = FROM "TIGpix_clk"  TO "TIGsys0_clk" TIG;
-TIMESPEC "TSsys_to_pix0" = FROM "TIGsys0_clk" TO "TIGpix_clk"  TIG;
+# Separate TMNs for FROM:TO TIG constraints
+NET "{pix0_clk}" TNM_NET = "TIGpix0_clk";
+NET "{pix1_clk}" TNM_NET = "TIGpix1_clk";
+TIMESPEC "TSpix0_to_sys" = FROM "TIGpix0_clk" TO "TIGsys_clk"  TIG;
+TIMESPEC "TSsys_to_pix0" = FROM "TIGsys_clk"  TO "TIGpix0_clk" TIG;
+TIMESPEC "TSpix1_to_sys" = FROM "TIGpix1_clk" TO "TIGsys_clk"  TIG;
+TIMESPEC "TSsys_to_pix1" = FROM "TIGsys_clk"  TO "TIGpix1_clk" TIG;
 """,
                 pix0_clk=self.hdmi_out0.driver.clocking.cd_pix.clk,
                 pix1_clk=self.hdmi_out1.driver.clocking.cd_pix.clk,
