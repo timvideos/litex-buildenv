@@ -13,11 +13,6 @@
 #include "fx2_fw_hdmi2usb.c"
 #endif
 
-static void fx2_wait(void) {
-	unsigned int i;
-	for(i=0;i<1000;i++) __asm__("nop");
-}
-
 enum fx2_fw_version fx2_fw_active;
 
 
@@ -43,8 +38,11 @@ static inline uint8_t fx2_fw_get_value(size_t addr) {
 	return r;
 }
 
+// FIXME: These should be in microseconds and scaled based on CPU frequency or
+// something.
 #define FX2_REPORT_PERIOD (1 << 20)
 #define FX2_WAIT_PERIOD FX2_REPORT_PERIOD*5
+#define FX2_RESET_PERIOD (1 << 16)
 
 static void fx2_load_init(void)
 {
@@ -114,10 +112,11 @@ bool fx2_service(bool verbose)
 
 void fx2_reboot(enum fx2_fw_version fw)
 {
+	unsigned int i;
 	fx2_fw_active = fw;
 	printf("fx2: Turning off.\r\n");
 	fx2_reset_out_write(0);
-	fx2_wait();
+	for(i=0;i<FX2_RESET_PERIOD;i++) __asm__("nop");
 	fx2_reset_out_write(1);
 	printf("fx2: Turning on.\r\n");
 	fx2_load();
