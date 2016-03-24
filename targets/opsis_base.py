@@ -267,7 +267,7 @@ class BaseSoC(SDRAMSoC):
         platform.add_platform_command("""
 # Separate TMNs for FROM:TO TIG constraints
 NET "{sys_clk}" TNM_NET = "TIGsys_clk";
-NET "{base50_clk}" TNM_NET = "TIGbase50_clk";
+#NET "{base50_clk}" TNM_NET = "TIGbase50_clk";
 """,
             sys_clk=self.crg.cd_sys.clk,
             base50_clk=self.crg.cd_base50.clk,
