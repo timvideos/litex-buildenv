@@ -19,6 +19,7 @@ from misoclib.soc.sdram import SDRAMSoC
 from misoclib.com.uart.phy import UARTPHY
 from misoclib.com import uart
 
+from liteeth.common import *
 from liteeth.phy.s6rgmii import LiteEthPHYRGMII
 from liteeth.core.mac import LiteEthMAC
 
@@ -217,7 +218,6 @@ class BaseSoC(SDRAMSoC):
         self.submodules.git_info = git_info.GitInfo()
         self.submodules.platform_info = platform_info.PlatformInfo("opsis", self.__class__.__name__[:8])
 
-
         fx2_uart_pads = platform.request("serial_fx2")
         sd_card_uart_pads = platform.request("serial_sd_card")
         uart_pads = UARTSharedPads()
@@ -242,11 +242,13 @@ class BaseSoC(SDRAMSoC):
         self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
 
         if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = s6ddrphy.S6QuarterRateDDRPHY(platform.request("ddram"),
-                                                                  MT41J128M16(self.clk_freq),
-                                                                  rd_bitslip=0,
-                                                                  wr_bitslip=4,
-                                                                  dqs_ddr_alignment="C0")
+            self.submodules.ddrphy = s6ddrphy.S6QuarterRateDDRPHY(
+                platform.request("ddram"),
+                MT41J128M16(self.clk_freq),
+                rd_bitslip=0,
+                wr_bitslip=4,
+                dqs_ddr_alignment="C0",
+            )
             self.comb += [
                 self.ddrphy.clk8x_wr_strb.eq(self.crg.clk8x_wr_strb),
                 self.ddrphy.clk8x_rd_strb.eq(self.crg.clk8x_rd_strb),

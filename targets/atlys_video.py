@@ -52,12 +52,13 @@ def CreateVideoMixerSoC(base):
                 """PIN "hdmi_out_pix_bufg_1.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
             platform.add_platform_command(
                 """
-NET "{pix0_clk}" TNM_NET = "GRPpix0_clk";
-NET "{pix1_clk}" TNM_NET = "GRPpix1_clk";
-TIMESPEC "TSise_sucks7" = FROM "GRPpix0_clk" TO "GRPsys_clk" TIG;
-TIMESPEC "TSise_sucks8" = FROM "GRPsys_clk" TO "GRPpix0_clk" TIG;
-TIMESPEC "TSise_sucks9" = FROM "GRPpix1_clk" TO "GRPsys_clk" TIG;
-TIMESPEC "TSise_sucks10" = FROM "GRPsys_clk" TO "GRPpix1_clk" TIG;
+# Separate TMNs for FROM:TO TIG constraints
+NET "{pix0_clk}" TNM_NET = "TIGpix0_clk";
+NET "{pix1_clk}" TNM_NET = "TIGpix1_clk";
+TIMESPEC "TSpix0_to_sys" = FROM "TIGpix0_clk" TO "TIGsys_clk"  TIG;
+TIMESPEC "TSsys_to_pix0" = FROM "TIGsys_clk"  TO "TIGpix0_clk" TIG;
+TIMESPEC "TSpix1_to_sys" = FROM "TIGpix1_clk" TO "TIGsys_clk"  TIG;
+TIMESPEC "TSsys_to_pix1" = FROM "TIGsys_clk"  TO "TIGpix1_clk" TIG;
 """, 
                 pix0_clk=self.hdmi_out0.driver.clocking.cd_pix.clk,
                 pix1_clk=self.hdmi_out1.driver.clocking.cd_pix.clk,
