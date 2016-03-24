@@ -97,9 +97,9 @@ class _CRG(Module):
             # ( 50MHz) base50
             o_CLKOUT4=unbuffered_base50, p_CLKOUT4_DUTY_CYCLE=.5,
             p_CLKOUT4_PHASE=0., p_CLKOUT4_DIVIDE=p//1,
-            # ( 75MHz) sysclk
+            # ( 50MHz) sysclk
             o_CLKOUT5=unbuffered_sys, p_CLKOUT5_DUTY_CYCLE=.5,
-            p_CLKOUT5_PHASE=0., p_CLKOUT5_DIVIDE=p//1.5,
+            p_CLKOUT5_PHASE=0., p_CLKOUT5_DIVIDE=p//1,
         )
         # power on reset?
         reset = ~platform.request("cpu_reset")
@@ -219,7 +219,7 @@ class BaseSoC(SDRAMSoC):
         platform.add_platform_command("""
 # Separate TMNs for FROM:TO TIG constraints
 NET "{sys_clk}" TNM_NET = "TIGsys_clk";
-NET "{base50_clk}" TNM_NET = "TIGbase50_clk";
+#NET "{base50_clk}" TNM_NET = "TIGbase50_clk";
 """,
             sys_clk=self.crg.cd_sys.clk,
             base50_clk=self.crg.cd_base50.clk,
@@ -262,14 +262,27 @@ class MiniSoC(BaseSoC):
         platform.add_platform_command("""
 # Separate TMNs for FROM:TO TIG constraints
 NET "{eth_clocks_rx}" CLOCK_DEDICATED_ROUTE = FALSE;
-NET "{eth_rx_clk}" TNM_NET = "TIGeth_rx_clk";
-NET "{eth_tx_clk}" TNM_NET = "TIGeth_tx_clk";
-TIMESPEC "TSeth_tx_to_sys" = FROM "TIGeth_tx_clk" TO "TIGsys_clk" TIG;
-TIMESPEC "TSsys_to_eth_tx" = FROM "TIGsys_clk" TO "TIGeth_tx_clk" TIG;
-TIMESPEC "TSeth_rx_to_sys" = FROM "TIGeth_rx_clk" TO "TIGsys_clk" TIG;
-TIMESPEC "TSsys_to_eth_rx" = FROM "TIGsys_clk" TO "TIGeth_rx_clk" TIG;
-""", eth_clocks_rx=platform.lookup_request("eth_clocks").rx,
-     eth_rx_clk=self.ethphy.crg.cd_eth_rx.clk,
-     eth_tx_clk=self.ethphy.crg.cd_eth_tx.clk)
+NET "{eth_clocks_rx}" TNM_NET = "TIGeth_clocks_rx";
+TIMESPEC "TSeth_clocks_rx_to_sys" = FROM "TIGeth_clocks_rx" TO "TIGsys_clk" TIG;
+TIMESPEC "TSsys_to_eth_clocks_rx" = FROM "TIGsys_clk" TO "TIGeth_clocks_rx" TIG;
+
+NET "{eth_clocks_tx}" TNM_NET = "TIGeth_clocks_tx";
+TIMESPEC "TSeth_clocks_tx_to_sys" = FROM "TIGeth_clocks_tx" TO "TIGsys_clk" TIG;
+TIMESPEC "TSsys_to_eth_clocks_tx" = FROM "TIGsys_clk" TO "TIGeth_clocks_tx" TIG;
+
+#NET "{eth_rx_clk}" TNM_NET = "TIGeth_rx_clk";
+#TIMESPEC "TSeth_rx_to_sys" = FROM "TIGeth_rx_clk" TO "TIGsys_clk" TIG;
+#TIMESPEC "TSsys_to_eth_rx" = FROM "TIGsys_clk" TO "TIGeth_rx_clk" TIG;
+
+#NET "{eth_tx_clk}" TNM_NET = "TIGeth_tx_clk";
+#TIMESPEC "TSeth_tx_to_sys" = FROM "TIGeth_tx_clk" TO "TIGsys_clk" TIG;
+#TIMESPEC "TSsys_to_eth_tx" = FROM "TIGsys_clk" TO "TIGeth_tx_clk" TIG;
+""",
+            eth_clocks_rx=platform.lookup_request("eth_clocks").rx,
+            eth_clocks_tx=platform.lookup_request("eth_clocks").tx,
+            eth_rx_clk=self.ethphy.crg.cd_eth_rx.clk,
+            eth_tx_clk=self.ethphy.crg.cd_eth_tx.clk,
+        )
+
 
 default_subtarget = MiniSoC
