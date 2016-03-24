@@ -50,7 +50,10 @@ class HDMI2USBSoC(VideoMixerSoC):
 NET "{usb_clk}" TNM_NET = "TIGusb_clk";
 TIMESPEC "TSusb_to_sys" = FROM "TIGusb_clk" TO "TIGsys_clk" TIG;
 TIMESPEC "TSsys_to_usb" = FROM "TIGsys_clk" TO "TIGusb_clk" TIG;
-""", usb_clk=platform.lookup_request("fx2").ifclk)
+""",
+            usb_clk=platform.lookup_request("fx2").ifclk,
+        )
+
 
 
 default_subtarget = HDMI2USBSoC
