@@ -261,9 +261,16 @@ class BaseSoC(SDRAMSoC):
         self.register_mem("spiflash", self.mem_map["spiflash"], self.spiflash.bus, size=platform.gateware_size)
 
         self.specials += Keep(self.crg.cd_sys.clk)
-        platform.add_platform_command("""
-NET "{sys_clk}" TNM_NET = "GRPsys_clk";
-""", sys_clk=self.crg.cd_sys.clk)
+        self.specials += Keep(self.crg.cd_base50.clk)
+        platform.add_platform_command(
+            """
+NET "{sys_clk}" TNM_NET = "GRPsys_clk"; # Only used for PERIOD constraint
+NET "{sys_clk}" TNM_NET = "TIGsys_clk"; # Use for FROM:TO TIG constraints
+NET "{base50_clk}" TNM_NET = "GRPbase50_clk";
+""",
+            sys_clk=self.crg.cd_sys.clk,
+            base50_clk=self.crg.cd_base50.clk,
+        )
 
 
 class MiniSoC(BaseSoC):
