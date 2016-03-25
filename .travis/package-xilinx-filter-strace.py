@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import sys
 import re
@@ -105,4 +105,4 @@ for lineno, rawline in enumerate(sys.stdin.readlines()):
 		raise
 
 for filename in sorted(files):
-	print filename
+	print(filename)
