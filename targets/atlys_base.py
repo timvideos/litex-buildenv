@@ -25,6 +25,7 @@ from gateware import platform_info
 
 from targets.common import *
 
+
 class _CRG(Module):
     def __init__(self, platform, clk_freq):
         self.clock_domains.cd_sys = ClockDomain()
@@ -116,6 +117,7 @@ class _CRG(Module):
 
         self.comb += self.cd_encoder.clk.eq(self.cd_sys.clk)
         self.specials += AsyncResetSynchronizer(self.cd_encoder, self.cd_sys.rst)
+
 
 class BaseSoC(SDRAMSoC):
     default_platform = "atlys"

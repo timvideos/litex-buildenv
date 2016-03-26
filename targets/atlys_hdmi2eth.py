@@ -1,5 +1,8 @@
-from targets.common import *
-from targets.atlys_base import *
+from migen.fhdl.specials import Keep
+from migen.flow.actor import *
+from migen.actorlib.fifo import AsyncFIFO, SyncFIFO
+
+from misoclib.soc import mem_decoder
 
 from liteeth.common import *
 from liteeth.phy import LiteEthPHY
@@ -13,8 +16,10 @@ from gateware.encoder import Encoder
 from gateware.encoder.dma import EncoderDMAReader
 from gateware.encoder.buffer import EncoderBuffer
 from gateware.streamer import UDPStreamer
-from migen.actorlib.fifo import AsyncFIFO, SyncFIFO
-from migen.flow.actor import *
+
+from targets.common import *
+from targets.atlys_base import BaseSoC
+from targets.atlys_video import CreateVideoMixerSoC
 
 
 class EtherboneSoC(BaseSoC):
@@ -24,10 +29,12 @@ class EtherboneSoC(BaseSoC):
     )
     csr_map_update(BaseSoC.csr_map, csr_peripherals)
 
-    def __init__(self, platform,
-        mac_address=0x10e2d5000000,
-        ip_address="192.168.1.42",
-        **kwargs):
+    def __init__(
+            self,
+            platform,
+            mac_address=0x10e2d5000000,
+            ip_address="192.168.1.42",
+            **kwargs):
         BaseSoC.__init__(self, platform, **kwargs)
 
         # Ethernet PHY and UDP/IP stack
@@ -58,67 +65,22 @@ TIMESPEC "TSise_sucks6" = FROM "GRPsys_clk" TO "GRPeth_rx_clk" TIG;
      eth_tx_clk=self.ethphy.crg.cd_eth_tx.clk)
 
 
-class VideomixerSoC(EtherboneSoC):
-    csr_peripherals = (
-        "hdmi_out0",
-        "hdmi_out1",
-        "hdmi_in0",
-        "hdmi_in0_edid_mem",
-        "hdmi_in1",
-        "hdmi_in1_edid_mem",
-    )
-    csr_map_update(EtherboneSoC.csr_map, csr_peripherals)
+EtherVideoMixerSoC = CreateVideoMixerSoC(EtherboneSoC)
 
-    interrupt_map = {
-        "hdmi_in0": 3,
-        "hdmi_in1": 4,
-    }
-    interrupt_map.update(EtherboneSoC.interrupt_map)
 
-    def __init__(self, platform, **kwargs):
-        EtherboneSoC.__init__(self, platform, **kwargs)
-        self.submodules.hdmi_in0 = HDMIIn(platform.request("hdmi_in", 0),
-                                          self.sdram.crossbar.get_master(),
-                                          fifo_depth=1024)
-        self.submodules.hdmi_in1 = HDMIIn(platform.request("hdmi_in", 1),
-                                          self.sdram.crossbar.get_master(),
-                                          fifo_depth=1024)
-        self.submodules.hdmi_out0 = HDMIOut(platform.request("hdmi_out", 0),
-                                            self.sdram.crossbar.get_master())
-        self.submodules.hdmi_out1 = HDMIOut(platform.request("hdmi_out", 1),
-                                            self.sdram.crossbar.get_master(),
-                                            self.hdmi_out0.driver.clocking) # share clocking with hdmi_out0
-                                                                            # since no PLL_ADV left.
-
-        platform.add_platform_command("""INST PLL_ADV LOC=PLL_ADV_X0Y0;""") # all PLL_ADV are used: router needs help...
-        platform.add_platform_command("""PIN "hdmi_out_pix_bufg.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
-        platform.add_platform_command("""PIN "hdmi_out_pix_bufg_1.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
-        platform.add_platform_command("""
-NET "{pix0_clk}" TNM_NET = "GRPpix0_clk";
-NET "{pix1_clk}" TNM_NET = "GRPpix1_clk";
-TIMESPEC "TSise_sucks7" = FROM "GRPpix0_clk" TO "GRPsys_clk" TIG;
-TIMESPEC "TSise_sucks8" = FROM "GRPsys_clk" TO "GRPpix0_clk" TIG;
-TIMESPEC "TSise_sucks9" = FROM "GRPpix1_clk" TO "GRPsys_clk" TIG;
-TIMESPEC "TSise_sucks10" = FROM "GRPsys_clk" TO "GRPpix1_clk" TIG;
-""", pix0_clk=self.hdmi_out0.driver.clocking.cd_pix.clk,
-     pix1_clk=self.hdmi_out1.driver.clocking.cd_pix.clk,
-)
-        for k, v in platform.hdmi_infos.items():
-            self.add_constant(k, v)
-
-class HDMI2ETHSoC(VideomixerSoC):
+class HDMI2EthSoC(EtherVideoMixerSoC):
     csr_peripherals = (
         "encoder_reader",
         "encoder",
     )
-    csr_map_update(VideomixerSoC.csr_map, csr_peripherals)
+    csr_map_update(EtherVideoMixerSoC.csr_map, csr_peripherals)
     mem_map = {
         "encoder": 0x50000000,  # (shadow @0xd0000000)
     }
-    mem_map.update(VideomixerSoC.mem_map)
+    mem_map.update(EtherVideoMixerSoC.mem_map)
 
     def __init__(self, platform, **kwargs):
-        VideomixerSoC.__init__(self, platform, **kwargs)
+        EtherVideoMixerSoC.__init__(self, platform, **kwargs)
 
         lasmim = self.sdram.crossbar.get_master()
         self.submodules.encoder_reader = EncoderDMAReader(lasmim)
@@ -144,4 +106,4 @@ class HDMI2ETHSoC(VideomixerSoC):
         self.add_memory_region("encoder", self.mem_map["encoder"]+self.shadow_base, 0x2000)
 
 
-default_subtarget = HDMI2ETHSoC
+default_subtarget = HDMI2EthSoC
