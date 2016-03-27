@@ -19,13 +19,13 @@ class WER(Module, AutoCSR):
         self._value = CSRStatus(period_bits)
 
         ###
-
-        # pipeline stage 1
-        # we ignore the 10th (inversion) bit, as it is independent of the transition minimization
+        # (pipeline stage 1)
+	# We ignore the 10th (inversion) bit, as it is independent of the
+	# transition minimization.
         data_r = Signal(9)
         self.sync.pix += data_r.eq(self.data[:9])
 
-        # pipeline stage 2
+        # (pipeline stage 2)
 	# Count the number of transitions in the TMDS word.
         transitions = Signal(8)
         self.comb += [transitions[i].eq(data_r[i] ^ data_r[i+1]) for i in range(8)]
@@ -38,7 +38,9 @@ class WER(Module, AutoCSR):
         is_control = Signal()
         self.sync.pix += is_control.eq(optree("|", [data_r == ct for ct in control_tokens]))
 
-        # pipeline stage 3
+        # (pipeline stage 3)
+	# The TMDS characters selected to represent pixel data contain five or
+	# fewer transitions.
         is_error = Signal()
         self.sync.pix += is_error.eq((transition_count > 4) & ~is_control)
 
