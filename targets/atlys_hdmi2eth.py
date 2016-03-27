@@ -77,7 +77,7 @@ TIMESPEC "TSsys_to_eth_tx" = FROM "TIGsys_clk" TO "TIGeth_tx_clk" TIG;
 EtherVideoMixerSoC = CreateVideoMixerSoC(EtherboneSoC)
 
 
-class HDMI2ETHSoC(EtherVideoMixerSoC):
+class HDMI2EthSoC(EtherVideoMixerSoC):
     csr_peripherals = (
         "encoder_reader",
         "encoder",
