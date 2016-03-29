@@ -110,8 +110,7 @@ int main(void)
 
 	while(1) {
 		console_service();
-		user_leds_out_write(0b1010);
-		case_leds_out_write(case_switches_in_read());
+		front_panel_leds_out_write(front_panel_switches_in_read());
 	}
 
 	return 0;

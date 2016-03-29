@@ -25,7 +25,7 @@ def csr_map_update(csr_map, csr_peripherals):
   csr_map.update(dict((n, v) for v, n in enumerate(csr_peripherals, start=max(csr_map.values()) + 1)))
 
 
-class CaseGPIO(Module, AutoCSR):
+class FrontPanelGPIO(Module, AutoCSR):
     def __init__(self, platform):
         switches = Signal(2)
         leds = Signal(2)
@@ -132,8 +132,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCSDRAM):
     csr_peripherals = (
-        "case",
-        "user_leds",
+        "front_panel",
         "ddrphy"
     )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
@@ -146,14 +145,9 @@ class BaseSoC(SoCSDRAM):
             **kwargs)
         self.submodules.crg = _CRG(platform, clk_freq)
 
-        # case
-        self.submodules.case =  CaseGPIO(platform)
+        # front panel (ATX)
+        self.submodules.front_panel = FrontPanelGPIO(platform)
 
-        # leds
-        self.submodules.user_leds = GPIOOut(Cat(platform.request("user_led", 0),
-                                                platform.request("user_led", 1),
-                                                platform.request("user_led", 2),
-                                                platform.request("user_led", 3)))
         # sdram
         self.submodules.ddrphy = s6ddrphy.S6QuarterRateDDRPHY(platform.request("ddram"),
                                                               rd_bitslip=0,

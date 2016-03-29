@@ -101,7 +101,7 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
-    # case switches / leds
+    # case switches / leds (TODO: use ATX header of Opsis board)
     ("hdled", 0,
         Subsignal("p", Pins(_get_tofe_low_speed_pmod3_io(1))),
         Subsignal("n", Pins(_get_tofe_low_speed_pmod3_io(0))),
