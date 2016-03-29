@@ -136,6 +136,23 @@ _io = [
         Misc("SLEW=FAST"),
         Misc("VCCAUX_IO=HIGH")
     ),
+    # ethernet
+    ("eth_clocks", 0,
+        Subsignal("tx", Pins("AB12")),
+        Subsignal("rx", Pins("AA12")),
+        IOStandard("LVCMOS33")
+    ),
+    ("eth", 0,
+        Subsignal("rst_n", Pins("U8")),
+        Subsignal("int_n", Pins("V9")),
+        Subsignal("mdio", Pins("T8")),
+        Subsignal("mdc", Pins("V7")),
+        Subsignal("rx_ctl", Pins("U9")),
+        Subsignal("rx_data", Pins("R9 R8 W6 Y6")),
+        Subsignal("tx_ctl", Pins("W8")),
+        Subsignal("tx_data", Pins("W9 Y8 AA6 AB6")),
+        IOStandard("LVCMOS33")
+    ),
 ]
 
 class Platform(XilinxPlatform):

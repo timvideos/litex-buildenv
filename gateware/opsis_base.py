@@ -7,16 +7,20 @@ from fractions import Fraction
 import importlib
 
 from litex.gen import *
+from litex.gen.fhdl.specials import Keep
 from litex.gen.genlib.io import CRG
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.soc.cores.sdram.settings import MT41J128M16
 from litex.soc.cores.sdram.phy import s6ddrphy
+from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.gpio import GPIOIn, GPIOOut
 from litex.soc.interconnect.csr import AutoCSR
 
+from liteeth.phy.s6rgmii import LiteEthPHYRGMII
+from liteeth.core.mac import LiteEthMAC
 
 import opsis_platform
 
@@ -153,11 +157,55 @@ class BaseSoC(SoCSDRAM):
             self.ddrphy.clk8x_rd_strb.eq(self.crg.clk8x_rd_strb),
         ]
 
+class MiniSoC(BaseSoC):
+    csr_peripherals = (
+        "ethphy",
+        "ethmac"
+    )
+    csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
+
+    interrupt_map = {
+        "ethmac": 2,
+    }
+    interrupt_map.update(BaseSoC.interrupt_map)
+
+    mem_map = {
+        "ethmac": 0x30000000,  # (shadow @0xb0000000)
+    }
+    mem_map.update(BaseSoC.mem_map)
+
+    def __init__(self, *args, **kwargs):
+        BaseSoC.__init__(self, *args, **kwargs)
+
+        self.submodules.ethphy = LiteEthPHYRGMII(self.platform.request("eth_clocks"),
+                                                 self.platform.request("eth"))
+        self.submodules.ethmac = LiteEthMAC(phy=self.ethphy, dw=32, interface="wishbone")
+        self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)
+        self.add_memory_region("ethmac", self.mem_map["ethmac"] | self.shadow_base, 0x2000)
+
+        self.specials += [
+            Keep(self.ethphy.crg.cd_eth_rx.clk),
+            Keep(self.ethphy.crg.cd_eth_tx.clk)
+        ]
+        self.platform.add_platform_command("""
+NET "{eth_clocks_rx}" CLOCK_DEDICATED_ROUTE = FALSE;
+NET "{eth_rx_clk}" TNM_NET = "GRPeth_rx_clk";
+NET "{eth_tx_clk}" TNM_NET = "GRPeth_tx_clk";
+TIMESPEC "TSise_sucks1" = FROM "GRPeth_tx_clk" TO "GRPsys_clk" TIG;
+TIMESPEC "TSise_sucks2" = FROM "GRPsys_clk" TO "GRPeth_tx_clk" TIG;
+TIMESPEC "TSise_sucks3" = FROM "GRPeth_rx_clk" TO "GRPsys_clk" TIG;
+TIMESPEC "TSise_sucks4" = FROM "GRPsys_clk" TO "GRPeth_rx_clk" TIG;
+PIN "BUFG_5.O" CLOCK_DEDICATED_ROUTE = FALSE;
+""", eth_clocks_rx=self.platform.lookup_request("eth_clocks").rx,
+     eth_rx_clk=self.ethphy.crg.cd_eth_rx.clk,
+     eth_tx_clk=self.ethphy.crg.cd_eth_tx.clk)
 
 def main():
     parser = argparse.ArgumentParser(description="Opsis LiteX SoC")
     builder_args(parser)
     soc_sdram_args(parser)
+    parser.add_argument("--with-ethernet", action="store_true",
+                        help="enable Ethernet support")
     parser.add_argument("--build", action="store_true",
                         help="build bitstream")
     parser.add_argument("--load", action="store_true",
@@ -165,7 +213,8 @@ def main():
     args = parser.parse_args()
 
     platform = opsis_platform.Platform()
-    soc = BaseSoC(platform, **soc_sdram_argdict(args))
+    cls = MiniSoC if args.with_ethernet else BaseSoC
+    soc = cls(platform, **soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
 
     if args.build:
