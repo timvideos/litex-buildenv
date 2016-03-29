@@ -59,12 +59,12 @@ class _CRG(Module):
         pll_lckd = Signal()
         pll_fb = Signal()
 
-        unbuffered_sdram_full = Signal()
-        unbuffered_sdram_half_a = Signal()
-        unbuffered_sdram_half_b = Signal()
-        unbuffered_encoder = Signal()
-        unbuffered_sys = Signal()
-        unbuffered_base50 = Signal()
+        unbuf_sdram_full = Signal()
+        unbuf_sdram_half_a = Signal()
+        unbuf_sdram_half_b = Signal()
+        unbuf_encoder = Signal()
+        unbuf_sys = Signal()
+        unbuf_base50 = Signal()
 
         self.specials.pll = Instance(
             "PLL_ADV",
@@ -83,22 +83,22 @@ class _CRG(Module):
             p_CLK_FEEDBACK="CLKFBOUT",
             p_CLKFBOUT_MULT=m*p//n, p_CLKFBOUT_PHASE=0.,
             # (400MHz) sdram wr rd
-            o_CLKOUT0=unbuffered_sdram_full, p_CLKOUT0_DUTY_CYCLE=.5,
+            o_CLKOUT0=unbuf_sdram_full, p_CLKOUT0_DUTY_CYCLE=.5,
             p_CLKOUT0_PHASE=0., p_CLKOUT0_DIVIDE=p//4,
             # ( 66MHz) encoder
-            o_CLKOUT1=unbuffered_encoder, p_CLKOUT1_DUTY_CYCLE=.5,
+            o_CLKOUT1=unbuf_encoder, p_CLKOUT1_DUTY_CYCLE=.5,
             p_CLKOUT1_PHASE=0., p_CLKOUT1_DIVIDE=6,
             # (200MHz) sdram_half - sdram dqs adr ctrl
-            o_CLKOUT2=unbuffered_sdram_half_a, p_CLKOUT2_DUTY_CYCLE=.5,
+            o_CLKOUT2=unbuf_sdram_half_a, p_CLKOUT2_DUTY_CYCLE=.5,
             p_CLKOUT2_PHASE=270., p_CLKOUT2_DIVIDE=p//2,
             # (200MHz) off-chip ddr
-            o_CLKOUT3=unbuffered_sdram_half_b, p_CLKOUT3_DUTY_CYCLE=.5,
+            o_CLKOUT3=unbuf_sdram_half_b, p_CLKOUT3_DUTY_CYCLE=.5,
             p_CLKOUT3_PHASE=250., p_CLKOUT3_DIVIDE=p//2,
             # ( 50MHz) base50
-            o_CLKOUT4=unbuffered_base50, p_CLKOUT4_DUTY_CYCLE=.5,
+            o_CLKOUT4=unbuf_base50, p_CLKOUT4_DUTY_CYCLE=.5,
             p_CLKOUT4_PHASE=0., p_CLKOUT4_DIVIDE=p//1,
             # ( 50MHz) sysclk
-            o_CLKOUT5=unbuffered_sys, p_CLKOUT5_DUTY_CYCLE=.5,
+            o_CLKOUT5=unbuf_sys, p_CLKOUT5_DUTY_CYCLE=.5,
             p_CLKOUT5_PHASE=0., p_CLKOUT5_DIVIDE=p//1,
         )
         # power on reset?
@@ -109,22 +109,22 @@ class _CRG(Module):
         self.specials += AsyncResetSynchronizer(self.cd_por, reset)
 
         # sys
-        self.specials += Instance("BUFG", i_I=unbuffered_sys, o_O=self.cd_sys.clk)
+        self.specials += Instance("BUFG", i_I=unbuf_sys, o_O=self.cd_sys.clk)
         self.comb += self.cd_por.clk.eq(self.cd_sys.clk)
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~pll_lckd | (por > 0))
 
         # base50
-        self.specials += Instance("BUFG", i_I=unbuffered_base50, o_O=self.cd_base50.clk)
+        self.specials += Instance("BUFG", i_I=unbuf_base50, o_O=self.cd_base50.clk)
 
         # encoder
-        self.specials += Instance("BUFG", i_I=unbuffered_encoder, o_O=self.cd_encoder.clk) # 66 MHz
+        self.specials += Instance("BUFG", i_I=unbuf_encoder, o_O=self.cd_encoder.clk) # 66 MHz
         self.specials += AsyncResetSynchronizer(self.cd_encoder, self.cd_sys.rst)
 
         # SDRAM clocks
         # ------------------------------------------------------------------------------
         # sdram_full
         self.specials += Instance("BUFPLL", p_DIVIDE=4,
-                                  i_PLLIN=unbuffered_sdram_full, i_GCLK=self.cd_sys.clk,
+                                  i_PLLIN=unbuf_sdram_full, i_GCLK=self.cd_sys.clk,
                                   i_LOCKED=pll_lckd, o_IOCLK=self.cd_sdram_full_wr.clk,
                                   o_SERDESSTROBE=self.clk4x_wr_strb)
         self.comb += [
@@ -132,9 +132,9 @@ class _CRG(Module):
             self.clk4x_rd_strb.eq(self.clk4x_wr_strb),
         ]
         # sdram_half
-        self.specials += Instance("BUFG", i_I=unbuffered_sdram_half_a, o_O=self.cd_sdram_half.clk)
+        self.specials += Instance("BUFG", i_I=unbuf_sdram_half_a, o_O=self.cd_sdram_half.clk)
         clk_sdram_half_shifted = Signal()
-        self.specials += Instance("BUFG", i_I=unbuffered_sdram_half_b, o_O=clk_sdram_half_shifted)
+        self.specials += Instance("BUFG", i_I=unbuf_sdram_half_b, o_O=clk_sdram_half_shifted)
 
         output_clk = Signal()
         clk = platform.request("ddram_clock")
