@@ -27,12 +27,12 @@ def csr_map_update(csr_map, csr_peripherals):
 
 class CaseGPIO(Module, AutoCSR):
     def __init__(self, platform):
-        switchs = Signal(2)
+        switches = Signal(2)
         leds = Signal(2)
 
         # # #
 
-        self.submodules.switchs = GPIOIn(switchs)
+        self.submodules.switches = GPIOIn(switches)
         self.submodules.leds = GPIOOut(leds)
 
         hdled = platform.request("hdled")
@@ -42,8 +42,8 @@ class CaseGPIO(Module, AutoCSR):
         self.comb += [
            rstsw.p.eq(1),
            pwrsw.p.eq(1),
-           switchs[0].eq(rstsw.n),
-           switchs[1].eq(pwrsw.n),
+           switches[0].eq(rstsw.n),
+           switches[1].eq(pwrsw.n),
            hdled.p.eq(leds[0]),
            hdled.n.eq(~leds[0]),
            pwled.p.eq(leds[1]),

@@ -111,7 +111,7 @@ int main(void)
 	while(1) {
 		console_service();
 		user_leds_out_write(0b1010);
-		case_leds_out_write(case_switchs_in_read());
+		case_leds_out_write(case_switches_in_read());
 	}
 
 	return 0;

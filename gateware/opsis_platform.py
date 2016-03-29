@@ -101,7 +101,7 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
-    # case switchs / leds
+    # case switches / leds
     ("hdled", 0,
         Subsignal("p", Pins(_get_tofe_low_speed_pmod3_io(1))),
         Subsignal("n", Pins(_get_tofe_low_speed_pmod3_io(0))),
