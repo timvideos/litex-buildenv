@@ -62,6 +62,7 @@ class _CRG(Module):
         self.clk8x_wr_strb = Signal()
         self.clk8x_rd_strb = Signal()
 
+
         f0 = 100*1000000
         clk100 = platform.request("clk100")
         clk100a = Signal()
@@ -91,12 +92,12 @@ class _CRG(Module):
                                      o_CLKOUT3=pll[3], p_CLKOUT3_DUTY_CYCLE=.5,
                                      o_CLKOUT4=pll[4], p_CLKOUT4_DUTY_CYCLE=.5,
                                      o_CLKOUT5=pll[5], p_CLKOUT5_DUTY_CYCLE=.5,
-                                     p_CLKOUT0_PHASE=0., p_CLKOUT0_DIVIDE=p//8,    # sdram wr rd
-                                     p_CLKOUT1_PHASE=0., p_CLKOUT1_DIVIDE=p//8,
-                                     p_CLKOUT2_PHASE=230., p_CLKOUT2_DIVIDE=p//4,  # sdram dqs adr ctrl
-                                     p_CLKOUT3_PHASE=210., p_CLKOUT3_DIVIDE=p//4,  # off-chip ddr
-                                     p_CLKOUT4_PHASE=0., p_CLKOUT4_DIVIDE=p//2,
-                                     p_CLKOUT5_PHASE=0., p_CLKOUT5_DIVIDE=p//1,  # sys
+                                     p_CLKOUT0_PHASE=0., p_CLKOUT0_DIVIDE=p//8,    # sdram wr/rd full clock
+                                     p_CLKOUT1_PHASE=0., p_CLKOUT1_DIVIDE=p//8,    # unused
+                                     p_CLKOUT2_PHASE=230., p_CLKOUT2_DIVIDE=p//4,  # sdram dqs adr ctrl off-chip
+                                     p_CLKOUT3_PHASE=210., p_CLKOUT3_DIVIDE=p//4,  # ddr half clock
+                                     p_CLKOUT4_PHASE=0., p_CLKOUT4_DIVIDE=p//2,    # 2x system clock
+                                     p_CLKOUT5_PHASE=0., p_CLKOUT5_DIVIDE=p//1,    # system clock
         )
         self.specials += Instance("BUFG", i_I=pll[4], o_O=self.cd_sys2x.clk)
         self.specials += Instance("BUFG", i_I=pll[5], o_O=self.cd_sys.clk)
