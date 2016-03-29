@@ -27,27 +27,17 @@ def csr_map_update(csr_map, csr_peripherals):
 
 class FrontPanelGPIO(Module, AutoCSR):
     def __init__(self, platform):
-        switches = Signal(2)
+        switches = Signal(1)
         leds = Signal(2)
 
         # # #
 
         self.submodules.switches = GPIOIn(switches)
         self.submodules.leds = GPIOOut(leds)
-
-        hdled = platform.request("hdled")
-        pwled = platform.request("pwled")
-        rstsw = platform.request("rstsw")
-        pwrsw = platform.request("pwrsw")
         self.comb += [
-           rstsw.p.eq(1),
-           pwrsw.p.eq(1),
-           switches[0].eq(rstsw.n),
-           switches[1].eq(pwrsw.n),
-           hdled.p.eq(leds[0]),
-           hdled.n.eq(~leds[0]),
-           pwled.p.eq(leds[1]),
-           pwled.n.eq(~leds[1]),
+           switches[0].eq(~platform.request("pwrsw")),
+           platform.request("hdled").eq(~leds[0]),
+           platform.request("pwled").eq(~leds[1]),
         ]
 
 

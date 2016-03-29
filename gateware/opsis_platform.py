@@ -101,27 +101,10 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
-    # case switches / leds (TODO: use ATX header of Opsis board)
-    ("hdled", 0,
-        Subsignal("p", Pins(_get_tofe_low_speed_pmod3_io(1))),
-        Subsignal("n", Pins(_get_tofe_low_speed_pmod3_io(0))),
-        IOStandard("LVCMOS33")
-    ),
-    ("pwled", 0,
-        Subsignal("p", Pins(_get_tofe_low_speed_pmod3_io(3))),
-        Subsignal("n", Pins(_get_tofe_low_speed_pmod3_io(2))),
-        IOStandard("LVCMOS33")
-    ),
-    ("rstsw", 0,
-        Subsignal("p", Pins(_get_tofe_low_speed_pmod3_io(5)), Misc("PULLUP")),
-        Subsignal("n", Pins(_get_tofe_low_speed_pmod3_io(4))),
-        IOStandard("LVCMOS33")
-    ),
-    ("pwrsw", 0,
-        Subsignal("p", Pins(_get_tofe_low_speed_pmod3_io(7)), Misc("PULLUP")),
-        Subsignal("n", Pins(_get_tofe_low_speed_pmod3_io(6))),
-        IOStandard("LVCMOS33")
-    ),
+    # frontend switches / leds
+    ("hdled", 0, Pins("J7"), IOStandard("LVCMOS15")),
+    ("pwled", 0, Pins("H8"), IOStandard("LVCMOS15")), #pwled+ connected to 3.3V
+    ("pwrsw", 0, Pins("F5"), IOStandard("LVCMOS15")),
 
     # user leds
     ("user_led", 0, Pins(_get_tofe_low_speed_io("led1")), IOStandard("LVCMOS33")),

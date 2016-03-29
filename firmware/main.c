@@ -10,8 +10,7 @@
 #define HDD_LED   0x01
 #define POWER_LED 0x02
 
-#define RESET_SW  0x01
-#define POWER_SW  0x02
+#define POWER_SW  0x01
 
 static char *readstr(void)
 {
@@ -110,7 +109,10 @@ int main(void)
 
 	while(1) {
 		console_service();
-		front_panel_leds_out_write(front_panel_switches_in_read());
+		if(front_panel_switches_in_read() & POWER_SW)
+			front_panel_leds_out_write(HDD_LED | POWER_LED);
+		else
+			front_panel_leds_out_write(0);
 	}
 
 	return 0;
