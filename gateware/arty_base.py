@@ -26,8 +26,8 @@ from cores import a7ddrphy, dna, xadc, led
 
 class UARTVirtualPhy:
     def __init__(self):
-        self.sink = Sink([("data", 8)])
-        self.source = Source([("data", 8)])
+        self.sink = Endpoint([("data", 8)])
+        self.source = Endpoint([("data", 8)])
 
 
 class MT41K128M16(SDRAMModule):
@@ -184,11 +184,11 @@ class BaseSoC(SoCSDRAM):
             If(uart_sel,
                 self.uart_phy.source.connect(uart_phys["bridge"].source),
                 uart_phys["bridge"].sink.connect(self.uart_phy.sink),
-                uart_phys["cpu"].source.ack.eq(1) # avoid stalling cpu
+                uart_phys["cpu"].source.ready.eq(1) # avoid stalling cpu
             ).Else(
                 self.uart_phy.source.connect(uart_phys["cpu"].source),
                 uart_phys["cpu"].sink.connect(self.uart_phy.sink),
-                uart_phys["bridge"].source.ack.eq(1) # avoid stalling bridge
+                uart_phys["bridge"].source.ready.eq(1) # avoid stalling bridge
             )
         ]
 
@@ -235,7 +235,7 @@ def main():
     parser.add_argument("--with-ethernet", action="store_true",
                         help="enable Ethernet support")
     parser.add_argument("--build", action="store_true",
-                        help="build bitstream")   
+                        help="build bitstream")
     parser.add_argument("--load", action="store_true",
                         help="load bitstream")
     parser.add_argument("--flash", action="store_true",
