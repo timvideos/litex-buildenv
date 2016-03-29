@@ -5,6 +5,13 @@
 #include <irq.h>
 #include <uart.h>
 #include <console.h>
+#include <generated/csr.h>
+
+#define HDD_LED   0x01
+#define POWER_LED 0x02
+
+#define RESET_SW  0x01
+#define POWER_SW  0x02
 
 static char *readstr(void)
 {
@@ -103,6 +110,8 @@ int main(void)
 
 	while(1) {
 		console_service();
+		user_leds_out_write(0b1010);
+		case_leds_out_write(case_switchs_in_read());
 	}
 
 	return 0;

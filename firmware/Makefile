@@ -34,7 +34,7 @@ main.o: main.c
 %.o: %.S
 	$(assemble)
 
-load:
+load: firmware.bin
 	litex_term --kernel firmware.bin COM8
 
 clean:

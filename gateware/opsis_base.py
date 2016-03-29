@@ -9,10 +9,45 @@ from litex.gen.genlib.io import CRG
 
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
+from litex.soc.cores.gpio import GPIOIn, GPIOOut
+from litex.soc.interconnect.csr import AutoCSR
 
 import opsis_platform
 
+
+class CaseGPIO(Module, AutoCSR):
+    def __init__(self, platform):
+        switchs = Signal(2)
+        leds = Signal(2)
+
+        # # #
+
+        self.submodules.switchs = GPIOIn(switchs)
+        self.submodules.leds = GPIOOut(leds)
+
+        hdled = platform.request("hdled")
+        pwled = platform.request("pwled")
+        rstsw = platform.request("rstsw")
+        pwrsw = platform.request("pwrsw")
+        self.comb += [
+           rstsw.p.eq(1),
+           pwrsw.p.eq(1),
+           switchs[0].eq(rstsw.n),
+           switchs[1].eq(pwrsw.n),
+           hdled.p.eq(leds[0]),
+           hdled.n.eq(~leds[0]),
+           pwled.p.eq(leds[1]),
+           pwled.n.eq(~leds[1]),
+        ]
+
+
 class BaseSoC(SoCCore):
+    csr_map = {
+        "case":      18,
+        "user_leds": 19,
+    }
+    csr_map.update(SoCCore.csr_map)
+
     def __init__(self, platform, **kwargs):
         SoCCore.__init__(self, platform,
             clk_freq=int((1/(platform.default_clk_period))*1000000000),
@@ -21,28 +56,15 @@ class BaseSoC(SoCCore):
             **kwargs)
         self.submodules.crg = CRG(platform.request(platform.default_clk_name))
 
-        hdled = platform.request("hdled")
-        pwled = platform.request("pwled")
-        rstsw = platform.request("rstsw")
-        pwrsw = platform.request("pwrsw")
-        self.comb += [
-            rstsw.p.eq(1),
-            hdled.p.eq(rstsw.n),
-            hdled.n.eq(~rstsw.n),
-            pwrsw.p.eq(1),
-            pwled.p.eq(pwrsw.n),
-            pwled.n.eq(~pwrsw.n),
-        ]
-        user_led0 = platform.request("user_led", 0)
-        user_led1 = platform.request("user_led", 1)
-        user_led2 = platform.request("user_led", 2)
-        user_led3 = platform.request("user_led", 3)
-        self.comb += [
-            user_led0.eq(1),
-            user_led1.eq(0),
-            user_led2.eq(1),
-            user_led3.eq(0)
-        ]
+        # case switches/leds
+        self.submodules.case =  CaseGPIO(platform)
+
+        # user leds
+        self.submodules.user_leds = GPIOOut(Cat(platform.request("user_led", 0),
+                                                platform.request("user_led", 1),
+                                                platform.request("user_led", 2),
+                                                platform.request("user_led", 3)))
+
 
 def main():
     parser = argparse.ArgumentParser(description="Opsis LiteX SoC")
