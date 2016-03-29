@@ -90,13 +90,18 @@ def _get_tofe_low_speed_pmod3_io(n):
     return _get_tofe_low_speed_io(_tofe_low_speed_pmod3_io[n])
 
 _io = [
+    # clock / reset
     ("clk100", 0, Pins("AB13"), IOStandard("LVCMOS33")),
     ("cpu_reset", 0, Pins("Y3"), IOStandard("LVCMOS15"), Misc("PULLUP")),
+
+    # serial
     ("serial", 0,
         Subsignal("tx", Pins(_get_tofe_low_speed_io("rx"))),
         Subsignal("rx", Pins(_get_tofe_low_speed_io("tx"))),
         IOStandard("LVCMOS33")
     ),
+
+    # case switchs / leds
     ("hdled", 0,
         Subsignal("p", Pins(_get_tofe_low_speed_pmod3_io(1))),
         Subsignal("n", Pins(_get_tofe_low_speed_pmod3_io(0))),
@@ -117,10 +122,37 @@ _io = [
         Subsignal("n", Pins(_get_tofe_low_speed_pmod3_io(6))),
         IOStandard("LVCMOS33")
     ),
+
+    # user leds
     ("user_led", 0, Pins(_get_tofe_low_speed_io("led1")), IOStandard("LVCMOS33")),
     ("user_led", 1, Pins(_get_tofe_low_speed_io("led2")), IOStandard("LVCMOS33")),
     ("user_led", 2, Pins(_get_tofe_low_speed_io("led3")), IOStandard("LVCMOS33")),
     ("user_led", 3, Pins(_get_tofe_low_speed_io("led4")), IOStandard("LVCMOS33")),
+
+    # dram
+    ("ddram_clock", 0,
+        Subsignal("p", Pins("K4")),
+        Subsignal("n", Pins("K3")),
+        IOStandard("DIFF_SSTL15_II"), Misc("IN_TERM=NONE")
+    ),
+    ("ddram", 0,
+        Subsignal("cke", Pins("F2"), IOStandard("SSTL15_II")),
+        Subsignal("ras_n", Pins("M5"), IOStandard("SSTL15_II")),
+        Subsignal("cas_n", Pins("M4"), IOStandard("SSTL15_II")),
+        Subsignal("we_n", Pins("H2"), IOStandard("SSTL15_II")),
+        Subsignal("ba", Pins("J3 J1 H1"), IOStandard("SSTL15_II")),
+        Subsignal("a", Pins("K2 K1 K5 M6 H3 L4 M3 K6 G3 G1 J4 E1 F1 J6 H5"), IOStandard("SSTL15_II")),
+        Subsignal("dq", Pins(
+                    "R3 R1 P2 P1 L3 L1 M2 M1",
+                    "T2 T1 U3 U1 W3 W1 Y2 Y1"), IOStandard("SSTL15_II")),
+        Subsignal("dqs", Pins("N3 V2"), IOStandard("DIFF_SSTL15_II")),
+        Subsignal("dqs_n", Pins("N1 V1"), IOStandard("DIFF_SSTL15_II")),
+        Subsignal("dm", Pins("N4 P3"), IOStandard("SSTL15_II")),
+        Subsignal("odt", Pins("L6"), IOStandard("SSTL15_II")),
+        Subsignal("reset_n", Pins("E3"), IOStandard("LVCMOS15")),
+        Misc("SLEW=FAST"),
+        Misc("VCCAUX_IO=HIGH")
+    ),
 ]
 
 class Platform(XilinxPlatform):
