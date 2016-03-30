@@ -153,6 +153,14 @@ _io = [
         Subsignal("tx_data", Pins("W9 Y8 AA6 AB6")),
         IOStandard("LVCMOS33")
     ),
+
+    # serial
+    ("serial_debug", 0,
+        Subsignal("tx", Pins(_get_tofe_low_speed_pmod3_io(0))),
+        Subsignal("rx", Pins(_get_tofe_low_speed_pmod3_io(1))),
+        IOStandard("LVCMOS33")
+    ),
+
 ]
 
 class Platform(XilinxPlatform):
@@ -173,6 +181,14 @@ class Platform(XilinxPlatform):
         for pin, config in pins.items():
             self.toolchain.bitgen_opt += " -g %s:%s " % (pin, config)
         self.add_platform_command("""CONFIG VCCAUX="3.3";""")
+
+    def do_finalize(self, fragment):
+        XilinxPlatform.do_finalize(self, fragment)
+
+        try:
+            self.add_period_constraint(self.lookup_request("eth_clocks").rx, 8.0)
+        except ConstraintError:
+            pass
 
     def create_programmer(self):
         return iMPACT()
