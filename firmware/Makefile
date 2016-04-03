@@ -1,4 +1,4 @@
-OPSIS_DIR=../gateware/soc_basesoc_opsis_platform
+OPSIS_DIR=../gateware/opsis_soc
 
 include $(OPSIS_DIR)/software/include/generated/variables.mak
 include $(SOC_DIRECTORY)/software/common.mak
@@ -13,6 +13,7 @@ all: firmware.bin
 %.bin: %.elf
 	$(OBJCOPY) -O binary $< $@
 	chmod -x $@
+	cp firmware.bin boot.bin
 
 firmware.elf: $(OBJECTS)
 	$(LD) $(LDFLAGS) \

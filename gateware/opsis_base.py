@@ -235,7 +235,7 @@ def main():
     platform = opsis_platform.Platform()
     cls = MiniSoC if args.with_ethernet else BaseSoC
     soc = cls(platform, **soc_sdram_argdict(args))
-    builder = Builder(soc, csr_csv="../test/csr.csv")
+    builder = Builder(soc, output_dir="opsis_soc", csr_csv="../test/csr.csv")
 
     if args.build:
         vns = builder.build()
