@@ -135,19 +135,19 @@ export PATH=$CONDA_DIR/bin:$PATH
 
 # binutils for the target
 (
-	conda install binutils-lm32-elf
+	conda install binutils-lm32-elf=2.25.1
 )
 check_version lm32-elf-ld 2.25.1
 
 # gcc+binutils for the target
 (
-	conda install gcc-lm32-elf
+	conda install gcc-lm32-elf=4.9.3
 )
 check_version lm32-elf-gcc 4.9.3
 
 # sdcc for compiling Cypress FX2 firmware
 (
-	conda install sdcc
+	conda install sdcc=3.5.0
 )
 check_version sdcc 3.5.0
 
