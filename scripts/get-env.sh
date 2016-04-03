@@ -6,8 +6,6 @@ CALLED=$_
 SETUP_SRC=$(realpath ${BASH_SOURCE[0]})
 SETUP_DIR=$(dirname $SETUP_SRC)
 TOP_DIR=$(realpath $SETUP_DIR/..)
-BUILD_DIR=$TOP_DIR/build
-THIRD_DIR=$TOP_DIR/third_party
 
 set -e
 
@@ -16,6 +14,8 @@ if [ $SOURCED = 1 ]; then
 	echo "$SETUP_SRC"
 	return
 fi
+
+. $SETUP_DIR/settings.sh
 
 echo "             This script is: $SETUP_SRC"
 echo "         Firmware directory: $TOP_DIR"
@@ -119,7 +119,6 @@ function check_import {
 echo ""
 echo "Install modules from conda"
 echo "---------------------------"
-CONDA_DIR=$BUILD_DIR/conda
 export PATH=$CONDA_DIR/bin:$PATH
 (
 	if [ ! -d $CONDA_DIR ]; then
@@ -133,28 +132,24 @@ export PATH=$CONDA_DIR/bin:$PATH
 	conda config --add channels timvideos
 )
 
-BINUTILS_VERSION=2.25.1
 # binutils for the target
 (
 	conda install binutils-lm32-elf=$BINUTILS_VERSION
 )
 check_version lm32-elf-ld $BINUTILS_VERSION
 
-GCC_VERSION=4.9.3
 # gcc+binutils for the target
 (
 	conda install gcc-lm32-elf=$GCC_VERSION
 )
 check_version lm32-elf-gcc $GCC_VERSION
 
-SDCC_VERSION=3.5.0
 # sdcc for compiling Cypress FX2 firmware
 (
 	conda install sdcc=$SDCC_VERSION
 )
 check_version sdcc $SDCC_VERSION
 
-OPENOCD_VERSION=0.10.0-dev
 # openocd for programming via Cypress FX2
 (
 	conda install openocd
