@@ -140,6 +140,7 @@ class BaseSoC(SoCSDRAM):
         SoCSDRAM.__init__(self, platform, clk_freq,
             cpu_reset_address=0x00000000,
             integrated_rom_size=0x8000,
+            integrated_sram_size=0x8000,
             **kwargs)
         self.submodules.crg = _CRG(platform, clk_freq)
 

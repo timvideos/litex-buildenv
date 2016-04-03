@@ -3,7 +3,12 @@ OPSIS_DIR=../gateware/opsis_soc
 include $(OPSIS_DIR)/software/include/generated/variables.mak
 include $(SOC_DIRECTORY)/software/common.mak
 
-OBJECTS=isr.o main.o
+UIPDIR=uip
+LIBUIPDIR=libuip
+
+OBJECTS=isr.o ethernet.o etherbone.o telnet.o ci.o main.o
+
+CFLAGS += -I. -I$(UIPDIR) -I$(LIBUIPDIR)
 
 all: firmware.bin
 
@@ -15,7 +20,7 @@ all: firmware.bin
 	chmod -x $@
 	cp firmware.bin boot.bin
 
-firmware.elf: $(OBJECTS)
+firmware.elf: $(OBJECTS) libs
 	$(LD) $(LDFLAGS) \
 		-T linker.ld \
 		-N -o $@ \
@@ -23,7 +28,8 @@ firmware.elf: $(OBJECTS)
 		$(OBJECTS) \
 		-L$(OPSIS_DIR)/software/libbase \
 		-L$(OPSIS_DIR)/software/libcompiler_rt \
-		-lbase -lcompiler_rt
+		-L$(LIBUIPDIR) \
+		-lbase -luip -lcompiler_rt
 	chmod -x $@
 
 main.o: main.c
@@ -35,10 +41,14 @@ main.o: main.c
 %.o: %.S
 	$(assemble)
 
+libs:
+	$(MAKE) -C $(LIBUIPDIR)
+
 load: firmware.bin
 	litex_term --kernel firmware.bin COM8
 
 clean:
+	cd libuip && make clean
 	$(RM) $(OBJECTS) $(OBJECTS:.o=.d) firmware.elf firmware.bin .*~ *~
 
-.PHONY: all main.o clean load
+.PHONY: all main.o clean libs load
