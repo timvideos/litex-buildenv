@@ -9,7 +9,7 @@
 
 #include "ci.h"
 #include "telnet.h"
-
+#include "mdio.h"
 
 int ci_puts(const char *s)
 {
@@ -41,6 +41,10 @@ void ci_help(void)
 	ci_puts("Available commands:");
 	ci_puts("help        - this command");
 	ci_puts("reboot      - reboot CPU");
+#ifdef CSR_ETHPHY_MDIO_W_ADDR
+	ci_puts("mdio_dump   - dump mdio registers");
+	ci_puts("mdio_status - show mdio status");
+#endif
 }
 
 static char *readstr(void)
@@ -154,6 +158,12 @@ void ci_service(void)
 		ci_help();
 	else if(strcmp(token, "reboot") == 0)
 		reboot();
+#ifdef CSR_ETHPHY_MDIO_W_ADDR
+	else if(strcmp(token, "mdio_dump") == 0)
+		mdio_dump();
+	else if(strcmp(token, "mdio_status") == 0)
+		mdio_status();
+#endif
 
 	ci_prompt();
 }

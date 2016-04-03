@@ -6,7 +6,7 @@ include $(SOC_DIRECTORY)/software/common.mak
 UIPDIR=uip
 LIBUIPDIR=libuip
 
-OBJECTS=isr.o ethernet.o etherbone.o telnet.o ci.o main.o
+OBJECTS=isr.o ethernet.o etherbone.o telnet.o mdio.o ci.o main.o
 
 CFLAGS += -I. -I$(UIPDIR) -I$(LIBUIPDIR)
 

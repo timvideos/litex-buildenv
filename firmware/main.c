@@ -14,6 +14,7 @@
 #include "etherbone.h"
 #include "telnet.h"
 #include "ci.h"
+#include "mdio.h"
 
 #define HDD_LED   0x01
 #define POWER_LED 0x02
@@ -40,6 +41,9 @@ int main(void)
 	puts("\nOpsis CPU testing software built "__DATE__" "__TIME__);
 
 	time_init();
+#ifdef CSR_ETHPHY_MDIO_W_ADDR
+	mdio_status();
+#endif
 
 	ethernet_init(mac_addr, ip_addr);
 	etherbone_init();
