@@ -88,16 +88,32 @@ echo "---------------------------"
 CONDA_DIR=$BUILD_DIR/conda
 export PATH=$CONDA_DIR/bin:$PATH
 
+BINUTILS_VERSION=2.25.1
 # binutils for the target
-check_version lm32-elf-ld 2.25.1 || return 1
 
+
+
+check_version lm32-elf-ld $BINUTILS_VERSION || return 1
+
+GCC_VERSION=4.9.3
 # gcc+binutils for the target
-check_version lm32-elf-gcc 4.9.3 || return 1
 
+
+
+check_version lm32-elf-gcc $GCC_VERSION || return 1
+
+SDCC_VERSION=3.5.0
 # sdcc for compiling Cypress FX2 firmware
-check_version sdcc 3.5.0 || return 1
 
+
+
+check_version sdcc $SDCC_VERSION || return 1
+
+OPENOCD_VERSION=0.10.0-dev
 # openocd for programming via Cypress FX2
+
+
+
 check_version openocd 0.10.0-dev || return 1
 
 # hexfile for embedding the Cypress FX2 firmware.

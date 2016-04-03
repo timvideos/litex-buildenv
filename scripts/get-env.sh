@@ -133,24 +133,28 @@ export PATH=$CONDA_DIR/bin:$PATH
 	conda config --add channels timvideos
 )
 
+BINUTILS_VERSION=2.25.1
 # binutils for the target
 (
-	conda install binutils-lm32-elf=2.25.1
+	conda install binutils-lm32-elf=$BINUTILS_VERSION
 )
-check_version lm32-elf-ld 2.25.1
+check_version lm32-elf-ld $BINUTILS_VERSION
 
+GCC_VERSION=4.9.3
 # gcc+binutils for the target
 (
-	conda install gcc-lm32-elf=4.9.3
+	conda install gcc-lm32-elf=$GCC_VERSION
 )
-check_version lm32-elf-gcc 4.9.3
+check_version lm32-elf-gcc $GCC_VERSION
 
+SDCC_VERSION=3.5.0
 # sdcc for compiling Cypress FX2 firmware
 (
-	conda install sdcc=3.5.0
+	conda install sdcc=$SDCC_VERSION
 )
-check_version sdcc 3.5.0
+check_version sdcc $SDCC_VERSION
 
+OPENOCD_VERSION=0.10.0-dev
 # openocd for programming via Cypress FX2
 (
 	conda install openocd
