@@ -165,6 +165,8 @@ class BaseSoC(SoCSDRAM):
             self.ddrphy.clk8x_rd_strb.eq(self.crg.clk8x_rd_strb),
         ]
 
+        self.platform.add_period_constraint(self.crg.cd_sys.clk, 1/clk_freq*1e9)
+
 class MiniSoC(BaseSoC):
     csr_peripherals = (
         "ethphy",
@@ -212,18 +214,19 @@ class MiniSoC(BaseSoC):
             Keep(self.ethphy.crg.cd_eth_rx.clk),
             Keep(self.ethphy.crg.cd_eth_tx.clk)
         ]
+
+        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_rx.clk, 8.0)
+        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_tx.clk, 8.0)
+
+        self.platform.add_false_path_constraints(
+        	self.crg.cd_sys.clk,
+        	self.ethphy.crg.cd_eth_rx.clk,
+        	self.ethphy.crg.cd_eth_tx.clk)
+
         self.platform.add_platform_command("""
 NET "{eth_clocks_rx}" CLOCK_DEDICATED_ROUTE = FALSE;
-NET "{eth_rx_clk}" TNM_NET = "GRPeth_rx_clk";
-NET "{eth_tx_clk}" TNM_NET = "GRPeth_tx_clk";
-TIMESPEC "TSise_sucks1" = FROM "GRPeth_tx_clk" TO "GRPsys_clk" TIG;
-TIMESPEC "TSise_sucks2" = FROM "GRPsys_clk" TO "GRPeth_tx_clk" TIG;
-TIMESPEC "TSise_sucks3" = FROM "GRPeth_rx_clk" TO "GRPsys_clk" TIG;
-TIMESPEC "TSise_sucks4" = FROM "GRPsys_clk" TO "GRPeth_rx_clk" TIG;
 PIN "BUFG_5.O" CLOCK_DEDICATED_ROUTE = FALSE;
-""", eth_clocks_rx=self.platform.lookup_request("eth_clocks").rx,
-     eth_rx_clk=self.ethphy.crg.cd_eth_rx.clk,
-     eth_tx_clk=self.ethphy.crg.cd_eth_tx.clk)
+""", eth_clocks_rx=self.platform.lookup_request("eth_clocks").rx)
 
 def main():
     parser = argparse.ArgumentParser(description="Opsis LiteX SoC")
