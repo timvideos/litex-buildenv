@@ -28,6 +28,7 @@ from litescope import LiteScopeAnalyzer
 import opsis_platform
 
 from gateware import dna
+from gateware import firmware
 
 
 def csr_map_update(csr_map, csr_peripherals):
@@ -138,7 +139,15 @@ class BaseSoC(SoCSDRAM):
     )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
-    def __init__(self, platform, **kwargs):
+    mem_map = {
+        "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
+    }
+    mem_map.update(SoCSDRAM.mem_map)
+
+    def __init__(self, platform, 
+                 firmware_ram_size=0x10000,
+                 firmware_filename="firmware/firmware.bin",
+                 **kwargs):
         clk_freq = 50*1000000
         SoCSDRAM.__init__(self, platform, clk_freq,
             cpu_reset_address=0x00000000,
@@ -150,6 +159,12 @@ class BaseSoC(SoCSDRAM):
 
         # front panel (ATX)
         self.submodules.front_panel = FrontPanelGPIO(platform)
+
+        # firmware
+        firmware_ram_size = 0x10000
+        self.submodules.firmware_ram = firmware.FirmwareROM(firmware_ram_size, firmware_filename)
+        self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
+        self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
 
         # sdram
         self.submodules.ddrphy = s6ddrphy.S6QuarterRateDDRPHY(platform.request("ddram"),
