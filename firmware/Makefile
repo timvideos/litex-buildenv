@@ -1,4 +1,4 @@
-OPSIS_DIR=../gateware/opsis_soc
+OPSIS_DIR=../build
 
 include $(OPSIS_DIR)/software/include/generated/variables.mak
 include $(SOC_DIRECTORY)/software/common.mak

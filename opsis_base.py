@@ -27,6 +27,8 @@ from litescope import LiteScopeAnalyzer
 
 import opsis_platform
 
+from gateware import dna
+
 
 def csr_map_update(csr_map, csr_peripherals):
   csr_map.update(dict((n, v) for v, n in enumerate(csr_peripherals, start=max(csr_map.values()) + 1)))
@@ -131,7 +133,8 @@ class _CRG(Module):
 class BaseSoC(SoCSDRAM):
     csr_peripherals = (
         "front_panel",
-        "ddrphy"
+        "ddrphy",
+        "dna",
     )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
@@ -143,6 +146,7 @@ class BaseSoC(SoCSDRAM):
             integrated_sram_size=0x8000,
             **kwargs)
         self.submodules.crg = _CRG(platform, clk_freq)
+        self.submodules.dna = dna.DNA()
 
         # front panel (ATX)
         self.submodules.front_panel = FrontPanelGPIO(platform)
@@ -236,11 +240,11 @@ def main():
     platform = opsis_platform.Platform()
     cls = MiniSoC if args.with_ethernet else BaseSoC
     soc = cls(platform, **soc_sdram_argdict(args))
-    builder = Builder(soc, output_dir="opsis_soc", csr_csv="../test/csr.csv")
+    builder = Builder(soc, output_dir="build", csr_csv="test/csr.csv")
 
     if args.build:
         vns = builder.build()
-        soc.analyzer.export_csv(vns, "../test/analyzer.csv")
+        soc.analyzer.export_csv(vns, "test/analyzer.csv")
 
     if args.load:
         prog = soc.platform.create_programmer()
