@@ -161,6 +161,61 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    # hdmi in
+    ("hdmi_in", 0,
+        Subsignal("clk_p", Pins("L20"), IOStandard("TMDS_33")),
+        Subsignal("clk_n", Pins("L22"), IOStandard("TMDS_33")),
+        Subsignal("data0_p", Pins("M21"), IOStandard("TMDS_33")),
+        Subsignal("data0_n", Pins("M22"), IOStandard("TMDS_33")),
+        Subsignal("data1_p", Pins("N20"), IOStandard("TMDS_33")),
+        Subsignal("data1_n", Pins("N22"), IOStandard("TMDS_33")),
+        Subsignal("data2_p", Pins("P21"), IOStandard("TMDS_33")),
+        Subsignal("data2_n", Pins("P22"), IOStandard("TMDS_33")),
+        Subsignal("scl", Pins("T21"), IOStandard("LVCMOS33")),
+        Subsignal("sda", Pins("R22"), IOStandard("LVCMOS33")),
+        Subsignal("hpd_en", Pins("R20"), IOStandard("LVCMOS33"))
+    ),
+    ("hdmi_in", 1,
+        Subsignal("clk_p", Pins("M20"), IOStandard("TMDS_33")),
+        Subsignal("clk_n", Pins("M19"), IOStandard("TMDS_33")),
+        Subsignal("data0_p", Pins("J20"), IOStandard("TMDS_33")),
+        Subsignal("data0_n", Pins("J22"), IOStandard("TMDS_33")),
+        Subsignal("data1_p", Pins("H21"), IOStandard("TMDS_33")),
+        Subsignal("data1_n", Pins("H22"), IOStandard("TMDS_33")),
+        Subsignal("data2_p", Pins("K20"), IOStandard("TMDS_33")),
+        Subsignal("data2_n", Pins("L19"), IOStandard("TMDS_33")),
+        Subsignal("scl", Pins("L17"), IOStandard("LVCMOS33")),
+        Subsignal("sda", Pins("T18"), IOStandard("LVCMOS33")),
+        Subsignal("hpd_en", Pins("V19"), IOStandard("LVCMOS33"))
+    ),
+
+    # hdmi out
+    ("hdmi_out", 0,
+        Subsignal("clk_p", Pins("Y11"), IOStandard("TMDS_33")),
+        Subsignal("clk_n", Pins("AB11"), IOStandard("TMDS_33")),
+        Subsignal("data0_p", Pins("W12"), IOStandard("TMDS_33")),
+        Subsignal("data0_n", Pins("Y12"), IOStandard("TMDS_33")),
+        Subsignal("data1_p", Pins("AA10"), IOStandard("TMDS_33")),
+        Subsignal("data1_n", Pins("AB10"), IOStandard("TMDS_33")),
+        Subsignal("data2_p", Pins("Y9"), IOStandard("TMDS_33")),
+        Subsignal("data2_n", Pins("AB9"), IOStandard("TMDS_33")),
+        Subsignal("scl", Pins("Y7"), IOStandard("I2C")),
+        Subsignal("sda", Pins("Y10"), IOStandard("I2C")),
+        Subsignal("hpd_notif", Pins("AB7"), IOStandard("LVCMOS33"))
+    ),
+    ("hdmi_out", 1,
+        Subsignal("clk_p", Pins("T12"), IOStandard("TMDS_33")),
+        Subsignal("clk_n", Pins("U12"), IOStandard("TMDS_33")),
+        Subsignal("data0_p", Pins("Y15"), IOStandard("TMDS_33")),
+        Subsignal("data0_n", Pins("AB15"), IOStandard("TMDS_33")),
+        Subsignal("data1_p", Pins("AA16"), IOStandard("TMDS_33")),
+        Subsignal("data1_n", Pins("AB16"), IOStandard("TMDS_33")),
+        Subsignal("data2_p", Pins("U14"), IOStandard("TMDS_33")),
+        Subsignal("data2_n", Pins("U13"), IOStandard("TMDS_33")),
+        Subsignal("scl", Pins("Y17"), IOStandard("I2C")),
+        Subsignal("sda", Pins("AB17"), IOStandard("I2C")),
+        Subsignal("hpd_notif", Pins("AB18"), IOStandard("LVCMOS33"))
+    ),
 ]
 
 class Platform(XilinxPlatform):
@@ -184,7 +239,11 @@ class Platform(XilinxPlatform):
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
-
+        for i in range(2):
+            try:
+                self.add_period_constraint(self.lookup_request("hdmi_in", i).clk_p, 12)
+            except ConstraintError:
+                pass
         try:
             self.add_period_constraint(self.lookup_request("eth_clocks").rx, 8.0)
         except ConstraintError:
