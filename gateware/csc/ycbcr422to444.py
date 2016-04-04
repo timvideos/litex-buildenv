@@ -1,14 +1,13 @@
 # ycbcr422to444
 
-from migen.fhdl.std import *
-from migen.genlib.record import *
-from migen.flow.actor import *
+from litex.gen import *
+from litex.soc.interconnect.stream import *
 
 from gateware.csc.common import *
 
 datapath_latency = 2
 
-@DecorateModule(InsertCE)
+@CEInserter()
 class YCbCr422to444Datapath(Module):
     """YCbCr 422 to 444
 
@@ -17,16 +16,17 @@ class YCbCr422to444Datapath(Module):
       Cb01  Cr01  Cb23 Cr23  --> Cb01  Cb01 Cb23 Cb23
                                  Cr01  Cr01 Cr23 Cr23
     """
+    latency = 2
     def __init__(self, dw):
         self.sink = sink = Record(ycbcr422_layout(dw))
         self.source = source = Record(ycbcr444_layout(dw))
-        self.start = Signal()
+        self.last = Signal()
 
         # # #
 
         # delay ycbcr signals
         ycbcr_delayed = [sink]
-        for i in range(datapath_latency):
+        for i in range(self.latency):
             ycbcr_n = Record(ycbcr422_layout(dw))
             for name in ["y", "cb_cr"]:
                 self.sync += getattr(ycbcr_n, name).eq(getattr(ycbcr_delayed[-1], name))
@@ -34,7 +34,7 @@ class YCbCr422to444Datapath(Module):
 
         # parity
         parity = Signal()
-        self.sync += If(self.start, parity.eq(1)).Else(parity.eq(~parity))
+        self.sync += If(self.last, parity.eq(0)).Else(parity.eq(~parity))
 
         # output
         self.sync += [
@@ -51,17 +51,16 @@ class YCbCr422to444Datapath(Module):
 
 class YCbCr422to444(PipelinedActor, Module):
     def __init__(self, dw=8):
-        self.sink = sink = Sink(EndpointDescription(ycbcr422_layout(dw), packetized=True))
-        self.source = source = Source(EndpointDescription(ycbcr444_layout(dw), packetized=True))
-        PipelinedActor.__init__(self, datapath_latency)
-        self.latency = datapath_latency
+        self.sink = sink = stream.Endpoint(EndpointDescription(ycbcr422_layout(dw)))
+        self.source = source = stream.Endpoint(EndpointDescription(ycbcr444_layout(dw)))
 
         # # #
 
         self.submodules.datapath = YCbCr422to444Datapath(dw)
+        PipelinedActor.__init__(self, self.datapath.latency)
         self.comb += [
-            self.datapath.start.eq(sink.stb & sink.sop),
-            self.datapath.ce.eq(sink.stb & self.pipe_ce)
+            self.datapath.last.eq(sink.valid & sink.last),
+            self.datapath.ce.eq(sink.valid & self.pipe_ce)
         ]
         for name in ["y", "cb_cr"]:
             self.comb += getattr(self.datapath.sink, name).eq(getattr(sink, name))

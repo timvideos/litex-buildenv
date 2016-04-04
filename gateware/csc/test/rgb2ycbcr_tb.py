@@ -1,6 +1,6 @@
-from migen.fhdl.std import *
-from migen.sim.generic import run_simulation
-from migen.flow.actor import EndpointDescription
+from litex.gen import *
+from litex.soc.interconnect.stream import *
+from litex.soc.interconnect.stream_sim import *
 
 from gateware.csc.common import *
 from gateware.csc.rgb2ycbcr import rgb2ycbcr_coefs, RGB2YCbCr
@@ -10,9 +10,9 @@ from gateware.csc.test.common import *
 
 class TB(Module):
     def __init__(self):
-        self.submodules.streamer = PacketStreamer(EndpointDescription([("data", 24)], packetized=True))
+        self.submodules.streamer = PacketStreamer(EndpointDescription([("data", 24)]))
         self.submodules.rgb2ycbcr = RGB2YCbCr()
-        self.submodules.logger = PacketLogger(EndpointDescription([("data", 24)], packetized=True))
+        self.submodules.logger = PacketLogger(EndpointDescription([("data", 24)]))
 
         self.comb += [
         	Record.connect(self.streamer.source, self.rgb2ycbcr.sink, leave_out=["data"]),
@@ -27,26 +27,34 @@ class TB(Module):
         ]
 
 
-    def gen_simulation(self, selfp):
-        # convert image using rgb2ycbcr model
-        raw_image = RAWImage(rgb2ycbcr_coefs(8), "lena.png", 64)
-        raw_image.rgb2ycbcr_model()
-        raw_image.ycbcr2rgb()
-        raw_image.save("lena_rgb2ycbcr_reference.png")
+def main_generator(dut):
+    # convert image using rgb2ycbcr model
+    raw_image = RAWImage(rgb2ycbcr_coefs(8), "lena.png", 64)
+    raw_image.rgb2ycbcr_model()
+    raw_image.ycbcr2rgb()
+    raw_image.save("lena_rgb2ycbcr_reference.png")
 
-        for i in range(16):
-            yield
+    for i in range(16):
+        yield
 
-        # convert image using rgb2ycbcr implementation
-        raw_image = RAWImage(rgb2ycbcr_coefs(8), "lena.png", 64)
-        raw_image.pack_rgb()
-        packet = Packet(raw_image.data)
-        self.streamer.send(packet)
-        yield from self.logger.receive()
-        raw_image.set_data(self.logger.packet)
-        raw_image.unpack_ycbcr()
-        raw_image.ycbcr2rgb()
-        raw_image.save("lena_rgb2ycbcr.png")
+    # convert image using rgb2ycbcr implementation
+    raw_image = RAWImage(rgb2ycbcr_coefs(8), "lena.png", 64)
+    raw_image.pack_rgb()
+    packet = Packet(raw_image.data)
+    dut.streamer.send(packet)
+    yield from dut.logger.receive()
+    raw_image.set_data(dut.logger.packet)
+    raw_image.unpack_ycbcr()
+    raw_image.ycbcr2rgb()
+    raw_image.save("lena_rgb2ycbcr.png")
 
 if __name__ == "__main__":
-    run_simulation(TB(), ncycles=8192, vcd_name="my.vcd", keep_files=True)
+    tb = TB()
+    generators = {"sys" : [main_generator(tb)]}
+    generators = {
+        "sys" :   [main_generator(tb),
+                   tb.streamer.generator(),
+                   tb.logger.generator()]
+    }
+    clocks = {"sys": 10}
+    run_simulation(tb, generators, clocks, vcd_name="sim.vcd")

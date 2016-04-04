@@ -1,8 +1,7 @@
 # rgb2ycbcr
 
-from migen.fhdl.std import *
-from migen.genlib.record import *
-from migen.flow.actor import *
+from litex.gen import *
+from litex.soc.interconnect.stream import *
 
 from gateware.csc.common import *
 
@@ -27,7 +26,7 @@ def rgb2ycbcr_coefs(dw, cw=None):
 datapath_latency = 8
 
 
-@DecorateModule(InsertCE)
+@CEInserter()
 class RGB2YCbCrDatapath(Module):
     def __init__(self, rgb_w, ycbcr_w, coef_w):
         self.sink = sink = Record(rgb_layout(rgb_w))
@@ -131,8 +130,8 @@ class RGB2YCbCrDatapath(Module):
 
 class RGB2YCbCr(PipelinedActor, Module):
     def __init__(self, rgb_w=8, ycbcr_w=8, coef_w=8):
-        self.sink = sink = Sink(EndpointDescription(rgb_layout(rgb_w), packetized=True))
-        self.source = source = Source(EndpointDescription(ycbcr444_layout(ycbcr_w), packetized=True))
+        self.sink = sink = stream.Endpoint(EndpointDescription(rgb_layout(rgb_w)))
+        self.source = source = stream.Endpoint(EndpointDescription(ycbcr444_layout(ycbcr_w)))
         PipelinedActor.__init__(self, datapath_latency)
         self.latency = datapath_latency
 

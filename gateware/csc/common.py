@@ -1,4 +1,6 @@
-from migen.fhdl.std import *
+from litex.gen import *
+
+from litex.soc.interconnect import stream
 
 
 def saturate(i, o, minimum, maximum):
