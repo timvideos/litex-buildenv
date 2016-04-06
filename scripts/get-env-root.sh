@@ -30,6 +30,21 @@ apt-get install -y iverilog gtkwave
 # Nothing needed
 
 # libfpgalink
+
+while true; do
+    read -p "Are you working under a proxy server? (yes/no) " yn
+    case $yn in
+        [Yy]* ) echo "Enter the proxy site and port number"
+				read -p "Enter the proxy adress : " siteproxy
+				read -p "Enter port number : " portnumber
+				export http_proxy=http://$siteproxy:$portnumber
+                export https_proxy=https://$siteproxy:$portnumber
+                break;;
+        [Nn]* ) break;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
+
 sudo apt-get install -y libreadline-dev libusb-1.0-0-dev libftdi-dev python-yaml fxload
 
 # Load custom udev rules
@@ -40,7 +55,7 @@ sudo apt-get install -y libreadline-dev libusb-1.0-0-dev libftdi-dev python-yaml
 
 # Get the vizzini module needed for the Atlys board
 sudo apt-get install -y software-properties-common
-sudo add-apt-repository -y ppa:timvideos/fpga-support
+sudo -E add-apt-repository -y ppa:timvideos/fpga-support
 sudo apt-get update
 sudo apt-get install -y vizzini-dkms
 sudo apt-get install -y ixo-usb-jtag

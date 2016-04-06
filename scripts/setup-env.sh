@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ "`whoami`" = "root" ]
+then
+    echo "Running the script as root. Not permitted"
+    exit 1
+fi
+
 CALLED=$_
 [[ "${BASH_SOURCE[0]}" != "${0}" ]] && SOURCED=1 || SOURCED=0
 

@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ "`whoami`" = "root" ]
+then
+    echo "Running the script as root. Not permitted"
+    exit 1
+fi
+
 GIT_REPO=https://github.com/timvideos/HDMI2USB-misoc-firmware.git
 if [ -z "$GIT_BRANCH" ]; then
   GIT_BRANCH=master
@@ -19,8 +25,8 @@ if ! git help > /dev/null 2>&1; then
 fi
 
 if [ -e HDMI2USB-misoc-firmware ]; then
- cd HDMI2USB-misoc-firmware
- git pull || exit 1
+ echo "Existing checkout found (see HDMI2USB-misoc-firmware directory), please remove before running."
+ exit 1
 else
  git clone --recurse-submodules $GIT_REPO || exit 1
  cd HDMI2USB-misoc-firmware
@@ -30,7 +36,7 @@ fi
 yn=y
 #read -p "Need to install packages as root. Continue? (y/n) " yn
 if [ "$yn" = "y" -o "$yn" = "Y" -o -z "$yn" ]; then
-  sudo ./scripts/get-env-root.sh || exit 1
+  sudo -E ./scripts/get-env-root.sh || exit 1
 else
   echo "Aborting.."
   exit 1
