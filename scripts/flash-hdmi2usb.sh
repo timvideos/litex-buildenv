@@ -2,7 +2,7 @@
 
 if [ "`whoami`" = "root" ]
 then
-    echo "Running the script as root. Not permitted"
+    echo "Running the script as root is not permitted"
     exit 1
 fi
 

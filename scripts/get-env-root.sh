@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ "`whoami`" != "root" ]
+then
+    echo "Please use sudo to run this script!"
+    exit 1
+fi
+
 SETUP_SRC=$(realpath ${BASH_SOURCE[0]})
 SETUP_DIR=$(dirname $SETUP_SRC)
 
@@ -30,20 +36,6 @@ apt-get install -y iverilog gtkwave
 # Nothing needed
 
 # libfpgalink
-
-while true; do
-    read -p "Are you working under a proxy server? (yes/no) " yn
-    case $yn in
-        [Yy]* ) echo "Enter the proxy site and port number"
-				read -p "Enter the proxy adress : " siteproxy
-				read -p "Enter port number : " portnumber
-				export http_proxy=http://$siteproxy:$portnumber
-                export https_proxy=https://$siteproxy:$portnumber
-                break;;
-        [Nn]* ) break;;
-        * ) echo "Please answer yes or no.";;
-    esac
-done
 
 sudo apt-get install -y libreadline-dev libusb-1.0-0-dev libftdi-dev python-yaml fxload
 

@@ -1,11 +1,5 @@
 #!/bin/sh
 
-if [ "`whoami`" = "root" ]
-then
-    echo "Running the script as root. Not permitted"
-    exit 1
-fi
-
 I=0
 while true; do
 	echo
