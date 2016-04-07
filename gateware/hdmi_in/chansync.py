@@ -1,10 +1,11 @@
-from migen.fhdl.std import *
-from migen.genlib.cdc import MultiReg
-from migen.genlib.fifo import _inc
-from migen.genlib.record import Record, layout_len
-from migen.genlib.misc import optree
-from migen.bank.description import *
+from litex.gen import *
+from litex.gen.genlib.cdc import MultiReg
+from litex.gen.genlib.fifo import _inc
+from litex.gen.genlib.record import Record, layout_len
 
+from litex.soc.interconnect.csr import *
+
+from gateware.compat import * # XXX
 from gateware.hdmi_in.common import channel_layout
 
 
@@ -58,7 +59,7 @@ class ChanSync(Module, AutoCSR):
 
             ###
 
-            syncbuffer = RenameClockDomains(_SyncBuffer(layout_len(channel_layout), depth), "pix")
+            syncbuffer = ClockDomainsRenamer("pix")(_SyncBuffer(layout_len(channel_layout), depth))
             self.submodules += syncbuffer
             self.comb += [
                 syncbuffer.din.eq(data_in.raw_bits()),
@@ -94,7 +95,7 @@ class _TB(Module):
     def __init__(self, test_seq_it):
         self.test_seq_it = test_seq_it
 
-        self.submodules.chansync = RenameClockDomains(ChanSync(), {"pix": "sys"})
+        self.submodules.chansync = ClockDomainsRenamer({"pix": "sys"})(ChanSync())
         self.comb += self.chansync.valid_i.eq(1)
 
     def do_simulation(self, selfp):
@@ -117,7 +118,7 @@ class _TB(Module):
         print("{0:5} {1:5} {2:5}".format(out0, out1, out2))
 
 if __name__ == "__main__":
-    from migen.sim.generic import run_simulation
+    from litex.gen.sim.generic import run_simulation
 
     test_seq = [
         (1, 1, 1),

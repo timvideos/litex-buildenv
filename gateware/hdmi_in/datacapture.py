@@ -1,7 +1,8 @@
-from migen.fhdl.std import *
-from migen.genlib.cdc import MultiReg, PulseSynchronizer
-from migen.bank.description import *
+from litex import *
+from litex.gen.genlib.cdc import MultiReg, PulseSynchronizer
+from litex.soc.interconnect.csr import *
 
+from gateware.compat import * # XXX
 
 class DataCapture(Module, AutoCSR):
     def __init__(self, pad_p, pad_n, ntbits):

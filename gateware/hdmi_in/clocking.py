@@ -1,7 +1,8 @@
-from migen.fhdl.std import *
-from migen.genlib.cdc import MultiReg
-from migen.bank.description import *
+from litex.gen import *
+from litex.gen.genlib.cdc import MultiReg
+from litex.soc.interconnect.csr import *
 
+from gateware.compat import * # XXX
 
 class Clocking(Module, AutoCSR):
     def __init__(self, pads):

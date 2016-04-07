@@ -1,6 +1,6 @@
-from migen.fhdl.std import *
-from migen.genlib.record import Record
+from litex.gen import *
 
+from gateware.compat import * # XXX
 from gateware.hdmi_in.common import control_tokens, channel_layout
 
 

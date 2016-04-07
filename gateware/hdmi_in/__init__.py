@@ -1,6 +1,7 @@
-from migen.fhdl.std import *
-from migen.bank.description import AutoCSR
+from litex.gen import *
+from litex.soc.interconnect.csr import AutoCSR
 
+from gateware.compat import * # XXX
 from gateware.hdmi_in.edid import EDID
 from gateware.hdmi_in.clocking import Clocking
 from gateware.hdmi_in.datacapture import DataCapture

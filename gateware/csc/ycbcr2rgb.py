@@ -28,11 +28,10 @@ def ycbcr2rgb_coefs(dw, cw=None):
         "dcoef": coef(1/cc, xcoef_w)
     }
 
-datapath_latency = 4
-
-
 @CEInserter()
 class YCbCr2RGBDatapath(Module):
+    latency = 4
+
     def __init__(self, ycbcr_w, rgb_w, coef_w):
         self.sink = sink = Record(ycbcr444_layout(ycbcr_w))
         self.source = source = Record(rgb_layout(rgb_w))
@@ -43,7 +42,7 @@ class YCbCr2RGBDatapath(Module):
 
         # delay ycbcr signals
         ycbcr_delayed = [sink]
-        for i in range(datapath_latency):
+        for i in range(self.latency):
             ycbcr_n = Record(ycbcr444_layout(ycbcr_w))
             for name in ["y", "cb", "cr"]:
                 self.sync += getattr(ycbcr_n, name).eq(getattr(ycbcr_delayed[-1], name))
@@ -107,12 +106,11 @@ class YCbCr2RGB(PipelinedActor, Module):
     def __init__(self, ycbcr_w=8, rgb_w=8, coef_w=8):
         self.sink = sink = stream.Endpoint(EndpointDescription(ycbcr444_layout(ycbcr_w)))
         self.source = source = stream.Endpoint(EndpointDescription(rgb_layout(rgb_w)))
-        PipelinedActor.__init__(self, datapath_latency)
-        self.latency = datapath_latency
 
         # # #
 
         self.submodules.datapath = YCbCr2RGBDatapath(ycbcr_w, rgb_w, coef_w)
+        PipelinedActor.__init__(self, self.datapath.latency)
         self.comb += self.datapath.ce.eq(self.pipe_ce)
         for name in ["y", "cb", "cr"]:
             self.comb += getattr(self.datapath.sink, name).eq(getattr(sink, name))

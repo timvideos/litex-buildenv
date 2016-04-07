@@ -1,9 +1,12 @@
-from migen.fhdl.std import *
-from migen.fhdl.specials import Tristate
-from migen.genlib.cdc import MultiReg
-from migen.genlib.fsm import FSM, NextState
-from migen.genlib.misc import chooser
-from migen.bank.description import CSRStorage, CSRStatus, AutoCSR
+from litex.gen import *
+from litex.gen.fhdl.specials import Tristate
+from litex.gen.genlib.cdc import MultiReg
+from litex.gen.genlib.fsm import FSM, NextState
+from litex.gen.genlib.misc import chooser
+
+from litex.soc.interconnect.csr import CSRStorage, CSRStatus, AutoCSR
+
+from gateware.compat import * # XXX
 
 _default_edid = [
     0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x3D, 0x17, 0x32, 0x12, 0x2A, 0x6A, 0xBF, 0x00,

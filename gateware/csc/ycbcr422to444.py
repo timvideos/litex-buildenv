@@ -17,6 +17,7 @@ class YCbCr422to444Datapath(Module):
                                  Cr01  Cr01 Cr23 Cr23
     """
     latency = 2
+
     def __init__(self, dw):
         self.sink = sink = Record(ycbcr422_layout(dw))
         self.source = source = Record(ycbcr444_layout(dw))

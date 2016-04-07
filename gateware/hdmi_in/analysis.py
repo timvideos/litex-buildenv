@@ -1,12 +1,11 @@
-from migen.fhdl.std import *
-from migen.genlib.cdc import MultiReg, PulseSynchronizer
-from migen.genlib.fifo import AsyncFIFO
-from migen.genlib.record import Record
-from migen.bank.description import *
-from migen.flow.actor import *
+from litex.gen import *
+from litex.gen.genlib.cdc import MultiReg, PulseSynchronizer
 
+from litex.soc.interconnect.csr import *
+from litex.soc.interconnect import stream
+
+from gateware.compat import * # XXX
 from gateware.hdmi_in.common import channel_layout
-
 from gateware.csc.rgb2ycbcr import RGB2YCbCr
 from gateware.csc.ycbcr444to422 import YCbCr444to422
 
@@ -122,7 +121,7 @@ class FrameExtraction(Module, AutoCSR):
 
         # in sys clock domain
         word_layout = [("sof", 1), ("pixels", word_width)]
-        self.frame = Source(word_layout)
+        self.frame = stream.Endpoint(word_layout)
         self.busy = Signal()
 
         self._overflow = CSR()
@@ -133,17 +132,16 @@ class FrameExtraction(Module, AutoCSR):
         self.sync.pix += de_r.eq(self.de)
 
         rgb2ycbcr = RGB2YCbCr()
-        self.submodules += RenameClockDomains(rgb2ycbcr, "pix")
+        self.submodules += ClockDomainsRenamer("pix")(rgb2ycbcr)
         chroma_downsampler = YCbCr444to422()
-        self.submodules += RenameClockDomains(chroma_downsampler, "pix")
+        self.submodules += ClockDomainsRenamer("pix")(chroma_downsampler)
         self.comb += [
-            rgb2ycbcr.sink.stb.eq(self.valid_i),
-            rgb2ycbcr.sink.sop.eq(self.de & ~de_r),
+            rgb2ycbcr.sink.valid.eq(self.valid_i),
             rgb2ycbcr.sink.r.eq(self.r),
             rgb2ycbcr.sink.g.eq(self.g),
             rgb2ycbcr.sink.b.eq(self.b),
             Record.connect(rgb2ycbcr.source, chroma_downsampler.sink),
-            chroma_downsampler.source.ack.eq(1)
+            chroma_downsampler.source.ready.eq(1)
         ]
         # XXX need clean up
         de = self.de
@@ -177,7 +175,7 @@ class FrameExtraction(Module, AutoCSR):
             If(new_frame,
                 cur_word_valid.eq(pack_counter == (pack_factor - 1)),
                 pack_counter.eq(0),
-            ).Elif(chroma_downsampler.source.stb & de,
+            ).Elif(chroma_downsampler.source.valid & de,
                 [If(pack_counter == (pack_factor-i-1),
                     cur_word[16*i:16*(i+1)].eq(encoded_pixel)) for i in range(pack_factor)],
                 cur_word_valid.eq(pack_counter == (pack_factor - 1)),
@@ -186,24 +184,21 @@ class FrameExtraction(Module, AutoCSR):
         ]
 
         # FIFO
-        fifo = RenameClockDomains(AsyncFIFO(word_layout, fifo_depth),
-            {"write": "pix", "read": "sys"})
+        fifo = ClockDomainsRenamer({"write": "pix", "read": "sys"})(stream.AsyncFIFO(word_layout, fifo_depth))
         self.submodules += fifo
         self.comb += [
-            fifo.din.pixels.eq(cur_word),
-            fifo.we.eq(cur_word_valid)
+            fifo.sink.pixels.eq(cur_word),
+            fifo.sink.valid.eq(cur_word_valid)
         ]
         self.sync.pix += \
             If(new_frame,
-                fifo.din.sof.eq(1)
+                fifo.sink.sof.eq(1)
             ).Elif(cur_word_valid,
-                fifo.din.sof.eq(0)
+                fifo.sink.sof.eq(0)
             )
 
         self.comb += [
-            self.frame.stb.eq(fifo.readable),
-            self.frame.payload.eq(fifo.dout),
-            fifo.re.eq(self.frame.ack),
+            fifo.source.connect(self.frame),
             self.busy.eq(0)
         ]
 
@@ -211,7 +206,7 @@ class FrameExtraction(Module, AutoCSR):
         pix_overflow = Signal()
         pix_overflow_reset = Signal()
         self.sync.pix += [
-            If(fifo.we & ~fifo.writable,
+            If(fifo.sink.valid & ~fifo.sink.ready,
                 pix_overflow.eq(1)
             ).Elif(pix_overflow_reset,
                 pix_overflow.eq(0)

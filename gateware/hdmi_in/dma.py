@@ -1,11 +1,12 @@
-from migen.fhdl.std import *
-from migen.genlib.fsm import FSM, NextState
-from migen.bank.description import *
-from migen.bank.eventmanager import *
-from migen.flow.actor import *
+from litex.gen import *
+from litex.gen.genlib.fsm import FSM, NextState
 
-from misoclib.mem.sdram.frontend import dma_lasmi
+from litex.soc.interconnect.csr import *
+from litex.soc.interconnect.csr_eventmanager import *
+from litex.soc.interconnect import stream
+from litex.soc.interconnect import dma_lasmi
 
+from gateware.compat import * # XXX
 
 # Slot status: EMPTY=0 LOADED=1 PENDING=2
 class _Slot(Module, AutoCSR):
@@ -68,7 +69,7 @@ class DMA(Module):
         alignment_bits = bits_for(bus_dw//8) - 1
 
         fifo_word_width = bus_dw
-        self.frame = Sink([("sof", 1), ("pixels", fifo_word_width)])
+        self.frame = stream.Endpoint([("sof", 1), ("pixels", fifo_word_width)])
         self._frame_size = CSRStorage(bus_aw + alignment_bits, alignment_bits=alignment_bits)
         self.submodules._slot_array = _SlotArray(nslots, bus_aw, alignment_bits)
         self.ev = self._slot_array.ev
@@ -114,14 +115,14 @@ class DMA(Module):
 
         fsm.act("WAIT_SOF",
             reset_words.eq(1),
-            self.frame.ack.eq(~self._slot_array.address_valid | ~self.frame.sof),
-            If(self._slot_array.address_valid & self.frame.sof & self.frame.stb, NextState("TRANSFER_PIXELS"))
+            self.frame.ready.eq(~self._slot_array.address_valid | ~self.frame.sof),
+            If(self._slot_array.address_valid & self.frame.sof & self.frame.valid, NextState("TRANSFER_PIXELS"))
         )
         fsm.act("TRANSFER_PIXELS",
-            self.frame.ack.eq(self._bus_accessor.address_data.ack),
-            If(self.frame.stb,
-                self._bus_accessor.address_data.stb.eq(1),
-                If(self._bus_accessor.address_data.ack,
+            self.frame.ready.eq(self._bus_accessor.address_data.ready),
+            If(self.frame.valid,
+                self._bus_accessor.address_data.valid.eq(1),
+                If(self._bus_accessor.address_data.ready,
                     count_word.eq(1),
                     If(last_word, NextState("EOF"))
                 )

@@ -1,8 +1,9 @@
-from migen.fhdl.std import *
-from migen.genlib.cdc import MultiReg
-from migen.genlib.misc import optree
-from migen.bank.description import *
+from litex.gen import *
+from litex.gen.genlib.cdc import MultiReg
 
+from litex.soc.interconnect.csr import *
+
+from gateware.compat import * # XXX
 from gateware.hdmi_in.common import control_tokens
 
 
