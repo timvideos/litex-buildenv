@@ -1,19 +1,18 @@
-from migen.fhdl.std import *
-from migen.genlib.fifo import AsyncFIFO
-from migen.genlib.cdc import MultiReg
-from migen.bank.description import *
-from migen.flow.actor import *
+from litex.gen import *
+from litex.gen.genlib.cdc import MultiReg
+from litex.soc.interconnect.csr import *
+from litex.soc.interconnect import stream
 
 from gateware.hdmi_out.format import bpc_phy, phy_layout
 from gateware.hdmi_out import hdmi
 
+from gateware.compat import *
 from gateware.csc.ycbcr2rgb import YCbCr2RGB
 from gateware.csc.ycbcr422to444 import YCbCr422to444
-from gateware.csc.ymodulator import YModulator
 
 class _FIFO(Module):
     def __init__(self, pack_factor):
-        self.phy = Sink(phy_layout(pack_factor))
+        self.phy = stream.Endpoint(phy_layout(pack_factor))
         self.busy = Signal()
 
         self.pix_hsync = Signal()
@@ -24,13 +23,10 @@ class _FIFO(Module):
 
         ###
 
-        fifo = RenameClockDomains(AsyncFIFO(phy_layout(pack_factor), 512),
-            {"write": "sys", "read": "pix"})
+        fifo = ClockDomainsRenamer({"write": "sys", "read": "pix"})(stream.AsyncFIFO(phy_layout(pack_factor), 512))
         self.submodules += fifo
         self.comb += [
-            self.phy.ack.eq(fifo.writable),
-            fifo.we.eq(self.phy.stb),
-            fifo.din.eq(self.phy.payload),
+            self.phy.connect(fifo.sink),
             self.busy.eq(0)
         ]
 
@@ -38,17 +34,17 @@ class _FIFO(Module):
         assert(pack_factor & (pack_factor - 1) == 0)  # only support powers of 2
         self.sync.pix += [
             unpack_counter.eq(unpack_counter + 1),
-            self.pix_hsync.eq(fifo.dout.hsync),
-            self.pix_vsync.eq(fifo.dout.vsync),
-            self.pix_de.eq(fifo.dout.de)
+            self.pix_hsync.eq(fifo.source.hsync),
+            self.pix_vsync.eq(fifo.source.vsync),
+            self.pix_de.eq(fifo.source.de)
         ]
         for i in range(pack_factor):
-            pixel = getattr(fifo.dout, "p"+str(i))
+            pixel = getattr(fifo.source, "p"+str(i))
             self.sync.pix += If(unpack_counter == i,
                 self.pix_y.eq(pixel.y),
                 self.pix_cb_cr.eq(pixel.cb_cr)
             )
-        self.comb += fifo.re.eq(unpack_counter == (pack_factor - 1))
+        self.comb += fifo.source.ready.eq(unpack_counter == (pack_factor - 1))
 
 
 # This assumes a 50MHz base clock
@@ -210,19 +206,18 @@ class Driver(Module, AutoCSR):
         self.sync.pix += de_r.eq(fifo.pix_de)
 
         chroma_upsampler = YCbCr422to444()
-        self.submodules += RenameClockDomains(chroma_upsampler, "pix")
+        self.submodules += ClockDomainsRenamer("pix")(chroma_upsampler)
         self.comb += [
-          chroma_upsampler.sink.stb.eq(fifo.pix_de),
-          chroma_upsampler.sink.sop.eq(fifo.pix_de & ~de_r),
+          chroma_upsampler.sink.valid.eq(fifo.pix_de),
           chroma_upsampler.sink.y.eq(fifo.pix_y),
           chroma_upsampler.sink.cb_cr.eq(fifo.pix_cb_cr)
         ]
 
         ycbcr2rgb = YCbCr2RGB()
-        self.submodules += RenameClockDomains(ycbcr2rgb, "pix")
+        self.submodules += ClockDomainsRenamer("pix")(ycbcr2rgb)
         self.comb += [
             Record.connect(chroma_upsampler.source, ycbcr2rgb.sink),
-            ycbcr2rgb.source.ack.eq(1)
+            ycbcr2rgb.source.ready.eq(1)
         ]
 
         # XXX need clean up

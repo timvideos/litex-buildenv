@@ -1,9 +1,11 @@
-from migen.fhdl.std import *
-from migen.flow.actor import *
-from migen.bank.description import CSRStorage
-from migen.genlib.record import Record
-from migen.genlib.fsm import FSM, NextState
-from migen.actorlib import spi
+from litex.gen import *
+from litex.gen.genlib.fsm import FSM, NextState
+
+from litex.soc.interconnect.csr import CSRStorage
+
+from gateware.compat import *
+
+#from litex.gen.actorlib import spi
 
 _hbits = 12
 _vbits = 12
@@ -33,7 +35,7 @@ def phy_layout(pack_factor):
     return r
 
 
-class FrameInitiator(spi.SingleGenerator):
+class FrameInitiator(SingleGenerator):
     def __init__(self, bus_aw, pack_factor, ndmas=1):
         h_alignment_bits = log2_int(pack_factor)
         hbits_dyn = _hbits - h_alignment_bits
@@ -53,7 +55,7 @@ class FrameInitiator(spi.SingleGenerator):
         ]
         layout += [("base"+str(i), bus_aw + bus_alignment_bits, 0, bus_alignment_bits)
             for i in range(ndmas)]
-        spi.SingleGenerator.__init__(self, layout, spi.MODE_CONTINUOUS)
+        SingleGenerator.__init__(self, layout, MODE_CONTINUOUS)
 
     timing_subr = ["hres", "hsync_start", "hsync_end", "hscan",
         "vres", "vsync_start", "vsync_end", "vscan"]
@@ -74,9 +76,9 @@ class VTG(Module):
             ("vsync_start", _vbits),
             ("vsync_end", _vbits),
             ("vscan", _vbits)]
-        self.timing = Sink(timing_layout)
-        self.pixels = Sink(pixel_layout(pack_factor))
-        self.phy = Source(phy_layout(pack_factor))
+        self.timing = stream.Endpoint(timing_layout)
+        self.pixels = stream.Endpoint(pixel_layout(pack_factor))
+        self.phy = stream.Endpoint(phy_layout(pack_factor))
         self.busy = Signal()
 
         ###
@@ -96,7 +98,7 @@ class VTG(Module):
                     for p in ["p"+str(i) for i in range(pack_factor)] for c in ["y", "cb_cr"]],
                 self.phy.de.eq(1)
             ),
-            self.pixels.ack.eq(self.phy.ack & active)
+            self.pixels.ready.eq(self.phy.ready & active)
         ]
 
         load_timing = Signal()
@@ -133,15 +135,15 @@ class VTG(Module):
 
         self.submodules.fsm = FSM()
         self.fsm.act("GET_TIMING",
-            self.timing.ack.eq(1),
+            self.timing.ready.eq(1),
             load_timing.eq(1),
-            If(self.timing.stb, NextState("GENERATE"))
+            If(self.timing.valid, NextState("GENERATE"))
         )
         self.fsm.act("GENERATE",
             self.busy.eq(1),
-            If(~active | self.pixels.stb,
-                self.phy.stb.eq(1),
-                If(self.phy.ack, generate_en.eq(1))
+            If(~active | self.pixels.valid,
+                self.phy.valid.eq(1),
+                If(self.phy.ready, generate_en.eq(1))
             ),
             If(generate_frame_done,    NextState("GET_TIMING"))
         )

@@ -1,32 +1,27 @@
-from migen.fhdl.std import *
-from migen.flow.network import *
-from migen.flow import plumbing
-from migen.bank.description import AutoCSR
-from migen.actorlib import structuring, misc
+from litex.gen import *
 
-from misoclib.mem.sdram.frontend import dma_lasmi
+from litex.soc.interconnect.csr import AutoCSR
+from litex.soc.interconnect import dma_lasmi
+
+from gateware.compat import *
 from gateware.hdmi_out.format import bpp, pixel_layout, FrameInitiator, VTG
 from gateware.hdmi_out.phy import Driver
-from gateware.i2c import I2C
 
 
 class HDMIOut(Module, AutoCSR):
     def __init__(self, pads, lasmim, external_clocking=None):
         pack_factor = lasmim.dw//bpp
 
-        if hasattr(pads, "scl"):
-            self.submodules.i2c = I2C(pads)
-
         g = DataFlowGraph()
 
         self.fi = FrameInitiator(lasmim.aw, pack_factor)
 
-        intseq = misc.IntSequence(lasmim.aw, lasmim.aw)
-        dma_out = AbstractActor(plumbing.Buffer)
+        intseq = IntSequence(lasmim.aw, lasmim.aw)
+        dma_out = AbstractActor(stream.Buffer)
         g.add_connection(self.fi, intseq, source_subr=self.fi.dma_subr())
-        g.add_pipeline(intseq, AbstractActor(plumbing.Buffer), dma_lasmi.Reader(lasmim), dma_out)
+        g.add_pipeline(intseq, AbstractActor(stream.Buffer), dma_lasmi.Reader(lasmim), dma_out)
 
-        cast = structuring.Cast(lasmim.dw, pixel_layout(pack_factor), reverse_to=True)
+        cast = Cast(lasmim.dw, pixel_layout(pack_factor), reverse_to=True)
         vtg = VTG(pack_factor)
         self.driver = Driver(pack_factor, pads, external_clocking)
 

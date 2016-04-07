@@ -1,5 +1,6 @@
-from migen.fhdl.std import *
-from migen.genlib.misc import optree
+from litex.gen import *
+
+from gateware.compat import *
 
 control_tokens = [0b1101010100, 0b0010101011, 0b0101010100, 0b1010101011]
 
@@ -87,7 +88,7 @@ class Encoder(Module):
 
 class _EncoderSerializer(Module):
     def __init__(self, serdesstrobe, pad_p, pad_n):
-        self.submodules.encoder = RenameClockDomains(Encoder(), "pix")
+        self.submodules.encoder = ClockDomainsRenamer("pix")(Encoder())
         self.d, self.c, self.de = self.encoder.d, self.encoder.c, self.encoder.de
 
         ###
@@ -202,7 +203,7 @@ def _decode_tmds(b):
     return de, hsync, vsync, value
 
 if __name__ == "__main__":
-    from migen.sim.generic import run_simulation
+    from litex.gen.sim.generic import run_simulation
     from random import Random
 
     rng = Random(788)
