@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import os
+from litex.gen.fhdl.structure import _Fragment
 
 from opsis_base import *
 
@@ -40,11 +42,15 @@ def main():
                         help="build bitstream")
     parser.add_argument("--load", action="store_true",
                         help="load bitstream")
+    parser.add_argument("--nocompile-gateware", action="store_true",
+                        help="build bitstream")
     args = parser.parse_args()
 
     platform = opsis_platform.Platform()
     soc = VideoMixerSoC(platform, **soc_sdram_argdict(args))
-    builder = Builder(soc, output_dir="build", csr_csv="test/csr.csv")
+    builder = Builder(soc, output_dir="build",
+                      compile_gateware=not args.nocompile_gateware,
+                      csr_csv="test/csr.csv")
 
     if args.build:
         vns = builder.build()

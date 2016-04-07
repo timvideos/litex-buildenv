@@ -5,13 +5,6 @@ from litex.gen import *
 from litex.soc.interconnect import wishbone
 
 
-class MemoryMustHaveContents(Memory):
-    @staticmethod
-    def emit_verilog(memory, ns, add_data_file):
-        assert memory.init, "ROM contents not found! {}".format(memory.filename)
-        return Memory.emit_verilog(memory, ns, add_data_file)
-
-
 class FirmwareROM(wishbone.SRAM):
     def __init__(self, size, filename):
         if os.path.exists(filename):
@@ -25,16 +18,10 @@ class FirmwareROM(wishbone.SRAM):
             data_size = len(data)*4
             assert data_size > 0
             assert data_size < size, (
-                "Firmware is too big! {} bytes > {} bytes".format(
+                "firmware is too big: {}/{} bytes".format(
                     data_size, size))
-            print("Firmware {} bytes ({} bytes left)".format(
-                data_size, size-data_size))
             wishbone.SRAM.__init__(self, size, init=data)
         else:
-            print("No firmware found! ({}) Won't compile.".format(
+            print("no firmware found, won't work on hardware".format(
                 filename))
             wishbone.SRAM.__init__(self, size)
-
-        self.mem.__class__ = MemoryMustHaveContents
-        self.mem.filename = filename
-
