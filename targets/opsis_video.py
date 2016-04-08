@@ -34,15 +34,17 @@ def CreateVideoMixerSoC(base):
                 platform.request("hdmi_in", 1),
                 self.sdram.crossbar.get_master(),
                 fifo_depth=512)
+
             self.submodules.hdmi_out0 = HDMIOut(
                 platform.request("hdmi_out", 0),
                 self.sdram.crossbar.get_master(),
+                clock50=ClockSignal(self.crg.cd_periph.name),
                 fifo_depth=1024)
             # Share clocking with hdmi_out0 since no PLL_ADV left.
             self.submodules.hdmi_out1 = HDMIOut(
                 platform.request("hdmi_out", 1),
                 self.sdram.crossbar.get_master(),
-                self.hdmi_out0.driver.clocking,
+                external_clocking=self.hdmi_out0.driver.clocking,
                 fifo_depth=1024)
 
             # all PLL_ADV are used: router needs help...
@@ -53,7 +55,8 @@ def CreateVideoMixerSoC(base):
             platform.add_platform_command(
                 """PIN "hdmi_out_pix_bufg_1.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
             # We have CDC to go from sys_clk to pixel domain
-            platform.add_platform_command("""
+            platform.add_platform_command(
+                """
 # Separate TMNs for FROM:TO TIG constraints
 NET "{pix0_clk}" TNM_NET = "TIGpix0_clk";
 NET "{pix1_clk}" TNM_NET = "TIGpix1_clk";
