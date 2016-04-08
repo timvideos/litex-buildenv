@@ -1,3 +1,5 @@
+from migen.fhdl.std import ClockSignal
+
 from gateware.hdmi_in import HDMIIn
 from gateware.hdmi_out import HDMIOut
 

@@ -52,8 +52,6 @@ class _CRG(Module):
         assert 19e6 <= f0/d <= 500e6  # pfd
         assert 400e6 <= f0*n/d <= 1080e6  # vco
 
-        print("p=", p, "n=", n, "d=", d)
-
         # Unbuffered output signals from the PLL. They need to be buffered
         # before feeding into the fabric.
         unbuf_sdram_full = Signal()

@@ -38,7 +38,7 @@ class EtherboneSoC(BaseSoC):
 
         # Ethernet PHY and UDP/IP stack
         self.submodules.ethphy = LiteEthPHYMII(platform.request("eth_clocks"), platform.request("eth"))
-        self.submodules.ethcore = LiteEthUDPIPCore(self.ethphy, mac_address, convert_ip(ip_address), self.clk_freq, with_icmp=False)
+        self.submodules.ethcore = LiteEthUDPIPCore(self.ethphy, mac_address, convert_ip(ip_address), int(self.clk_freq), with_icmp=False)
 
         # Etherbone bridge
         self.submodules.etherbone = LiteEthEtherbone(self.ethcore.udp, 20000)
