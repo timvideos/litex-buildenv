@@ -62,7 +62,8 @@ class _FIFO(Module):
 
 # This assumes a 50MHz base clock
 class _Clocking(Module, AutoCSR):
-    def __init__(self, pads, external_clocking):
+    def __init__(self, pads, clock50, external_clocking):
+        assert clock50 is not None or external_clocking is not None
         if external_clocking is None:
             self._cmd_data = CSRStorage(10)
             self._send_cmd_data = CSR()
@@ -94,7 +95,7 @@ class _Clocking(Module, AutoCSR):
                 "DCM_CLKGEN",
 
                 # i_CLKIN = 50MHz
-                i_CLKIN=ClockSignal("base50"),
+                i_CLKIN=clock50,
                 p_CLKIN_PERIOD=20.0,
 
                 #  FCLKFXDV = FCLKFX / CLKFXDV_DIVIDE
@@ -258,13 +259,14 @@ class _Clocking(Module, AutoCSR):
 
 
 class Driver(Module, AutoCSR):
-    def __init__(self, pack_factor, pads, external_clocking, fifo_depth=None):
+    def __init__(self, pack_factor, pads, clock50, external_clocking, fifo_depth=None):
+        assert clock50 is not None or external_clocking is not None
         fifo = _FIFO(pack_factor, depth=fifo_depth)
         self.submodules += fifo
         self.phy = fifo.phy
         self.busy = fifo.busy
 
-        self.submodules.clocking = _Clocking(pads, external_clocking)
+        self.submodules.clocking = _Clocking(pads, clock50, external_clocking)
 
         de_r = Signal()
         self.sync.pix += de_r.eq(fifo.pix_de)
