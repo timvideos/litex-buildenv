@@ -272,11 +272,11 @@ NET "{sys_clk}" TNM_NET = "TIGsys_clk";
 NET "{periph_clk}" TNM_NET = "TIGperiph_clk";
 NET "{encoder_clk}" TNM_NET = "TIGencoder_clk";
 
-TIMESPECT "TSsys_to_periph" = FROM "TIGsys_clk" TO "TIGperiph_clk" TIG;
-TIMESPECT "TSperiph_to_sys" = FROM "TIGsys_periph" TO "TIGsys_clk" TIG;
+TIMESPEC "TSsys_to_periph" = FROM "TIGsys_clk" TO "TIGperiph_clk" TIG;
+TIMESPEC "TSperiph_to_sys" = FROM "TIGperiph_clk" TO "TIGsys_clk" TIG;
 
-TIMESPECT "TSsys_to_encoder" = FROM "TIGsys_clk" TO "TIGencoder_clk" TIG;
-TIMESPECT "TSencoder_to_sys" = FROM "TIGsys_encoder" TO "TIGsys_clk" TIG;
+TIMESPEC "TSsys_to_encoder" = FROM "TIGsys_clk" TO "TIGencoder_clk" TIG;
+TIMESPEC "TSencoder_to_sys" = FROM "TIGencoder_clk" TO "TIGsys_clk" TIG;
 """,
             sys_clk=self.crg.cd_sys.clk,
             periph_clk=self.crg.cd_periph.clk,
