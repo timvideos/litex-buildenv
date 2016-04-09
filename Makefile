@@ -10,6 +10,12 @@ opsis_video:
 	cd firmware && make clean all
 	./opsis_video.py
 
+opsis_hdmi2usb:
+	rm -rf build
+	./opsis_hdmi2usb.py --nocompile-gateware
+	cd firmware && make clean all
+	./opsis_hdmi2usb.py
+
 load:
 	./load.py
 

@@ -55,8 +55,8 @@ class FrontPanelGPIO(Module, AutoCSR):
         # generate a reset when power switch is pressed for 1 second
         self.submodules.reset_timer = WaitTimer(clk_freq)
         self.comb += [
-        	self.reset_timer.wait.eq(switches[0]),
-        	self.reset.eq(self.reset_timer.done)
+            self.reset_timer.wait.eq(switches[0]),
+            self.reset.eq(self.reset_timer.done)
         ]
 
 
@@ -231,9 +231,9 @@ class MiniSoC(BaseSoC):
         self.platform.add_period_constraint(self.ethphy.crg.cd_eth_tx.clk, 8.0)
 
         self.platform.add_false_path_constraints(
-        	self.crg.cd_sys.clk,
-        	self.ethphy.crg.cd_eth_rx.clk,
-        	self.ethphy.crg.cd_eth_tx.clk)
+            self.crg.cd_sys.clk,
+            self.ethphy.crg.cd_eth_rx.clk,
+            self.ethphy.crg.cd_eth_tx.clk)
 
         self.platform.add_platform_command("""
 NET "{eth_clocks_rx}" CLOCK_DEDICATED_ROUTE = FALSE;
