@@ -25,8 +25,6 @@ from litex.soc.cores.uart.bridge import UARTWishboneBridge
 from liteeth.phy.s6rgmii import LiteEthPHYRGMII
 from liteeth.core.mac import LiteEthMAC
 
-from litescope import LiteScopeAnalyzer
-
 import opsis_platform
 
 from gateware import dna
@@ -224,19 +222,6 @@ class MiniSoC(BaseSoC):
         self.submodules.bridge = UARTWishboneBridge(self.platform.request("serial_debug"), self.clk_freq, baudrate=115200)
         self.add_wb_master(self.bridge.wishbone)
 
-        analyzer_signals = [
-            self.ethphy.sink.valid,
-            self.ethphy.sink.ready,
-            self.ethphy.sink.last,
-            self.ethphy.sink.data,
-
-            self.ethphy.source.valid,
-            self.ethphy.source.ready,
-            self.ethphy.source.last,
-            self.ethphy.source.data
-        ]
-        self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 1024, cd="eth_tx", cd_ratio=4)
-
         self.specials += [
             Keep(self.ethphy.crg.cd_eth_rx.clk),
             Keep(self.ethphy.crg.cd_eth_tx.clk)
@@ -271,7 +256,6 @@ def main():
                       compile_gateware=not args.nocompile_gateware,
                       csr_csv="test/csr.csv")
     vns = builder.build()
-    soc.analyzer.export_csv(vns, "test/analyzer.csv")
 
 if __name__ == "__main__":
     main()

@@ -17,13 +17,13 @@ class VideoMixerSoC(base_cls):
             "hdmi_in1_edid_mem",
         )
         csr_map_update(base_cls.csr_map, csr_peripherals)
-    
+
         interrupt_map = {
             "hdmi_in0": 3,
             "hdmi_in1": 4,
         }
         interrupt_map.update(base_cls.interrupt_map)
-    
+
         def __init__(self, platform, **kwargs):
             base_cls.__init__(self, platform, **kwargs)
             self.submodules.hdmi_in0 = HDMIIn(platform.request("hdmi_in", 0),
@@ -47,7 +47,6 @@ def main():
                       compile_gateware=not args.nocompile_gateware,
                       csr_csv="test/csr.csv")
     vns = builder.build()
-    soc.analyzer.export_csv(vns, "test/analyzer.csv")
 
 if __name__ == "__main__":
     main()
