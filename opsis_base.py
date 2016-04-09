@@ -10,6 +10,7 @@ from litex.gen import *
 from litex.gen.fhdl.specials import Keep
 from litex.gen.genlib.io import CRG
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
+from litex.gen.genlib.misc import WaitTimer
 
 from litex.soc.cores.sdram.settings import MT41J128M16
 from litex.soc.cores.sdram.phy import s6ddrphy
@@ -19,6 +20,7 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.gpio import GPIOIn, GPIOOut
 from litex.soc.interconnect.csr import AutoCSR
 from litex.soc.cores.uart.bridge import UARTWishboneBridge
+
 
 from liteeth.phy.s6rgmii import LiteEthPHYRGMII
 from liteeth.core.mac import LiteEthMAC
@@ -36,9 +38,11 @@ def csr_map_update(csr_map, csr_peripherals):
 
 
 class FrontPanelGPIO(Module, AutoCSR):
-    def __init__(self, platform):
+    def __init__(self, platform, clk_freq):
         switches = Signal(1)
         leds = Signal(2)
+
+        self.reset = Signal()
 
         # # #
 
@@ -48,6 +52,13 @@ class FrontPanelGPIO(Module, AutoCSR):
            switches[0].eq(~platform.request("pwrsw")),
            platform.request("hdled").eq(~leds[0]),
            platform.request("pwled").eq(~leds[1]),
+        ]
+
+        # generate a reset when power switch is pressed for 1 second
+        self.submodules.reset_timer = WaitTimer(clk_freq)
+        self.comb += [
+        	self.reset_timer.wait.eq(switches[0]),
+        	self.reset.eq(self.reset_timer.done)
         ]
 
 
@@ -61,6 +72,8 @@ class _CRG(Module):
 
         self.clk8x_wr_strb = Signal()
         self.clk8x_rd_strb = Signal()
+
+        self.reset = Signal()
 
 
         f0 = 100*1000000
@@ -101,7 +114,7 @@ class _CRG(Module):
         )
         self.specials += Instance("BUFG", i_I=pll[4], o_O=self.cd_sys2x.clk)
         self.specials += Instance("BUFG", i_I=pll[5], o_O=self.cd_sys.clk)
-        reset = ~platform.request("cpu_reset")
+        reset = ~platform.request("cpu_reset") | self.reset
         self.clock_domains.cd_por = ClockDomain()
         por = Signal(max=1 << 11, reset=(1 << 11) - 1)
         self.sync.por += If(por != 0, por.eq(por - 1))
@@ -157,7 +170,8 @@ class BaseSoC(SoCSDRAM):
         self.submodules.dna = dna.DNA()
 
         # front panel (ATX)
-        self.submodules.front_panel = FrontPanelGPIO(platform)
+        self.submodules.front_panel = FrontPanelGPIO(platform, clk_freq)
+        self.comb += self.crg.reset.eq(self.front_panel.reset)
 
         # firmware
         self.submodules.firmware_ram = firmware.FirmwareROM(firmware_ram_size, firmware_filename)
