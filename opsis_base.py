@@ -144,7 +144,7 @@ class BaseSoC(SoCSDRAM):
     }
     mem_map.update(SoCSDRAM.mem_map)
 
-    def __init__(self, platform, 
+    def __init__(self, platform,
                  firmware_ram_size=0x10000,
                  firmware_filename="firmware/firmware.bin",
                  **kwargs):
@@ -249,12 +249,7 @@ def main():
     soc_sdram_args(parser)
     parser.add_argument("--with-ethernet", action="store_true",
                         help="enable Ethernet support")
-    parser.add_argument("--build", action="store_true",
-                        help="build bitstream")
-    parser.add_argument("--load", action="store_true",
-                        help="load bitstream")
-    parser.add_argument("--nocompile-gateware", action="store_true",
-                        help="build bitstream")
+    parser.add_argument("--nocompile-gateware", action="store_true")
     args = parser.parse_args()
 
     platform = opsis_platform.Platform()
@@ -263,14 +258,8 @@ def main():
     builder = Builder(soc, output_dir="build",
                       compile_gateware=not args.nocompile_gateware,
                       csr_csv="test/csr.csv")
-
-    if args.build:
-        vns = builder.build()
-        soc.analyzer.export_csv(vns, "test/analyzer.csv")
-
-    if args.load:
-        prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.output_dir, "gateware", "top.bit"))
+    vns = builder.build()
+    soc.analyzer.export_csv(vns, "test/analyzer.csv")
 
 if __name__ == "__main__":
     main()
