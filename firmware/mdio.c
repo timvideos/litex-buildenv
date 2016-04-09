@@ -97,27 +97,21 @@ void mdio_dump(void) {
 
 int mdio_status(void) {
 	int status;
-	status = mdio_read(0, 30);
+	status = mdio_read(0, 17);
 
 	ci_printf("MDIO ");
 
 	ci_printf("mode: ");
-	switch(status & 0x7)
+	switch((status >> 14) & 0x3)
 	{
-		case 0b000:
-			ci_printf("still in auto-negotiation");
+		case 0b10:
+			ci_printf("1000Mbps");
 			break;
-		case 0b001:
-			ci_printf("10base-t half duplex");
+		case 0b01:
+			ci_printf("100Mbps");
 			break;
-		case 0b010:
-			ci_printf("100base-t half duplex");
-			break;
-		case 0b101:
-			ci_printf("10base-t full duplex");
-			break;
-		case 0b110:
-			ci_printf("100base-t full duplex");
+		case 0b00:
+			ci_printf("10Mbps");
 			break;
 		default:
 			ci_printf("Reserved");
@@ -125,7 +119,7 @@ int mdio_status(void) {
 	}
 	ci_printf(" / ");
 	ci_printf("link: ");
-	if((status >> 8) & 0x1)
+	if((status >> 10) & 0x1)
 		ci_printf("up");
 	else
 		ci_printf("down");
