@@ -12,3 +12,11 @@ opsis_video:
 
 load:
 	./load.py
+
+firmware:
+	cd firmware && make clean all
+
+load-firmware:
+	litex_term --kernel firmware/firmware.bin --kernel-adr 0x20000000 COM8
+
+.PHONY: load firmware load-firmware

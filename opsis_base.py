@@ -150,7 +150,6 @@ class BaseSoC(SoCSDRAM):
                  **kwargs):
         clk_freq = 50*1000000
         SoCSDRAM.__init__(self, platform, clk_freq,
-            cpu_reset_address=0x00000000,
             integrated_rom_size=0x8000,
             integrated_sram_size=0x8000,
             **kwargs)
@@ -161,7 +160,6 @@ class BaseSoC(SoCSDRAM):
         self.submodules.front_panel = FrontPanelGPIO(platform)
 
         # firmware
-        firmware_ram_size = 0x10000
         self.submodules.firmware_ram = firmware.FirmwareROM(firmware_ram_size, firmware_filename)
         self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
         self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
