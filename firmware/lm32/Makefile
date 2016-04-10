@@ -23,7 +23,7 @@ OBJECTS=isr.o \
         tofe_eeprom.o \
 	version.o \
 
-all: firmware.bin
+all: version_info libs firmware.bin
 
 # pull in dependency info for *existing* .o files
 -include $(OBJECTS:.o=.d)
@@ -33,9 +33,9 @@ all: firmware.bin
 	chmod -x $@
 	cp $@ boot.bin
 
-firmware.elf: $(OBJECTS) libs
+firmware.elf: $(OBJECTS)
 
-%.elf:
+%.elf: linker.ld $(MSCDIR)/software/libbase/crt0-$(CPU).o $(MSCDIR)/software/libbase/libbase-nofloat.a $(MSCDIR)/software/libcompiler-rt/libcompiler-rt.a
 	$(LD) $(LDFLAGS) \
 		-T linker.ld \
 		-N -o $@ \
@@ -45,9 +45,6 @@ firmware.elf: $(OBJECTS) libs
 		-L$(MSCDIR)/software/libcompiler-rt \
 		-lbase-nofloat -lcompiler-rt
 	chmod -x $@
-
-main.o: main.c
-	$(compile-dep)
 
 %.o: %.c
 	$(compile-dep)
@@ -65,7 +62,7 @@ clean:
 	$(RM) $(OBJECTS) $(OBJECTS:.o=.d) firmware.elf firmware.bin
 	$(RM) .*~ *~
 
-version_data.h: version_data.sh
+version_info:
 	bash version_data.sh
 
-.PHONY: all main.o clean libs load version_data.h
+.PHONY: all clean libs load version_info

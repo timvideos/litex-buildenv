@@ -9,6 +9,13 @@ echo ""
 echo "- Fetching non shallow to get git version"
 echo "---------------------------------------------"
 git fetch --unshallow && git fetch --tags
+if [ z"$TRAVIS_BRANCH" != z ]; then
+	echo "Fixing detached head"
+	git branch -v
+	git branch -D $TRAVIS_BRANCH
+	git checkout -b $TRAVIS_BRANCH
+	git branch -v
+fi
 GIT_REVISION=`git describe`
 echo "============================================="
 
