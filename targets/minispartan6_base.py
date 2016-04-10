@@ -1,3 +1,5 @@
+import os
+
 from fractions import Fraction
 
 from migen.fhdl.std import *
@@ -15,7 +17,14 @@ from liteusb.core import LiteUSBCore
 from liteusb.frontend.uart import LiteUSBUART
 from liteusb.frontend.wishbone import LiteUSBWishboneBridge
 
+from gateware import firmware
+from gateware import dna
+from gateware import git_info
+from gateware import platform_info
+
 from misoclib.com.gpio import GPIOOut
+
+from targets.common import *
 
 class _CRG(Module):
     def __init__(self, platform, clk_freq):
@@ -71,14 +80,37 @@ class _CRG(Module):
 class BaseSoC(SDRAMSoC):
     default_platform = "minispartan6"
 
-    def __init__(self, platform, sdram_controller_settings=LASMIconSettings(), **kwargs):
+    csr_peripherals = (
+        "dna",
+        "git_info",
+        "platform_info",
+    )
+    csr_map_update(SDRAMSoC.csr_map, csr_peripherals)
+
+    mem_map = {
+        "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
+    }
+    mem_map.update(SDRAMSoC.mem_map)
+
+    def __init__(self, platform,
+            firmware_ram_size=0x10000,
+            firmware_filename=None,
+            sdram_controller_settings=LASMIconSettings(), **kwargs):
         clk_freq = 80*1000000
         SDRAMSoC.__init__(self, platform, clk_freq,
+                          cpu_type=os.environ.get("ARCH", "lm32"),
                           integrated_rom_size=0x8000,
                           sdram_controller_settings=sdram_controller_settings,
                           **kwargs)
 
         self.submodules.crg = _CRG(platform, clk_freq)
+        self.submodules.dna = dna.DNA()
+        self.submodules.git_info = git_info.GitInfo()
+        self.submodules.platform_info = platform_info.PlatformInfo("opsis", self.__class__.__name__[:8])
+
+        self.submodules.firmware_ram = firmware.FirmwareROM(firmware_ram_size, firmware_filename)
+        self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
+        self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
 
         if not self.integrated_main_ram_size:
             self.submodules.sdrphy = gensdrphy.GENSDRPHY(platform.request("sdram"),
