@@ -6,7 +6,10 @@ then
     exit 1
 fi
 
-GIT_REPO=https://github.com/timvideos/HDMI2USB-misoc-firmware.git
+if [ -z "$GITHUB_USER" ]; then
+  GITHUB_USER=timvideos
+fi
+GIT_REPO=https://github.com/$GITHUB_USER/HDMI2USB-misoc-firmware.git
 if [ -z "$GIT_BRANCH" ]; then
   GIT_BRANCH=master
 fi
