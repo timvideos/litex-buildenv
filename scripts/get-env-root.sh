@@ -1,5 +1,7 @@
 #!/bin/bash
 
+apt-get install -y realpath
+
 if [ "`whoami`" != "root" ]
 then
     echo "Please use sudo to run this script!"
@@ -12,7 +14,6 @@ SETUP_DIR=$(dirname $SETUP_SRC)
 set -x
 set -e
 
-apt-get install -y realpath
 apt-get install -y wget
 apt-get install -y build-essential
 # Need gpg to do the unencryption of Xilinx tools
