@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ "`whoami`" != "root" ]
+then
+    echo "Please use sudo to run this script!"
+    exit 1
+fi
+
 SETUP_SRC=$(realpath ${BASH_SOURCE[0]})
 SETUP_DIR=$(dirname $SETUP_SRC)
 
@@ -30,6 +36,7 @@ apt-get install -y iverilog gtkwave
 # Nothing needed
 
 # libfpgalink
+
 sudo apt-get install -y libreadline-dev libusb-1.0-0-dev libftdi-dev python-yaml fxload
 
 # Load custom udev rules
@@ -40,7 +47,7 @@ sudo apt-get install -y libreadline-dev libusb-1.0-0-dev libftdi-dev python-yaml
 
 # Get the vizzini module needed for the Atlys board
 sudo apt-get install -y software-properties-common
-sudo add-apt-repository -y ppa:timvideos/fpga-support
+sudo -E add-apt-repository -y ppa:timvideos/fpga-support
 sudo apt-get update
 sudo apt-get install -y vizzini-dkms
 sudo apt-get install -y ixo-usb-jtag

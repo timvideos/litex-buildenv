@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ "`whoami`" = "root" ]
+then
+    echo "Running the script as root is not permitted"
+    exit 1
+fi
+
 set -e
 
 SETUP_SRC=$(realpath ${BASH_SOURCE[@]})
