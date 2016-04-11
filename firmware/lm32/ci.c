@@ -422,6 +422,26 @@ static void debug_ddr(void)
 	printf("read:%5dMbps  write:%5dMbps  all:%5dMbps\r\n", rdb, wrb, rdb + wrb);
 }
 
+#if defined(CSR_HDMI_IN0_BASE) || defined(CSR_HDMI_IN1_BASE)
+static void debug_input(unsigned int channels, unsigned int change, unsigned int state)
+{
+#ifdef CSR_HDMI_IN0_BASE
+    if (channels & 1) {
+		if (change & 1)
+			hdmi_in0_debug = (state & 1) != 0;
+		printf("HDMI Input 0 debug %s\r\n", hdmi_in0_debug ? "on" : "off");
+	}
+#endif
+#ifdef CSR_HDMI_IN1_BASE
+	if (channels & 2) {
+		if (change & 2)
+			hdmi_in1_debug = (state & 2) != 0;
+		printf("HDMI Input 1 debug %s\r\n", hdmi_in0_debug ? "on" : "off");
+	}
+#endif
+}
+#endif
+
 static char *readstr(void)
 {
 	char c[2];
@@ -630,16 +650,49 @@ void ci_service(void)
 		token = get_token(&str);
 		if(strcmp(token, "pll") == 0)
 			debug_pll();
+#if defined(CSR_HDMI_IN0_BASE) || defined(CSR_HDMI_IN1_BASE)
+		else if(strcmp(token, "input") == 0) {
+			token = get_token(&str);
+			if(strcmp(token, "on") == 0)
+				debug_input(3, 3, 3);
+			else if(strcmp(token, "off") == 0)
+				debug_input(3, 3, 0);
+			else if(strcmp(token, "?") != 0)
+				debug_input(3, 3, (hdmi_in0_debug ? 0 : 1) | (hdmi_in1_debug ? 0 : 2));
+			else
+				debug_input(3, 0, 0);
+		}
+		else if(strcmp(token, "on") == 0)
+			debug_input(3, 3, 3);
+		else if(strcmp(token, "off") == 0)
+			debug_input(3, 3, 0);
+		else if(strcmp(token, "?") == 0)
+			debug_input(3, 0, 0);
+#endif
 #ifdef CSR_HDMI_IN0_BASE
-		else if(strcmp(token, "input0") == 0) {
-			hdmi_in0_debug = !hdmi_in0_debug;
-			printf("HDMI Input 0 debug %s\r\n", hdmi_in0_debug ? "on" : "off");
+		else if(strcmp(token, "input0") == 0 || strcmp(token, "0") == 0) {
+			token = get_token(&str);
+			if(strcmp(token, "on") == 0)
+				debug_input(1, 1, 1);
+			else if(strcmp(token, "off") == 0)
+				debug_input(1, 1, 0);
+			else if(strcmp(token, "?") != 0)
+				debug_input(1, 1, hdmi_in0_debug ? 0 : 1);
+			else
+				debug_input(1, 0, 0);
 		}
 #endif
 #ifdef CSR_HDMI_IN1_BASE
-		else if(strcmp(token, "input1") == 0) {
-			hdmi_in1_debug = !hdmi_in1_debug;
-			printf("HDMI Input 1 debug %s\r\n", hdmi_in1_debug ? "on" : "off");
+		else if(strcmp(token, "input1") == 0 || strcmp(token, "1") == 0) {
+			token = get_token(&str);
+			if(strcmp(token, "on") == 0)
+				debug_input(2, 2, 2);
+			else if(strcmp(token, "off") == 0)
+				debug_input(2, 2, 0);
+			else if(strcmp(token, "?") != 0)
+				debug_input(2, 2, hdmi_in1_debug ? 0 : 2);
+			else
+				debug_input(2, 0, 0);
 		}
 #endif
 		else if(strcmp(token, "ddr") == 0)
