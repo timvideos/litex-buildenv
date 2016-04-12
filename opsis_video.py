@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from opsis_base import *
 
-from gateware.hdmi_in import HDMIIn
+from litevideo.hdmi_in import HDMIIn
 
 base_cls = MiniSoC
 
