@@ -19,7 +19,7 @@ class HDMI2USBSoC(VideoMixerSoC):
     )
     csr_map_update(VideoMixerSoC.csr_map, csr_peripherals)
     mem_map = {
-        "encoder": 0x50000000,  # (shadow @0xd0000000)
+        "encoder": 0x60000000,  # (shadow @0xe0000000)
     }
     mem_map.update(VideoMixerSoC.mem_map)
 

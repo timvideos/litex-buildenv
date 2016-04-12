@@ -198,7 +198,7 @@ class MiniSoC(BaseSoC):
     interrupt_map.update(BaseSoC.interrupt_map)
 
     mem_map = {
-        "ethmac": 0x30000000,  # (shadow @0xb0000000)
+        "ethmac": 0x40000000,  # (shadow @0xc0000000)
     }
     mem_map.update(BaseSoC.mem_map)
 
@@ -222,4 +222,4 @@ TIMESPEC "TSise_sucks4" = FROM "GRPsys_clk" TO "GRPeth_rx_clk" TIG;
      eth_clocks_tx=platform.lookup_request("eth_clocks").tx)
 
 
-default_subtarget = BaseSoC
+default_subtarget = MiniSoC
