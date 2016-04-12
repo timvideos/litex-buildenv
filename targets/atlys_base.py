@@ -177,7 +177,7 @@ class BaseSoC(SDRAMSoC):
         # The Atlys has a XC6SLX45 which bitstream takes up ~12Mbit (1484472 bytes)
         # 0x200000 offset (16Mbit) gives plenty of space
         self.flash_boot_address = self.mem_map["spiflash"]+0x200000
-        self.register_mem("spiflash", self.mem_map["spiflash"], self.spiflash.bus)
+        self.register_mem("spiflash", self.mem_map["spiflash"], self.spiflash.bus, size=int((256/8)*1024*1024))
 
         self.specials += Keep(self.crg.cd_sys.clk)
         platform.add_platform_command("""
@@ -222,4 +222,4 @@ TIMESPEC "TSise_sucks4" = FROM "GRPsys_clk" TO "GRPeth_rx_clk" TIG;
      eth_clocks_tx=platform.lookup_request("eth_clocks").tx)
 
 
-default_subtarget = MiniSoC
+default_subtarget = BaseSoC

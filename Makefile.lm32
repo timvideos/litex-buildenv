@@ -48,6 +48,9 @@ firmware-lm32: third_party/misoc/.git $(EXTRA_DEPS)
 	cd $(MSCDIR) && $(CMD) build-headers
 	$(MAKE) -C firmware/lm32 all
 
+image-lm32: firmware-lm32
+	$(PYTHON) $(MSCDIR)/mkmscimg.py -f -o firmware/lm32/firmware.fbi firmware/lm32/firmware.bin
+
 load-lm32: firmware-lm32
 	@echo "To load new firmware, reboot the running firmware and then"
 	@echo "select serialboot at the BIOS prompt."

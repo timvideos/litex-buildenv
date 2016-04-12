@@ -117,6 +117,7 @@ load: load-gateware $(addprefix load-,$(TARGETS))
 	@true
 
 # Flash
+# openocd -f board/digilent_atlys.cfg -c "init; jtagspi_init 0 ../HDMI2USB-mode-switch/flash_proxy/atlys/bscan_spi_xc6slx45.bit; jtagspi_program ./third_party/misoc/build/atlys_base-minisoc-atlys.bin 0; jtagspi_program ./firmware/lm32/firmware.fbi 0x200000; xc6s_program xc6s.tap; shutdown"
 flash:
 	@echo "Not implemented yet"
 	@exit 1
