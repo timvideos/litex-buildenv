@@ -14,11 +14,14 @@
 
 TARGETS += lm32
 
+RAM_ADDR ?= 0x20000000
+
 ifeq ($(BOARD),atlys)
 SERIAL ?= /dev/ttyVIZ0
 else
 ifeq ($(BOARD),minispartan6)
 SERIAL ?= /dev/ttyUSB1
+RAM_ADDR = 0x40000000
 else
 ifeq ($(BOARD),pipistrello)
 SERIAL ?= /dev/ttyUSB1
@@ -55,7 +58,7 @@ firmware-lm32: third_party/misoc/.git $(EXTRA_DEPS)
 load-lm32: firmware-lm32
 	@echo "To load new firmware, reboot the running firmware and then"
 	@echo "select serialboot at the BIOS prompt."
-	$(FLTERM) --port $(SERIAL) --kernel=$(HDMI2USBDIR)/firmware/lm32/firmware.bin --kernel-adr=0x20000000 --speed 115200
+	$(FLTERM) --port $(SERIAL) --kernel=$(HDMI2USBDIR)/firmware/lm32/firmware.bin --kernel-adr=$(RAM_ADDR) --speed 115200
 
 image-lm32: firmware-lm32
 	$(MAKEIMAGE_CMD) --fbi --output $(HDMI2USBDIR)/firmware/lm32/firmware.fbi $(HDMI2USBDIR)/firmware/lm32/firmware.bin
