@@ -8,6 +8,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 from migen.bus import wishbone
 from migen.genlib.record import Record
 
+from misoclib.mem.flash import spiflash
 from misoclib.mem.sdram.module import P3R1GE4JGF
 from misoclib.mem.sdram.phy import s6ddrphy
 from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
@@ -123,6 +124,7 @@ class BaseSoC(SDRAMSoC):
     default_platform = "atlys"
 
     csr_peripherals = (
+        "spiflash",
         "ddrphy",
         "dna",
         "git_info",
@@ -132,6 +134,7 @@ class BaseSoC(SDRAMSoC):
 
     mem_map = {
         "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
+        "spiflash":     0x30000000,  # (default shadow @0xb0000000)
     }
     mem_map.update(SDRAMSoC.mem_map)
 
@@ -165,6 +168,16 @@ class BaseSoC(SDRAMSoC):
                 self.ddrphy.clk4x_rd_strb.eq(self.crg.clk4x_rd_strb),
             ]
             self.register_sdram_phy(self.ddrphy)
+
+        self.submodules.spiflash = spiflash.SpiFlash(
+            platform.request("spiflash4x"), dummy=10, div=4)
+        self.add_constant("SPIFLASH_PAGE_SIZE", 256)
+        self.add_constant("SPIFLASH_SECTOR_SIZE", 0x10000)
+        # https://reference.digilentinc.com/atlys:atlys:refmanual#flash_memory
+        # The Atlys has a XC6SLX45 which bitstream takes up ~12Mbit (1484472 bytes)
+        # 0x200000 offset (16Mbit) gives plenty of space
+        self.flash_boot_address = self.mem_map["spiflash"]+0x200000
+        self.register_mem("spiflash", self.mem_map["spiflash"], self.spiflash.bus)
 
         self.specials += Keep(self.crg.cd_sys.clk)
         platform.add_platform_command("""
