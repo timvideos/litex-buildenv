@@ -78,6 +78,17 @@ class _CRG(Module):
                                   o_Q=platform.request("sdram_clock"))
 
 
+from misoclib.soc import cpuif
+original_get_linker_regions = cpuif.get_linker_regions
+def replacement_get_linker_regions(regions):
+    s = original_get_linker_regions(regions)
+    s += """\
+REGION_ALIAS("firmware_ram", main_ram);
+"""
+    return s
+cpuif.get_linker_regions = replacement_get_linker_regions
+
+
 class BaseSoC(SDRAMSoC):
     default_platform = "minispartan6"
 
