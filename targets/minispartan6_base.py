@@ -108,10 +108,6 @@ class BaseSoC(SDRAMSoC):
         self.submodules.git_info = git_info.GitInfo()
         self.submodules.platform_info = platform_info.PlatformInfo("opsis", self.__class__.__name__[:8])
 
-        self.submodules.firmware_ram = firmware.FirmwareROM(firmware_ram_size, firmware_filename)
-        self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
-        self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
-
         if not self.integrated_main_ram_size:
             self.submodules.sdrphy = gensdrphy.GENSDRPHY(platform.request("sdram"),
                                                          AS4C16M16(clk_freq))
