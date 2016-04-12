@@ -20,6 +20,7 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.gpio import GPIOIn, GPIOOut
 from litex.soc.interconnect.csr import AutoCSR
 from litex.soc.cores.uart.bridge import UARTWishboneBridge
+from litex.soc.cores.sdram.lasmicon.core import ControllerSettings
 
 
 from liteeth.phy.s6rgmii import LiteEthPHYRGMII
@@ -184,13 +185,15 @@ class BaseSoC(SoCSDRAM):
         sdram_module = MT41J128M16(self.clk_freq)
         self.register_sdram(self.ddrphy, "lasmicon",
                             sdram_module.geom_settings,
-                            sdram_module.timing_settings)
+                            sdram_module.timing_settings,
+                            controller_settings=ControllerSettings(with_bandwidth=True))
         self.comb += [
             self.ddrphy.clk8x_wr_strb.eq(self.crg.clk8x_wr_strb),
             self.ddrphy.clk8x_rd_strb.eq(self.crg.clk8x_rd_strb),
         ]
 
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1/clk_freq*1e9)
+
 
 class MiniSoC(BaseSoC):
     csr_peripherals = (

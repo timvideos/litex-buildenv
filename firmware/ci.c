@@ -435,8 +435,6 @@ static unsigned int log2(unsigned int v)
 
 static void debug_ddr(void)
 {
-	// FIXME
-	/*
 	unsigned long long int nr, nw;
 	unsigned long long int f;
 	unsigned int rdb, wrb;
@@ -445,13 +443,11 @@ static void debug_ddr(void)
 	sdram_controller_bandwidth_update_write(1);
 	nr = sdram_controller_bandwidth_nreads_read();
 	nw = sdram_controller_bandwidth_nwrites_read();
-	f = identifier_frequency_read();
+	f = SYSTEM_CLOCK_FREQUENCY;
 	burstbits = (2*DFII_NPHASES) << DFII_PIX_DATA_SIZE;
 	rdb = (nr*f >> (24 - log2(burstbits)))/1000000ULL;
 	wrb = (nw*f >> (24 - log2(burstbits)))/1000000ULL;
 	ci_printf("read:%5dMbps  write:%5dMbps  all:%5dMbps\r\n", rdb, wrb, rdb + wrb);
-	*/
-	// FIXME
 }
 
 void ci_prompt(void)
