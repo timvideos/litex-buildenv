@@ -30,6 +30,12 @@ _io = [
         Subsignal("mosi", Pins("T10"), IOStandard("LVCMOS33")),
         Subsignal("miso", Pins("P10"), IOStandard("LVCMOS33"))
     ),
+    ("spiflash2x", 0,
+        Subsignal("cs_n", Pins("T3"), IOStandard("LVCMOS33")),
+        Subsignal("clk",  Pins("R11"), IOStandard("LVCMOS33")),
+        Subsignal("dq", Pins("T10", "P10"), IOStandard("LVCMOS33")),
+        #Subsignal("dq", Pins("P10", "T10"), IOStandard("LVCMOS33")),
+    ),
 
     ("adc", 0,
         Subsignal("cs_n", Pins("F6"), IOStandard("LVCMOS33")),
