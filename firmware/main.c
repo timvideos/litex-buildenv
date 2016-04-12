@@ -10,10 +10,13 @@
 #include <console.h>
 #include <system.h>
 
+#include "config.h"
+#include "ci.h"
 #include "ethernet.h"
 #include "etherbone.h"
 #include "telnet.h"
-#include "ci.h"
+#include "processor.h"
+#include "pattern.h"
 #include "mdio.h"
 
 #define HDD_LED   0x01
@@ -36,11 +39,20 @@ int main(void)
 	irq_setmask(0);
 	irq_setie(1);
 	uart_init();
-
+#ifdef CSR_HDMI_OUT0_I2C_W_ADDR
+	hdmi_out0_i2c_init();
+#endif
+#ifdef CSR_HDMI_OUT1_I2C_W_ADDR
+	hdmi_out1_i2c_init();
+#endif
 
 	puts("\nOpsis CPU testing software built "__DATE__" "__TIME__);
 
+	config_init();
 	time_init();
+	processor_init();
+	processor_start(config_get(CONFIG_KEY_RESOLUTION));
+
 #ifdef CSR_ETHPHY_MDIO_W_ADDR
 	mdio_status();
 #endif
@@ -49,10 +61,18 @@ int main(void)
 	etherbone_init();
 	telnet_init();
 
-	ci_help();
+#ifdef CSR_HDMI_OUT0_BASE
+	processor_set_hdmi_out0_source(VIDEO_IN_PATTERN);
+#endif
+#ifdef CSR_HDMI_OUT1_BASE
+	processor_set_hdmi_out1_source(VIDEO_IN_PATTERN);
+#endif
+	processor_update();
+
 	ci_prompt();
 
 	while(1) {
+		processor_service();
 		ci_service();
 		ethernet_service();
 		front_panel_service();

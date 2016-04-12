@@ -4,7 +4,6 @@
 int ci_puts(const char *s);
 int ci_printf(const char *fmt, ...);
 void ci_putsnonl(const char *s);
-void ci_help(void);
 void ci_prompt(void);
 void ci_service(void);
 

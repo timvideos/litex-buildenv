@@ -6,7 +6,20 @@ include $(SOC_DIRECTORY)/software/common.mak
 UIPDIR=uip
 LIBUIPDIR=libuip
 
-OBJECTS=isr.o ethernet.o etherbone.o telnet.o mdio.o ci.o main.o
+OBJECTS=isr.o \
+		ethernet.o \
+		etherbone.o \
+		telnet.o \
+		mdio.o \
+		config.o \
+		processor.o \
+		hdmi_in0.o \
+		hdmi_in1.o \
+		pattern.o \
+		edid.o \
+		pll.o \
+		ci.o \
+		main.o
 
 CFLAGS += -I. -I$(UIPDIR) -I$(LIBUIPDIR)
 
@@ -18,7 +31,7 @@ all: firmware.bin
 %.bin: %.elf
 	$(OBJCOPY) -O binary $< $@
 	chmod -x $@
-	cp firmware.bin boot.bin
+	cp $@ boot.bin
 
 firmware.elf: $(OBJECTS) libs
 	$(LD) $(LDFLAGS) \
@@ -29,7 +42,7 @@ firmware.elf: $(OBJECTS) libs
 		-L$(OPSIS_DIR)/software/libbase \
 		-L$(OPSIS_DIR)/software/libcompiler_rt \
 		-L$(LIBUIPDIR) \
-		-lbase -luip -lcompiler_rt
+		-lbase-nofloat -luip -lcompiler_rt
 	chmod -x $@
 
 main.o: main.c
