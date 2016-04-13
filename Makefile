@@ -1,26 +1,28 @@
+CPU ?= lm32
+
 opsis_minisoc:
 	rm -rf build
-	./opsis_base.py --with-ethernet --nocompile-gateware
+	./opsis_base.py --with-ethernet --nocompile-gateware --cpu-type $(CPU)
 	cd firmware && make clean all
-	./opsis_base.py --with-ethernet
+	./opsis_base.py --with-ethernet --cpu-type $(CPU)
 
 opsis_video:
 	rm -rf build
-	./opsis_video.py --nocompile-gateware
+	./opsis_video.py --nocompile-gateware --cpu-type $(CPU)
 	cd firmware && make clean all
-	./opsis_video.py
+	./opsis_video.py --cpu-type $(CPU)
 
 opsis_hdmi2usb:
 	rm -rf build
-	./opsis_hdmi2usb.py --nocompile-gateware
+	./opsis_hdmi2usb.py --nocompile-gateware --cpu-type $(CPU)
 	cd firmware && make clean all
-	./opsis_hdmi2usb.py
+	./opsis_hdmi2usb.py --cpu-type $(CPU)
 
 opsis_sim:
 	rm -rf build
-	./opsis_sim.py --nocompile-gateware --with-ethernet
+	./opsis_sim.py --nocompile-gateware --with-ethernet --cpu-type $(CPU)
 	cd firmware && make clean all
-	./opsis_sim.py --with-ethernet
+	./opsis_sim.py --with-ethernet --cpu-type $(CPU)
 
 load:
 	./load.py
