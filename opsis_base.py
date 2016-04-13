@@ -68,6 +68,7 @@ class _CRG(Module):
         self.clock_domains.cd_sdram_half = ClockDomain()
         self.clock_domains.cd_sdram_full_wr = ClockDomain()
         self.clock_domains.cd_sdram_full_rd = ClockDomain()
+        self.clock_domains.cd_base50 = ClockDomain()
 
         self.clk8x_wr_strb = Signal()
         self.clk8x_rd_strb = Signal()
@@ -142,6 +143,17 @@ class _CRG(Module):
                                   o_Q=output_clk)
         self.specials += Instance("OBUFDS", i_I=output_clk, o_O=clk.p, o_OB=clk.n)
 
+
+        dcm_base50_locked = Signal()
+        self.specials += Instance("DCM_CLKGEN",
+                                  p_CLKFXDV_DIVIDE=2, p_CLKFX_DIVIDE=4, p_CLKFX_MD_MAX=1.0, p_CLKFX_MULTIPLY=2,
+                                  p_CLKIN_PERIOD=10.0, p_SPREAD_SPECTRUM="NONE", p_STARTUP_WAIT="FALSE",
+
+                                  i_CLKIN=clk100a, o_CLKFX=self.cd_base50.clk,
+                                  o_LOCKED=dcm_base50_locked,
+                                  i_FREEZEDCM=0, i_RST=ResetSignal())
+        self.specials += AsyncResetSynchronizer(self.cd_base50, self.cd_sys.rst | ~dcm_base50_locked)
+        platform.add_period_constraint(self.cd_base50.clk, 20)
 
 class BaseSoC(SoCSDRAM):
     csr_peripherals = (
