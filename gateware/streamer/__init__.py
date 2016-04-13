@@ -1,14 +1,11 @@
 import os
 
-from migen.fhdl.std import *
-from migen.genlib.record import *
-from migen.flow.actor import *
-from migen.actorlib.fifo import SyncFIFO, AsyncFIFO
-from migen.genlib.misc import WaitTimer
+from litex.gen import *
+from litex.soc.interconnect import stream
 
 class USBStreamer(Module):
     def __init__(self, platform, pads):
-        self.sink = sink = Sink([("data", 8)])
+        self.sink = sink = stream.Endpoint([("data", 8)])
 
         # # #
 
@@ -18,10 +15,10 @@ class USBStreamer(Module):
           self.cd_usb.rst.eq(ResetSignal()) # XXX FIXME
         ]
 
-        self.submodules.fifo = fifo = RenameClockDomains(AsyncFIFO([("data", 8)], 4),
-                                          {"write": "sys", "read": "usb"})
+        fifo = stream.AsyncFIFO([("data", 8)], 4)
+        fifo = ClockDomainsRenamer({"write": "sys", "read": "usb"})(fifo)
+        self.submodules.fifo = fifo
         self.comb += Record.connect(sink, fifo.sink)
-
 
         self.specials += Instance("fx2_jpeg_streamer",
                                   # clk, rst
@@ -29,9 +26,9 @@ class USBStreamer(Module):
                                   i_clk=ClockSignal("usb"),
 
                                   # jpeg encoder interface
-                                  i_sink_stb=fifo.source.stb,
+                                  i_sink_stb=fifo.source.valid,
                                   i_sink_data=fifo.source.data,
-                                  o_sink_ack=fifo.source.ack,
+                                  o_sink_ack=fifo.source.ready,
 
                                   # cypress fx2 slave fifo interface
                                   io_fx2_data=pads.data,
@@ -46,4 +43,4 @@ class USBStreamer(Module):
         )
 
         # add VHDL sources
-        platform.add_source_dir(os.path.join(platform.soc_ext_path, "gateware", "streamer", "vhdl"))
+        platform.add_source_dir(os.path.join("gateware", "streamer", "vhdl"))

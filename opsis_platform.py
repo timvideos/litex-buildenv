@@ -216,6 +216,19 @@ _io = [
         Subsignal("sda", Pins("AB17"), IOStandard("I2C")),
         Subsignal("hpd_notif", Pins("AB18"), IOStandard("LVCMOS33"))
     ),
+    ("fx2", 0,
+        Subsignal("ifclk", Pins("P20"), IOStandard("LVCMOS33")),
+        Subsignal("data", Pins("C20 C22 L15 K16 D21 D22 G19 F20 H18 H19 F21 F22 E20 E22 J19 H20"), IOStandard("LVCMOS33")),
+        Subsignal("addr", Pins("B21 B22"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+        Subsignal("flaga", Pins("N16"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+        Subsignal("flagb", Pins("P16"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+        Subsignal("flagc", Pins("R15"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+        Subsignal("cs_n", Pins("J17"), IOStandard("LVCMOS33"),  Misc("DRIVE=12")),
+        Subsignal("rd_n", Pins("P19"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+        Subsignal("wr_n", Pins("R19"), IOStandard("LVCMOS33")),
+        Subsignal("oe_n", Pins("H16"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+        Subsignal("pktend_n", Pins("J16"), IOStandard("LVCMOS33"),  Misc("DRIVE=12"))
+    ),
 ]
 
 class Platform(XilinxPlatform):

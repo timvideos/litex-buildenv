@@ -32,7 +32,7 @@ class HDMI2USBSoC(base_cls):
         self.add_wb_slave(mem_decoder(self.mem_map["encoder"]), self.encoder.bus)
         self.add_memory_region("encoder", self.mem_map["encoder"]+self.shadow_base, 0x2000)
 
-        self.platform.add_period_constraint(self.encoder_streamer.cd_usb, 10.0) # XXX
+        self.platform.add_period_constraint(self.encoder_streamer.cd_usb.clk, 10.0) # XXX
 
         self.platform.add_false_path_constraints(
             self.crg.cd_sys.clk,

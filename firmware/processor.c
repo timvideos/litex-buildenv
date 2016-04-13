@@ -533,8 +533,11 @@ void processor_update(void)
 		hdmi_out1_fi_base0_write(pattern_framebuffer_base());
 #endif
 
+
 #ifdef ENCODER_BASE
 	/*  encoder */
+// FIXME
+/*
 #ifdef CSR_HDMI_IN0_BASE
 	if(processor_encoder_source == VIDEO_IN_HDMI_IN0) {
 		encoder_reader_base_write((hdmi_in0_framebuffer_base(hdmi_in0_fb_index)));
@@ -547,6 +550,8 @@ void processor_update(void)
 #endif
 	if(processor_encoder_source == VIDEO_IN_PATTERN)
 		encoder_reader_base_write(pattern_framebuffer_base());
+*/
+// FIXME
 #endif
 }
 
