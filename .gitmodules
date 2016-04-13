@@ -13,3 +13,6 @@
 [submodule "third_party/litescope"]
 	path = third_party/litescope
 	url = https://github.com/enjoy-digital/litescope.git
+[submodule "third_party/flash_proxies"]
+	path = third_party/flash_proxies
+	url = https://github.com/jordens/bscan_spi_bitstreams
