@@ -17,6 +17,10 @@
 #include "ci.h"
 #include "telnet.h"
 #include "mdio.h"
+#include "encoder.h"
+#include "hdmi_out0.h"
+#include "hdmi_out1.h"
+
 
 int ci_puts(const char *s)
 {
@@ -75,6 +79,35 @@ static void help_status(void)
 	ci_puts("  status <on/off>                - repeatedly print status message");
 }
 
+#ifdef CSR_HDMI_OUT0_BASE
+static void help_output0(void)
+{
+	ci_puts("output0 commands (alias: '0')");
+	ci_puts("  output0 on                     - enable output0");
+	ci_puts("  output0 off                    - disable output0");
+}
+#endif
+
+#ifdef CSR_HDMI_OUT1_BASE
+static void help_output1(void)
+{
+	ci_puts("output1 commands (alias: '1')");
+	ci_puts("  output1 on                     - enable output1");
+	ci_puts("  output1 off                    - disable output1");
+}
+#endif
+
+#ifdef ENCODER_BASE
+static void help_encoder(void)
+{
+	ci_puts("encoder commands (alias: 'e')");
+	ci_puts("  encoder on                     - enable encoder");
+	ci_puts("  encoder off                    - disable encoder");
+	ci_puts("  encoder quality <quality>      - select quality");
+	ci_puts("  encoder fps <fps>              - configure target fps");
+}
+#endif
+
 static void help_debug(void)
 {
     ci_puts("debug commands (alias 'd')");
@@ -102,6 +135,18 @@ static void ci_help(void)
 	puts("");
 	help_hdp_toggle();
 	puts("");
+#ifdef CSR_HDMI_OUT0_BASE
+	help_output0();
+	ci_puts("");
+#endif
+#ifdef CSR_HDMI_OUT1_BASE
+	help_output1();
+	ci_puts("");
+#endif
+#ifdef ENCODER_BASE
+	help_encoder();
+	ci_puts("");
+#endif
 	help_debug();
 }
 
@@ -202,6 +247,9 @@ static void status_enable(void)
 {
 	ci_printf("Enabling status\r\n");
 	status_enabled = 1;
+#ifdef ENCODER_BASE
+	encoder_bandwidth_nbytes_clear_write(1);
+#endif
 }
 
 static void status_disable(void)
@@ -230,6 +278,50 @@ static void status_print(void)
 	ci_printf("\r\n");
 #endif
 
+#ifdef CSR_HDMI_OUT0_BASE
+	ci_printf("output0: ");
+	if(hdmi_out0_fi_enable_read())
+		ci_printf(
+			"%dx%d@%dHz from %s",
+			processor_h_active,
+			processor_v_active,
+			processor_refresh,
+			processor_get_source_name(processor_hdmi_out0_source));
+	else
+		ci_printf("off");
+	ci_printf("\r\n");
+#endif
+
+#ifdef CSR_HDMI_OUT1_BASE
+	ci_printf("output1: ");
+	if(hdmi_out1_fi_enable_read())
+		ci_printf(
+			"%dx%d@%uHz from %s",
+			processor_h_active,
+			processor_v_active,
+			processor_refresh,
+			processor_get_source_name(processor_hdmi_out1_source));
+	else
+		ci_printf("off");
+	ci_printf("\r\n");
+#endif
+
+#ifdef ENCODER_BASE
+	ci_printf("encoder: ");
+	if(encoder_enabled) {
+		ci_printf(
+			"%dx%d @ %dfps (%dMbps) from %s (q: %d)",
+			processor_h_active,
+			processor_v_active,
+			encoder_fps,
+			encoder_bandwidth_nbytes_read()*8/1000000,
+			processor_get_source_name(processor_encoder_source),
+			encoder_quality);
+		encoder_bandwidth_nbytes_clear_write(1);
+	} else
+		ci_printf("off");
+	ci_printf("\r\n");
+#endif
 	ci_printf("ddr: ");
 	debug_ddr();
 }

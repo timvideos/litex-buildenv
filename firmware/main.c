@@ -68,9 +68,12 @@ int main(void)
 	processor_set_hdmi_out1_source(VIDEO_IN_PATTERN);
 #endif
 	processor_update();
-
+#ifdef ENCODER_BASE
+	processor_set_encoder_source(VIDEO_IN_PATTERN);
+	encoder_enable(1);
+	processor_update();
+#endif
 	ci_prompt();
-
 	while(1) {
 		processor_service();
 		ci_service();

@@ -10,6 +10,7 @@
 #include "hdmi_in0.h"
 #include "hdmi_in1.h"
 #include "pattern.h"
+#include "encoder.h"
 #include "edid.h"
 #include "pll.h"
 #include "processor.h"
@@ -536,16 +537,16 @@ void processor_update(void)
 	/*  encoder */
 #ifdef CSR_HDMI_IN0_BASE
 	if(processor_encoder_source == VIDEO_IN_HDMI_IN0) {
-		encoder_reader_dma_base_write((hdmi_in0_framebuffer_base(hdmi_in0_fb_index)));
+		encoder_reader_base_write((hdmi_in0_framebuffer_base(hdmi_in0_fb_index)));
 	}
 #endif
 #ifdef CSR_HDMI_IN1_BASE
 	if(processor_encoder_source == VIDEO_IN_HDMI_IN1) {
-		encoder_reader_dma_base_write((hdmi_in1_framebuffer_base(hdmi_in1_fb_index)));
+		encoder_reader_base_write((hdmi_in1_framebuffer_base(hdmi_in1_fb_index)));
 	}
 #endif
 	if(processor_encoder_source == VIDEO_IN_PATTERN)
-		encoder_reader_dma_base_write(pattern_framebuffer_base());
+		encoder_reader_base_write(pattern_framebuffer_base());
 #endif
 }
 
