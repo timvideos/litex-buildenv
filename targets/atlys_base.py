@@ -173,9 +173,6 @@ class BaseSoC(SDRAMSoC):
             platform.request("spiflash4x"), dummy=platform.spiflash_read_dummy_bits, div=platform.spiflash_clock_div)
         self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
         self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
-        # https://reference.digilentinc.com/atlys:atlys:refmanual#flash_memory
-        # The Atlys has a XC6SLX45 which bitstream takes up ~12Mbit (1484472 bytes)
-        # 0x200000 offset (16Mbit) gives plenty of space
         self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size
         self.register_mem("spiflash", self.mem_map["spiflash"], self.spiflash.bus, size=platform.gateware_size)
 
