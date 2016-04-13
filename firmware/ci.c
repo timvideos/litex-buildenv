@@ -112,14 +112,15 @@ static void help_debug(void)
 {
     ci_puts("debug commands (alias 'd')");
 	ci_puts("  debug pll                      - dump pll configuration");
+#ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
 	ci_puts("  debug ddr                      - show DDR bandwidth");
+#endif
 	ci_puts("  debug dna                      - show Board's DNA");
 	ci_puts("  debug edid                     - dump monitor EDID");
 }
 
 static void ci_help(void)
 {
-	ci_puts("Available commands:");
 	ci_puts("help        - this command");
 	ci_puts("reboot      - reboot CPU");
 #ifdef CSR_ETHPHY_MDIO_W_ADDR
@@ -322,8 +323,10 @@ static void status_print(void)
 		ci_printf("off");
 	ci_printf("\r\n");
 #endif
+#ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
 	ci_printf("ddr: ");
 	debug_ddr();
+#endif
 }
 
 static void status_service(void)
@@ -525,6 +528,7 @@ static unsigned int log2(unsigned int v)
 	return r;
 }
 
+#ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
 static void debug_ddr(void)
 {
 	unsigned long long int nr, nw;
@@ -541,6 +545,7 @@ static void debug_ddr(void)
 	wrb = (nw*f >> (24 - log2(burstbits)))/1000000ULL;
 	ci_printf("read:%5dMbps  write:%5dMbps  all:%5dMbps\r\n", rdb, wrb, rdb + wrb);
 }
+#endif
 
 void ci_prompt(void)
 {
@@ -705,8 +710,10 @@ void ci_service(void)
 			ci_printf("HDMI Input 1 debug %s\r\n", hdmi_in1_debug ? "on" : "off");
 		}
 #endif
+#ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
 		else if(strcmp(token, "ddr") == 0)
 			debug_ddr();
+#endif
 		else if(strcmp(token, "dna") == 0)
 			// FIXME
 			//print_board_dna();

@@ -455,7 +455,9 @@ void processor_start(int mode)
 	hdmi_in1_disable();
 	hdmi_in1_clear_framebuffers();
 #endif
+#ifndef SIMULATION
 	pattern_fill_framebuffer(m->h_active, m->v_active);
+#endif
 
 	pll_config_for_clock(m->pixel_clock);
 	fb_set_mode(m);

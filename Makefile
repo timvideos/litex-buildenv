@@ -16,6 +16,12 @@ opsis_hdmi2usb:
 	cd firmware && make clean all
 	./opsis_hdmi2usb.py
 
+opsis_sim:
+	rm -rf build
+	./opsis_sim.py --nocompile-gateware --with-ethernet
+	cd firmware && make clean all
+	./opsis_sim.py --with-ethernet
+
 load:
 	./load.py
 

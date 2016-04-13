@@ -24,12 +24,14 @@
 
 #define POWER_SW  0x01
 
+#ifdef CSR_FRONT_PANEL_BASE
 static void front_panel_service(void) {
 	if(front_panel_switches_in_read() & POWER_SW)
 		front_panel_leds_out_write(HDD_LED | POWER_LED);
 	else
 		front_panel_leds_out_write(0);
 }
+#endif
 
 static const unsigned char mac_addr[6] = {0x10, 0xe2, 0xd5, 0x00, 0x00, 0x00};
 static const unsigned char ip_addr[4] = {192, 168, 1, 50};
@@ -78,7 +80,9 @@ int main(void)
 		processor_service();
 		ci_service();
 		ethernet_service();
+#ifdef CSR_FRONT_PANEL_BASE
 		front_panel_service();
+#endif
 	}
 
 	return 0;
