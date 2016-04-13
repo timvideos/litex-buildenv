@@ -150,7 +150,7 @@ flash: gateware-flash  $(addprefix flash-,$(TARGETS))
 clean:
 	@for T in $(TARGETS); do make clean-$$T; done
 	if [ -f $(MSCDIR)/software/include/generated/cpu.mak ]; then \
-		$(MAKEPY_CMD) clean \
+		($(MAKEPY_CMD) clean) \
 	fi
 	# FIXME - This is a temporarily hack until misoc clean works better.
 	rm -rf $(MSCDIR)/software/include/generated && ( \
