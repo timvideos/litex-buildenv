@@ -579,7 +579,22 @@ class Platform(XilinxPlatform):
     default_clk_period = 10.0
     hdmi_infos = _hdmi_infos
 
-    def __init__(self, programmer="xc3sprog"):
+    # Micron N25Q128 (ID 0x0018ba20)
+    # FIXME: Create a "spi flash module" object in the same way we have SDRAM
+    # module objects.
+    spiflash_read_dummy_bits = 10
+    spiflash_clock_div = 4
+    spiflash_total_size = int((128/8)*1024*1024) # 128Mbit
+    spiflash_page_size = 256
+    spiflash_sector_size = 0x10000
+
+    # https://reference.digilentinc.com/atlys:atlys:refmanual#flash_memory
+    # The Atlys has a XC6SLX45 which bitstream takes up ~12Mbit (1484472 bytes)
+    # 0x200000 offset (16Mbit) gives plenty of space
+    gateware_size = 0x200000
+
+
+    def __init__(self, programmer="openocd"):
         # XC6SLX45-2CSG324C
         XilinxPlatform.__init__(self,  "xc6slx45-csg324-3", _io, _connectors)
         self.programmer = programmer
@@ -589,8 +604,9 @@ class Platform(XilinxPlatform):
 
     def create_programmer(self):
 	# Preferred programmer - Needs ixo-usb-jtag and latest openocd.
+        proxy="bscan_spi_{}.bit".format(self.device.split('-')[0])
         if self.programmer == "openocd":
-            return OpenOCD(config="board/digilent_atlys.cfg")
+            return OpenOCD(config="board/digilent_atlys.cfg", flash_proxy_basename=proxy)
 	# Alternative programmers - not regularly tested.
         elif self.programmer == "xc3sprog":
             return XC3SProg("jtaghs1_fast", "bscan_spi_digilent_atlys.bit")

@@ -16,7 +16,7 @@ endif
 TARGET ?= hdmi2usb
 FILTER ?= tee
 ifneq ($(PROG),)
-    PROGRAMMER_OPTION ?= -Op programmer $(PROG)
+    PROGRAMMER_OPTION ?= --platform-option programmer $(PROG)
 endif
 HDMI2USBDIR = ../..
 PYTHON = python3
@@ -25,13 +25,34 @@ DATE = `date +%Y_%m_%d`
 # We use the special PIPESTATUS which is bash only below.
 SHELL := /bin/bash
 
-CMD = $(PYTHON) \
+FLASH_PROXIES=$(HDMI2USBDIR)/third_party/flash_proxies
+
+MAKEPY_CMD = \
+  cd $(MSCDIR) && \
+  $(PYTHON) \
   make.py \
-  -X $(HDMI2USBDIR) \
-  -t $(BOARD)_$(TARGET) \
-  -Ot firmware_filename $(HDMI2USBDIR)/firmware/lm32/firmware.bin \
-  $(PROGRAMMER_OPTION) \
-  $(MISOC_EXTRA_CMDLINE)
+    --external $(HDMI2USBDIR) \
+    --flash-proxy-dir $(FLASH_PROXIES) \
+    --target $(BOARD)_$(TARGET) \
+    --target-option firmware_filename $(HDMI2USBDIR)/firmware/lm32/firmware.bin \
+    --csr_csv $(HDMI2USBDIR)/test/csr.csv \
+    $(PROGRAMMER_OPTION) \
+    $(MISOC_EXTRA_CMDLINE)
+
+MAKEIMAGE_CMD = \
+  cd $(MSCDIR) && \
+  $(PYTHON) \
+  mkmscimg.py
+
+FLASHEXTRA_CMD = \
+  cd $(MSCDIR) && \
+  $(PYTHON) \
+  flash_extra.py \
+    --external $(HDMI2USBDIR) \
+    --flash-proxy-dir $(FLASH_PROXIES) \
+    $(PROGRAMMER_OPTION) \
+    $(BOARD)
+
 
 ifeq ($(OS),Windows_NT)
 	FLTERM = $(PYTHON) $(MSCDIR)/tools/flterm.py
@@ -84,22 +105,25 @@ gateware-submodules: $(addsuffix /.git,$(addprefix third_party/,$(MODULES)))
 gateware-generate: gateware-submodules $(addprefix gateware-generate-,$(TARGETS))
 	@echo 'Building target: $@. First dep: $<'
 ifneq ($(OS),Windows_NT)
-	cd $(MSCDIR) && $(CMD) -Ob run False --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream \
+	$(MAKEPY_CMD) --build-option run False build-csr-csv build-bitstream \
 	| $(FILTER) $(PWD)/build/output.$(DATE).log; (exit $${PIPESTATUS[0]})
 else
-	cd $(MSCDIR) && $(CMD) -Ob run False --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream
+	$(MAKEPY_CMD) --build-option run False build-csr-csv build-bitstream
 endif
 
 gateware-build: gateware-submodules $(addprefix gateware-build-,$(TARGETS))
 ifneq ($(OS),Windows_NT)
-	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream \
+	$(MAKEPY_CMD) build-csr-csv build-bitstream \
 	| $(FILTER) $(PWD)/build/output.$(DATE).log; (exit $${PIPESTATUS[0]})
 else
-	cd $(MSCDIR) && $(CMD) --csr_csv $(HDMI2USBDIR)/test/csr.csv build-csr-csv build-bitstream
+	$(MAKEPY_CMD) build-csr-csv build-bitstream
 endif
 
 gateware: gateware-generate gateware-build
 	@true
+
+gateware-flash:
+	$(MAKEPY_CMD) flash-bitstream
 
 # Firmware
 firmware: $(addprefix firmware-,$(TARGETS))
@@ -111,21 +135,22 @@ download-prebuilt:
 	
 # Load
 load-gateware:
-	cd $(MSCDIR) && $(CMD) load-bitstream
+	$(MAKEPY_CMD) load-bitstream
 
 load: load-gateware $(addprefix load-,$(TARGETS))
 	@true
 
 # Flash
-flash:
-	@echo "Not implemented yet"
-	@exit 1
+flash: gateware-flash  $(addprefix flash-,$(TARGETS))
+	@echo ""
+	@echo ""
+	@echo "Power cycle your board to boot newly flashed stuff."
 
 # Clean
 clean:
 	@for T in $(TARGETS); do make clean-$$T; done
 	if [ -f $(MSCDIR)/software/include/generated/cpu.mak ]; then \
-		(cd $(MSCDIR) && $(CMD) clean) \
+		($(MAKEPY_CMD) clean) \
 	fi
 	# FIXME - This is a temporarily hack until misoc clean works better.
 	rm -rf $(MSCDIR)/software/include/generated && ( \

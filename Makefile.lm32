@@ -45,13 +45,21 @@ EXTRA_DEPS =
 endif
 
 firmware-lm32: third_party/misoc/.git $(EXTRA_DEPS)
-	cd $(MSCDIR) && $(CMD) build-headers
+	$(MAKEPY_CMD) build-headers
 	$(MAKE) -C firmware/lm32 all
 
 load-lm32: firmware-lm32
 	@echo "To load new firmware, reboot the running firmware and then"
 	@echo "select serialboot at the BIOS prompt."
-	$(FLTERM) --port $(SERIAL) --kernel=firmware/lm32/firmware.bin --kernel-adr=0x20000000 --speed 115200
+	$(FLTERM) --port $(SERIAL) --kernel=$(HDMI2USBDIR)/firmware/lm32/firmware.bin --kernel-adr=0x20000000 --speed 115200
+
+image-lm32: firmware-lm32
+	$(MAKEIMAGE_CMD) --fbi --output $(HDMI2USBDIR)/firmware/lm32/firmware.fbi $(HDMI2USBDIR)/firmware/lm32/firmware.bin
+
+flash-lm32: image-lm32
+	export FIRMWARE_ADDRESS=$$($(PYTHON) -c "import platforms.$(BOARD) as b; print(b.Platform.gateware_size)"); \
+	echo "Flashing to $$($(PYTHON) -c "print(hex($$FIRMWARE_ADDRESS))") ($$FIRMWARE_ADDRESS)"; \
+	$(FLASHEXTRA_CMD) $(HDMI2USBDIR)/firmware/lm32/firmware.fbi $$FIRMWARE_ADDRESS
 
 clean-lm32:
 	if [ -f $(MSCDIR)/software/include/generated/cpu.mak ]; then \
