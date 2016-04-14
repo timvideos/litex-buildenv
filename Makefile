@@ -18,7 +18,7 @@ FILTER ?= tee
 ifneq ($(PROG),)
     PROGRAMMER_OPTION ?= --platform-option programmer $(PROG)
 endif
-HDMI2USBDIR = ../..
+HDMI2USBDIR = $(realpath .)
 PYTHON = python3
 DATE = `date +%Y_%m_%d`
 
