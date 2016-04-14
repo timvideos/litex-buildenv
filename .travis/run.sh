@@ -13,7 +13,7 @@ set +x
 set -e
 
 if [ -z "$BOARD" ]; then
-	BOARDS="atlys opsis"
+	BOARDS=$(ls targets/${BOARD}_* | sed -e"s+targets/${BOARD}_++" -e"s/.py//")
 else
 	BOARDS="$BOARD"
 fi
@@ -23,12 +23,7 @@ find | sort > /tmp/filelist.before
 
 for BOARD in $BOARDS; do
 	if [ -z "$TARGET" ]; then
-		TARGETS="base hdmi2usb"
-		# FIXME: Get hdmi2eth working on the Opsis
-		# https://github.com/timvideos/HDMI2USB-misoc-firmware/issues/51
-		if [ "$BOARD" = "atlys" ]; then
-			TARGETS="$TARGETS hdmi2eth"
-		fi
+		TARGETS=$(ls targets/${BOARD}_* | sed -e"s+targets/${BOARD}_++" -e"s/.py//")
 	else
 		TARGETS="$TARGET"
 	fi
