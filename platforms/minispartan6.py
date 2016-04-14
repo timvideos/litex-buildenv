@@ -88,7 +88,7 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
-    ("dvi_in", 0,
+    ("hdmi_in", 0,
         Subsignal("clk_p", Pins("C9"), IOStandard("TMDS_33")),
         Subsignal("clk_n", Pins("A9"), IOStandard("TMDS_33")),
         Subsignal("data_p", Pins("C7 B6 B5"), IOStandard("TMDS_33")),
@@ -97,7 +97,7 @@ _io = [
         Subsignal("sda", Pins("B1"), IOStandard("LVCMOS33"))
     ),
 
-    ("dvi_out", 0,
+    ("hdmi_out", 0,
         Subsignal("clk_p", Pins("B14"), IOStandard("TMDS_33")),
         Subsignal("clk_n", Pins("A14"), IOStandard("TMDS_33")),
         Subsignal("data_p", Pins("C13 B12 C11"), IOStandard("TMDS_33")),
@@ -126,17 +126,38 @@ class Platform(XilinxPlatform):
     default_clk_name = "clk32"
     default_clk_period = 31.25
 
-    def __init__(self, device="xc6slx25", programmer="fpgaprog"):
-        self.programmer = programmer
+    # Mac 25L6405' (ID 0x001720c2)
+    # FIXME: Create a "spi flash module" object in the same way we have SDRAM
+    # module objects.
+    spiflash_read_dummy_bits = 4
+    spiflash_clock_div = 4
+    spiflash_total_size = int((64/8)*1024*1024) # 64Mbit
+    spiflash_page_size = 256
+    spiflash_sector_size = 0x10000
+
+    # 0x180000 offset (12Mbit) gives plenty of space
+    gateware_size = 0x180000
+
+
+    def __init__(self, device="xc6slx25", programmer="openocd"):
         XilinxPlatform.__init__(self, device+"-3-ftg256", _io, _connectors)
+        self.programmer = programmer
 
     def create_programmer(self):
-        if self.programmer == "xc3sprog":
-            return XC3SProg("minispartan6", "bscan_spi_minispartan6.bit")
+        proxy="bscan_spi_{}.bit".format(self.device.split('-')[0])
+        if self.programmer == "openocd":
+            return OpenOCD(config="board/minispartan6.cfg", flash_proxy_basename=proxy)
+	# Alternative programmers - not regularly tested.
+        elif self.programmer == "xc3sprog":
+            return XC3SProg("minispartan6", proxy)
         elif self.programmer == "fpgaprog":
             return FpgaProg()
-        elif self.programmer == "openocd":
-            return OpenOCD(config="board/minispartan6.cfg")
         else:
-
             raise ValueError("{} programmer is not supported".format(self.programmer))
+
+    def do_finalize(self, fragment):
+        XilinxPlatform.do_finalize(self, fragment)
+        try:
+            self.add_period_constraint(self.lookup_request("hdmi_in", 0).clk_p, 12)
+        except ConstraintError:
+            pass

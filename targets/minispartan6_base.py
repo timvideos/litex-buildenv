@@ -1,8 +1,8 @@
-import os
-
+# Support for the MiniSpartan6+ - https://www.scarabhardware.com/minispartan6/
 from fractions import Fraction
 
 from migen.fhdl.std import *
+from migen.fhdl.specials import Keep
 from migen.genlib.resetsync import AsyncResetSynchronizer
 from migen.actorlib.fifo import SyncFIFO
 
@@ -77,7 +77,7 @@ class _CRG(Module):
                                   i_C0=self.cd_sys.clk, i_C1=~self.cd_sys.clk,
                                   o_Q=platform.request("sdram_clock"))
 
-
+# Patch the CPU interface to map firmware_ram into main_ram region.
 from misoclib.soc import cpuif
 original_get_linker_regions = cpuif.get_linker_regions
 def replacement_get_linker_regions(regions):
@@ -94,6 +94,7 @@ class BaseSoC(SDRAMSoC):
 
     csr_peripherals = (
         "spiflash",
+        "sdrphy",
         "dna",
         "git_info",
         "platform_info",
@@ -107,12 +108,13 @@ class BaseSoC(SDRAMSoC):
     mem_map.update(SDRAMSoC.mem_map)
 
     def __init__(self, platform,
-                 sdram_controller_settings=LASMIconSettings(),
-                 firmware_ram_size=0xa000, firmware_filename=None, **kwargs):
+                 firmware_ram_size=0xa000,
+                 firmware_filename=None,
+                 **kwargs):
         clk_freq = 80*1000000
         SDRAMSoC.__init__(self, platform, clk_freq,
                           integrated_rom_size=0x8000,
-                          sdram_controller_settings=sdram_controller_settings,
+                          sdram_controller_settings=LASMIconSettings(with_bandwidth=True),
                           **kwargs)
 
         self.submodules.crg = _CRG(platform, clk_freq)
@@ -125,18 +127,12 @@ class BaseSoC(SDRAMSoC):
                                                          AS4C16M16(clk_freq))
             self.register_sdram_phy(self.sdrphy)
 
-        # name, erase_cmd, chip_erase_cmd, device_id, pagesize, sectorsize, size_in_bytes
-        # FLASH_ID("mac 25l6405",    0xd8, 0xc7, 0x001720c2, 0x100, 0x10000, 0x800000),
-        self.submodules.spiflash = spiflash.SpiFlash(platform.request("spiflash2x"),
-                                                     dummy=4, div=4, with_bitbang=False)
-        self.add_constant("SPIFLASH_PAGE_SIZE", 256)
-        self.add_constant("SPIFLASH_SECTOR_SIZE", 0x10000)
-        # The minispartan6+ has a XC6SLX25 which bitstream takes up ~6Mbit
-        # 0x80000 offset
-        self.flash_boot_address = self.mem_map["spiflash"]+0x180000
-        # 64Mbit - (64/8)*1024*1024
-        self.register_mem("spiflash", self.mem_map["spiflash"], self.spiflash.bus, size=int((64/8)*1024*1024))
-        #self.register_rom(self.spiflash.bus, 0x1000000)
+        self.submodules.spiflash = spiflash.SpiFlash(
+            platform.request("spiflash2x"), dummy=platform.spiflash_read_dummy_bits, div=platform.spiflash_clock_div)
+        self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
+        self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
+        self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size
+        self.register_mem("spiflash", self.mem_map["spiflash"], self.spiflash.bus, size=platform.gateware_size)
 
 
 class USBSoC(BaseSoC):
