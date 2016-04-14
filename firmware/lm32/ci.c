@@ -407,7 +407,6 @@ static unsigned int log2(unsigned int v)
 
 static void debug_ddr(void)
 {
-#if 0
 	unsigned long long int nr, nw;
 	unsigned long long int f;
 	unsigned int rdb, wrb;
@@ -421,7 +420,6 @@ static void debug_ddr(void)
 	rdb = (nr*f >> (24 - log2(burstbits)))/1000000ULL;
 	wrb = (nw*f >> (24 - log2(burstbits)))/1000000ULL;
 	printf("read:%5dMbps  write:%5dMbps  all:%5dMbps\r\n", rdb, wrb, rdb + wrb);
-#endif
 }
 
 #if defined(CSR_HDMI_IN0_BASE) || defined(CSR_HDMI_IN1_BASE)

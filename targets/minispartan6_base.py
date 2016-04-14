@@ -94,7 +94,7 @@ class BaseSoC(SDRAMSoC):
 
     csr_peripherals = (
         "spiflash",
-        "sdrphy",
+        "ddrphy",
         "dna",
         "git_info",
         "platform_info",
@@ -123,9 +123,9 @@ class BaseSoC(SDRAMSoC):
         self.submodules.platform_info = platform_info.PlatformInfo("minispartan6"[:8], self.__class__.__name__[:8])
 
         if not self.integrated_main_ram_size:
-            self.submodules.sdrphy = gensdrphy.GENSDRPHY(platform.request("sdram"),
+            self.submodules.ddrphy = gensdrphy.GENSDRPHY(platform.request("sdram"),
                                                          AS4C16M16(clk_freq))
-            self.register_sdram_phy(self.sdrphy)
+            self.register_sdram_phy(self.ddrphy)
 
         self.submodules.spiflash = spiflash.SpiFlash(
             platform.request("spiflash2x"), dummy=platform.spiflash_read_dummy_bits, div=platform.spiflash_clock_div)
