@@ -138,9 +138,22 @@ _connectors = [
 ]
 
 
+_hdmi_infos = {
+    "HDMI_IN0_MNEMONIC": "J2",
+    "HDMI_IN0_DESCRIPTION" : (
+      "  Type A connector, marked as J2.\\r\\n"
+    ),
+
+    "HDMI_OUT0_MNEMONIC": "J3",
+    "HDMI_OUT0_DESCRIPTION" : (
+      "  Type A connector, marked as J3.\\r\\n"
+    ),
+}
+
 class Platform(XilinxPlatform):
     default_clk_name = "clk32"
     default_clk_period = 31.25
+    hdmi_infos = _hdmi_infos
 
     # Mac 25L6405' (ID 0x001720c2)
     # FIXME: Create a "spi flash module" object in the same way we have SDRAM
