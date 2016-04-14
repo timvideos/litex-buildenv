@@ -657,9 +657,16 @@ void ci_service(void)
 				debug_input(3, 3, 3);
 			else if(strcmp(token, "off") == 0)
 				debug_input(3, 3, 0);
-			else if(strcmp(token, "?") != 0)
-				debug_input(3, 3, (hdmi_in0_debug ? 0 : 1) | (hdmi_in1_debug ? 0 : 2));
-			else
+			else if(strcmp(token, "?") != 0) {
+				unsigned int state = 0;
+#if defined(CSR_HDMI_IN0_BASE)
+				state |= (hdmi_in0_debug ? 0 : 1);
+#endif
+#if defined(CSR_HDMI_IN1_BASE)
+				state |= (hdmi_in1_debug ? 0 : 2);
+#endif
+				debug_input(3, 3, state);
+			} else
 				debug_input(3, 0, 0);
 		}
 		else if(strcmp(token, "on") == 0)
