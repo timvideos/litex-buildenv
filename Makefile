@@ -18,7 +18,7 @@ FILTER ?= tee
 ifneq ($(PROG),)
     PROGRAMMER_OPTION ?= --platform-option programmer $(PROG)
 endif
-HDMI2USBDIR = ../..
+HDMI2USBDIR = $(realpath .)
 PYTHON = python3
 DATE = `date +%Y_%m_%d`
 
@@ -122,9 +122,6 @@ endif
 gateware: gateware-generate gateware-build
 	@true
 
-gateware-flash:
-	$(MAKEPY_CMD) flash-bitstream
-
 # Firmware
 firmware: $(addprefix firmware-,$(TARGETS))
 	@true
@@ -141,7 +138,10 @@ load: load-gateware $(addprefix load-,$(TARGETS))
 	@true
 
 # Flash
-flash: gateware-flash  $(addprefix flash-,$(TARGETS))
+flash-gateware:
+	$(MAKEPY_CMD) flash-bitstream
+
+flash: flash-gateware  $(addprefix flash-,$(TARGETS))
 	@echo ""
 	@echo ""
 	@echo "Power cycle your board to boot newly flashed stuff."
