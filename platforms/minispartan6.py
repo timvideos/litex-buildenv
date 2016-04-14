@@ -190,3 +190,7 @@ class Platform(XilinxPlatform):
             self.add_period_constraint(self.lookup_request("hdmi_in", 0).clk_p, 12)
         except ConstraintError:
             pass
+        try:
+            self.add_period_constraint(self.lookup_request("clk50", 0), 20)
+        except ConstraintError:
+            pass

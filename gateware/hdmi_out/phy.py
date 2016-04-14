@@ -34,7 +34,11 @@ class _FIFO(Module):
             self.busy.eq(0)
         ]
 
-        unpack_counter = Signal(max=pack_factor)
+        if pack_factor == 1:
+            unpack_counter = Signal()
+        else:
+            unpack_counter = Signal(max=pack_factor)
+
         assert(pack_factor & (pack_factor - 1) == 0)  # only support powers of 2
         self.sync.pix += [
             unpack_counter.eq(unpack_counter + 1),

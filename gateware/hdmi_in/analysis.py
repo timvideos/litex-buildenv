@@ -171,7 +171,10 @@ class FrameExtraction(Module, AutoCSR):
         self.comb += encoded_pixel.eq(Cat(chroma_downsampler.source.y, chroma_downsampler.source.cb_cr)),
         pack_factor = word_width//16
         assert(pack_factor & (pack_factor - 1) == 0)  # only support powers of 2
-        pack_counter = Signal(max=pack_factor)
+        if pack_factor == 1:
+            pack_counter = Signal()
+        else:
+            pack_counter = Signal(max=pack_factor)
         self.sync.pix += [
             cur_word_valid.eq(0),
             If(new_frame,

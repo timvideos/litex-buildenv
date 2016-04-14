@@ -31,6 +31,7 @@ class _CRG(Module):
     def __init__(self, platform, clk_freq):
         self.clock_domains.cd_sys = ClockDomain()
         self.clock_domains.cd_sys_ps = ClockDomain()
+        self.clock_domains.cd_base50 = ClockDomain()
 
         f0 = 32*1000000
         clk32 = platform.request("clk32")
@@ -77,6 +78,9 @@ class _CRG(Module):
                                   i_C0=self.cd_sys.clk, i_C1=~self.cd_sys.clk,
                                   o_Q=platform.request("sdram_clock"))
 
+        self.specials += Instance("BUFG", i_I=platform.request("clk50"), o_O=self.cd_base50.clk)
+
+
 # Patch the CPU interface to map firmware_ram into main_ram region.
 from misoclib.soc import cpuif
 original_get_linker_regions = cpuif.get_linker_regions
@@ -114,7 +118,7 @@ class BaseSoC(SDRAMSoC):
         clk_freq = 80*1000000
         SDRAMSoC.__init__(self, platform, clk_freq,
                           integrated_rom_size=0x8000,
-                          sdram_controller_settings=LASMIconSettings(with_bandwidth=True),
+                          sdram_controller_settings=LASMIconSettings(l2_size=32, with_bandwidth=True),
                           **kwargs)
 
         self.submodules.crg = _CRG(platform, clk_freq)
