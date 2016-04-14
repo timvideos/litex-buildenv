@@ -27,6 +27,7 @@ env:
    - BOARD=opsis TARGET=base
    - BOARD=opsis TARGET=hdmi2usb
    - BOARD=pipistrello TARGET=base
+   - BOARD=minispartan6 TARGET=base
 
 install:
  - $PWD/.travis/setup.sh
