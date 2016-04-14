@@ -7,6 +7,7 @@ from mibuild.xilinx.programmer import XC3SProg, FpgaProg
 from mibuild.openocd import OpenOCD
 
 _io = [
+    ## onboard LEDs
     ("user_led", 0, Pins("P11"), IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("N9"),  IOStandard("LVCMOS33")),
     ("user_led", 2, Pins("M9"),  IOStandard("LVCMOS33")),
@@ -16,6 +17,7 @@ _io = [
     ("user_led", 6, Pins("P8"),  IOStandard("LVCMOS33")),
     ("user_led", 7, Pins("P7"),  IOStandard("LVCMOS33")),
 
+    ## onBoard SWITCHES
     ("user_sw", 0, Pins("L1"), IOStandard("LVCMOS33"), Misc("PULLUP")),
     ("user_sw", 1, Pins("L3"), IOStandard("LVCMOS33"), Misc("PULLUP")),
     ("user_sw", 2, Pins("L4"), IOStandard("LVCMOS33"), Misc("PULLUP")),
@@ -24,6 +26,7 @@ _io = [
     ("clk32", 0, Pins("J4"), IOStandard("LVCMOS33")),
     ("clk50", 0, Pins("K3"), IOStandard("LVCMOS33")),
 
+    ## onBoard SPI Flash
     ("spiflash", 0,
         Subsignal("cs_n", Pins("T3"), IOStandard("LVCMOS33")),
         Subsignal("clk",  Pins("R11"), IOStandard("LVCMOS33")),
@@ -44,16 +47,12 @@ _io = [
         Subsignal("miso", Pins("H5"), IOStandard("LVCMOS33"))
     ),
 
-    ("serial", 0,
-        Subsignal("tx", Pins("N6"), IOStandard("LVCMOS33")), # FTDI D1
-        Subsignal("rx", Pins("M7"), IOStandard("LVCMOS33"))  # FTDI D0
-    ),
-
     ("audio", 0,
         Subsignal("a0", Pins("B8"), IOStandard("LVCMOS33")),
         Subsignal("a1", Pins("A8"), IOStandard("LVCMOS33"))
     ),
 
+    # 32MB (Megabytes) SDRAM
     ("sdram_clock", 0, Pins("G16"), IOStandard("LVCMOS33"), Misc("SLEW=FAST")),
     ("sdram", 0,
         Subsignal("a", Pins("T15 R16 P15 P16 N16 M15 M16 L16 K15 K16 R15 J16 H15")),
@@ -68,6 +67,13 @@ _io = [
         IOStandard("LVCMOS33"), Misc("SLEW=FAST")
     ),
 
+    # FTDI 2232 - serial UART interface
+    ("serial", 0,
+        Subsignal("tx", Pins("N6"), IOStandard("LVCMOS33")), # FTDI D1
+        Subsignal("rx", Pins("M7"), IOStandard("LVCMOS33"))  # FTDI D0
+    ),
+
+    # FTDI 2232 - FIFO interface
     ("usb_fifo", 0,
         Subsignal("data", Pins("M7 N6 M6 P5 N5 P4 P2 P1")),
         Subsignal("rxf_n", Pins("N3")),
@@ -88,6 +94,7 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    ## onboard HDMI IN
     ("hdmi_in", 0,
         Subsignal("clk_p", Pins("C9"), IOStandard("TMDS_33")),
         Subsignal("clk_n", Pins("A9"), IOStandard("TMDS_33")),
@@ -97,6 +104,7 @@ _io = [
         Subsignal("sda", Pins("B1"), IOStandard("LVCMOS33"))
     ),
 
+    ## onboard HDMI OUT
     ("hdmi_out", 0,
         Subsignal("clk_p", Pins("B14"), IOStandard("TMDS_33")),
         Subsignal("clk_n", Pins("A14"), IOStandard("TMDS_33")),
