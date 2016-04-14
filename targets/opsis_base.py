@@ -9,6 +9,7 @@ from migen.bus import wishbone
 from migen.genlib.record import Record
 
 from misoclib.com import gpio
+from misoclib.mem.flash import spiflash
 from misoclib.mem.sdram.module import MT41J128M16
 from misoclib.mem.sdram.phy import s6ddrphy
 from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
@@ -135,6 +136,7 @@ class BaseSoC(SDRAMSoC):
     default_platform = "opsis"
 
     csr_peripherals = (
+        "spiflash",
         "ddrphy",
         "dna",
         "git_info",
@@ -148,6 +150,7 @@ class BaseSoC(SDRAMSoC):
 
     mem_map = {
         "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
+        "spiflash":     0x30000000,  # (default shadow @0xb0000000)
     }
     mem_map.update(SDRAMSoC.mem_map)
 
@@ -203,6 +206,13 @@ class BaseSoC(SDRAMSoC):
             ]
             self.register_sdram_phy(self.ddrphy)
 
+        self.submodules.spiflash = spiflash.SpiFlash(
+            platform.request("spiflash4x"), dummy=platform.spiflash_read_dummy_bits, div=platform.spiflash_clock_div)
+        self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
+        self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
+        self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size
+        self.register_mem("spiflash", self.mem_map["spiflash"], self.spiflash.bus, size=platform.gateware_size)
+
         self.specials += Keep(self.crg.cd_sys.clk)
         platform.add_platform_command("""
 NET "{sys_clk}" TNM_NET = "GRPsys_clk";
@@ -222,7 +232,7 @@ class MiniSoC(BaseSoC):
     interrupt_map.update(BaseSoC.interrupt_map)
 
     mem_map = {
-        "ethmac": 0x30000000,  # (shadow @0xb0000000)
+        "ethmac": 0x40000000,  # (shadow @0xc0000000)
     }
     mem_map.update(BaseSoC.mem_map)
 
