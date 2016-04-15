@@ -24,26 +24,32 @@
 
 int ci_puts(const char *s)
 {
+#ifdef ETHMAC_BASE
 	if(telnet_active)
 		telnet_puts(s);
 	else
+#endif
 		puts(s);
 	return 0;
 }
 
 int ci_printf(const char *fmt, ...)
 {
+#ifdef ETHMAC_BASE
 	if(telnet_active)
 		return telnet_printf(fmt);
 	else
+#endif
 		return printf(fmt);
 }
 
 void ci_putsnonl(const char *s)
 {
+#ifdef ETHMAC_BASE
 	if(telnet_active)
 		telnet_putsnonl(s);
 	else
+#endif
 		putsnonl(s);
 }
 

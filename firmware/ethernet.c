@@ -3,6 +3,7 @@
 
 #include "ethernet.h"
 #include <generated/csr.h>
+#include <generated/mem.h>
 #include <time.h>
 
 static int uip_periodic_event;
@@ -17,6 +18,8 @@ void uip_log(char *msg)
     puts(msg);
 #endif
 }
+
+#ifdef ETHMAC_BASE
 
 void ethernet_init(const unsigned char * mac_addr, const unsigned char *ip_addr)
 {
@@ -79,3 +82,5 @@ void ethernet_service(void) {
 		uip_arp_timer();
 	}
 }
+
+#endif

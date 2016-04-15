@@ -32,6 +32,8 @@ static ethernet_buffer *txbuffer;
 static ethernet_buffer *txbuffer0;
 static ethernet_buffer *txbuffer1;
 
+#ifdef ETHMAC_BASE
+
 void liteethmac_init(void)
 {
   ethmac_sram_reader_ev_pending_write(ETHMAC_EV_SRAM_READER);
@@ -88,3 +90,5 @@ void liteethmac_send(void)
 void liteethmac_exit(void)
 {
 }
+
+#endif

@@ -6,6 +6,7 @@
 #include <uart.h>
 #include <time.h>
 #include <generated/csr.h>
+#include <generated/mem.h>
 #include <hw/flags.h>
 #include <console.h>
 #include <system.h>
@@ -59,9 +60,11 @@ int main(void)
 	mdio_status();
 #endif
 
+#ifdef ETHMAC_BASE
 	ethernet_init(mac_addr, ip_addr);
 	etherbone_init();
 	telnet_init();
+#endif
 
 #ifdef CSR_HDMI_OUT0_BASE
 	processor_set_hdmi_out0_source(VIDEO_IN_PATTERN);
@@ -79,7 +82,9 @@ int main(void)
 	while(1) {
 		processor_service();
 		ci_service();
+#ifdef ETHMAC_BASE
 		ethernet_service();
+#endif
 #ifdef CSR_FRONT_PANEL_BASE
 		front_panel_service();
 #endif

@@ -1,6 +1,10 @@
 // This file is Copyright (c) 2015 Florent Kermarrec <florent@enjoy-digital.fr>
 // License: BSD
 
+#include <generated/mem.h>
+
+#ifdef ETHMAC_BASE
+
 #include "etherbone.h"
 #include "ethernet.h"
 
@@ -122,3 +126,5 @@ void etherbone_process(struct tcp_socket *s, unsigned char *rxbuf)
 
 	return;
 }
+
+#endif
