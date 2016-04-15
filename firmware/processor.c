@@ -318,9 +318,9 @@ static void fb_clkgen_write(int cmd, int data)
 #ifdef CSR_HDMI_OUT0_BASE
 	int word;
 	word = (data << 2) | cmd;
-	hdmi_out0_driver_clocking_cmd_data_write(word);
-	hdmi_out0_driver_clocking_send_cmd_data_write(1);
-	while(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_BUSY);
+	hdmi_out0_phy_clocking_cmd_data_write(word);
+	hdmi_out0_phy_clocking_send_cmd_data_write(1);
+	while(hdmi_out0_phy_clocking_status_read() & CLKGEN_STATUS_BUSY);
 #endif
 }
 
@@ -358,38 +358,38 @@ static void fb_set_mode(const struct video_timing *mode)
 	fb_get_clock_md(mode->pixel_clock, &clock_m, &clock_d);
 
 #ifdef CSR_HDMI_OUT0_BASE
-	hdmi_out0_fi_hres_write(mode->h_active);
-	hdmi_out0_fi_hsync_start_write(mode->h_active + mode->h_sync_offset);
-	hdmi_out0_fi_hsync_end_write(mode->h_active + mode->h_sync_offset + mode->h_sync_width);
-	hdmi_out0_fi_hscan_write(mode->h_active + mode->h_blanking);
-	hdmi_out0_fi_vres_write(mode->v_active);
-	hdmi_out0_fi_vsync_start_write(mode->v_active + mode->v_sync_offset);
-	hdmi_out0_fi_vsync_end_write(mode->v_active + mode->v_sync_offset + mode->v_sync_width);
-	hdmi_out0_fi_vscan_write(mode->v_active + mode->v_blanking);
+	hdmi_out0_core_fi_hres_write(mode->h_active);
+	hdmi_out0_core_fi_hsync_start_write(mode->h_active + mode->h_sync_offset);
+	hdmi_out0_core_fi_hsync_end_write(mode->h_active + mode->h_sync_offset + mode->h_sync_width);
+	hdmi_out0_core_fi_hscan_write(mode->h_active + mode->h_blanking);
+	hdmi_out0_core_fi_vres_write(mode->v_active);
+	hdmi_out0_core_fi_vsync_start_write(mode->v_active + mode->v_sync_offset);
+	hdmi_out0_core_fi_vsync_end_write(mode->v_active + mode->v_sync_offset + mode->v_sync_width);
+	hdmi_out0_core_fi_vscan_write(mode->v_active + mode->v_blanking);
 
-	hdmi_out0_fi_length_write(mode->h_active*mode->v_active*2);
+	hdmi_out0_core_fi_length_write(mode->h_active*mode->v_active*2);
 #endif
 
 #ifdef CSR_HDMI_OUT1_BASE
-	hdmi_out1_fi_hres_write(mode->h_active);
-	hdmi_out1_fi_hsync_start_write(mode->h_active + mode->h_sync_offset);
-	hdmi_out1_fi_hsync_end_write(mode->h_active + mode->h_sync_offset + mode->h_sync_width);
-	hdmi_out1_fi_hscan_write(mode->h_active + mode->h_blanking);
-	hdmi_out1_fi_vres_write(mode->v_active);
-	hdmi_out1_fi_vsync_start_write(mode->v_active + mode->v_sync_offset);
-	hdmi_out1_fi_vsync_end_write(mode->v_active + mode->v_sync_offset + mode->v_sync_width);
-	hdmi_out1_fi_vscan_write(mode->v_active + mode->v_blanking);
+	hdmi_out1_core_fi_hres_write(mode->h_active);
+	hdmi_out1_core_fi_hsync_start_write(mode->h_active + mode->h_sync_offset);
+	hdmi_out1_core_fi_hsync_end_write(mode->h_active + mode->h_sync_offset + mode->h_sync_width);
+	hdmi_out1_core_fi_hscan_write(mode->h_active + mode->h_blanking);
+	hdmi_out1_core_fi_vres_write(mode->v_active);
+	hdmi_out1_core_fi_vsync_start_write(mode->v_active + mode->v_sync_offset);
+	hdmi_out1_core_fi_vsync_end_write(mode->v_active + mode->v_sync_offset + mode->v_sync_width);
+	hdmi_out1_core_fi_vscan_write(mode->v_active + mode->v_blanking);
 
-	hdmi_out1_fi_length_write(mode->h_active*mode->v_active*2);
+	hdmi_out1_core_fi_length_write(mode->h_active*mode->v_active*2);
 #endif
 
 	fb_clkgen_write(0x1, clock_d-1);
 	fb_clkgen_write(0x3, clock_m-1);
 
 #ifdef CSR_HDMI_OUT0_BASE
-	hdmi_out0_driver_clocking_send_go_write(1);
-	while(!(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_PROGDONE));
-	while(!(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_LOCKED));
+	hdmi_out0_phy_clocking_send_go_write(1);
+	while(!(hdmi_out0_phy_clocking_status_read() & CLKGEN_STATUS_PROGDONE));
+	while(!(hdmi_out0_phy_clocking_status_read() & CLKGEN_STATUS_LOCKED));
 #endif
 }
 
@@ -434,11 +434,11 @@ void processor_start(int mode)
 	processor_refresh = calculate_refresh_rate(m);
 
 #ifdef CSR_HDMI_OUT0_BASE
-	hdmi_out0_fi_enable_write(0);
-	hdmi_out0_driver_clocking_pll_reset_write(1);
+	hdmi_out0_core_fi_enable_write(0);
+	hdmi_out0_phy_clocking_pll_reset_write(1);
 #endif
 #ifdef CSR_HDMI_OUT1_BASE
-	hdmi_out1_fi_enable_write(0);
+	hdmi_out1_core_fi_enable_write(0);
 #endif
 #ifdef CSR_HDMI_IN0_BASE
 	hdmi_in0_edid_hpd_en_write(0);
@@ -470,11 +470,11 @@ void processor_start(int mode)
 #endif
 
 #ifdef CSR_HDMI_OUT0_BASE
-	hdmi_out0_driver_clocking_pll_reset_write(0);
-	hdmi_out0_fi_enable_write(1);
+	hdmi_out0_phy_clocking_pll_reset_write(0);
+	hdmi_out0_core_fi_enable_write(1);
 #endif
 #ifdef CSR_HDMI_OUT1_BASE
-	hdmi_out1_fi_enable_write(1);
+	hdmi_out1_core_fi_enable_write(1);
 #endif
 #ifdef CSR_HDMI_IN0_BASE
 	hdmi_in0_edid_hpd_en_write(1);
@@ -511,28 +511,28 @@ void processor_update(void)
 	/*  hdmi_out0 */
 #ifdef CSR_HDMI_IN0_BASE
 	if(processor_hdmi_out0_source == VIDEO_IN_HDMI_IN0)
-		hdmi_out0_fi_base0_write(hdmi_in0_framebuffer_base(hdmi_in0_fb_index));
+		hdmi_out0_core_fi_base0_write(hdmi_in0_framebuffer_base(hdmi_in0_fb_index));
 #endif
 #ifdef CSR_HDMI_IN1_BASE
 	if(processor_hdmi_out0_source == VIDEO_IN_HDMI_IN1)
-		hdmi_out0_fi_base0_write(hdmi_in1_framebuffer_base(hdmi_in1_fb_index));
+		hdmi_out0_core_fi_base0_write(hdmi_in1_framebuffer_base(hdmi_in1_fb_index));
 #endif
 	if(processor_hdmi_out0_source == VIDEO_IN_PATTERN)
-		hdmi_out0_fi_base0_write(pattern_framebuffer_base());
+		hdmi_out0_core_fi_base0_write(pattern_framebuffer_base());
 #endif
 
 #ifdef CSR_HDMI_OUT1_BASE
 	/*  hdmi_out1 */
 #ifdef CSR_HDMI_IN0_BASE
 	if(processor_hdmi_out1_source == VIDEO_IN_HDMI_IN0)
-		hdmi_out1_fi_base0_write(hdmi_in0_framebuffer_base(hdmi_in0_fb_index));
+		hdmi_out1_core_fi_base0_write(hdmi_in0_framebuffer_base(hdmi_in0_fb_index));
 #endif
 #ifdef CSR_HDMI_IN1_BASE
 	if(processor_hdmi_out1_source == VIDEO_IN_HDMI_IN1)
-		hdmi_out1_fi_base0_write(hdmi_in1_framebuffer_base(hdmi_in1_fb_index));
+		hdmi_out1_core_fi_base0_write(hdmi_in1_framebuffer_base(hdmi_in1_fb_index));
 #endif
 	if(processor_hdmi_out1_source == VIDEO_IN_PATTERN)
-		hdmi_out1_fi_base0_write(pattern_framebuffer_base());
+		hdmi_out1_core_fi_base0_write(pattern_framebuffer_base());
 #endif
 
 

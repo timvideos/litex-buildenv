@@ -281,7 +281,7 @@ static void status_print(void)
 
 #ifdef CSR_HDMI_OUT0_BASE
 	ci_printf("output0: ");
-	if(hdmi_out0_fi_enable_read())
+	if(hdmi_out0_core_fi_enable_read())
 		ci_printf(
 			"%dx%d@%dHz from %s",
 			processor_h_active,
@@ -295,7 +295,7 @@ static void status_print(void)
 
 #ifdef CSR_HDMI_OUT1_BASE
 	ci_printf("output1: ");
-	if(hdmi_out1_fi_enable_read())
+	if(hdmi_out1_core_fi_enable_read())
 		ci_printf(
 			"%dx%d@%uHz from %s",
 			processor_h_active,
@@ -466,13 +466,13 @@ static void hdp_toggle(int source)
 static void output0_on(void)
 {
 	ci_printf("Enabling output0\r\n");
-	hdmi_out0_fi_enable_write(1);
+	hdmi_out0_core_fi_enable_write(1);
 }
 
 static void output0_off(void)
 {
 	ci_printf("Disabling output0\r\n");
-	hdmi_out0_fi_enable_write(0);
+	hdmi_out0_core_fi_enable_write(0);
 }
 #endif
 
@@ -480,13 +480,13 @@ static void output0_off(void)
 static void output1_on(void)
 {
 	ci_printf("Enabling output1\r\n");
-	hdmi_out1_fi_enable_write(1);
+	hdmi_out1_core_fi_enable_write(1);
 }
 
 static void output1_off(void)
 {
 	ci_printf("Disabling output1\r\n");
-	hdmi_out1_fi_enable_write(0);
+	hdmi_out1_core_fi_enable_write(0);
 }
 #endif
 
