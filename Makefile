@@ -177,4 +177,5 @@ clean:
 
 
 .DEFAULT_GOAL := help
-.PHONY: all load-gateware load flash gateware gateware-submodules gateware-generate gateware-build firmware download-prebuilt third_party/*
+.NOTPARALLEL: *
+.PHONY: help all third_party/* gateware-submodules gateware-generate gateware-build gateware firmware download-prebuilt test
