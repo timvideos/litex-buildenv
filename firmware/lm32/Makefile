@@ -33,8 +33,9 @@ OBJECTS=isr.o \
         opsis_eeprom.o \
         tofe_eeprom.o \
 	version.o \
+	version_data.o \
 
-all: version_info libs firmware.bin
+all: version_data libs firmware.bin
 
 # pull in dependency info for *existing* .o files
 -include $(OBJECTS:.o=.d)
@@ -60,8 +61,6 @@ firmware.elf: $(OBJECTS)
 %.o: %.c
 	$(compile-dep)
 
-version.o: version.h version_data.h
-
 %.o: %.S
 	$(assemble)
 
@@ -72,8 +71,11 @@ libs:
 clean:
 	$(RM) $(OBJECTS) $(OBJECTS:.o=.d) firmware.elf firmware.bin
 	$(RM) .*~ *~
+	$(RM) version_data.h version_data.c
 
-version_info:
+version_data.h: version_data
+version_data.c: version_data
+version_data:
 	bash version_data.sh
 
-.PHONY: all clean libs load version_info
+.PHONY: all clean libs load version_data
