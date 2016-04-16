@@ -2,7 +2,17 @@
 MSCDIR=../../third_party/misoc
 include $(MSCDIR)/software/common.mak
 
-CFLAGS += -Wno-unused-function
+ifeq ($(BOARD),)
+$(error BOARD not defined.)
+endif
+UBOARD = $(shell echo $(BOARD) | tr a-z A-Z)
+
+ifeq ($(TARGET),)
+$(error TARGET not defined.)
+endif
+UTARGET = $(shell echo $(TARGET) | tr a-z A-Z)
+
+CFLAGS += -Wno-unused-function -DBOARD_$(UBOARD) -DTARGET_$(UTARGET)
 
 OBJECTS=isr.o \
         processor.o \

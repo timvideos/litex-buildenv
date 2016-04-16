@@ -6,10 +6,12 @@ endif
 endif
 
 # Turn off Python's hash randomization
-export PYTHONHASHSEED=0
+PYTHONHASHSEED := 0
+export PYTHONHASHSEED
 
 # Default board
 BOARD ?= atlys
+export BOARD
 # Default targets for a given board
 ifeq ($(BOARD),pipistrello)
     TARGET ?= base
@@ -18,6 +20,7 @@ else ifeq ($(BOARD),minispartan6)
 else
     TARGET ?= hdmi2usb
 endif
+export TARGET
 # Default programmer
 PROG ?= openocd
 ifneq ($(PROG),)
