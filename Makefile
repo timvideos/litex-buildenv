@@ -163,5 +163,7 @@ clean:
 	rm -f third_party/misoc/build/*.bit
 	rm -f firmware/fx2/hdmi2usb.hex
 
+
 .DEFAULT_GOAL := help
-.PHONY: all load-gateware load flash gateware gateware-submodules gateware-generate gateware-build firmware download-prebuilt third_party/*
+.NOTPARALLEL: *
+.PHONY: help all third_party/* gateware-submodules gateware-generate gateware-build gateware firmware download-prebuilt test

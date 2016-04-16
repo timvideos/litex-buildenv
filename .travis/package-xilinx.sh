@@ -25,7 +25,6 @@ export PREFIX="/opt/Xilinx/"
 # This is based on https://github.com/m-labs/migen/blob/master/tools/strace_tailor.sh
 STRACE_LOG=$BASE/strace.log
 if [ ! -f $STRACE_LOG ]; then
-	export PROGS=fpgalink
 	strace -e trace=file,process -f -o ${STRACE_LOG} bash $SETUP_DIR/run.sh
 fi
 
