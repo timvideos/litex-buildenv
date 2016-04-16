@@ -8,16 +8,25 @@ endif
 # Turn off Python's hash randomization
 export PYTHONHASHSEED=0
 
+# Default board
 BOARD ?= atlys
-MSCDIR ?= third_party/misoc
-ifneq ($(BOARD),pipistrello)
-    PROG ?= openocd
+# Default targets for a given board
+ifeq ($(BOARD),pipistrello)
+    TARGET ?= base
+else ifeq ($(BOARD),minispartan6)
+    TARGET ?= video
+else
+    TARGET ?= hdmi2usb
 endif
-TARGET ?= hdmi2usb
-FILTER ?= tee
+# Default programmer
+PROG ?= openocd
 ifneq ($(PROG),)
     PROGRAMMER_OPTION ?= --platform-option programmer $(PROG)
 endif
+
+FILTER ?= tee
+
+MSCDIR ?= third_party/misoc
 HDMI2USBDIR = $(realpath .)
 PYTHON = python3
 DATE = `date +%Y_%m_%d`
@@ -162,6 +171,7 @@ clean:
 	rm -rf build/prebuilt
 	rm -f third_party/misoc/build/*.bit
 	rm -f firmware/fx2/hdmi2usb.hex
+
 
 .DEFAULT_GOAL := help
 .PHONY: all load-gateware load flash gateware gateware-submodules gateware-generate gateware-build firmware download-prebuilt third_party/*
