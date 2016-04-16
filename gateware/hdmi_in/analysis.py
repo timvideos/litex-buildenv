@@ -172,7 +172,7 @@ class FrameExtraction(Module, AutoCSR):
         pack_factor = word_width//16
         assert(pack_factor & (pack_factor - 1) == 0)  # only support powers of 2
         if pack_factor == 1:
-            pack_counter = Signal()
+            pack_counter = Signal(reset=0)
         else:
             pack_counter = Signal(max=pack_factor)
         self.sync.pix += [
