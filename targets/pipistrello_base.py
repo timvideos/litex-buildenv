@@ -1,21 +1,22 @@
+# Support for the Pipistrello - http://pipistrello.saanlima.com/
 from fractions import Fraction
-import struct
 
 from migen.fhdl.std import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 from migen.bus import wishbone
 
 from misoclib.com import gpio
+from misoclib.mem.flash import spiflash
 from misoclib.mem.sdram.module import MT46H32M16
 from misoclib.mem.sdram.phy import s6ddrphy
 from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
-from misoclib.mem.flash import spiflash
 from misoclib.soc.sdram import SDRAMSoC
 
 from gateware import dna
 from gateware import firmware
 from gateware import git_info
 from gateware import hdmi_out
+from gateware import i2c
 from gateware import i2c_hack
 from gateware import platform_info
 
@@ -133,16 +134,18 @@ class BaseSoC(SDRAMSoC):
 
     mem_map = {
         "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
+        "spiflash": 0x30000000,  # (default shadow @0xb0000000)
     }
     mem_map.update(SDRAMSoC.mem_map)
 
-    def __init__(self, platform, clk_freq=(83 + Fraction(1, 3))*1000*1000,
-                 sdram_controller_settings=LASMIconSettings(l2_size=32,
-                                                            with_bandwidth=True),
-                 firmware_ram_size=0xa000, firmware_filename=None, **kwargs):
+    def __init__(self, platform,
+                 firmware_ram_size=0xa000,
+                 firmware_filename=None,
+                 **kwargs):
+        clk_freq = (83 + Fraction(1, 3))*1000*1000
         SDRAMSoC.__init__(self, platform, clk_freq,
                           integrated_rom_size=0x8000,
-                          sdram_controller_settings=sdram_controller_settings,
+                          sdram_controller_settings=LASMIconSettings(l2_size=32, with_bandwidth=True),
                           **kwargs)
 
         platform.add_extension(PipistrelloCustom)
@@ -169,19 +172,12 @@ class BaseSoC(SDRAMSoC):
             ]
             self.register_sdram_phy(self.ddrphy)
 
-        if not self.integrated_rom_size:
-            self.submodules.spiflash = spiflash.SpiFlash(platform.request("spiflash4x"),
-                                                         dummy=10, div=4)
-            self.add_constant("SPIFLASH_PAGE_SIZE", 256)
-            self.add_constant("SPIFLASH_SECTOR_SIZE", 0x10000)
-            self.flash_boot_address = 0x180000
-            self.register_rom(self.spiflash.bus, 0x1000000)
-        platform.add_platform_command("""PIN "hdmi_out_pix_bufg.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
-
-_hdmi_infos = {
-    "HDMI_OUT0_MNEMONIC": "J4",
-    "HDMI_OUT0_DESCRIPTION": "XXX",
-}
+        self.submodules.spiflash = spiflash.SpiFlash(
+            platform.request("spiflash4x"), dummy=platform.spiflash_read_dummy_bits, div=platform.spiflash_clock_div)
+        self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
+        self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
+        self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size
+        self.register_mem("spiflash", self.mem_map["spiflash"], self.spiflash.bus, size=platform.gateware_size)
 
 
 class VideomixerSoC(BaseSoC):
@@ -196,7 +192,9 @@ class VideomixerSoC(BaseSoC):
         self.submodules.hdmi_out0 = hdmi_out.HDMIOut(
             platform.request("hdmi", 0), self.sdram.crossbar.get_master())
 
-        for k, v in _hdmi_infos.items():
+        platform.add_platform_command("""PIN "hdmi_out_pix_bufg.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
+
+        for k, v in platform.hdmi_infos.items():
             self.add_constant(k, v)
 
 default_subtarget = VideomixerSoC

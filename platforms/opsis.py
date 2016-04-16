@@ -357,9 +357,27 @@ class Platform(XilinxPlatform):
     default_clk_period = 10.0
     hdmi_infos = _hdmi_infos
 
+    # W25Q128FVEIG - component U3
+    # 128M (16M x 8) - 104MHz
+    # Pretends to be a Micron N25Q128 (ID 0x0018ba20)
+    # FIXME: Create a "spi flash module" object in the same way we have SDRAM
+    # module objects.
+    spiflash_read_dummy_bits = 10
+    spiflash_clock_div = 4
+    spiflash_total_size = int((128/8)*1024*1024) # 128Mbit
+    spiflash_page_size = 256
+    spiflash_sector_size = 0x10000
+
+
+    # The Opsis has a XC6SLX45 which bitstream takes up ~12Mbit (1484472 bytes)
+    # 0x200000 offset (16Mbit) gives plenty of space
+    gateware_size = 0x200000
+
+
     def __init__(self, programmer="openocd"):
         # XC6SLX45T-3FGG484C
         XilinxPlatform.__init__(self,  "xc6slx45t-fgg484-3", _io, _connectors)
+        self.programmer = programmer
 
         pins = {
           'ProgPin': 'PullUp',
@@ -373,15 +391,14 @@ class Platform(XilinxPlatform):
         for pin, config in pins.items():
             self.toolchain.bitgen_opt += " -g %s:%s " % (pin, config)
 
-        self.programmer = programmer
-
         # FPGA AUX is connected to the 3.3V supply
         self.add_platform_command("""CONFIG VCCAUX="3.3";""")
 
     def create_programmer(self):
 	# Preferred programmer - Needs ixo-usb-jtag and latest openocd.
+        proxy="bscan_spi_{}.bit".format(self.device.split('-')[0])
         if self.programmer == "openocd":
-            return OpenOCD(config="board/numato_opsis.cfg")
+            return OpenOCD(config="board/numato_opsis.cfg", flash_proxy_basename=proxy)
 	# Alternative programmers - not regularly tested.
         elif self.programmer == "urjtag":
             return UrJTAG(cable="USBBlaster")
