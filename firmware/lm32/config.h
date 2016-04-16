@@ -11,7 +11,11 @@ enum {
 	CONFIG_KEY_COUNT
 };
 
+#ifdef BOARD_MINISPARTAN6
+#define CONFIG_DEFAULTS { 5, 1, 2, 3, 4 }
+#else
 #define CONFIG_DEFAULTS { 9, 1, 2, 3, 4 }
+#endif
 
 void config_init(void);
 void config_write_all(void);
