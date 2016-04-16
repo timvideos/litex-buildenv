@@ -1,0 +1,18 @@
+[submodule "third_party/fx2lib"]
+	path = third_party/fx2lib
+	url = https://github.com/timvideos/fx2lib
+[submodule "third_party/misoc"]
+	path = third_party/misoc
+	url = https://github.com/timvideos/misoc.git
+[submodule "third_party/migen"]
+	path = third_party/migen
+	url = https://github.com/timvideos/migen.git
+[submodule "third_party/liteeth"]
+	path = third_party/liteeth
+	url = https://github.com/enjoy-digital/liteeth.git
+[submodule "third_party/litescope"]
+	path = third_party/litescope
+	url = https://github.com/enjoy-digital/litescope.git
+[submodule "third_party/flash_proxies"]
+	path = third_party/flash_proxies
+	url = https://github.com/jordens/bscan_spi_bitstreams

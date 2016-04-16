@@ -1,0 +1,72 @@
+# The lm32 is the softcore which is embedded inside the FPGA gateware. It acts
+# as a "master controller" for the firmware and responds to commands from the
+# user via the UART interface. This means most of our high level logic can be
+# written in C!
+#
+# The lm32 firmware is embedded into the gateware file. An updated firmware can
+# be temporarily loaded via the UART without needing to rebuild the gateware
+# making development fast!
+#
+# See the following links for more information;
+#  * https://en.wikipedia.org/wiki/LatticeMico32
+#  * https://github.com/m-labs/lm32
+#  * http://m-labs.hk/gateware.html
+
+TARGETS += lm32
+
+ifeq ($(BOARD),atlys)
+SERIAL ?= /dev/ttyVIZ0
+else
+ifeq ($(BOARD),pipistrello)
+SERIAL ?= /dev/ttyUSB1
+else
+# Opsis fall through
+SERIAL ?= /dev/ttyACM0
+endif
+endif
+
+help-lm32:
+	@echo "  Set lm32 serial port with SERIAL=/dev/ttyXXXX"
+	@echo "  (current: $(SERIAL))"
+	@echo " make load-lm32"
+	@echo " make connect-lm32"
+
+# The gateware embeds the lm32 firmware, so we need to build that first.
+gateware-generate-lm32: firmware-lm32
+	@true
+
+gateware-build-lm32:
+	@true
+
+ifeq ($(TARGET),hdmi2usb)
+EXTRA_DEPS = embed-fx2
+else
+EXTRA_DEPS =
+endif
+
+firmware-lm32: third_party/misoc/.git $(EXTRA_DEPS)
+	$(MAKEPY_CMD) build-headers
+	$(MAKE) -C firmware/lm32 all
+
+load-lm32: firmware-lm32
+	@echo "To load new firmware, reboot the running firmware and then"
+	@echo "select serialboot at the BIOS prompt."
+	$(FLTERM) --port $(SERIAL) --kernel=$(HDMI2USBDIR)/firmware/lm32/firmware.bin --kernel-adr=0x20000000 --speed 115200
+
+image-lm32: firmware-lm32
+	$(MAKEIMAGE_CMD) --fbi --output $(HDMI2USBDIR)/firmware/lm32/firmware.fbi $(HDMI2USBDIR)/firmware/lm32/firmware.bin
+
+flash-lm32: image-lm32
+	export FIRMWARE_ADDRESS=$$($(PYTHON) -c "import platforms.$(BOARD) as b; print(b.Platform.gateware_size)"); \
+	echo "Flashing to $$($(PYTHON) -c "print(hex($$FIRMWARE_ADDRESS))") ($$FIRMWARE_ADDRESS)"; \
+	$(FLASHEXTRA_CMD) $(HDMI2USBDIR)/firmware/lm32/firmware.fbi $$FIRMWARE_ADDRESS
+
+clean-lm32:
+	if [ -f $(MSCDIR)/software/include/generated/cpu.mak ]; then \
+		$(MAKE) -C firmware/lm32 clean; \
+	fi
+
+connect-lm32:
+	$(FLTERM) --port $(SERIAL) --speed 115200
+
+.PHONY: help-lm32 gateware-lm32 firmware-lm32 load-lm32 clean-lm32 connect-lm32
