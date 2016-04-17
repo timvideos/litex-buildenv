@@ -10,7 +10,7 @@
 #include "pattern.h"
 #include "processor.h"
 
-#define PATTERN_FRAMEBUFFER_BASE 0x02000000
+#define PATTERN_FRAMEBUFFER_BASE 0x03000000
 
 unsigned int pattern_framebuffer_base(void) {
 	return PATTERN_FRAMEBUFFER_BASE;

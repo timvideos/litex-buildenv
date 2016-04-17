@@ -210,6 +210,15 @@ LITEETH_DIR=$THIRD_DIR/liteeth
 export PYTHONPATH=$LITEETH_DIR:$PYTHONPATH
 check_import liteeth
 
+# liteusb
+LITEUSB_DIR=$THIRD_DIR/liteusb
+(
+	cd $LITEUSB_DIR
+	true
+)
+export PYTHONPATH=$LITEUSB_DIR:$PYTHONPATH
+check_import liteusb
+
 echo "-----------------------"
 echo ""
 echo "Completed.  To load environment:"

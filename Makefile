@@ -6,18 +6,30 @@ endif
 endif
 
 # Turn off Python's hash randomization
-export PYTHONHASHSEED=0
+PYTHONHASHSEED := 0
+export PYTHONHASHSEED
 
+# Default board
 BOARD ?= atlys
-MSCDIR ?= third_party/misoc
-ifneq ($(BOARD),pipistrello)
-    PROG ?= openocd
+export BOARD
+# Default targets for a given board
+ifeq ($(BOARD),pipistrello)
+    TARGET ?= base
+else ifeq ($(BOARD),minispartan6)
+    TARGET ?= video
+else
+    TARGET ?= hdmi2usb
 endif
-TARGET ?= hdmi2usb
-FILTER ?= tee
+export TARGET
+# Default programmer
+PROG ?= openocd
 ifneq ($(PROG),)
     PROGRAMMER_OPTION ?= --platform-option programmer $(PROG)
 endif
+
+FILTER ?= tee
+
+MSCDIR ?= third_party/misoc
 HDMI2USBDIR = $(realpath .)
 PYTHON = python3
 DATE = `date +%Y_%m_%d`
