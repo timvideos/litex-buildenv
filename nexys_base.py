@@ -16,7 +16,7 @@ from litex.soc.integration.builder import *
 from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 from liteeth.core.mac import LiteEthMAC
 
-from cores import a7ddrphy, dna, xadc
+from gateware import a7ddrphy, dna, xadc
 
 # TODO: use half-rate DDR3 phy and use 100Mhz CPU clock
 
