@@ -11,39 +11,27 @@ from litex.soc.interconnect.csr_eventmanager import *
 
 from litevideo.csc.ycbcr422to444 import YCbCr422to444
 
+from litevideo.spi import DMAReadController, MODE_SINGLE_SHOT
+
 
 class EncoderDMAReader(Module, AutoCSR):
     def __init__(self, lasmim):
         self.source = source = stream.Endpoint([("data", 16)])
-# TODO
-#        reader = dma_lasmi.Reader(lasmim)
-#        self.dma = spi.DMAReadController(reader, mode=spi.MODE_SINGLE_SHOT)
-#
-#        pack_factor = lasmim.dw//16
-#        packed_dat = structuring.pack_layout(16, pack_factor)
-#        cast = structuring.Cast(lasmim.dw, packed_dat)
-#        unpack = structuring.Unpack(pack_factor, [("data", 16)], reverse=True)
-#
-#
-#        # graph
-#        g = DataFlowGraph()
-#        g.add_pipeline(self.dma, cast, unpack)
-#        self.submodules += CompositeActor(g)
-#        self.comb += Record.connect(unpack.source, source)
-#
-#        self.sync += \
-#            If(self.dma._busy.status == 0,
-#                source.sop.eq(1),
-#            ).Elif(source.stb & source.ack,
-#                source.sop.eq(0)
-#            )
-#
-#        # irq
-#        self.submodules.ev = EventManager()
-#        self.ev.done = EventSourceProcess()
-#        self.ev.finalize()
-#        self.comb += self.ev.done.trigger.eq(self.dma._busy.status)
-# TODO
+
+        reader = dma_lasmi.Reader(lasmim)
+        self.submodules.dma = DMAReadController(reader, mode=MODE_SINGLE_SHOT)
+        self.submodules.converter = stream.Converter(lasmim.dw, 16)
+
+        self.comb += [
+            self.dma.source.connect(self.converter.sink),
+            self.converter.source.connect(self.source)
+        ]
+
+        # irq
+        self.submodules.ev = EventManager()
+        self.ev.done = EventSourceProcess()
+        self.ev.finalize()
+        self.comb += self.ev.done.trigger.eq(self.dma._busy.status)
 
 
 class EncoderBandwidth(Module, AutoCSR):
