@@ -21,24 +21,18 @@ from gateware import a7ddrphy, dna, xadc
 # TODO: use half-rate DDR3 phy and use 100Mhz CPU clock
 
 class MT41K256M16(SDRAMModule):
-    geom_settings = {
-        "nbanks": 8,
-        "nrows":  32768,
-        "ncols":  1024,
-    }
-    timing_settings = {
-        "tRP":   13.125,
-        "tRCD":  13.125,
-        "tWR":   15,
-        "tWTR":  4,
-        "tREFI": 64*1000*1000/8192,
-        "tRFC":  260,
-    }
-
-    def __init__(self, clk_freq):
-        SDRAMModule.__init__(self, clk_freq, "DDR3", self.geom_settings,
-                             self.timing_settings)
-
+    memtype = "DDR3"
+    # geometry
+    nbanks = 8
+    nrows  = 32768
+    ncols  = 1024
+    # timings (-7 speedgrade)
+    tRP   = 13.125
+    tRCD  = 13.125
+    tWR   = 15
+    tWTR  = 4
+    tREFI = 64*1000*1000/8192
+    tRFC  = 260
 
 class _CRG(Module):
     def __init__(self, platform):
@@ -113,11 +107,11 @@ class BaseSoC(SoCSDRAM):
     csr_map.update(SoCSDRAM.csr_map)
 
     def __init__(self,
+                 platform,
                  integrated_rom_size=0x8000,
                  integrated_main_ram_size=0x8000,
                  sdram_controller_type="minicon",
                  **kwargs):
-        platform = nexys.Platform()
         SoCSDRAM.__init__(self, platform,
                           clk_freq=100*1000000,
                           integrated_rom_size=integrated_rom_size,
@@ -130,7 +124,7 @@ class BaseSoC(SoCSDRAM):
 
         if not self.integrated_main_ram_size:
             self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
-            sdram_module = MT41K256M16(self.clk_freq)
+            sdram_module = MT41K256M16(self.clk_freq, "1:4")
             self.register_sdram(self.ddrphy, sdram_controller_type,
                                 sdram_module.geom_settings, sdram_module.timing_settings)
 
@@ -152,8 +146,8 @@ class MiniSoC(BaseSoC):
     }
     mem_map.update(BaseSoC.mem_map)
 
-    def __init__(self, **kwargs):
-        BaseSoC.__init__(self, **kwargs)
+    def __init__(self, *args, **kwargs):
+        BaseSoC.__init__(self, *args, **kwargs)
 
         self.submodules.ethphy = LiteEthPHYRGMII(self.platform.request("eth_clocks"),
                                                  self.platform.request("eth"))
@@ -161,23 +155,19 @@ class MiniSoC(BaseSoC):
         self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)
         self.add_memory_region("ethmac", self.mem_map["ethmac"] | self.shadow_base, 0x2000)
 
-        self.configure_ip("localip", [192, 168, 1, 42])
-        self.configure_ip("remoteip", [192, 168, 1, 10])
-
         self.specials += [
             Keep(self.ethphy.crg.cd_eth_rx.clk),
             Keep(self.ethphy.crg.cd_eth_tx.clk)
         ]
-        self.platform.add_platform_command("""
-create_clock -name sys_clk -period 10 [get_nets sys_clk]
-create_clock -name eth_rx_clk -period 8 [get_nets eth_clocks_tx]
-create_clock -name eth_tx_clk -period 8 [get_nets eth_clocks_rx]
 
-set_false_path -from [get_clocks eth_rx_clk] -to [get_clocks sys_clk]
-set_false_path -from [get_clocks sys_clk] -to [get_clocks eth_rx_clk]
-set_false_path -from [get_clocks eth_tx_clk] -to [get_clocks sys_clk]
-set_false_path -from [get_clocks sys_clk] -to [get_clocks eth_tx_clk]
-""")
+        self.platform.add_period_constraint(self.crg.cd_sys.clk, 10.0)
+        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_rx.clk, 8.0)
+        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_tx.clk, 8.0)
+
+        self.platform.add_false_path_constraints(
+            self.crg.cd_sys.clk,
+            self.ethphy.crg.cd_eth_rx.clk,
+            self.ethphy.crg.cd_eth_tx.clk)
 
     def configure_ip(self, ip_type, ip):
         for i, e in enumerate(ip):
@@ -186,28 +176,21 @@ set_false_path -from [get_clocks sys_clk] -to [get_clocks eth_tx_clk]
             self.add_constant(s, e)
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC port to Arty")
+    parser = argparse.ArgumentParser(description="Nexys LiteX SoC")
     builder_args(parser)
     soc_sdram_args(parser)
     parser.add_argument("--with-ethernet", action="store_true",
                         help="enable Ethernet support")
-    parser.add_argument("--build", action="store_true",
-                        help="build bitstream")
-    parser.add_argument("--load", action="store_true",
-                        help="load bitstream")
+    parser.add_argument("--nocompile-gateware", action="store_true")
     args = parser.parse_args()
 
+    platform = nexys.Platform()
     cls = MiniSoC if args.with_ethernet else BaseSoC
-    soc = cls(**soc_sdram_argdict(args))
-    builder = Builder(soc, **builder_argdict(args))
-
-    if args.build:
-        builder.build()
-
-    if args.load:
-        prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.output_dir, "gateware", "top.bit"))
-
+    soc = cls(platform, **soc_sdram_argdict(args))
+    builder = Builder(soc, output_dir="build",
+                      compile_gateware=not args.nocompile_gateware,
+                      csr_csv="test/csr.csv")
+    vns = builder.build()
 
 if __name__ == "__main__":
     main()

@@ -18,10 +18,11 @@ class EtherboneSoC(BaseSoC):
     csr_map.update(BaseSoC.csr_map)
 
     def __init__(self,
+                 platform,
                  mac_address=0x10e2d5000000,
-                 ip_address="192.168.1.42",
+                 ip_address="192.168.1.50",
                  **kwargs):
-        BaseSoC.__init__(self, cpu_type=None,
+        BaseSoC.__init__(self, platform, cpu_type=None,
                          integrated_rom_size=0,
                          integrated_main_ram_size=0,
                          csr_data_width=32,
@@ -44,39 +45,29 @@ class EtherboneSoC(BaseSoC):
             Keep(self.ethphy.crg.cd_eth_rx.clk),
             Keep(self.ethphy.crg.cd_eth_tx.clk)
         ]
-        self.platform.add_platform_command("""
-create_clock -name sys_clk -period 10 [get_nets sys_clk]
-create_clock -name eth_rx_clk -period 8 [get_nets {eth_rx_clk}]
-create_clock -name eth_tx_clk -period 8 [get_nets {eth_tx_clk}]
 
-set_false_path -from [get_clocks eth_rx_clk] -to [get_clocks sys_clk]
-set_false_path -from [get_clocks sys_clk] -to [get_clocks eth_rx_clk]
-set_false_path -from [get_clocks eth_tx_clk] -to [get_clocks sys_clk]
-set_false_path -from [get_clocks sys_clk] -to [get_clocks eth_tx_clk]
-""", eth_rx_clk=self.ethphy.crg.cd_eth_rx.clk,
-     eth_tx_clk=self.ethphy.crg.cd_eth_tx.clk)
+        self.platform.add_period_constraint(self.crg.cd_sys.clk, 10.0)
+        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_rx.clk, 8.0)
+        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_tx.clk, 8.0)
 
+        self.platform.add_false_path_constraints(
+            self.crg.cd_sys.clk,
+            self.ethphy.crg.cd_eth_rx.clk,
+            self.ethphy.crg.cd_eth_tx.clk)
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC port to Arty")
+    parser = argparse.ArgumentParser(description="Nexys LiteX SoC")
     builder_args(parser)
     soc_sdram_args(parser)
-    parser.add_argument("--build", action="store_true",
-                        help="build bitstream")
-    parser.add_argument("--load", action="store_true",
-                        help="load bitstream")
+    parser.add_argument("--nocompile-gateware", action="store_true")
     args = parser.parse_args()
 
-    soc = EtherboneSoC(**soc_sdram_argdict(args))
-    builder = Builder(soc, **builder_argdict(args))
-
-    if args.build:
-        builder.build()
-
-    if args.load:
-        prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.output_dir, "gateware", "top.bit"))
-
+    platform = nexys.Platform()
+    soc = EtherboneSoC(platform, **soc_sdram_argdict(args))
+    builder = Builder(soc, output_dir="build",
+                      compile_gateware=not args.nocompile_gateware,
+                      csr_csv="test/csr.csv")
+    vns = builder.build()
 
 if __name__ == "__main__":
     main()

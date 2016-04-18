@@ -4,7 +4,7 @@
       /_/|_/\__/_\_\\_, /___/  /___/\___/\___/
                    /___/
 
-            Copyright 2015 / EnjoyDigital
+         Copyright 2015-2016 / EnjoyDigital
 
       Digilent's Nexys Video SoC based on LiteX
 
@@ -14,25 +14,24 @@
 2. Obtain LiteX and install it:
   git clone https://github.com/enjoy-digital/litex --recursive
   cd litex
-  python3 setup.py install
+  python3 setup.py develop
   cd ..
 
 3. Obtain LiteEth and install it:
   git clone https://github.com/enjoy-digital/liteeth
   cd liteeth
-  python3 setup.py install
+  python3 setup.py develop
   cd ..
 
 4. Obtain LiteScope and install it:
   git clone https://github.com/enjoy-digital/litescope
   cd litescope
-  python3 setup.py install
+  python3 setup.py develop
   cd ..
 
 5. Build the gateware and software:
-  goto gateware
-  BaseSoC:
-    python3 nexys_base.py --build --load
+  make nexys_minisoc
+  make load
 
 [> Status:
 BaseSoC (DDR3 and SPI still missing).
