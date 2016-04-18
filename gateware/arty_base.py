@@ -155,7 +155,7 @@ class BaseSoC(SoCSDRAM):
         # DDR3
         if not self.integrated_main_ram_size:
             self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
-            sdram_module = MT41K128M16(self.clk_freq)
+            sdram_module = MT41K128M16(self.clk_freq, "1:4")
             self.register_sdram(self.ddrphy, sdram_controller_type,
                                 sdram_module.geom_settings, sdram_module.timing_settings)
 
