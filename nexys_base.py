@@ -17,6 +17,7 @@ from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 from liteeth.core.mac import LiteEthMAC
 
 from gateware import a7ddrphy, dna, xadc
+from gateware import firmware
 
 # TODO: use half-rate DDR3 phy and use 100Mhz CPU clock
 
@@ -33,6 +34,7 @@ class MT41K256M16(SDRAMModule):
     tWTR  = 4
     tREFI = 64*1000*1000/8192
     tRFC  = 260
+
 
 class _CRG(Module):
     def __init__(self, platform):
@@ -100,33 +102,43 @@ class _CRG(Module):
 
 class BaseSoC(SoCSDRAM):
     csr_map = {
-        "ddrphy":   17,
-        "dna":      18,
-        "xadc":     19
+        "ddrphy": 17,
+        "dna":    18,
+        "xadc":   19
     }
     csr_map.update(SoCSDRAM.csr_map)
 
-    def __init__(self,
-                 platform,
-                 integrated_rom_size=0x8000,
-                 integrated_main_ram_size=0x8000,
-                 sdram_controller_type="minicon",
-                 **kwargs):
-        SoCSDRAM.__init__(self, platform,
-                          clk_freq=100*1000000,
-                          integrated_rom_size=integrated_rom_size,
-                          integrated_main_ram_size=integrated_main_ram_size,
-                          **kwargs)
+    mem_map = {
+        "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
+    }
+    mem_map.update(SoCSDRAM.mem_map)
 
+    def __init__(self, platform,
+                 firmware_ram_size=0x10000,
+                 firmware_filename="firmware/firmware.bin",
+                 **kwargs):
+        clk_freq = 100*1000000
+        SoCSDRAM.__init__(self, platform, clk_freq,
+            integrated_rom_size=0x8000,
+            integrated_sram_size=0x8000,
+            integrated_main_ram_size=0x8000,
+            **kwargs)
         self.submodules.crg = _CRG(platform)
         self.submodules.dna = dna.DNA()
         self.submodules.xadc = xadc.XADC()
 
+        # firmware
+        self.submodules.firmware_ram = firmware.FirmwareROM(firmware_ram_size, firmware_filename)
+        self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
+        self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
+
+        # sdram
         if not self.integrated_main_ram_size:
             self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
             sdram_module = MT41K256M16(self.clk_freq, "1:4")
-            self.register_sdram(self.ddrphy, sdram_controller_type,
-                                sdram_module.geom_settings, sdram_module.timing_settings)
+            self.register_sdram(self.ddrphy, "lasmicon",
+                                sdram_module.geom_settings,
+                                sdram_module.timing_settings)
 
 
 class MiniSoC(BaseSoC):
