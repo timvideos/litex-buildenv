@@ -553,6 +553,18 @@ static void debug_ddr(void)
 }
 #endif
 
+#ifdef CSR_DNA_ID_ADDR
+void print_board_dna(void) {
+	int i;
+	ci_printf("Board's DNA: ");
+	for(i=0; i<CSR_DNA_ID_SIZE; i++) {
+		ci_printf("%02x", MMPTR(CSR_DNA_ID_ADDR+4*i));
+	}
+	ci_printf("\n");
+}
+
+#endif
+
 void ci_prompt(void)
 {
 	ci_printf("RUNTIME>");
@@ -720,11 +732,10 @@ void ci_service(void)
 		else if(strcmp(token, "ddr") == 0)
 			debug_ddr();
 #endif
+#ifdef CSR_DNA_ID_ADDR
 		else if(strcmp(token, "dna") == 0)
-			// FIXME
-			//print_board_dna();
-            printf("FIXME\n");
-		    // FIXME
+			print_board_dna();
+#endif
 #ifdef CSR_OPSIS_EEPROM_I2C_W_ADDR
 		else if(strcmp(token, "opsis_eeprom") == 0) {
 			opsis_eeprom_dump();
