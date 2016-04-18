@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 from opsis_base import *
 
-from litevideo.hdmi_in import HDMIIn
-from litevideo.hdmi_out import HDMIOut
+from litevideo.input import HDMIIn
+from litevideo.output import VideoOut
 
 base_cls = MiniSoC
 
@@ -35,14 +35,14 @@ class VideoMixerSoC(base_cls):
                                           self.sdram.crossbar.get_master(),
                                           fifo_depth=512)
         # hdmi out 0
-        self.submodules.hdmi_out0 = HDMIOut(platform.device,
+        self.submodules.hdmi_out0 = VideoOut(platform.device,
                                             platform.request("hdmi_out", 0),
                                             self.sdram.crossbar.get_master())
         # hdmi out 1 : Share clocking with hdmi_out0 since no PLL_ADV left.
-        self.submodules.hdmi_out1 = HDMIOut(platform.device,
+        self.submodules.hdmi_out1 = VideoOut(platform.device,
                                             platform.request("hdmi_out", 1),
                                             self.sdram.crossbar.get_master(),
-                                            self.hdmi_out0.phy.clocking)
+                                            self.hdmi_out0.driver.clocking)
 
         # all PLL_ADV are used: router needs help...
         platform.add_platform_command("""INST PLL_ADV LOC=PLL_ADV_X0Y0;""")
@@ -56,13 +56,13 @@ class VideoMixerSoC(base_cls):
 NET "{pix0_clk}" TNM_NET = "GRPpix0_clk";
 NET "{pix1_clk}" TNM_NET = "GRPpix1_clk";
 """,
-                pix0_clk=self.hdmi_out0.phy.clocking.cd_pix.clk,
-                pix1_clk=self.hdmi_out1.phy.clocking.cd_pix.clk,
+                pix0_clk=self.hdmi_out0.driver.clocking.cd_pix.clk,
+                pix1_clk=self.hdmi_out1.driver.clocking.cd_pix.clk,
         )
         self.platform.add_false_path_constraints(
             self.crg.cd_sys.clk,
-            self.hdmi_out0.phy.clocking.cd_pix.clk,
-            self.hdmi_out1.phy.clocking.cd_pix.clk)
+            self.hdmi_out0.driver.clocking.cd_pix.clk,
+            self.hdmi_out1.driver.clocking.cd_pix.clk)
 
 
 def main():

@@ -318,9 +318,9 @@ static void fb_clkgen_write(int cmd, int data)
 #ifdef CSR_HDMI_OUT0_BASE
 	int word;
 	word = (data << 2) | cmd;
-	hdmi_out0_phy_clocking_cmd_data_write(word);
-	hdmi_out0_phy_clocking_send_cmd_data_write(1);
-	while(hdmi_out0_phy_clocking_status_read() & CLKGEN_STATUS_BUSY);
+	hdmi_out0_driver_clocking_cmd_data_write(word);
+	hdmi_out0_driver_clocking_send_cmd_data_write(1);
+	while(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_BUSY);
 #endif
 }
 
@@ -387,9 +387,9 @@ static void fb_set_mode(const struct video_timing *mode)
 	fb_clkgen_write(0x3, clock_m-1);
 
 #ifdef CSR_HDMI_OUT0_BASE
-	hdmi_out0_phy_clocking_send_go_write(1);
-	while(!(hdmi_out0_phy_clocking_status_read() & CLKGEN_STATUS_PROGDONE));
-	while(!(hdmi_out0_phy_clocking_status_read() & CLKGEN_STATUS_LOCKED));
+	hdmi_out0_driver_clocking_send_go_write(1);
+	while(!(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_PROGDONE));
+	while(!(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_LOCKED));
 #endif
 }
 
@@ -435,7 +435,7 @@ void processor_start(int mode)
 
 #ifdef CSR_HDMI_OUT0_BASE
 	hdmi_out0_core_fi_enable_write(0);
-	hdmi_out0_phy_clocking_pll_reset_write(1);
+	hdmi_out0_driver_clocking_pll_reset_write(1);
 #endif
 #ifdef CSR_HDMI_OUT1_BASE
 	hdmi_out1_core_fi_enable_write(0);
@@ -470,7 +470,7 @@ void processor_start(int mode)
 #endif
 
 #ifdef CSR_HDMI_OUT0_BASE
-	hdmi_out0_phy_clocking_pll_reset_write(0);
+	hdmi_out0_driver_clocking_pll_reset_write(0);
 	hdmi_out0_core_fi_enable_write(1);
 #endif
 #ifdef CSR_HDMI_OUT1_BASE

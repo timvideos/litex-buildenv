@@ -37,10 +37,10 @@ static void program_data(const unsigned short *data)
 	 */
 #ifdef CSR_HDMI_OUT0_BASE
 	for(i=6;i<32-5;i++) {
-		hdmi_out0_phy_clocking_pll_adr_write(i);
-		hdmi_out0_phy_clocking_pll_dat_w_write(data[i]);
-		hdmi_out0_phy_clocking_pll_write_write(1);
-		while(!hdmi_out0_phy_clocking_pll_drdy_read());
+		hdmi_out0_driver_clocking_pll_adr_write(i);
+		hdmi_out0_driver_clocking_pll_dat_w_write(data[i]);
+		hdmi_out0_driver_clocking_pll_write_write(1);
+		while(!hdmi_out0_driver_clocking_pll_drdy_read());
 	}
 #endif
 #ifdef CSR_HDMI_IN0_BASE
@@ -91,10 +91,10 @@ void pll_dump(void)
 #ifdef CSR_HDMI_OUT0_BASE
 	printf("framebuffer PLL:\r\n");
 	for(i=0;i<32;i++) {
-		hdmi_out0_phy_clocking_pll_adr_write(i);
-		hdmi_out0_phy_clocking_pll_read_write(1);
-		while(!hdmi_out0_phy_clocking_pll_drdy_read());
-		printf("%04x ", hdmi_out0_phy_clocking_pll_dat_r_read());
+		hdmi_out0_driver_clocking_pll_adr_write(i);
+		hdmi_out0_driver_clocking_pll_read_write(1);
+		while(!hdmi_out0_driver_clocking_pll_drdy_read());
+		printf("%04x ", hdmi_out0_driver_clocking_pll_dat_r_read());
 	}
 	printf("\r\n");
 #endif
