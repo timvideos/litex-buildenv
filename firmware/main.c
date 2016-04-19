@@ -16,6 +16,7 @@
 #include "etherbone.h"
 #include "telnet.h"
 #include "mdio.h"
+#include "oled.h"
 
 
 static const unsigned char mac_addr[6] = {0x10, 0xe2, 0xd5, 0x00, 0x00, 0x00};
@@ -39,6 +40,10 @@ int main(void)
 	ethernet_init(mac_addr, ip_addr);
 	etherbone_init();
 	telnet_init();
+#endif
+#ifdef CSR_OLED_BASE
+	oled_init();
+	oled_refresh();
 #endif
 	ci_prompt();
 	while(1) {
