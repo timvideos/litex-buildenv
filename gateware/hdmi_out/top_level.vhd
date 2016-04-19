@@ -8,7 +8,7 @@
 -- Date    : 30th June 2015
 --
 -----------------------------------------------------------------------------
-  
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
@@ -17,18 +17,19 @@ Library UNISIM;
 use UNISIM.vcomponents.all;
 
 entity top_level is
-    Port ( 
+    Port (
         clk100    : in STD_LOGIC;
-        
-        hdmi_tx_rscl  : out   std_logic;
-        hdmi_tx_rsda  : inout std_logic;
-        hdmi_tx_hpd   : in    std_logic;
-        hdmi_tx_cec   : inout std_logic;
-        
-        hdmi_tx_clk_p : out std_logic;
-        hdmi_tx_clk_n : out std_logic;
-        hdmi_tx_p     : out std_logic_vector(2 downto 0);
-        hdmi_tx_n     : out std_logic_vector(2 downto 0)
+
+        pixel_clk    : out std_logic;
+        pixel_clk_x5 : out std_logic;
+        reset        : out std_logic;
+
+        vga_hsync  : out std_logic;
+        vga_vsync  : out std_logic;
+        vga_red    : out std_logic_vector(7 downto 0);
+        vga_green  : out std_logic_vector(7 downto 0);
+        vga_blue   : out std_logic_vector(7 downto 0);
+        vga_blank  : out std_logic
 );
 end top_level;
 
@@ -43,12 +44,12 @@ architecture Behavioral of top_level is
     component vga_gen_1080p is
         port (
            clk        : in  std_logic;
-            
+
            blank      : out std_logic;
            hsync      : out std_logic;
            vsync      : out std_logic
            );
-    end component;    
+    end component;
 
     component vga_output is
         Port ( clk : in STD_LOGIC;
@@ -66,41 +67,11 @@ architecture Behavioral of top_level is
 
     signal count         : std_logic_vector(7 downto 0);
 
-    signal vga_hsync     : std_logic;
-    signal vga_vsync     : std_logic;
-    signal vga_red       : std_logic_vector(7 downto 0);
-    signal vga_green     : std_logic_vector(7 downto 0);
-    signal vga_blue      : std_logic_vector(7 downto 0);
-    signal vga_blank     : std_logic;
-    signal reset         : std_logic;
-    component vga_to_hdmi is
-        port ( pixel_clk    : in std_logic;
-               pixel_clk_x5 : in std_logic;
-               reset  : in std_logic;
-
-               vga_hsync : in std_logic;
-               vga_vsync : in std_logic;
-               vga_red   : in std_logic_vector(7 downto 0);
-               vga_green : in std_logic_vector(7 downto 0);
-               vga_blue  : in std_logic_vector(7 downto 0);
-               vga_blank : in std_logic;
-               
-               hdmi_tx_rscl  : out   std_logic;
-               hdmi_tx_rsda  : inout std_logic;
-               hdmi_tx_hpd   : in    std_logic;
-               hdmi_tx_cec   : inout std_logic;
-               hdmi_tx_clk_p : out   std_logic;
-               hdmi_tx_clk_n : out   std_logic;
-               hdmi_tx_p     : out   std_logic_vector(2 downto 0);
-               hdmi_tx_n     : out   std_logic_vector(2 downto 0)
-               );
-    end component;
-
     signal locked        : std_logic;
     signal clkfb         : std_logic;
 begin
     reset <= not locked;
-    
+
 MMCME2_BASE_inst : MMCME2_BASE
    generic map (
       BANDWIDTH => "OPTIMIZED",  -- Jitter programming (OPTIMIZED, HIGH, LOW)
@@ -165,7 +136,7 @@ MMCME2_BASE_inst : MMCME2_BASE
 
 i_vga_gen_1080p: vga_gen_1080p port map (
         clk        => clk_pixel_x1,
-        blank      => blank, 
+        blank      => blank,
         hsync      => hsync,
         vsync      => vsync
     );
@@ -181,39 +152,21 @@ count_process: process(    clk_pixel_x1)
         end if;
     end process;
 
-i_vga_output: vga_output Port map ( 
+i_vga_output: vga_output Port map (
             clk       => clk_pixel_x1,
             hsync_in  => hsync,
             vsync_in  => vsync,
             blank_in  => blank,
             count     => count,
-            vga_hsync => vga_hsync, 
+            vga_hsync => vga_hsync,
             vga_vsync => vga_vsync,
             vga_red   => vga_red,
             vga_green => vga_green,
             vga_blue  => vga_blue,
             vga_blank => vga_blank
         );
-        
- i_vga_to_hdmi: vga_to_hdmi port map ( 
-        pixel_clk     => clk_pixel_x1,
-        pixel_clk_x5  => clk_pixel_x5,
-        reset         => reset,
-        vga_hsync     => vga_hsync, 
-        vga_vsync     => vga_vsync,
-        vga_red       => vga_red,
-        vga_green     => vga_green,
-        vga_blue      => vga_blue,
-        vga_blank     => vga_blank,
-          
-        hdmi_tx_rscl  => hdmi_tx_rscl, 
-        hdmi_tx_rsda  => hdmi_tx_rsda,
-        hdmi_tx_hpd   => hdmi_tx_hpd,
-        hdmi_tx_cec   => hdmi_tx_cec,
-        hdmi_tx_clk_p => hdmi_tx_clk_p,
-        hdmi_tx_clk_n => hdmi_tx_clk_n,
-        hdmi_tx_p     => hdmi_tx_p,
-        hdmi_tx_n     => hdmi_tx_n
-    );
+
+ pixel_clk    <= clk_pixel_x1;
+ pixel_clk_x5 <= clk_pixel_x5;
 
 end Behavioral;
