@@ -43,7 +43,7 @@ class _CRG(Module):
         self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
         self.clock_domains.cd_clk200 = ClockDomain()
 
-        clk100 = platform.request("clk100")
+        self.clk100 = platform.request("clk100")
         rst = platform.request("cpu_reset")
 
         pll_locked = Signal()
@@ -59,7 +59,7 @@ class _CRG(Module):
                      # VCO @ 800 MHz
                      p_REF_JITTER1=0.01, p_CLKIN1_PERIOD=10.0,
                      p_CLKFBOUT_MULT=8, p_DIVCLK_DIVIDE=1,
-                     i_CLKIN1=clk100, i_CLKFBIN=pll_fb, o_CLKFBOUT=pll_fb,
+                     i_CLKIN1=self.clk100, i_CLKFBIN=pll_fb, o_CLKFBOUT=pll_fb,
 
                      # 50 MHz
                      p_CLKOUT0_DIVIDE=16, p_CLKOUT0_PHASE=0.0,

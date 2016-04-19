@@ -9,6 +9,13 @@ nexys_minisoc:
 nexys_etherbone:
 	rm -rf build
 	./nexys_etherbone.py --cpu-type $(CPU)
+
+nexys_video:
+	rm -rf build
+	./nexys_video.py --nocompile-gateware --cpu-type $(CPU)
+	cd firmware && make clean all
+	./nexys_video.py --cpu-type $(CPU)
+
 load:
 	./load.py
 
