@@ -29,8 +29,8 @@
 #define SSD1306_COMSCANDEC          0xc8
 #define SSD1306_SEGREMAP            0xa0
 #define SSD1306_CHARGEPUMP          0x8d
-#define SSD1306_EXTERNALVCC         0x1
-#define SSD1306_SWITCHCAPVCC        0x2
+#define SSD1306_EXTERNALVCC         0x01
+#define SSD1306_SWITCHCAPVCC        0x02
 
 #define SSD1306_ACTIVATE_SCROLL                      0x2f
 #define SSD1306_DEACTIVATE_SCROLL                    0x2e
