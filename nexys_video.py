@@ -4,6 +4,105 @@ from nexys_base import *
 
 from litevideo.output.hdmi.encoder import Encoder
 
+
+class _S7HDMIOutEncoderSerializer(Module):
+    def __init__(self, rst, pad_p, pad_n):
+        self.submodules.encoder = ClockDomainsRenamer("pix")(Encoder())
+        self.d, self.c, self.de = self.encoder.d, self.encoder.c, self.encoder.de
+
+        # # #
+
+        shift = Signal(2)
+        ce = Signal()
+        self.sync.pix += ce.eq(~rst)
+
+        pad_se = Signal()
+
+        # OSERDESE2 master
+        self.specials += Instance("OSERDESE2",
+            p_DATA_RATE_OQ="DDR",
+            p_DATA_RATE_TQ="DDR",
+            p_DATA_WIDTH=10,
+            p_INIT_OQ=1,
+            p_INIT_TQ=1,
+            p_SERDES_MODE="MASTER",
+            p_SRVAL_OQ=0,
+            p_SRVAL_TQ=0,
+            p_TBYTE_CTL="FALSE",
+            p_TBYTE_SRC="FALSE",
+            p_TRISTATE_WIDTH=1,
+
+            o_OQ=pad_se,
+            i_CLK=ClockSignal("pix5x"),
+            i_CLKDIV=ClockSignal("pix"),
+            i_D1=self.encoder.out[0],
+            i_D2=self.encoder.out[1],
+            i_D3=self.encoder.out[2],
+            i_D4=self.encoder.out[3],
+            i_D5=self.encoder.out[4],
+            i_D6=self.encoder.out[5],
+            i_D7=self.encoder.out[6],
+            i_D8=self.encoder.out[7],
+            i_OCE=ce,
+            i_RST=rst,
+
+            i_SHIFTIN1=shift[0],
+            i_SHIFTIN2=shift[1],
+            i_T1=0,
+            i_T2=0,
+            i_T3=0,
+            i_T4=0,
+            i_TBYTEIN=0,
+            i_TCE=0
+        )
+
+        # OSERDESE2 slave
+        self.specials += Instance("OSERDESE2",
+            p_DATA_RATE_OQ="DDR",
+            p_DATA_RATE_TQ="DDR",
+            p_DATA_WIDTH=10,
+            p_INIT_OQ=1,
+            p_INIT_TQ=1,
+            p_SERDES_MODE="SLAVE",
+            p_SRVAL_OQ=0,
+            p_SRVAL_TQ=0,
+            p_TBYTE_CTL="FALSE",
+            p_TBYTE_SRC="FALSE",
+            p_TRISTATE_WIDTH=1,
+
+            i_CLK=ClockSignal("pix5x"),
+            i_CLKDIV=ClockSignal("pix"),
+
+            o_SHIFTOUT1=shift[0],
+            o_SHIFTOUT2=shift[1],
+
+            i_D1=0,
+            i_D2=0,
+            i_D3=self.encoder.out[8],
+            i_D4=self.encoder.out[9],
+            i_D5=0,
+            i_D6=0,
+            i_D7=0,
+            i_D8=0,
+            i_OCE=ce,
+            i_RST=rst,
+
+            i_SHIFTIN1=0,
+            i_SHIFTIN2=0,
+            i_T1=0,
+            i_T2=0,
+            i_T3=0,
+            i_T4=0,
+            i_TBYTEIN=0,
+            i_TCE=0
+        )
+
+        self.specials += Instance("OBUFDS",
+                p_IOSTANDARD="TDMS_33", p_SLEW="FAST",
+                i_I=pad_se, o_O=pad_p, o_OB=pad_n
+        )
+
+
 class VideoOutSoC(BaseSoC):
     def __init__(self, platform, *args, **kwargs):
         BaseSoC.__init__(self, platform, *args, **kwargs)
@@ -21,11 +120,6 @@ class VideoOutSoC(BaseSoC):
         vga_green = Signal(8)
         vga_blue = Signal(8)
         vga_blank = Signal()
-
-        c0_tmds_symbol = Signal(10)
-        c1_tmds_symbol = Signal(10)
-        c2_tmds_symbol = Signal(10)
-
 
         # # #
 
@@ -60,148 +154,33 @@ class VideoOutSoC(BaseSoC):
                 o_vga_blank=vga_blank,
         )
 
-        self.clock_domains.cd_pix = ClockDomain("pix")
-        self.comb += self.cd_pix.clk.eq(pixel_clk)
-
-        # # #
-
-        c0_encoder = ClockDomainsRenamer("pix")(Encoder())
-        self.submodules += c0_encoder
+        self.clock_domains.cd_pix = ClockDomain("pix", reset_less=True)
+        self.clock_domains.cd_pix5x = ClockDomain("pix5x", reset_less=True)
         self.comb += [
-            c0_encoder.d.eq(vga_blue),
-            c0_encoder.c.eq(Cat(vga_hsync, vga_vsync)),
-            c0_encoder.de.eq(~vga_blank),
-            c0_tmds_symbol.eq(c0_encoder.out)
+            self.cd_pix.clk.eq(pixel_clk),
+            self.cd_pix5x.clk.eq(pixel_clk_x5)
         ]
 
-        c1_encoder = ClockDomainsRenamer("pix")(Encoder())
-        self.submodules += c1_encoder
+        self.submodules.c0_es  = _S7HDMIOutEncoderSerializer(reset, pads.data0_p, pads.data0_n)
+        self.submodules.c1_es  = _S7HDMIOutEncoderSerializer(reset, pads.data1_p, pads.data1_n)
+        self.submodules.c2_es  = _S7HDMIOutEncoderSerializer(reset, pads.data2_p, pads.data2_n)
+        self.submodules.clk_es = _S7HDMIOutEncoderSerializer(reset, pads.clk_p, pads.clk_n)
         self.comb += [
-            c1_encoder.d.eq(vga_green),
-            c1_encoder.c.eq(0),
-            c1_encoder.de.eq(~vga_blank),
-            c1_tmds_symbol.eq(c1_encoder.out)
-        ]
+            self.c0_es.d.eq(vga_blue),
+            self.c0_es.c.eq(Cat(vga_hsync, vga_vsync)),
+            self.c0_es.de.eq(~vga_blank),
 
-        c2_encoder = ClockDomainsRenamer("pix")(Encoder())
-        self.submodules += c2_encoder
-        self.comb += [
-            c2_encoder.d.eq(vga_red),
-            c2_encoder.c.eq(0),
-            c2_encoder.de.eq(~vga_blank),
-            c2_tmds_symbol.eq(c2_encoder.out)
-        ]
+            self.c1_es.d.eq(vga_green),
+            self.c1_es.c.eq(0),
+            self.c1_es.de.eq(~vga_blank),
 
-        # # #
+            self.c2_es.d.eq(vga_red),
+            self.c2_es.c.eq(0),
+            self.c2_es.de.eq(~vga_blank),
 
-        hdmi_tx_clk = Signal()
-        hdmi_tx = Signal(3)
-
-        class Serializer(Module):
-            def __init__(self, data, serial):
-                shift1 = Signal()
-                shift2 = Signal()
-                ce_delay = Signal()
-
-                self.sync.pix += ce_delay.eq(~reset)
-
-                self.specials += Instance("OSERDESE2",
-                    p_DATA_RATE_OQ="DDR",
-                    p_DATA_RATE_TQ="DDR",
-                    p_DATA_WIDTH=10,
-                    p_INIT_OQ=1,
-                    p_INIT_TQ=1,
-                    p_SERDES_MODE="MASTER",
-                    p_SRVAL_OQ=0,
-                    p_SRVAL_TQ=0,
-                    p_TBYTE_CTL="FALSE",
-                    p_TBYTE_SRC="FALSE",
-                    p_TRISTATE_WIDTH=1,
-
-                    o_OQ=serial,
-                    i_CLK=pixel_clk_x5,
-                    i_CLKDIV=pixel_clk,
-                    i_D1=data[0],
-                    i_D2=data[1],
-                    i_D3=data[2],
-                    i_D4=data[3],
-                    i_D5=data[4],
-                    i_D6=data[5],
-                    i_D7=data[6],
-                    i_D8=data[7],
-                    i_OCE=ce_delay,
-                    i_RST=reset,
-
-                    i_SHIFTIN1=shift1,
-                    i_SHIFTIN2=shift2,
-                    i_T1=0,
-                    i_T2=0,
-                    i_T3=0,
-                    i_T4=0,
-                    i_TBYTEIN=0,
-                    i_TCE=0
-                )
-
-                self.specials += Instance("OSERDESE2",
-                    p_DATA_RATE_OQ="DDR",
-                    p_DATA_RATE_TQ="DDR",
-                    p_DATA_WIDTH=10,
-                    p_INIT_OQ=1,
-                    p_INIT_TQ=1,
-                    p_SERDES_MODE="SLAVE",
-                    p_SRVAL_OQ=0,
-                    p_SRVAL_TQ=0,
-                    p_TBYTE_CTL="FALSE",
-                    p_TBYTE_SRC="FALSE",
-                    p_TRISTATE_WIDTH=1,
-
-                    i_CLK=pixel_clk_x5,
-                    i_CLKDIV=pixel_clk,
-
-                    o_SHIFTOUT1=shift1,
-                    o_SHIFTOUT2=shift2,
-
-                    i_D1=0,
-                    i_D2=0,
-                    i_D3=data[8],
-                    i_D4=data[9],
-                    i_D5=0,
-                    i_D6=0,
-                    i_D7=0,
-                    i_D8=0,
-                    i_OCE=ce_delay,
-                    i_RST=reset,
-
-                    i_SHIFTIN1=0,
-                    i_SHIFTIN2=0,
-                    i_T1=0,
-                    i_T2=0,
-                    i_T3=0,
-                    i_T4=0,
-                    i_TBYTEIN=0,
-                    i_TCE=0
-                )
-
-        self.submodules.c0_serializer = Serializer(c0_tmds_symbol, hdmi_tx[0])
-        self.submodules.c1_serializer = Serializer(c1_tmds_symbol, hdmi_tx[1])
-        self.submodules.c2_serializer = Serializer(c2_tmds_symbol, hdmi_tx[2])
-        self.submodules.clk_serializer = Serializer(Signal(10, reset=0b0000011111), hdmi_tx_clk)
-
-        # # #
-
-        self.specials += [
-            Instance("OBUFDS",
-                p_IOSTANDARD="TDMS_33", p_SLEW="FAST",
-                i_I=hdmi_tx_clk, o_O=pads.clk_p, o_OB=pads.clk_n),
-            Instance("OBUFDS",
-                p_IOSTANDARD="TDMS_33", p_SLEW="FAST",
-                i_I=hdmi_tx[0], o_O=pads.data0_p, o_OB=pads.data0_n),
-            Instance("OBUFDS",
-                p_IOSTANDARD="TDMS_33", p_SLEW="FAST",
-                i_I=hdmi_tx[1], o_O=pads.data1_p, o_OB=pads.data1_n),
-            Instance("OBUFDS",
-                p_IOSTANDARD="TDMS_33", p_SLEW="FAST",
-                i_I=hdmi_tx[2], o_O=pads.data2_p, o_OB=pads.data2_n)
+            self.clk_es.d.eq(Signal(10, reset=0b0000011111)),
+            self.clk_es.c.eq(0),
+            self.clk_es.de.eq(~vga_blank)
         ]
 
         # # #
