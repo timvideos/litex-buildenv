@@ -6,16 +6,21 @@ from litevideo.output.hdmi.encoder import Encoder
 
 
 class _S7HDMIOutEncoderSerializer(Module):
-    def __init__(self, rst, pad_p, pad_n):
-        self.submodules.encoder = ClockDomainsRenamer("pix")(Encoder())
-        self.d, self.c, self.de = self.encoder.d, self.encoder.c, self.encoder.de
+    def __init__(self, pad_p, pad_n, bypass_encoder=False):
+        if not bypass_encoder:
+            self.submodules.encoder = ClockDomainsRenamer("pix")(Encoder())
+            self.d, self.c, self.de = self.encoder.d, self.encoder.c, self.encoder.de
+            self.data = self.encoder.out
+        else:
+            self.data = Signal(10)
 
         # # #
 
-        shift = Signal(2)
+        rst = ResetSignal("pix")
         ce = Signal()
         self.sync.pix += ce.eq(~rst)
 
+        shift = Signal(2)
         pad_se = Signal()
 
         # OSERDESE2 master
@@ -35,14 +40,14 @@ class _S7HDMIOutEncoderSerializer(Module):
             o_OQ=pad_se,
             i_CLK=ClockSignal("pix5x"),
             i_CLKDIV=ClockSignal("pix"),
-            i_D1=self.encoder.out[0],
-            i_D2=self.encoder.out[1],
-            i_D3=self.encoder.out[2],
-            i_D4=self.encoder.out[3],
-            i_D5=self.encoder.out[4],
-            i_D6=self.encoder.out[5],
-            i_D7=self.encoder.out[6],
-            i_D8=self.encoder.out[7],
+            i_D1=self.data[0],
+            i_D2=self.data[1],
+            i_D3=self.data[2],
+            i_D4=self.data[3],
+            i_D5=self.data[4],
+            i_D6=self.data[5],
+            i_D7=self.data[6],
+            i_D8=self.data[7],
             i_OCE=ce,
             i_RST=rst,
 
@@ -78,8 +83,8 @@ class _S7HDMIOutEncoderSerializer(Module):
 
             i_D1=0,
             i_D2=0,
-            i_D3=self.encoder.out[8],
-            i_D4=self.encoder.out[9],
+            i_D3=self.data[8],
+            i_D4=self.data[9],
             i_D5=0,
             i_D6=0,
             i_D7=0,
@@ -101,6 +106,33 @@ class _S7HDMIOutEncoderSerializer(Module):
                 p_IOSTANDARD="TDMS_33", p_SLEW="FAST",
                 i_I=pad_se, o_O=pad_p, o_OB=pad_n
         )
+
+
+class S7HDMIOutPHY(Module):
+    def __init__(self, pads):
+        self.hsync = Signal()
+        self.vsync = Signal()
+        self.de = Signal()
+        self.r = Signal(8)
+        self.g = Signal(8)
+        self.b = Signal(8)
+
+        # # #
+
+        self.submodules.es0 = _S7HDMIOutEncoderSerializer(pads.data0_p, pads.data0_n)
+        self.submodules.es1 = _S7HDMIOutEncoderSerializer(pads.data1_p, pads.data1_n)
+        self.submodules.es2 = _S7HDMIOutEncoderSerializer(pads.data2_p, pads.data2_n)
+        self.comb += [
+            self.es0.d.eq(self.b),
+            self.es1.d.eq(self.g),
+            self.es2.d.eq(self.r),
+            self.es0.c.eq(Cat(self.hsync, self.vsync)),
+            self.es1.c.eq(0),
+            self.es2.c.eq(0),
+            self.es0.de.eq(self.de),
+            self.es1.de.eq(self.de),
+            self.es2.de.eq(self.de)
+        ]
 
 
 class VideoOutSoC(BaseSoC):
@@ -154,34 +186,25 @@ class VideoOutSoC(BaseSoC):
                 o_vga_blank=vga_blank,
         )
 
-        self.clock_domains.cd_pix = ClockDomain("pix", reset_less=True)
+        self.clock_domains.cd_pix = ClockDomain("pix")
         self.clock_domains.cd_pix5x = ClockDomain("pix5x", reset_less=True)
         self.comb += [
             self.cd_pix.clk.eq(pixel_clk),
+            self.cd_pix.rst.eq(reset),
             self.cd_pix5x.clk.eq(pixel_clk_x5)
         ]
 
-        self.submodules.c0_es  = _S7HDMIOutEncoderSerializer(reset, pads.data0_p, pads.data0_n)
-        self.submodules.c1_es  = _S7HDMIOutEncoderSerializer(reset, pads.data1_p, pads.data1_n)
-        self.submodules.c2_es  = _S7HDMIOutEncoderSerializer(reset, pads.data2_p, pads.data2_n)
-        self.submodules.clk_es = _S7HDMIOutEncoderSerializer(reset, pads.clk_p, pads.clk_n)
+        self.submodules.hdmi_out_phy = S7HDMIOutPHY(pads)
         self.comb += [
-            self.c0_es.d.eq(vga_blue),
-            self.c0_es.c.eq(Cat(vga_hsync, vga_vsync)),
-            self.c0_es.de.eq(~vga_blank),
-
-            self.c1_es.d.eq(vga_green),
-            self.c1_es.c.eq(0),
-            self.c1_es.de.eq(~vga_blank),
-
-            self.c2_es.d.eq(vga_red),
-            self.c2_es.c.eq(0),
-            self.c2_es.de.eq(~vga_blank),
-
-            self.clk_es.d.eq(Signal(10, reset=0b0000011111)),
-            self.clk_es.c.eq(0),
-            self.clk_es.de.eq(~vga_blank)
+            self.hdmi_out_phy.hsync.eq(vga_hsync),
+            self.hdmi_out_phy.vsync.eq(vga_vsync),
+            self.hdmi_out_phy.de.eq(~vga_blank),
+            self.hdmi_out_phy.r.eq(vga_red),
+            self.hdmi_out_phy.g.eq(vga_green),
+            self.hdmi_out_phy.b.eq(vga_blue)
         ]
+        self.submodules.clk_es = _S7HDMIOutEncoderSerializer(pads.clk_p, pads.clk_n, bypass_encoder=True)
+        self.comb += self.clk_es.data.eq(Signal(10, reset=0b0000011111))
 
         # # #
 
