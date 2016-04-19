@@ -62,7 +62,7 @@ class _CRG(Module):
                      i_CLKIN1=clk100, i_CLKFBIN=pll_fb, o_CLKFBOUT=pll_fb,
 
                      # 50 MHz
-                     p_CLKOUT0_DIVIDE=8, p_CLKOUT0_PHASE=0.0,
+                     p_CLKOUT0_DIVIDE=16, p_CLKOUT0_PHASE=0.0,
                      o_CLKOUT0=self.pll_sys,
 
                      # 200 MHz
@@ -118,10 +118,11 @@ class BaseSoC(SoCSDRAM):
                  firmware_ram_size=0x10000,
                  firmware_filename="firmware/firmware.bin",
                  **kwargs):
-        clk_freq = 100*1000000
+        clk_freq = 50*1000000
         SoCSDRAM.__init__(self, platform, clk_freq,
             integrated_rom_size=0x8000,
             integrated_sram_size=0x8000,
+            l2_size=32,
             **kwargs)
         self.submodules.crg = _CRG(platform)
         self.submodules.dna = dna.DNA()
@@ -136,7 +137,7 @@ class BaseSoC(SoCSDRAM):
         # sdram
         self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
         sdram_module = MT41K256M16(self.clk_freq, "1:4")
-        self.register_sdram(self.ddrphy, "lasmicon",
+        self.register_sdram(self.ddrphy, "minicon",
                             sdram_module.geom_settings,
                             sdram_module.timing_settings)
 
@@ -172,7 +173,6 @@ class MiniSoC(BaseSoC):
             Keep(self.ethphy.crg.cd_eth_tx.clk)
         ]
 
-        self.platform.add_period_constraint(self.crg.cd_sys.clk, 10.0)
         self.platform.add_period_constraint(self.ethphy.crg.cd_eth_rx.clk, 8.0)
         self.platform.add_period_constraint(self.ethphy.crg.cd_eth_tx.clk, 8.0)
 
