@@ -38,10 +38,8 @@ entity vga_to_hdmi is
            hdmi_tx_rsda  : inout std_logic;
            hdmi_tx_hpd   : in    std_logic;
            hdmi_tx_cec   : inout std_logic;
-           hdmi_tx_clk_p : out   std_logic;
-           hdmi_tx_clk_n : out   std_logic;
-           hdmi_tx_p     : out   std_logic_vector(2 downto 0);
-           hdmi_tx_n     : out   std_logic_vector(2 downto 0)
+           hdmi_tx_clk   : out   std_logic;
+           hdmi_tx       : out   std_logic_vector(2 downto 0)
        );
 end vga_to_hdmi;
 
@@ -54,12 +52,8 @@ architecture Behavioral of vga_to_hdmi is
                serial : out STD_LOGIC);
     end component;
 
-    signal serial_clk : std_logic;
-    signal serial_ch0 : std_logic;
-    signal serial_ch1 : std_logic;
-    signal serial_ch2 : std_logic;
-
     signal pixel_clk_buffered : std_logic;
+
 begin
     hdmi_tx_rsda  <= 'Z';
     hdmi_tx_cec   <= 'Z';
@@ -70,39 +64,27 @@ ser_ch0: serialiser_10_to_1 Port map (
         clk_x5 => pixel_clk_x5,
         reset  => reset,
         data   => c0_tmds_symbol,
-        serial => serial_ch0);
+        serial => hdmi_tx(0));
 
 ser_ch1: serialiser_10_to_1 port map (
         clk    => pixel_clk,
         clk_x5 => pixel_clk_x5,
         reset  => reset,
         data   => c1_tmds_symbol,
-        serial => serial_ch1);
+        serial => hdmi_tx(1));
 
 ser_ch2: serialiser_10_to_1 port map (
         clk    => pixel_clk,
         clk_x5 => pixel_clk_x5,
         reset  => reset,
         data   => c2_tmds_symbol,
-        serial => serial_ch2);
+        serial => hdmi_tx(2));
 
 ser_clk: serialiser_10_to_1 Port map (
         clk    => pixel_clk,
         clk_x5 => pixel_clk_x5,
         reset  => reset,
         data   => "0000011111",
-        serial => serial_clk);
-
-clk_buf: OBUFDS generic map ( IOSTANDARD => "TMDS_33",  SLEW => "FAST")
-    port map ( O  => hdmi_tx_clk_p, OB => hdmi_tx_clk_n, I => serial_clk);
-
-tx0_buf: OBUFDS generic map ( IOSTANDARD => "TMDS_33",  SLEW => "FAST")
-    port map ( O  => hdmi_tx_p(0), OB => hdmi_tx_n(0), I  => serial_ch0);
-
-tx1_buf: OBUFDS generic map ( IOSTANDARD => "TMDS_33",  SLEW => "FAST")
-    port map ( O  => hdmi_tx_p(1), OB => hdmi_tx_n(1), I  => serial_ch1);
-
-tx2_buf: OBUFDS generic map ( IOSTANDARD => "TMDS_33",  SLEW => "FAST")
-    port map ( O  => hdmi_tx_p(2), OB => hdmi_tx_n(2), I  => serial_ch2);
+        serial => hdmi_tx_clk);
 
 end Behavioral;

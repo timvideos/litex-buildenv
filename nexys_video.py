@@ -43,6 +43,8 @@ class VideoOutSoC(BaseSoC):
         self.clock_domains.cd_pix = ClockDomain("pix")
         self.comb += self.cd_pix.clk.eq(pixel_clk)
 
+        # # #
+
         c0_encoder = ClockDomainsRenamer("pix")(Encoder())
         self.submodules += c0_encoder
         self.comb += [
@@ -70,6 +72,11 @@ class VideoOutSoC(BaseSoC):
             c2_tmds_symbol.eq(c2_encoder.out)
         ]
 
+        # # #
+
+        hdmi_tx_clk = Signal()
+        hdmi_tx = Signal(3)
+
         self.specials += Instance("vga_to_hdmi",
             i_pixel_clk=pixel_clk,
             i_pixel_clk_x5=pixel_clk_x5,
@@ -84,11 +91,28 @@ class VideoOutSoC(BaseSoC):
             i_hdmi_tx_hpd=pads.hdp,
             io_hdmi_tx_cec=pads.cec,
 
-            o_hdmi_tx_clk_p=pads.clk_p,
-            o_hdmi_tx_clk_n=pads.clk_n,
-            o_hdmi_tx_p=Cat(pads.data0_p, pads.data1_p, pads.data2_p),
-            o_hdmi_tx_n=Cat(pads.data0_n, pads.data1_n, pads.data2_n)
+            o_hdmi_tx_clk=hdmi_tx_clk,
+            o_hdmi_tx=hdmi_tx
         )
+
+        # # #
+
+        self.specials += [
+            Instance("OBUFDS",
+                p_IOSTANDARD="TDMS_33", p_SLEW="FAST",
+                i_I=hdmi_tx_clk, o_O=pads.clk_p, o_OB=pads.clk_n),
+            Instance("OBUFDS",
+                p_IOSTANDARD="TDMS_33", p_SLEW="FAST",
+                i_I=hdmi_tx[0], o_O=pads.data0_p, o_OB=pads.data0_n),
+            Instance("OBUFDS",
+                p_IOSTANDARD="TDMS_33", p_SLEW="FAST",
+                i_I=hdmi_tx[1], o_O=pads.data1_p, o_OB=pads.data1_n),
+            Instance("OBUFDS",
+                p_IOSTANDARD="TDMS_33", p_SLEW="FAST",
+                i_I=hdmi_tx[2], o_O=pads.data2_p, o_OB=pads.data2_n)
+        ]
+
+        # # #
 
         platform.add_source_dir(os.path.join("gateware", "hdmi_out"))
 
