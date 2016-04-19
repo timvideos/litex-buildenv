@@ -19,6 +19,10 @@ class VideoOutSoC(BaseSoC):
         vga_blue = Signal(8)
         vga_blank = Signal()
 
+        c0_tmds_symbol = Signal(10)
+        c1_tmds_symbol = Signal(10)
+        c2_tmds_symbol = Signal(10)
+
         self.specials += Instance("top_level",
                 i_clk100=self.crg.clk100,
 
@@ -34,17 +38,39 @@ class VideoOutSoC(BaseSoC):
                 o_vga_blank=vga_blank,
         )
 
+
+        self.specials += Instance("TDMS_encoder",
+                i_clk=pixel_clk,
+                i_data=vga_blue,
+                i_c=Cat(vga_hsync, vga_vsync),
+                i_blank=vga_blank,
+                o_encoded=c0_tmds_symbol
+        )
+
+        self.specials += Instance("TDMS_encoder",
+                i_clk=pixel_clk,
+                i_data=vga_green,
+                i_c=0,
+                i_blank=vga_blank,
+                o_encoded=c1_tmds_symbol
+        )
+
+        self.specials += Instance("TDMS_encoder",
+                i_clk=pixel_clk,
+                i_data=vga_red,
+                i_c=0,
+                i_blank=vga_blank,
+                o_encoded=c2_tmds_symbol
+        )
+
         self.specials += Instance("vga_to_hdmi",
             i_pixel_clk=pixel_clk,
             i_pixel_clk_x5=pixel_clk_x5,
             i_reset=reset,
 
-            i_vga_hsync=vga_hsync,
-            i_vga_vsync=vga_vsync,
-            i_vga_red=vga_red,
-            i_vga_green=vga_green,
-            i_vga_blue=vga_blue,
-            i_vga_blank=vga_blank,
+            i_c0_tmds_symbol=c0_tmds_symbol,
+            i_c1_tmds_symbol=c1_tmds_symbol,
+            i_c2_tmds_symbol=c2_tmds_symbol,
 
             o_hdmi_tx_rscl=pads.scl,
             io_hdmi_tx_rsda=pads.sda,
