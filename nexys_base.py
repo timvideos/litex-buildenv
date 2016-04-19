@@ -16,8 +16,8 @@ from litex.soc.integration.builder import *
 from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 from liteeth.core.mac import LiteEthMAC
 
-from gateware import a7ddrphy, dna, xadc
-from gateware import firmware
+from gateware import a7ddrphy, firmware
+from gateware import dna, xadc, oled
 
 # TODO: use half-rate DDR3 phy and use 100Mhz CPU clock
 
@@ -104,7 +104,8 @@ class BaseSoC(SoCSDRAM):
     csr_map = {
         "ddrphy": 17,
         "dna":    18,
-        "xadc":   19
+        "xadc":   19,
+        "oled":   20
     }
     csr_map.update(SoCSDRAM.csr_map)
 
@@ -126,6 +127,7 @@ class BaseSoC(SoCSDRAM):
         self.submodules.crg = _CRG(platform)
         self.submodules.dna = dna.DNA()
         self.submodules.xadc = xadc.XADC()
+        self.submodules.oled = oled.OLED(platform.request("oled"))
 
         # firmware
         self.submodules.firmware_ram = firmware.FirmwareROM(firmware_ram_size, firmware_filename)
