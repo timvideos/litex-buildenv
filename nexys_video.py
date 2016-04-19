@@ -74,25 +74,41 @@ class VideoOutSoC(BaseSoC):
 
         # # #
 
+        self.comb += pads.scl.eq(1)
+
         hdmi_tx_clk = Signal()
         hdmi_tx = Signal(3)
 
-        self.specials += Instance("vga_to_hdmi",
-            i_pixel_clk=pixel_clk,
-            i_pixel_clk_x5=pixel_clk_x5,
+        self.specials += Instance("serialiser_10_to_1",
+            i_clk=pixel_clk,
+            i_clk_x5=pixel_clk_x5,
             i_reset=reset,
+            i_data=c0_tmds_symbol,
+            o_serial=hdmi_tx[0]
+        )
 
-            i_c0_tmds_symbol=c0_tmds_symbol,
-            i_c1_tmds_symbol=c1_tmds_symbol,
-            i_c2_tmds_symbol=c2_tmds_symbol,
+        self.specials += Instance("serialiser_10_to_1",
+            i_clk=pixel_clk,
+            i_clk_x5=pixel_clk_x5,
+            i_reset=reset,
+            i_data=c1_tmds_symbol,
+            o_serial=hdmi_tx[1]
+        )
 
-            o_hdmi_tx_rscl=pads.scl,
-            io_hdmi_tx_rsda=pads.sda,
-            i_hdmi_tx_hpd=pads.hdp,
-            io_hdmi_tx_cec=pads.cec,
+        self.specials += Instance("serialiser_10_to_1",
+            i_clk=pixel_clk,
+            i_clk_x5=pixel_clk_x5,
+            i_reset=reset,
+            i_data=c2_tmds_symbol,
+            o_serial=hdmi_tx[2]
+        )
 
-            o_hdmi_tx_clk=hdmi_tx_clk,
-            o_hdmi_tx=hdmi_tx
+        self.specials += Instance("serialiser_10_to_1",
+            i_clk=pixel_clk,
+            i_clk_x5=pixel_clk_x5,
+            i_reset=reset,
+            i_data=0b0000011111,
+            o_serial=hdmi_tx_clk
         )
 
         # # #
