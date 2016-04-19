@@ -2,6 +2,8 @@
 
 from nexys_base import *
 
+from litevideo.output.hdmi.encoder import Encoder
+
 class VideoOutSoC(BaseSoC):
     def __init__(self, platform, *args, **kwargs):
         BaseSoC.__init__(self, platform, *args, **kwargs)
@@ -38,30 +40,35 @@ class VideoOutSoC(BaseSoC):
                 o_vga_blank=vga_blank,
         )
 
+        self.clock_domains.cd_pix = ClockDomain("pix")
+        self.comb += self.cd_pix.clk.eq(pixel_clk)
 
-        self.specials += Instance("TDMS_encoder",
-                i_clk=pixel_clk,
-                i_data=vga_blue,
-                i_c=Cat(vga_hsync, vga_vsync),
-                i_blank=vga_blank,
-                o_encoded=c0_tmds_symbol
-        )
+        c0_encoder = ClockDomainsRenamer("pix")(Encoder())
+        self.submodules += c0_encoder
+        self.comb += [
+            c0_encoder.d.eq(vga_blue),
+            c0_encoder.c.eq(Cat(vga_hsync, vga_vsync)),
+            c0_encoder.de.eq(~vga_blank),
+            c0_tmds_symbol.eq(c0_encoder.out)
+        ]
 
-        self.specials += Instance("TDMS_encoder",
-                i_clk=pixel_clk,
-                i_data=vga_green,
-                i_c=0,
-                i_blank=vga_blank,
-                o_encoded=c1_tmds_symbol
-        )
+        c1_encoder = ClockDomainsRenamer("pix")(Encoder())
+        self.submodules += c1_encoder
+        self.comb += [
+            c1_encoder.d.eq(vga_green),
+            c1_encoder.c.eq(0),
+            c1_encoder.de.eq(~vga_blank),
+            c1_tmds_symbol.eq(c1_encoder.out)
+        ]
 
-        self.specials += Instance("TDMS_encoder",
-                i_clk=pixel_clk,
-                i_data=vga_red,
-                i_c=0,
-                i_blank=vga_blank,
-                o_encoded=c2_tmds_symbol
-        )
+        c2_encoder = ClockDomainsRenamer("pix")(Encoder())
+        self.submodules += c2_encoder
+        self.comb += [
+            c2_encoder.d.eq(vga_red),
+            c2_encoder.c.eq(0),
+            c2_encoder.de.eq(~vga_blank),
+            c2_tmds_symbol.eq(c2_encoder.out)
+        ]
 
         self.specials += Instance("vga_to_hdmi",
             i_pixel_clk=pixel_clk,
