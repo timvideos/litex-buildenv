@@ -25,12 +25,31 @@ class VideoOutSoC(BaseSoC):
         c1_tmds_symbol = Signal(10)
         c2_tmds_symbol = Signal(10)
 
-        self.specials += Instance("top_level",
-                i_clk100=self.crg.clk100,
 
-                o_pixel_clk=pixel_clk,
-                o_pixel_clk_x5=pixel_clk_x5,
-                o_reset=reset,
+        # # #
+
+        mmcm_locked = Signal()
+        mmcm_fb = Signal()
+
+        self.specials += Instance("MMCME2_BASE",
+                     p_BANDWIDTH="OPTIMIZED", i_RST=0, o_LOCKED=mmcm_locked,
+
+                     # VCO
+                     p_REF_JITTER1=0.01, p_CLKIN1_PERIOD=10.0,
+                     p_CLKFBOUT_MULT_F=30.0, p_CLKFBOUT_PHASE=0.000, p_DIVCLK_DIVIDE=4,
+                     i_CLKIN1=self.crg.clk100, i_CLKFBIN=mmcm_fb, o_CLKFBOUT=mmcm_fb,
+
+                     # CLK0
+                     p_CLKOUT0_DIVIDE_F=5.0, p_CLKOUT0_PHASE=0.000, o_CLKOUT0=pixel_clk,
+                     # CLK1
+                     p_CLKOUT1_DIVIDE=1, p_CLKOUT1_PHASE=0.000, o_CLKOUT1=pixel_clk_x5,
+        )
+        self.comb += reset.eq(~mmcm_locked)
+
+        # # #
+
+        self.specials += Instance("vga_gen",
+                i_pixel_clk=pixel_clk,
 
                 o_vga_hsync=vga_hsync,
                 o_vga_vsync=vga_vsync,
