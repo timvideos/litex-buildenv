@@ -122,24 +122,25 @@ class BaseSoC(SoCSDRAM):
         SoCSDRAM.__init__(self, platform, clk_freq,
             integrated_rom_size=0x8000,
             integrated_sram_size=0x8000,
+            integrated_main_ram_size=0x8000,
             l2_size=32,
             **kwargs)
         self.submodules.crg = _CRG(platform)
-        self.submodules.dna = dna.DNA()
-        self.submodules.xadc = xadc.XADC()
-        self.submodules.oled = oled.OLED(platform.request("oled"))
-
-        # firmware
-        self.submodules.firmware_ram = firmware.FirmwareROM(firmware_ram_size, firmware_filename)
-        self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
-        self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
-
-        # sdram
-        self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
-        sdram_module = MT41K256M16(self.clk_freq, "1:4")
-        self.register_sdram(self.ddrphy, "minicon",
-                            sdram_module.geom_settings,
-                            sdram_module.timing_settings)
+#        self.submodules.dna = dna.DNA()
+#        self.submodules.xadc = xadc.XADC()
+#        self.submodules.oled = oled.OLED(platform.request("oled"))
+#
+#        # firmware
+#        self.submodules.firmware_ram = firmware.FirmwareROM(firmware_ram_size, firmware_filename)
+#        self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
+#        self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
+#
+#        # sdram
+#        self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
+#        sdram_module = MT41K256M16(self.clk_freq, "1:4")
+#        self.register_sdram(self.ddrphy, "minicon",
+#                            sdram_module.geom_settings,
+#                            sdram_module.timing_settings)
 
 
 class MiniSoC(BaseSoC):

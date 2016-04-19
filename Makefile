@@ -11,9 +11,9 @@ nexys_etherbone:
 	./nexys_etherbone.py --cpu-type $(CPU)
 
 nexys_video:
-	rm -rf build
-	./nexys_video.py --nocompile-gateware --cpu-type $(CPU)
-	cd firmware && make clean all
+	#rm -rf build
+	#./nexys_video.py --nocompile-gateware --cpu-type $(CPU)
+	#cd firmware && make clean all
 	./nexys_video.py --cpu-type $(CPU)
 
 load:

@@ -2,9 +2,9 @@
 
 from nexys_base import *
 
-class VideoOutSoC(MiniSoC):
+class VideoOutSoC(BaseSoC):
     def __init__(self, platform, *args, **kwargs):
-        MiniSoC.__init__(self, platform, *args, **kwargs)
+        BaseSoC.__init__(self, platform, *args, **kwargs)
 
         pads = platform.request("hdmi_out")
 
