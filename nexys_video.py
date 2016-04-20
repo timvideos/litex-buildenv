@@ -22,15 +22,15 @@ class VideoOutSoC(BaseSoC):
         self.comb += [
             self.vtg.timing.valid.eq(1),
 
-            self.vtg.timing.hres.eq(1920),
-            self.vtg.timing.hsync_start.eq(1920+88),
-            self.vtg.timing.hsync_end.eq(1920+88+44),
-            self.vtg.timing.hscan.eq(2200),
+            self.vtg.timing.hres.eq(1280),
+            self.vtg.timing.hsync_start.eq(1390),
+            self.vtg.timing.hsync_end.eq(1430),
+            self.vtg.timing.hscan.eq(1650),
 
-            self.vtg.timing.vres.eq(1080),
-            self.vtg.timing.vsync_start.eq(1080+4),
-            self.vtg.timing.vsync_end.eq(1080+4+5),
-            self.vtg.timing.vscan.eq(1125),
+            self.vtg.timing.vres.eq(720),
+            self.vtg.timing.vsync_start.eq(725),
+            self.vtg.timing.vsync_end.eq(730),
+            self.vtg.timing.vscan.eq(750),
 
             self.vtg.pixels.valid.eq(1)
         ]
