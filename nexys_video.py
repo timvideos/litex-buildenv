@@ -3,7 +3,7 @@
 from nexys_base import *
 
 from litevideo.output.hdmi.s7 import S7HDMIOutClocking
-from litevideo.output.hdmi.s7 import S7HDMIOutEncoderSerializer
+
 from litevideo.output.hdmi.s7 import S7HDMIOutPHY
 
 from litevideo.output.core import TimingGenerator
@@ -35,7 +35,7 @@ class VideoOutSoC(BaseSoC):
             self.vtg.pixels.valid.eq(1)
         ]
 
-        self.submodules.hdmi_clocking = S7HDMIOutClocking(self.crg.clk100)
+        self.submodules.hdmi_clocking = S7HDMIOutClocking(self.crg.clk100, pads)
         self.submodules.hdmi_phy = S7HDMIOutPHY(pads)
         self.comb += [
             self.hdmi_phy.hsync.eq(self.vtg.phy.hsync),
@@ -46,9 +46,6 @@ class VideoOutSoC(BaseSoC):
             self.hdmi_phy.b.eq(0xff),
             self.vtg.phy.ready.eq(1)
         ]
-        self.submodules.clk_es = S7HDMIOutEncoderSerializer(pads.clk_p, pads.clk_n, bypass_encoder=True)
-        self.comb += self.clk_es.data.eq(Signal(10, reset=0b0000011111))
-
 
 def main():
     parser = argparse.ArgumentParser(description="Nexys LiteX SoC")
