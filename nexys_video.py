@@ -40,7 +40,7 @@ class VideoOutSoC(base_cls):
             self.pattern.sink.hres.eq(self.timing.sink.hres)
         ]
 
-        self.submodules.clocking = S7HDMIOutClocking(self.crg.clk100, pads)
+        self.submodules.clocking = S7HDMIOutClocking(pads)
         self.submodules.phy = S7HDMIOutPHY(pads)
 
         self.comb += [
