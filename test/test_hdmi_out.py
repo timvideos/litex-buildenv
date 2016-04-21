@@ -18,6 +18,34 @@ regs.initiator_vscan.write(750)
 
 regs.initiator_enable.write(1)
 
+
+def read_mmcm_reg(address):
+    regs.clocking_drp_addr.write(address)
+    regs.clocking_drp_dwe.write(0)
+    regs.clocking_drp_den.write(1)
+    return regs.clocking_drp_do.read()
+
+def write_mmcm_reg(address, data):
+    regs.clocking_drp_addr.write(address)
+    regs.clocking_drp_di.write(data)
+    regs.clocking_drp_dwe.write(1)
+    regs.clocking_drp_den.write(1)
+
+def read_mmcm_config():
+    for i in range(32):
+        print("%d : %04x" %(i, read_mmcm_reg(i)))
+
+
+read_mmcm_config()
+clkreg1 = read_mmcm_reg(0x8)
+print("0x%04x, high: %d, low: %d" %(clkreg1, (clkreg1 >> 6) & (2**6-1), clkreg1 & (2**6-1)))
+clkreg1 = read_mmcm_reg(0xa)
+print("0x%04x, high: %d, low: %d" %(clkreg1, (clkreg1 >> 6) & (2**6-1), clkreg1 & (2**6-1)))
+
+write_mmcm_reg(0x8, 0x1000 + (10 << 6) + 10)
+write_mmcm_reg(0xa, 0x1000 +  (2 << 6) +  2)
+
+
 # # #
 
 wb.close()
