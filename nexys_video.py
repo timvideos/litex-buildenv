@@ -2,35 +2,42 @@
 
 from nexys_base import *
 
+from litex.soc.interconnect import stream
+
+from litevideo.output.common import *
 from litevideo.output.hdmi.s7 import S7HDMIOutClocking
 from litevideo.output.hdmi.s7 import S7HDMIOutPHY
-from litevideo.output.core import TimingGenerator
+from litevideo.output.core import Initiator, TimingGenerator
 from litevideo.output.pattern import ColorBarsPattern
 
+base_cls = MiniSoC
 
-class VideoOutSoC(BaseSoC):
+
+class VideoOutSoC(base_cls):
+    csr_map = {
+        "initiator": 21,
+        "clocking":  22
+    }
+    csr_map.update(base_cls.csr_map)
+
     def __init__(self, platform, *args, **kwargs):
-        BaseSoC.__init__(self, platform, *args, **kwargs)
+        base_cls.__init__(self, platform, *args, **kwargs)
 
         pads = platform.request("hdmi_out")
 
         # # #
 
+        self.submodules.initiator = Initiator()
+        cdc = stream.AsyncFIFO(frame_parameter_layout + frame_dma_layout, 8)
+        cdc = ClockDomainsRenamer({"write": "sys", "read": "pix"})(cdc)
+        self.submodules += cdc
         self.submodules.timing = ClockDomainsRenamer("pix")(TimingGenerator())
         self.submodules.pattern = ClockDomainsRenamer("pix")(ColorBarsPattern())
         self.comb += [
-            self.timing.sink.valid.eq(1),
-            self.timing.sink.hres.eq(1280),
-            self.timing.sink.hsync_start.eq(1390),
-            self.timing.sink.hsync_end.eq(1430),
-            self.timing.sink.hscan.eq(1650),
-            self.timing.sink.vres.eq(720),
-            self.timing.sink.vsync_start.eq(725),
-            self.timing.sink.vsync_end.eq(730),
-            self.timing.sink.vscan.eq(750),
-
-            self.pattern.sink.valid.eq(1),
-            self.pattern.sink.hres.eq(1280),
+            self.initiator.source.connect(cdc.sink),
+            cdc.source.connect(self.timing.sink, omit=["base", "end"]),
+            self.pattern.sink.valid.eq(self.timing.sink.valid),
+            self.pattern.sink.hres.eq(self.timing.sink.hres)
         ]
 
         self.submodules.clocking = S7HDMIOutClocking(self.crg.clk100, pads)

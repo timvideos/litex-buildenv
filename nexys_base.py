@@ -126,15 +126,15 @@ class BaseSoC(SoCSDRAM):
             l2_size=32,
             **kwargs)
         self.submodules.crg = _CRG(platform)
-#        self.submodules.dna = dna.DNA()
-#        self.submodules.xadc = xadc.XADC()
-#        self.submodules.oled = oled.OLED(platform.request("oled"))
-#
-#        # firmware
-#        self.submodules.firmware_ram = firmware.FirmwareROM(firmware_ram_size, firmware_filename)
-#        self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
-#        self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
-#
+        self.submodules.dna = dna.DNA()
+        self.submodules.xadc = xadc.XADC()
+        self.submodules.oled = oled.OLED(platform.request("oled"))
+
+        # firmware
+        self.submodules.firmware_ram = firmware.FirmwareROM(firmware_ram_size, firmware_filename)
+        self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
+        self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
+
 #        # sdram
 #        self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
 #        sdram_module = MT41K256M16(self.clk_freq, "1:4")
