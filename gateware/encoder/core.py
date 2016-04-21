@@ -11,7 +11,7 @@ from litex.soc.interconnect.csr_eventmanager import *
 
 from litevideo.csc.ycbcr422to444 import YCbCr422to444
 
-from litevideo.spi import DMAReadController, MODE_SINGLE_SHOT
+from gateware.spi import DMAReadController, MODE_SINGLE_SHOT
 
 
 class EncoderDMAReader(Module, AutoCSR):
