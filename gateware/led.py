@@ -3,7 +3,7 @@ from litex.gen import *
 from litex.soc.interconnect.csr import *
 from litex.soc.cores import gpio
 
-from cores.pwm import PWM
+from gateware.pwm import PWM
 
 
 class ClassicLed(gpio.GPIOOut):

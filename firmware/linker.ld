@@ -12,7 +12,7 @@ SECTIONS
 		_ftext = .;
 		*(.text .stub .text.* .gnu.linkonce.t.*)
 		_etext = .;
-	} > main_ram
+	} > firmware_ram
 
 	.rodata :
 	{
@@ -21,7 +21,7 @@ SECTIONS
 		*(.rodata .rodata.* .gnu.linkonce.r.*)
 		*(.rodata1)
 		_erodata = .;
-	} > main_ram
+	} > firmware_ram
 
 	.data :
 	{
@@ -32,7 +32,7 @@ SECTIONS
 		_gp = ALIGN(16);
 		*(.sdata .sdata.* .gnu.linkonce.s.*)
 		_edata = .;
-	} > main_ram
+	} > firmware_ram
 
 	.bss :
 	{

@@ -4,6 +4,7 @@ import os
 
 from litex.gen import *
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
+from litex.gen.fhdl.specials import Keep
 
 from litex.boards.platforms import arty
 
@@ -20,7 +21,8 @@ from litex.soc.interconnect.stream import *
 from liteeth.phy import LiteEthPHY
 from liteeth.core.mac import LiteEthMAC
 
-from cores import a7ddrphy, dna, xadc, led
+from gateware import a7ddrphy, firmware
+from gateware import dna, xadc, led
 
 # TODO: use half-rate DDR3 phy and use 100Mhz CPU clock
 
@@ -31,23 +33,18 @@ class UARTVirtualPhy:
 
 
 class MT41K128M16(SDRAMModule):
-    geom_settings = {
-        "nbanks": 8,
-        "nrows":  16384,
-        "ncols":  1024,
-    }
-    timing_settings = {
-        "tRP":   13.75,
-        "tRCD":  13.75,
-        "tWR":   15,
-        "tWTR":  8,
-        "tREFI": 64*1000*1000/8192,
-        "tRFC":  160,
-    }
-
-    def __init__(self, clk_freq):
-        SDRAMModule.__init__(self, clk_freq, "DDR3", self.geom_settings,
-                             self.timing_settings)
+    memtype = "DDR3"
+    # geometry
+    nbanks = 8
+    nrows  = 16384
+    ncols  = 1024
+    # timings (-7 speedgrade)
+    tRP   = 13.75
+    tRCD  = 13.75
+    tWR   = 15
+    tWTR  = 8
+    tREFI = 64*1000*1000/8192
+    tRFC  = 160
 
 
 class _CRG(Module):
@@ -132,18 +129,23 @@ class BaseSoC(SoCSDRAM):
     }
     csr_map.update(SoCSDRAM.csr_map)
 
+    mem_map = {
+        "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
+    }
+    mem_map.update(SoCSDRAM.mem_map)
+
     def __init__(self,
-                 integrated_rom_size=0x8000,
-                 integrated_main_ram_size=0x8000,
-                 sdram_controller_type="minicon",
+                 platform,
+                 firmware_ram_size=0x10000,
+                 firmware_filename="firmware/firmware.bin",
                  **kwargs):
-        platform = arty.Platform()
-        SoCSDRAM.__init__(self, platform,
-                          clk_freq=50*1000000,
-                          integrated_rom_size=integrated_rom_size,
-                          integrated_main_ram_size=integrated_main_ram_size,
-                          with_uart=False,
-                          **kwargs)
+        clk_freq = 50*1000000
+        SoCSDRAM.__init__(self, platform, clk_freq,
+            integrated_rom_size=0x8000,
+            integrated_sram_size=0x8000,
+            integrated_main_ram_size=0x8000,
+            with_uart=False,
+            **kwargs)
 
         self.submodules.crg = _CRG(platform)
         self.submodules.dna = dna.DNA()
@@ -152,14 +154,19 @@ class BaseSoC(SoCSDRAM):
         self.submodules.leds = led.ClassicLed(Cat(platform.request("user_led", i) for i in range(4)))
         self.submodules.rgb_leds = led.RGBLed(platform.request("rgb_leds"))
 
-        # DDR3
+        # firmware
+        self.submodules.firmware_ram = firmware.FirmwareROM(firmware_ram_size, firmware_filename)
+        self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
+        self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
+
+        # sdram
         if not self.integrated_main_ram_size:
             self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
             sdram_module = MT41K128M16(self.clk_freq, "1:4")
             self.register_sdram(self.ddrphy, sdram_controller_type,
                                 sdram_module.geom_settings, sdram_module.timing_settings)
 
-        # SPI Flash
+        # spi flash
         if not self.integrated_rom_size:
             spiflash_pads = platform.request("spiflash")
             spiflash_pads.clk = Signal()
@@ -172,7 +179,7 @@ class BaseSoC(SoCSDRAM):
             self.flash_boot_address = 0xb00000
             self.register_rom(self.spiflash.bus)
 
-        # UART mux
+        # uart mux
         uart_sel = platform.request("user_sw", 0)
 
         self.submodules.uart_phy = RS232PHY(platform.request("serial"), self.clk_freq, 115200)
@@ -192,10 +199,10 @@ class BaseSoC(SoCSDRAM):
             )
         ]
 
-        # UART cpu
+        # uart cpu
         self.submodules.uart = UART(uart_phys["cpu"])
 
-        # UART bridge
+        # uart bridge
         self.submodules.bridge = WishboneStreamingBridge(uart_phys["bridge"], self.clk_freq)
         self.add_wb_master(self.bridge.wishbone)
 
@@ -218,8 +225,8 @@ class MiniSoC(BaseSoC):
     }
     mem_map.update(BaseSoC.mem_map)
 
-    def __init__(self, **kwargs):
-        BaseSoC.__init__(self, **kwargs)
+    def __init__(self, *args, **kwargs):
+        BaseSoC.__init__(self, *args, **kwargs)
 
         self.submodules.ethphy = LiteEthPHY(self.platform.request("eth_clocks"),
                                             self.platform.request("eth"))
@@ -227,35 +234,41 @@ class MiniSoC(BaseSoC):
         self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)
         self.add_memory_region("ethmac", self.mem_map["ethmac"] | self.shadow_base, 0x2000)
 
+        self.specials += [
+            Keep(self.ethphy.crg.cd_eth_rx.clk),
+            Keep(self.ethphy.crg.cd_eth_tx.clk)
+        ]
+
+        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_rx.clk, 40.0)
+        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_tx.clk, 40.0)
+
+        self.platform.add_false_path_constraints(
+            self.crg.cd_sys.clk,
+            self.ethphy.crg.cd_eth_rx.clk,
+            self.ethphy.crg.cd_eth_tx.clk)
+
+    def configure_ip(self, ip_type, ip):
+        for i, e in enumerate(ip):
+            s = ip_type + str(i + 1)
+            s = s.upper()
+            self.add_constant(s, e)
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC port to Arty")
+    parser = argparse.ArgumentParser(description="Arty LiteX SoC")
     builder_args(parser)
     soc_sdram_args(parser)
     parser.add_argument("--with-ethernet", action="store_true",
                         help="enable Ethernet support")
-    parser.add_argument("--build", action="store_true",
-                        help="build bitstream")
-    parser.add_argument("--load", action="store_true",
-                        help="load bitstream")
-    parser.add_argument("--flash", action="store_true",
-                        help="flash bitstream")
+    parser.add_argument("--nocompile-gateware", action="store_true")
     args = parser.parse_args()
 
+    platform = arty.Platform()
     cls = MiniSoC if args.with_ethernet else BaseSoC
-    soc = cls(**soc_sdram_argdict(args))
-    builder = Builder(soc, csr_csv="../software/csr.csv")
-
-    if args.build:
-        builder.build()
-
-    if args.load:
-        prog = soc.platform.create_programmer()
-        prog.load_bitstream(os.path.join(builder.output_dir, "gateware", "top.bit"))
-
-    if args.flash:
-        prog = soc.platform.create_programmer()
-        prog.flash(0, os.path.join(builder.output_dir, "gateware", "top.bin"))
+    soc = cls(platform, **soc_sdram_argdict(args))
+    builder = Builder(soc, output_dir="build",
+                      compile_gateware=not args.nocompile_gateware,
+                      csr_csv="test/csr.csv")
+    vns = builder.build()
 
 if __name__ == "__main__":
     main()

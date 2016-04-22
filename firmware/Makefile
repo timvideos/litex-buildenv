@@ -1,4 +1,4 @@
-ARTY_DIR=../gateware/soc_basesoc_arty
+ARTY_DIR=../build
 
 include $(ARTY_DIR)/software/include/generated/variables.mak
 include $(SOC_DIRECTORY)/software/common.mak
