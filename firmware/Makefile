@@ -3,7 +3,18 @@ ARTY_DIR=../build
 include $(ARTY_DIR)/software/include/generated/variables.mak
 include $(SOC_DIRECTORY)/software/common.mak
 
-OBJECTS=isr.o main.o
+UIPDIR=uip
+LIBUIPDIR=libuip
+
+OBJECTS=isr.o \
+		ethernet.o \
+		etherbone.o \
+		telnet.o \
+		mdio.o \
+		ci.o \
+		main.o
+
+CFLAGS += -I. -I$(UIPDIR) -I$(LIBUIPDIR)
 
 all: firmware.bin
 
@@ -13,8 +24,9 @@ all: firmware.bin
 %.bin: %.elf
 	$(OBJCOPY) -O binary $< $@
 	chmod -x $@
+	cp $@ boot.bin
 
-firmware.elf: $(OBJECTS)
+firmware.elf: $(OBJECTS) libs
 	$(LD) $(LDFLAGS) \
 		-T linker.ld \
 		-N -o $@ \
@@ -22,7 +34,8 @@ firmware.elf: $(OBJECTS)
 		$(OBJECTS) \
 		-L$(ARTY_DIR)/software/libbase \
 		-L$(ARTY_DIR)/software/libcompiler_rt \
-		-lbase -lcompiler_rt
+		-L$(LIBUIPDIR) \
+		-lbase-nofloat -luip -lcompiler_rt
 	chmod -x $@
 
 main.o: main.c
@@ -34,7 +47,11 @@ main.o: main.c
 %.o: %.S
 	$(assemble)
 
+libs:
+	$(MAKE) -C $(LIBUIPDIR)
+
 clean:
+	cd libuip && make clean
 	$(RM) $(OBJECTS) $(OBJECTS:.o=.d) firmware.elf firmware.bin .*~ *~
 
-.PHONY: all main.o clean load
+.PHONY: all main.o clean libs load

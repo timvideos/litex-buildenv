@@ -4,7 +4,7 @@
       /_/ |_/_/  \__/\_, /   /___/\___/\___/
                     /___/
 
-            Copyright 2015 / EnjoyDigital
+         Copyright 2015-2016 / EnjoyDigital
 
           Digilent's Arty SoC based on LiteX
 
@@ -14,29 +14,24 @@
 2. Obtain LiteX and install it:
   git clone https://github.com/enjoy-digital/litex --recursive
   cd litex
-  python3 setup.py install
+  python3 setup.py develop
   cd ..
 
 3. Obtain LiteEth and install it:
   git clone https://github.com/enjoy-digital/liteeth
   cd liteeth
-  python3 setup.py install
+  python3 setup.py develop
   cd ..
 
 4. Obtain LiteScope and install it:
   git clone https://github.com/enjoy-digital/litescope
   cd litescope
-  python3 setup.py install
+  python3 setup.py develop
   cd ..
 
 5. Build the gateware and software:
-  goto gateware
-  BaseSoC:
-    python3 arty_base.py --build --load
-  BaseSoC with ethernet:
-    python3 arty_base.py --with-ethernet --build --load
-  EtherboneSoC:
-    python3 arty_etherbone.py --build --load
+  make nexys_minisoc
+  make load
 
 [> Status:
 BaseSoC / MiniSoC validated (DDR3 and SPI still missing).

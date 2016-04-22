@@ -2,8 +2,6 @@
 #include <irq.h>
 #include <uart.h>
 
-extern void periodic_isr(void);
-
 void isr(void);
 void isr(void)
 {
@@ -13,5 +11,4 @@ void isr(void)
 
 	if(irqs & (1 << UART_INTERRUPT))
 		uart_isr();
-
 }
