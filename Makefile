@@ -10,6 +10,10 @@ arty_etherbone:
 	rm -rf build
 	./arty_etherbone.py --cpu-type $(CPU)
 
+arty_ddr3:
+	rm -rf build
+	./arty_ddr3.py
+
 load:
 	./load.py
 

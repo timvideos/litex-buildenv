@@ -1,5 +1,4 @@
-# tCK=5ns CL=7 CWL=6
-# TODO: switch to half-rate instead of quarter-rate
+# tCK=2.5ns CL=7 CWL=6
 
 from litex.gen import *
 
@@ -126,14 +125,13 @@ class A7DDRPHY(Module, AutoCSR):
                 dqs_serdes_pattern.eq(0b01010101)
             )
         for i in range(databits//8):
-            dm_o = Signal()
             self.specials += \
                 Instance("OSERDESE2",
                          p_DATA_WIDTH=8, p_TRISTATE_WIDTH=1,
                          p_DATA_RATE_OQ="DDR", p_DATA_RATE_TQ="BUF",
                          p_SERDES_MODE="MASTER",
 
-                         o_OQ=dm_o,
+                         o_OQ=pads.dm[i],
                          i_OCE=1,
                          i_RST=ResetSignal(),
                          i_CLK=ClockSignal("sys4x"), i_CLKDIV=ClockSignal(),
@@ -197,7 +195,7 @@ class A7DDRPHY(Module, AutoCSR):
 
                          i_DDLY=dq_i_delayed,
                          i_CE1=1,
-                         i_RST=ResetSignal(),
+                         i_RST=ResetSignal() | (self._dly_sel.storage[i//8] & self._rdly_dq_rst.re),
                          i_CLK=ClockSignal("sys4x"), i_CLKB=~ClockSignal("sys4x"), i_CLKDIV=ClockSignal(),
                          i_BITSLIP=self._dly_sel.storage[i//8] & self._rdly_dq_bitslip.re,
                          o_Q8=self.dfi.phases[0].rddata[i], o_Q7=self.dfi.phases[0].rddata[databits+i],
