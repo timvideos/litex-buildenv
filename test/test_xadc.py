@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from litex.soc.tools.remote import RemoteClient
 
 wb = RemoteClient(csr_data_width=8)

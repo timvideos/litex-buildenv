@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from litex.soc.tools.remote import RemoteClient
 
 rom_base = 0x00000000

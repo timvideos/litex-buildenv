@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from litex.soc.tools.remote import RemoteClient
 
 import time
