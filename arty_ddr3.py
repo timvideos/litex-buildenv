@@ -16,10 +16,6 @@ from litex.soc.cores.uart.bridge import UARTWishboneBridge
 from gateware import a7ddrphy
 from gateware import dna, xadc
 
-from litescope import LiteScopeAnalyzer
-
-# TODO: use half-rate DDR3 phy and use 100Mhz CPU clock
-
 class MT41K128M16(SDRAMModule):
     memtype = "DDR3"
     # geometry
@@ -136,90 +132,6 @@ class BaseSoC(SoCSDRAM):
         self.add_cpu_or_bridge(UARTWishboneBridge(platform.request("serial"), clk_freq, baudrate=115200))
         self.add_wb_master(self.cpu_or_bridge.wishbone)
 
-        # litescope
-        trigger = Signal()
-        analyzer_signals = [
-            # p0
-            self.ddrphy.dfi.p0.address,
-            self.ddrphy.dfi.p0.bank,
-            self.ddrphy.dfi.p0.cas_n,
-            self.ddrphy.dfi.p0.cs_n,
-            self.ddrphy.dfi.p0.ras_n,
-            self.ddrphy.dfi.p0.we_n,
-            self.ddrphy.dfi.p0.cke,
-            self.ddrphy.dfi.p0.odt,
-            self.ddrphy.dfi.p0.reset_n,
-
-            self.ddrphy.dfi.p0.wrdata,
-            self.ddrphy.dfi.p0.wrdata_en,
-            self.ddrphy.dfi.p0.wrdata_mask,
-
-            self.ddrphy.dfi.p0.rddata_en,
-            self.ddrphy.dfi.p0.rddata,
-            self.ddrphy.dfi.p0.rddata_valid,
-
-            # p1
-            self.ddrphy.dfi.p1.address,
-            self.ddrphy.dfi.p1.bank,
-            self.ddrphy.dfi.p1.cas_n,
-            self.ddrphy.dfi.p1.cs_n,
-            self.ddrphy.dfi.p1.ras_n,
-            self.ddrphy.dfi.p1.we_n,
-            self.ddrphy.dfi.p1.cke,
-            self.ddrphy.dfi.p1.odt,
-            self.ddrphy.dfi.p1.reset_n,
-
-            self.ddrphy.dfi.p1.wrdata,
-            self.ddrphy.dfi.p1.wrdata_en,
-            self.ddrphy.dfi.p1.wrdata_mask,
-
-            self.ddrphy.dfi.p1.rddata_en,
-            self.ddrphy.dfi.p1.rddata,
-            self.ddrphy.dfi.p1.rddata_valid,
-
-#            # p2
-#            self.ddrphy.dfi.p2.address,
-#            self.ddrphy.dfi.p2.bank,
-#            self.ddrphy.dfi.p2.cas_n,
-#            self.ddrphy.dfi.p2.cs_n,
-#            self.ddrphy.dfi.p2.ras_n,
-#            self.ddrphy.dfi.p2.we_n,
-#            self.ddrphy.dfi.p2.cke,
-#            self.ddrphy.dfi.p2.odt,
-#            self.ddrphy.dfi.p2.reset_n,
-#
-#            self.ddrphy.dfi.p2.wrdata,
-#            self.ddrphy.dfi.p2.wrdata_en,
-#            self.ddrphy.dfi.p2.wrdata_mask,
-#
-#            self.ddrphy.dfi.p2.rddata_en,
-#            self.ddrphy.dfi.p2.rddata,
-#            self.ddrphy.dfi.p2.rddata_valid,
-#
-#            # p3
-#            self.ddrphy.dfi.p3.address,
-#            self.ddrphy.dfi.p3.bank,
-#            self.ddrphy.dfi.p3.cas_n,
-#            self.ddrphy.dfi.p3.cs_n,
-#            self.ddrphy.dfi.p3.ras_n,
-#            self.ddrphy.dfi.p3.we_n,
-#            self.ddrphy.dfi.p3.cke,
-#            self.ddrphy.dfi.p3.odt,
-#            self.ddrphy.dfi.p3.reset_n,
-#
-#            self.ddrphy.dfi.p3.wrdata,
-#            self.ddrphy.dfi.p3.wrdata_en,
-#            self.ddrphy.dfi.p3.wrdata_mask,
-#
-#            self.ddrphy.dfi.p3.rddata_en,
-#            self.ddrphy.dfi.p3.rddata,
-#            self.ddrphy.dfi.p3.rddata_valid
-        ]
-#        self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, depth=1024)
-
-#    def do_exit(self, vns):
-#        self.analyzer.export_csv(vns, "test/analyzer.csv")
-
 
 def main():
     parser = argparse.ArgumentParser(description="Arty LiteX SoC")
@@ -231,7 +143,6 @@ def main():
     soc = BaseSoC(platform, **soc_sdram_argdict(args))
     builder = Builder(soc, output_dir="build", csr_csv="test/csr.csv")
     vns = builder.build()
-#    soc.do_exit(vns)
 
 if __name__ == "__main__":
     main()
