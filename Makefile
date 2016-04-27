@@ -16,6 +16,10 @@ nexys_video:
 	#cd firmware && make clean all
 	./nexys_video.py --cpu-type $(CPU)
 
+nexys_ddr3:
+	rm -rf build
+	./nexys_ddr3.py
+
 load:
 	./load.py
 
