@@ -143,8 +143,6 @@ class BaseSoC(SoCSDRAM):
         SoCSDRAM.__init__(self, platform, clk_freq,
             integrated_rom_size=0x8000,
             integrated_sram_size=0x8000,
-            integrated_main_ram_size=0,
-            l2_size=0,
             with_uart=False,
             **kwargs)
 
@@ -161,14 +159,12 @@ class BaseSoC(SoCSDRAM):
         self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
 
         # sdram
-        if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
-            sdram_module = MT41K128M16(self.clk_freq, "1:4")
-            self.register_sdram(self.ddrphy, "minicon",
-                                sdram_module.geom_settings, sdram_module.timing_settings)
-            self.add_constant("SDRAM_ISERDESE2_BITSLIP", 2)
-            self.add_constant("SDRAM_IDELAYE2_DELAY", 6)
-
+        self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
+        sdram_module = MT41K128M16(self.clk_freq, "1:4")
+        self.register_sdram(self.ddrphy, "minicon",
+                            sdram_module.geom_settings, sdram_module.timing_settings)
+        self.add_constant("SDRAM_ISERDESE2_BITSLIP", 2)
+        self.add_constant("SDRAM_IDELAYE2_DELAY", 6)
 
         # spi flash
         if not self.integrated_rom_size:
