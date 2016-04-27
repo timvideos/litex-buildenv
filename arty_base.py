@@ -24,7 +24,6 @@ from liteeth.core.mac import LiteEthMAC
 from gateware import a7ddrphy, firmware
 from gateware import dna, xadc, led
 
-# TODO: use half-rate DDR3 phy and use 100Mhz CPU clock
 
 class UARTVirtualPhy:
     def __init__(self):
@@ -162,7 +161,8 @@ class BaseSoC(SoCSDRAM):
         self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
         sdram_module = MT41K128M16(self.clk_freq, "1:4")
         self.register_sdram(self.ddrphy, "minicon",
-                            sdram_module.geom_settings, sdram_module.timing_settings)
+                            sdram_module.geom_settings,
+                            sdram_module.timing_settings)
         self.add_constant("SDRAM_ISERDESE2_BITSLIP", 2)
         self.add_constant("SDRAM_IDELAYE2_DELAY", 6)
 
