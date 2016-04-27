@@ -34,7 +34,7 @@
   make load
 
 [> Status:
-BaseSoC / MiniSoC validated (DDR3 and SPI still missing).
+BaseSoC / MiniSoC validated with 16 bits DDR3 @ 800Mbps/pin.
 EtherboneSoC validated.
 
 [> Contact
