@@ -30,7 +30,7 @@
   cd ..
 
 5. Build the gateware and software:
-  make nexys_minisoc
+  make arty_minisoc
   make load
 
 [> Status:
