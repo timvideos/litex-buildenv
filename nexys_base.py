@@ -19,8 +19,6 @@ from liteeth.core.mac import LiteEthMAC
 from gateware import a7ddrphy, firmware
 from gateware import dna, xadc, oled
 
-# TODO: use half-rate DDR3 phy and use 100Mhz CPU clock
-
 class MT41K256M16(SDRAMModule):
     memtype = "DDR3"
     # geometry
@@ -28,10 +26,10 @@ class MT41K256M16(SDRAMModule):
     nrows  = 32768
     ncols  = 1024
     # timings (-7 speedgrade)
-    tRP   = 13.125
-    tRCD  = 13.125
+    tRP   = 13.75
+    tRCD  = 13.75
     tWR   = 15
-    tWTR  = 4
+    tWTR  = 8
     tREFI = 64*1000*1000/8192
     tRFC  = 260
 
@@ -44,7 +42,7 @@ class _CRG(Module):
         self.clock_domains.cd_clk200 = ClockDomain()
         self.clock_domains.cd_clk100 = ClockDomain()
 
-        self.clk100 = platform.request("clk100")
+        clk100 = platform.request("clk100")
         rst = platform.request("cpu_reset")
 
         pll_locked = Signal()
@@ -57,28 +55,28 @@ class _CRG(Module):
             Instance("PLLE2_BASE",
                      p_STARTUP_WAIT="FALSE", o_LOCKED=pll_locked,
 
-                     # VCO @ 800 MHz
+                     # VCO @ 1600 MHz
                      p_REF_JITTER1=0.01, p_CLKIN1_PERIOD=10.0,
-                     p_CLKFBOUT_MULT=8, p_DIVCLK_DIVIDE=1,
-                     i_CLKIN1=self.clk100, i_CLKFBIN=pll_fb, o_CLKFBOUT=pll_fb,
+                     p_CLKFBOUT_MULT=16, p_DIVCLK_DIVIDE=1,
+                     i_CLKIN1=clk100, i_CLKFBIN=pll_fb, o_CLKFBOUT=pll_fb,
 
-                     # 50 MHz
+                     # 100 MHz
                      p_CLKOUT0_DIVIDE=16, p_CLKOUT0_PHASE=0.0,
                      o_CLKOUT0=self.pll_sys,
 
-                     # 200 MHz
+                     # 400 MHz
                      p_CLKOUT1_DIVIDE=4, p_CLKOUT1_PHASE=0.0,
                      o_CLKOUT1=pll_sys4x,
 
-                     # 200 MHz dqs
-                     p_CLKOUT2_DIVIDE=4, p_CLKOUT2_PHASE=135.0,
+                     # 400 MHz dqs
+                     p_CLKOUT2_DIVIDE=4, p_CLKOUT2_PHASE=90.0,
                      o_CLKOUT2=pll_sys4x_dqs,
 
                      # 200 MHz
-                     p_CLKOUT3_DIVIDE=4, p_CLKOUT3_PHASE=0.0,
+                     p_CLKOUT3_DIVIDE=8, p_CLKOUT3_PHASE=0.0,
                      o_CLKOUT3=pll_clk200,
 
-                     # 200MHz
+                     # 400MHz
                      p_CLKOUT4_DIVIDE=4, p_CLKOUT4_PHASE=0.0,
                      #o_CLKOUT4=
             ),
@@ -86,7 +84,7 @@ class _CRG(Module):
             Instance("BUFG", i_I=pll_sys4x, o_O=self.cd_sys4x.clk),
             Instance("BUFG", i_I=pll_sys4x_dqs, o_O=self.cd_sys4x_dqs.clk),
             Instance("BUFG", i_I=pll_clk200, o_O=self.cd_clk200.clk),
-            Instance("BUFG", i_I=self.clk100, o_O=self.cd_clk100.clk),
+            Instance("BUFG", i_I=clk100, o_O=self.cd_clk100.clk),
             AsyncResetSynchronizer(self.cd_sys, ~pll_locked | ~rst),
             AsyncResetSynchronizer(self.cd_clk200, ~pll_locked | rst),
             AsyncResetSynchronizer(self.cd_clk100, ~pll_locked | rst),
@@ -121,13 +119,12 @@ class BaseSoC(SoCSDRAM):
                  firmware_ram_size=0x10000,
                  firmware_filename="firmware/firmware.bin",
                  **kwargs):
-        clk_freq = 50*1000000
+        clk_freq = 100*1000000
         SoCSDRAM.__init__(self, platform, clk_freq,
             integrated_rom_size=0x8000,
             integrated_sram_size=0x8000,
-            integrated_main_ram_size=0x8000,
-            l2_size=32,
             **kwargs)
+
         self.submodules.crg = _CRG(platform)
         self.submodules.dna = dna.DNA()
         self.submodules.xadc = xadc.XADC()
@@ -138,12 +135,14 @@ class BaseSoC(SoCSDRAM):
         self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
         self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
 
-#        # sdram
-#        self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
-#        sdram_module = MT41K256M16(self.clk_freq, "1:4")
-#        self.register_sdram(self.ddrphy, "minicon",
-#                            sdram_module.geom_settings,
-#                            sdram_module.timing_settings)
+        # sdram
+        self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
+        sdram_module = MT41K256M16(self.clk_freq, "1:4")
+        self.register_sdram(self.ddrphy, "minicon",
+                            sdram_module.geom_settings,
+                            sdram_module.timing_settings)
+        self.add_constant("SDRAM_ISERDESE2_BITSLIP", 2)
+        self.add_constant("SDRAM_IDELAYE2_DELAY", 8)
 
 
 class MiniSoC(BaseSoC):

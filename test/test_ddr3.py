@@ -74,7 +74,7 @@ time.sleep(0.1)
 # hardware control
 regs.sdram_dfii_control.write(dfii_control_sel)
 
-def seed_to_data(seed, random=True):
+def seed_to_data(seed, random=False):
     if random:
         return (1664525*seed + 1013904223) & 0xffffffff
     else:
@@ -114,7 +114,6 @@ for bitslip in range(4):
             print("bitslip={}, delay={}".format(bitslip, delay))
             write_pattern(1024)
             print("errors : %d" %check_pattern(1024))
-            exit()
 
 # # #
 

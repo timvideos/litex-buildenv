@@ -5,7 +5,7 @@ import os
 from litex.gen import *
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex.boards.platforms import arty
+from litex.boards.platforms import nexys_video
 
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
@@ -96,7 +96,7 @@ class _CRG(Module):
 
 
 class BaseSoC(SoCSDRAM):
-    default_platform = "arty"
+    default_platform = "nexys_video"
 
     csr_map = {
         "ddrphy":   17,
@@ -138,7 +138,7 @@ def main():
     soc_sdram_args(parser)
     args = parser.parse_args()
 
-    platform = arty.Platform()
+    platform = nexys_video.Platform()
     soc = BaseSoC(platform, **soc_sdram_argdict(args))
     builder = Builder(soc, output_dir="build", csr_csv="test/csr.csv")
     vns = builder.build()
