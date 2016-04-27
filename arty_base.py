@@ -67,28 +67,28 @@ class _CRG(Module):
             Instance("PLLE2_BASE",
                      p_STARTUP_WAIT="FALSE", o_LOCKED=pll_locked,
 
-                     # VCO @ 800 MHz
+                     # VCO @ 1600 MHz
                      p_REF_JITTER1=0.01, p_CLKIN1_PERIOD=10.0,
-                     p_CLKFBOUT_MULT=8, p_DIVCLK_DIVIDE=1,
+                     p_CLKFBOUT_MULT=16, p_DIVCLK_DIVIDE=1,
                      i_CLKIN1=clk100, i_CLKFBIN=pll_fb, o_CLKFBOUT=pll_fb,
 
-                     # 50 MHz
+                     # 100 MHz
                      p_CLKOUT0_DIVIDE=16, p_CLKOUT0_PHASE=0.0,
                      o_CLKOUT0=self.pll_sys,
 
-                     # 200 MHz
+                     # 400 MHz
                      p_CLKOUT1_DIVIDE=4, p_CLKOUT1_PHASE=0.0,
                      o_CLKOUT1=pll_sys4x,
 
-                     # 200 MHz dqs
-                     p_CLKOUT2_DIVIDE=4, p_CLKOUT2_PHASE=135.0,
+                     # 400 MHz dqs
+                     p_CLKOUT2_DIVIDE=4, p_CLKOUT2_PHASE=90.0,
                      o_CLKOUT2=pll_sys4x_dqs,
 
                      # 200 MHz
-                     p_CLKOUT3_DIVIDE=4, p_CLKOUT3_PHASE=0.0,
+                     p_CLKOUT3_DIVIDE=8, p_CLKOUT3_PHASE=0.0,
                      o_CLKOUT3=pll_clk200,
 
-                     # 200MHz
+                     # 400MHz
                      p_CLKOUT4_DIVIDE=4, p_CLKOUT4_PHASE=0.0,
                      #o_CLKOUT4=
             ),
@@ -139,11 +139,12 @@ class BaseSoC(SoCSDRAM):
                  firmware_ram_size=0x10000,
                  firmware_filename="firmware/firmware.bin",
                  **kwargs):
-        clk_freq = 50*1000000
+        clk_freq = 100*1000000
         SoCSDRAM.__init__(self, platform, clk_freq,
             integrated_rom_size=0x8000,
             integrated_sram_size=0x8000,
-            integrated_main_ram_size=0x8000,
+            integrated_main_ram_size=0,
+            l2_size=0,
             with_uart=False,
             **kwargs)
 
@@ -163,8 +164,11 @@ class BaseSoC(SoCSDRAM):
         if not self.integrated_main_ram_size:
             self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
             sdram_module = MT41K128M16(self.clk_freq, "1:4")
-            self.register_sdram(self.ddrphy, sdram_controller_type,
+            self.register_sdram(self.ddrphy, "minicon",
                                 sdram_module.geom_settings, sdram_module.timing_settings)
+            self.add_constant("SDRAM_ISERDESE2_BITSLIP", 2)
+            self.add_constant("SDRAM_IDELAYE2_DELAY", 6)
+
 
         # spi flash
         if not self.integrated_rom_size:
@@ -205,7 +209,6 @@ class BaseSoC(SoCSDRAM):
         # uart bridge
         self.submodules.bridge = WishboneStreamingBridge(uart_phys["bridge"], self.clk_freq)
         self.add_wb_master(self.bridge.wishbone)
-
 
 
 class MiniSoC(BaseSoC):

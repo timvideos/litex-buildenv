@@ -4,6 +4,8 @@ from litex.soc.tools.remote import RemoteClient
 import time
 
 # DDR3 init and test for a7ddrphy design
+# use arty_ddr3 design with this script to
+# find working bitslip/delay configuration
 
 dfii_control_sel     = 0x01
 dfii_control_cke     = 0x02
@@ -63,7 +65,7 @@ regs.sdram_dfii_pi0_command_issue.write(1)
 time.sleep(0.1)
 
 # zq calibration
-regs.sdram_dfii_pi0_address.write(0x400 & 0xff);
+regs.sdram_dfii_pi0_address.write(0x400);
 regs.sdram_dfii_pi0_baddress.write(0);
 regs.sdram_dfii_pi0_command.write(dfii_command_we|dfii_command_cs)
 regs.sdram_dfii_pi0_command_issue.write(1)
@@ -72,7 +74,7 @@ time.sleep(0.1)
 # hardware control
 regs.sdram_dfii_control.write(dfii_control_sel)
 
-def seed_to_data(seed, random=False):
+def seed_to_data(seed, random=True):
     if random:
         return (1664525*seed + 1013904223) & 0xffffffff
     else:
