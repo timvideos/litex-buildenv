@@ -12,7 +12,7 @@ from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.uart.bridge import UARTWishboneBridge
 
-from litedram.settings import MT41K256M16
+from litedram.modules import MT41K256M16
 from litedram.phy import a7ddrphy 
  
 from gateware import dna, xadc
