@@ -12,7 +12,7 @@ from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
-from litedram.settings import SDRAMModule
+from litedram.settings import MT41K256M16
 from litedram.phy import a7ddrphy
 
 from liteeth.phy.s7rgmii import LiteEthPHYRGMII
@@ -20,20 +20,6 @@ from liteeth.core.mac import LiteEthMAC
 
 from gateware import firmware
 from gateware import dna, xadc, oled
-
-class MT41K256M16(SDRAMModule):
-    memtype = "DDR3"
-    # geometry
-    nbanks = 8
-    nrows  = 32768
-    ncols  = 1024
-    # timings (-7 speedgrade)
-    tRP   = 13.75
-    tRCD  = 13.75
-    tWR   = 15
-    tWTR  = 8
-    tREFI = 64*1000*1000/8192
-    tRFC  = 260
 
 
 class _CRG(Module):
