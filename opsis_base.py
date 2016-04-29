@@ -195,7 +195,7 @@ class BaseSoC(SoCSDRAM):
                                                               wr_bitslip=4,
                                                               dqs_ddr_alignment="C0")
         sdram_module = MT41J128M16(self.clk_freq, "1:4")
-        self.register_sdram(self.ddrphy, "lasmicon",
+        self.register_sdram(self.ddrphy,
                             sdram_module.geom_settings,
                             sdram_module.timing_settings,
                             controller_settings=ControllerSettings(with_bandwidth=True))

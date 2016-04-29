@@ -49,7 +49,7 @@ class BaseSoC(SoCSDRAM):
         self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
 
         # sdram
-        sdram_module = IS42S16160(self.clk_freq)
+        sdram_module = IS42S16160(self.clk_freq, "1:1")
         phy_settings = PhySettings(
             memtype="SDR",
             dfi_databits=1*16,
@@ -63,7 +63,7 @@ class BaseSoC(SoCSDRAM):
             write_latency=0
         )
         self.submodules.sdrphy = SDRAMPHYModel(sdram_module, phy_settings)
-        self.register_sdram(self.sdrphy, "minicon",
+        self.register_sdram(self.sdrphy,
                             sdram_module.geom_settings,
                             sdram_module.timing_settings)
         # reduce memtest size to speed up simulation
