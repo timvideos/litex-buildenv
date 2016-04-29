@@ -16,7 +16,7 @@ from litex.soc.integration.builder import *
 from litex.soc.interconnect.wishbonebridge import WishboneStreamingBridge
 from litex.soc.interconnect.stream import *
 
-from litedram.settings import SDRAMModule
+from litedram.settings import MT41K128M16
 from litedram.phy import a7ddrphy
 
 from liteeth.phy import LiteEthPHY
@@ -30,21 +30,6 @@ class UARTVirtualPhy:
     def __init__(self):
         self.sink = Endpoint([("data", 8)])
         self.source = Endpoint([("data", 8)])
-
-
-class MT41K128M16(SDRAMModule):
-    memtype = "DDR3"
-    # geometry
-    nbanks = 8
-    nrows  = 16384
-    ncols  = 1024
-    # timings (-7 speedgrade)
-    tRP   = 13.75
-    tRCD  = 13.75
-    tWR   = 15
-    tWTR  = 8
-    tREFI = 64*1000*1000/8192
-    tRFC  = 160
 
 
 class _CRG(Module):

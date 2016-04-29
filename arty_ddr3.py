@@ -12,25 +12,10 @@ from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.uart.bridge import UARTWishboneBridge
 
-from litedram.settings import SDRAMModule
+from litedram.settings import MT41K128M16
 from litedram.phy import a7ddrphy
 
 from gateware import dna, xadc
-
-
-class MT41K128M16(SDRAMModule):
-    memtype = "DDR3"
-    # geometry
-    nbanks = 8
-    nrows  = 16384
-    ncols  = 1024
-    # timings (-7 speedgrade)
-    tRP   = 13.75
-    tRCD  = 13.75
-    tWR   = 15
-    tWTR  = 8
-    tREFI = 64*1000*1000/8192
-    tRFC  = 160
 
 
 class _CRG(Module):
