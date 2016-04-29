@@ -16,7 +16,7 @@ from litex.soc.integration.builder import *
 from litex.soc.interconnect.wishbonebridge import WishboneStreamingBridge
 from litex.soc.interconnect.stream import *
 
-from litedram.settings import MT41K128M16
+from litedram.modules import MT41K128M16
 from litedram.phy import a7ddrphy
 
 from liteeth.phy import LiteEthPHY
