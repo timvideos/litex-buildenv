@@ -10,11 +10,12 @@ from litex.gen.genlib.io import CRG
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 from litex.soc.cores import uart
-from litex.soc.cores.sdram.settings import PhySettings, IS42S16160
-from litex.soc.cores.sdram.model import SDRAMPHYModel
 from litex.soc.integration.soc_core import mem_decoder
-from litex.soc.cores.sdram.lasmicon.core import ControllerSettings
 
+from litedram.common import PhySettings
+from litedram.modules import IS42S16160
+from litedram.model import SDRAMPHYModel
+from litedram.core.controller import ControllerSettings
 
 from liteeth.phy.model import LiteEthPHYModel
 from liteeth.core.mac import LiteEthMAC
@@ -63,9 +64,11 @@ class BaseSoC(SoCSDRAM):
             write_latency=0
         )
         self.submodules.sdrphy = SDRAMPHYModel(sdram_module, phy_settings)
+        controller_settings = ControllerSettings(with_refresh=False)
         self.register_sdram(self.sdrphy,
                             sdram_module.geom_settings,
-                            sdram_module.timing_settings)
+                            sdram_module.timing_settings,
+                            controller_settings=controller_settings)
         # reduce memtest size to speed up simulation
         self.add_constant("MEMTEST_DATA_SIZE", 1024)
         self.add_constant("MEMTEST_ADDR_SIZE", 1024)
