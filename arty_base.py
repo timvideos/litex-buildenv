@@ -148,7 +148,7 @@ class BaseSoC(SoCSDRAM):
         self.add_constant("A7DDRPHY_BITSLIP", 2)
         self.add_constant("A7DDRPHY_DELAY", 6)
         sdram_module = MT41K128M16(self.clk_freq, "1:4")
-        self.register_sdram(self.ddrphy, "minicon",
+        self.register_sdram(self.ddrphy,
                             sdram_module.geom_settings,
                             sdram_module.timing_settings)
 
