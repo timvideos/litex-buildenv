@@ -11,17 +11,18 @@ from litex.boards.platforms import arty
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
 from litex.soc.cores.flash import spi_flash
-from litex.soc.cores.sdram.settings import SDRAMModule
 from litex.soc.cores.uart.core import RS232PHY, UART
 from litex.soc.integration.builder import *
 from litex.soc.interconnect.wishbonebridge import WishboneStreamingBridge
-
 from litex.soc.interconnect.stream import *
+
+from litedram.settings import SDRAMModule
+from litedram.phy import a7ddrphy
 
 from liteeth.phy import LiteEthPHY
 from liteeth.core.mac import LiteEthMAC
 
-from gateware import a7ddrphy, firmware
+from gateware import firmware
 from gateware import dna, xadc, led
 
 
