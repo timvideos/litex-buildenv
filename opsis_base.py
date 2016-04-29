@@ -12,8 +12,7 @@ from litex.gen.genlib.io import CRG
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 from litex.gen.genlib.misc import WaitTimer
 
-from litex.soc.cores.sdram.settings import MT41J128M16
-from litex.soc.cores.sdram.phy import s6ddrphy
+
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
@@ -22,6 +21,9 @@ from litex.soc.interconnect.csr import AutoCSR
 from litex.soc.cores.uart.bridge import UARTWishboneBridge
 from litex.soc.cores.sdram.lasmicon.core import ControllerSettings
 
+
+from litedram.modules import MT41J128M16
+from litedram.phy import s6ddrphy
 
 from liteeth.phy.s6rgmii import LiteEthPHYRGMII
 from liteeth.core.mac import LiteEthMAC
