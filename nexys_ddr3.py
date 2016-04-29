@@ -9,11 +9,12 @@ from litex.boards.platforms import nexys_video
 
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
-from litex.soc.cores.sdram.settings import SDRAMModule
 from litex.soc.integration.builder import *
 from litex.soc.cores.uart.bridge import UARTWishboneBridge
 
-from gateware import a7ddrphy
+from litedram.settings import SDRAMModule
+from litedram.phy import a7ddrphy 
+ 
 from gateware import dna, xadc
 
 class MT41K256M16(SDRAMModule):

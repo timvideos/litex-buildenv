@@ -17,19 +17,25 @@
   python3 setup.py develop
   cd ..
 
-3. Obtain LiteEth and install it:
+3. Obtain LiteDRAM and install it:
+  git clone https://github.com/enjoy-digital/litedram
+  cd litedram
+  python3 setup.py develop
+  cd ..
+
+4. Obtain LiteEth and install it:
   git clone https://github.com/enjoy-digital/liteeth
   cd liteeth
   python3 setup.py develop
   cd ..
 
-4. Obtain LiteScope and install it:
+5. Obtain LiteScope and install it:
   git clone https://github.com/enjoy-digital/litescope
   cd litescope
   python3 setup.py develop
   cd ..
 
-5. Build the gateware and software:
+6. Build the gateware and software:
   make nexys_minisoc
   make load
 

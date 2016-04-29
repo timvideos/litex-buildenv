@@ -10,13 +10,15 @@ from litex.boards.platforms import nexys_video as nexys
 
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
-from litex.soc.cores.sdram.settings import SDRAMModule
 from litex.soc.integration.builder import *
+
+from litedram.settings import SDRAMModule
+from litedram.phy import a7ddrphy
 
 from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 from liteeth.core.mac import LiteEthMAC
 
-from gateware import a7ddrphy, firmware
+from gateware import firmware
 from gateware import dna, xadc, oled
 
 class MT41K256M16(SDRAMModule):
