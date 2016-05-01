@@ -14,7 +14,7 @@ from litex.soc.integration.soc_core import mem_decoder
 
 from litedram.common import PhySettings
 from litedram.modules import IS42S16160
-from litedram.model import SDRAMPHYModel
+from litedram.phy.model import SDRAMPHYModel
 from litedram.core.controller import ControllerSettings
 
 from liteeth.phy.model import LiteEthPHYModel
