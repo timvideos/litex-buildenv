@@ -11,6 +11,7 @@ OBJECTS=isr.o \
 		etherbone.o \
 		telnet.o \
 		mdio.o \
+		bist.o \
 		ci.o \
 		main.o
 

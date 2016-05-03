@@ -18,6 +18,9 @@ from litex.soc.interconnect.stream import *
 
 from litedram.modules import MT41K128M16
 from litedram.phy import a7ddrphy
+from litedram.core.controller import ControllerSettings
+from litedram.frontend.bist import LiteDRAMBISTGenerator
+from litedram.frontend.bist import LiteDRAMBISTChecker
 
 from liteeth.phy import LiteEthPHY
 from liteeth.core.mac import LiteEthMAC
@@ -105,12 +108,14 @@ class BaseSoC(SoCSDRAM):
     default_platform = "arty"
 
     csr_map = {
-        "spiflash": 16,
-        "ddrphy":   17,
-        "dna":      18,
-        "xadc":     19,
-        "leds":     20,
-        "rgb_leds": 21
+        "spiflash":  16,
+        "ddrphy":    17,
+        "dna":       18,
+        "xadc":      19,
+        "leds":      20,
+        "rgb_leds":  21,
+        "generator": 22,
+        "checker":   23
     }
     csr_map.update(SoCSDRAM.csr_map)
 
@@ -150,7 +155,11 @@ class BaseSoC(SoCSDRAM):
         sdram_module = MT41K128M16(self.clk_freq, "1:4")
         self.register_sdram(self.ddrphy,
                             sdram_module.geom_settings,
-                            sdram_module.timing_settings)
+                            sdram_module.timing_settings,
+                            controller_settings=ControllerSettings(cmd_buffer_depth=8))
+
+        self.submodules.generator = LiteDRAMBISTGenerator(self.sdram.crossbar.get_port())
+        self.submodules.checker = LiteDRAMBISTChecker(self.sdram.crossbar.get_port())
 
         # spi flash
         if not self.integrated_rom_size:

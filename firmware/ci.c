@@ -11,6 +11,7 @@
 #include "ci.h"
 #include "telnet.h"
 #include "mdio.h"
+#include "bist.h"
 
 int ci_puts(const char *s)
 {
@@ -55,6 +56,9 @@ static void ci_help(void)
 #ifdef CSR_ETHPHY_MDIO_W_ADDR
 	ci_puts("mdio_dump   - dump mdio registers");
 	ci_puts("mdio_status - show mdio status");
+#endif
+#ifdef CSR_GENERATOR_BASE
+	ci_puts("bist        - DDR3 bist");
 #endif
 	help_debug();
 }
@@ -189,6 +193,9 @@ void ci_service(void)
 #ifdef CSR_ETHPHY_MDIO_W_ADDR
 	else if(strcmp(token, "mdio_status") == 0) mdio_status();
 	else if(strcmp(token, "mdio_dump") == 0) mdio_dump();
+#endif
+#ifdef CSR_GENERATOR_BASE
+	else if(strcmp(token, "bist") == 0) bist();
 #endif
 	else if((strcmp(token, "debug") == 0)) {
 		token = get_token(&str);
