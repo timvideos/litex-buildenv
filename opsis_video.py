@@ -28,20 +28,20 @@ class VideoMixerSoC(base_cls):
         base_cls.__init__(self, platform, **kwargs)
         # hdmi in 0
         self.submodules.hdmi_in0 = HDMIIn(platform.request("hdmi_in", 0),
-                                          self.sdram.crossbar.get_master(),
+                                          self.sdram.crossbar.get_port(),
                                           fifo_depth=512)
         # hdmi in 1
         self.submodules.hdmi_in1 = HDMIIn(platform.request("hdmi_in", 1),
-                                          self.sdram.crossbar.get_master(),
+                                          self.sdram.crossbar.get_port(),
                                           fifo_depth=512)
         # hdmi out 0
         self.submodules.hdmi_out0 = VideoOut(platform.device,
                                             platform.request("hdmi_out", 0),
-                                            self.sdram.crossbar.get_master())
+                                            self.sdram.crossbar.get_port())
         # hdmi out 1 : Share clocking with hdmi_out0 since no PLL_ADV left.
         self.submodules.hdmi_out1 = VideoOut(platform.device,
                                             platform.request("hdmi_out", 1),
-                                            self.sdram.crossbar.get_master(),
+                                            self.sdram.crossbar.get_port(),
                                             self.hdmi_out0.driver.clocking)
 
         # all PLL_ADV are used: router needs help...

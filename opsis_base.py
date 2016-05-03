@@ -19,11 +19,11 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.gpio import GPIOIn, GPIOOut
 from litex.soc.interconnect.csr import AutoCSR
 from litex.soc.cores.uart.bridge import UARTWishboneBridge
-from litex.soc.cores.sdram.lasmicon.core import ControllerSettings
 
 
 from litedram.modules import MT41J128M16
 from litedram.phy import s6ddrphy
+from litedram.core import ControllerSettings
 
 from liteeth.phy.s6rgmii import LiteEthPHYRGMII
 from liteeth.core.mac import LiteEthMAC
