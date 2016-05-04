@@ -20,7 +20,42 @@ from litedram.core.controller import ControllerSettings
 from liteeth.phy.model import LiteEthPHYModel
 from liteeth.core.mac import LiteEthMAC
 
+from litevideo.output.core import TimingGenerator
+from litevideo.output.pattern import ColorBarsPattern
+
 from gateware import firmware
+
+class VGAModel(Module):
+    def __init__(self, pads):
+        self.submodules.timing = TimingGenerator()
+        self.submodules.pattern = ColorBarsPattern()
+        self.comb += [
+            self.timing.sink.valid.eq(1),
+
+            self.timing.sink.hres.eq(64),
+            self.timing.sink.hsync_start.eq(65),
+            self.timing.sink.hsync_end.eq(66),
+            self.timing.sink.hscan.eq(67),
+
+            self.timing.sink.vres.eq(64),
+            self.timing.sink.vsync_start.eq(65),
+            self.timing.sink.vsync_end.eq(66),
+            self.timing.sink.vscan.eq(67),
+
+            self.pattern.sink.valid.eq(1),
+            self.pattern.sink.hres.eq(64)
+        ]
+
+        self.comb += [
+            self.timing.source.ready.eq(1),
+            pads.de.eq(self.timing.source.de),
+            pads.hsync.eq(self.timing.source.hsync),
+            pads.vsync.eq(self.timing.source.vsync),
+            pads.r.eq(self.pattern.source.r),
+            pads.g.eq(self.pattern.source.g),
+            pads.b.eq(self.pattern.source.b),
+            self.pattern.source.ready.eq(self.timing.source.de)
+        ]
 
 class BaseSoC(SoCSDRAM):
     mem_map = {
@@ -73,6 +108,8 @@ class BaseSoC(SoCSDRAM):
         self.add_constant("MEMTEST_DATA_SIZE", 1024)
         self.add_constant("MEMTEST_ADDR_SIZE", 1024)
         self.add_constant("SIMULATION", 1)
+
+        self.submodules.vga = VGAModel(platform.request("vga"))
 
 
 class MiniSoC(BaseSoC):
