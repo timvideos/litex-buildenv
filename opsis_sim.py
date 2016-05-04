@@ -29,21 +29,34 @@ class VGAModel(Module):
     def __init__(self, pads):
         self.submodules.timing = TimingGenerator()
         self.submodules.pattern = ColorBarsPattern()
+        parity = Signal()
         self.comb += [
             self.timing.sink.valid.eq(1),
 
-            self.timing.sink.hres.eq(64),
-            self.timing.sink.hsync_start.eq(65),
-            self.timing.sink.hsync_end.eq(66),
-            self.timing.sink.hscan.eq(67),
+            self.timing.sink.hres.eq(640),
+            self.timing.sink.hsync_start.eq(664),
+            self.timing.sink.hsync_end.eq(704),
+            self.timing.sink.hscan.eq(832),
 
-            self.timing.sink.vres.eq(64),
-            self.timing.sink.vsync_start.eq(65),
-            self.timing.sink.vsync_end.eq(66),
-            self.timing.sink.vscan.eq(67),
+            self.timing.sink.vres.eq(480),
+            self.timing.sink.vsync_start.eq(489),
+            self.timing.sink.vsync_end.eq(491),
+            self.timing.sink.vscan.eq(520),
 
             self.pattern.sink.valid.eq(1),
-            self.pattern.sink.hres.eq(64)
+            If(parity,
+                self.pattern.sink.hres.eq(320)
+            ).Else(
+                self.pattern.sink.hres.eq(640)
+            )
+        ]
+        vsync = self.timing.source.vsync
+        vsync_r = Signal()
+        self.sync += [
+            vsync_r.eq(vsync),
+            If(vsync & ~vsync_r,
+                parity.eq(~parity)
+            )
         ]
 
         self.comb += [
