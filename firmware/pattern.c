@@ -177,7 +177,7 @@ void pattern_fill_framebuffer(int h_active, int m_active)
 		}
 	}
 	pattern_draw_text(1, 1, "HDMI2USB");
-	pattern_draw_text(1, 2, "TimVideo.us");
+	pattern_draw_text(1, 2, "TimVideos.us");
 }
 
 void pattern_service(void)

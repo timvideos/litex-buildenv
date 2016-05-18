@@ -78,6 +78,27 @@ int main(void)
 	encoder_enable(1);
 	processor_update();
 #endif
+	// init framebuffer
+	video_out_initiator_hres_write(640);
+	video_out_initiator_hsync_start_write(664);
+	video_out_initiator_hsync_end_write(704);
+	video_out_initiator_hscan_write(832);
+	video_out_initiator_vres_write(480);
+	video_out_initiator_vsync_start_write(489);
+	video_out_initiator_vsync_end_write(491);
+	video_out_initiator_vscan_write(520);
+	video_out_initiator_base_write(0);
+	video_out_initiator_end_write(640*480);
+	video_out_initiator_enable_write(1);
+
+	// draw a pattern
+	int i;
+	volatile unsigned int *framebuffer = (unsigned int *)(MAIN_RAM_BASE);
+	flush_l2_cache();
+	for(i=0; i<640*64; i++) {
+		framebuffer[i] = (i<<0) | (i<<8) | (i<<16);
+	}
+
 	ci_prompt();
 	while(1) {
 		processor_service();

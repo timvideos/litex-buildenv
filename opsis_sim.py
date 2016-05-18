@@ -4,7 +4,6 @@ import argparse
 import importlib
 
 from litex.gen import *
-from litex.boards.platforms import sim
 from litex.gen.genlib.io import CRG
 
 from litex.soc.integration.soc_sdram import *
@@ -20,57 +19,38 @@ from litedram.core.controller import ControllerSettings
 from liteeth.phy.model import LiteEthPHYModel
 from liteeth.core.mac import LiteEthMAC
 
-from litevideo.output.core import TimingGenerator
-from litevideo.output.pattern import ColorBarsPattern
+from litevideo.output.common import *
+from litevideo.output.core import VideoOutCore
+
+from litex.boards.platforms import sim
 
 from gateware import firmware
 
+
+def csr_map_update(csr_map, csr_peripherals):
+  csr_map.update(dict((n, v) for v, n in enumerate(csr_peripherals, start=max(csr_map.values()) + 1)))
+
+
 class VGAModel(Module):
     def __init__(self, pads):
-        self.submodules.timing = TimingGenerator()
-        self.submodules.pattern = ColorBarsPattern()
-        parity = Signal()
+        self.sink = sink = stream.Endpoint(video_out_layout(24))
         self.comb += [
-            self.timing.sink.valid.eq(1),
-
-            self.timing.sink.hres.eq(640),
-            self.timing.sink.hsync_start.eq(664),
-            self.timing.sink.hsync_end.eq(704),
-            self.timing.sink.hscan.eq(832),
-
-            self.timing.sink.vres.eq(480),
-            self.timing.sink.vsync_start.eq(489),
-            self.timing.sink.vsync_end.eq(491),
-            self.timing.sink.vscan.eq(520),
-
-            self.pattern.sink.valid.eq(1),
-            If(parity,
-                self.pattern.sink.hres.eq(320)
-            ).Else(
-                self.pattern.sink.hres.eq(640)
-            )
-        ]
-        vsync = self.timing.source.vsync
-        vsync_r = Signal()
-        self.sync += [
-            vsync_r.eq(vsync),
-            If(vsync & ~vsync_r,
-                parity.eq(~parity)
-            )
+            sink.ready.eq(1),
+            pads.de.eq(sink.de),
+            pads.hsync.eq(sink.hsync),
+            pads.vsync.eq(sink.vsync),
+            pads.r.eq(sink.data[0:8]),
+            pads.g.eq(sink.data[8:16]),
+            pads.b.eq(sink.data[16:24]),
         ]
 
-        self.comb += [
-            self.timing.source.ready.eq(1),
-            pads.de.eq(self.timing.source.de),
-            pads.hsync.eq(self.timing.source.hsync),
-            pads.vsync.eq(self.timing.source.vsync),
-            pads.r.eq(self.pattern.source.r),
-            pads.g.eq(self.pattern.source.g),
-            pads.b.eq(self.pattern.source.b),
-            self.pattern.source.ready.eq(self.timing.source.de)
-        ]
 
 class BaseSoC(SoCSDRAM):
+    csr_peripherals = (
+        "video_out",
+    )
+    csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
+
     mem_map = {
         "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
     }
@@ -101,7 +81,7 @@ class BaseSoC(SoCSDRAM):
         sdram_module = IS42S16160(self.clk_freq, "1:1")
         phy_settings = PhySettings(
             memtype="SDR",
-            dfi_databits=1*16,
+            dfi_databits=1*32,
             nphases=1,
             rdphase=0,
             wrphase=0,
@@ -122,7 +102,9 @@ class BaseSoC(SoCSDRAM):
         self.add_constant("MEMTEST_ADDR_SIZE", 1024)
         self.add_constant("SIMULATION", 1)
 
+        self.submodules.video_out = VideoOutCore(self.sdram.crossbar.get_port())
         self.submodules.vga = VGAModel(platform.request("vga"))
+        self.comb += self.video_out.source.connect(self.vga.sink)
 
 
 class MiniSoC(BaseSoC):
