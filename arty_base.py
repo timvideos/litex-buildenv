@@ -41,6 +41,7 @@ class _CRG(Module):
         self.clock_domains.cd_sys4x = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
         self.clock_domains.cd_clk200 = ClockDomain()
+        self.clock_domains.cd_clk50 = ClockDomain()
 
         clk100 = platform.request("clk100")
         rst = platform.request("cpu_reset")
@@ -51,6 +52,7 @@ class _CRG(Module):
         pll_sys4x = Signal()
         pll_sys4x_dqs = Signal()
         pll_clk200 = Signal()
+        pll_clk50 = Signal()
         self.specials += [
             Instance("PLLE2_BASE",
                      p_STARTUP_WAIT="FALSE", o_LOCKED=pll_locked,
@@ -76,16 +78,18 @@ class _CRG(Module):
                      p_CLKOUT3_DIVIDE=8, p_CLKOUT3_PHASE=0.0,
                      o_CLKOUT3=pll_clk200,
 
-                     # 400MHz
-                     p_CLKOUT4_DIVIDE=4, p_CLKOUT4_PHASE=0.0,
-                     #o_CLKOUT4=
+                     # 50MHz
+                     p_CLKOUT4_DIVIDE=32, p_CLKOUT4_PHASE=0.0,
+                     o_CLKOUT4=pll_clk50
             ),
             Instance("BUFG", i_I=self.pll_sys, o_O=self.cd_sys.clk),
             Instance("BUFG", i_I=pll_sys4x, o_O=self.cd_sys4x.clk),
             Instance("BUFG", i_I=pll_sys4x_dqs, o_O=self.cd_sys4x_dqs.clk),
             Instance("BUFG", i_I=pll_clk200, o_O=self.cd_clk200.clk),
+            Instance("BUFG", i_I=pll_clk50, o_O=self.cd_clk50.clk),
             AsyncResetSynchronizer(self.cd_sys, ~pll_locked | ~rst),
             AsyncResetSynchronizer(self.cd_clk200, ~pll_locked | rst),
+            AsyncResetSynchronizer(self.cd_clk50, ~pll_locked | rst),
         ]
 
         reset_counter = Signal(4, reset=15)
@@ -158,8 +162,8 @@ class BaseSoC(SoCSDRAM):
                             sdram_module.timing_settings,
                             controller_settings=ControllerSettings(cmd_buffer_depth=8))
 
-        self.submodules.generator = LiteDRAMBISTGenerator(self.sdram.crossbar.get_port())
-        self.submodules.checker = LiteDRAMBISTChecker(self.sdram.crossbar.get_port())
+        self.submodules.generator = LiteDRAMBISTGenerator(self.sdram.crossbar.get_port(cd="clk50"))
+        self.submodules.checker = LiteDRAMBISTChecker(self.sdram.crossbar.get_port(cd="clk50"))
 
         # spi flash
         if not self.integrated_rom_size:
