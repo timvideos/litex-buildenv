@@ -64,7 +64,7 @@ class Encoder(Module, AutoCSR):
         # chroma upsampler
         self.submodules.chroma_upsampler = chroma_upsampler = YCbCr422to444()
         self.comb += [
-            Record.connect(self.sink, chroma_upsampler.sink, leave_out=["data"]),
+            Record.connect(self.sink, chroma_upsampler.sink, omit=["data"]),
             chroma_upsampler.sink.y.eq(self.sink.data[:8]),
             chroma_upsampler.sink.cb_cr.eq(self.sink.data[8:])
         ]
