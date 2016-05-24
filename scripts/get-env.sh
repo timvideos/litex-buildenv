@@ -13,13 +13,13 @@ SETUP_SRC=$(realpath ${BASH_SOURCE[0]})
 SETUP_DIR=$(dirname $SETUP_SRC)
 TOP_DIR=$(realpath $SETUP_DIR/..)
 
-set -e
-
 if [ $SOURCED = 1 ]; then
 	echo "You must run this script, rather then try to source it."
 	echo "$SETUP_SRC"
 	return
 fi
+
+set -e
 
 . $SETUP_DIR/settings.sh
 
