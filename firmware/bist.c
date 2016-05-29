@@ -18,6 +18,7 @@ void bist(void) {
 	// write
 	printf("writing %d Mbytes...", test_size/(1024*1024));
 	generator_reset_write(1);
+	generator_reset_write(0);
 	generator_base_write(0);
 	generator_length_write((test_size*8)/128);
 
@@ -39,6 +40,7 @@ void bist(void) {
 	// read
 	printf("reading %d Mbytes...", test_size/(1024*1024));
 	checker_reset_write(1);
+	checker_reset_write(0);
 	checker_base_write(0);
 	checker_length_write((test_size*8)/128);
 

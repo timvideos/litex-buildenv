@@ -16,11 +16,14 @@ from litex.soc.integration.builder import *
 from litex.soc.interconnect.wishbonebridge import WishboneStreamingBridge
 from litex.soc.interconnect.stream import *
 
+
+from litedram.common import LiteDRAMPort
 from litedram.modules import MT41K128M16
 from litedram.phy import a7ddrphy
 from litedram.core.controller import ControllerSettings
 from litedram.frontend.bist import LiteDRAMBISTGenerator
 from litedram.frontend.bist import LiteDRAMBISTChecker
+from litedram.frontend.adaptation import LiteDRAMPortCDC
 
 from liteeth.phy import LiteEthPHY
 from liteeth.core.mac import LiteEthMAC
@@ -162,8 +165,19 @@ class BaseSoC(SoCSDRAM):
                             sdram_module.timing_settings,
                             controller_settings=ControllerSettings(cmd_buffer_depth=8))
 
-        self.submodules.generator = LiteDRAMBISTGenerator(self.sdram.crossbar.get_port(cd="clk50"))
-        self.submodules.checker = LiteDRAMBISTChecker(self.sdram.crossbar.get_port(cd="clk50"))
+        generator_crossbar_port = self.sdram.crossbar.get_port()
+        generator_user_port = LiteDRAMPort(generator_crossbar_port.aw,
+                                           generator_crossbar_port.dw,
+                                           cd="clk50")
+        self.submodules += LiteDRAMPortCDC(generator_user_port,
+                                           generator_crossbar_port)
+        self.submodules.generator = LiteDRAMBISTGenerator(generator_user_port)
+
+        checker_crossbar_port = self.sdram.crossbar.get_port()
+        checker_user_port = LiteDRAMPort(checker_crossbar_port.aw,
+                                         checker_crossbar_port.dw,
+                                         cd="clk50")
+        self.submodules.checker = LiteDRAMBISTChecker(checker_user_port)
 
         # spi flash
         if not self.integrated_rom_size:
