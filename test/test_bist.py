@@ -1,13 +1,22 @@
 #!/usr/bin/env python3
+import time
 from litex.soc.tools.remote import RemoteClient
+from litescope.software.driver.analyzer import LiteScopeAnalyzerDriver
 
-wb = RemoteClient(csr_data_width=8)
+wb = RemoteClient(csr_data_width=8, debug=True)
 wb.open()
 regs = wb.regs
 
+analyzer = LiteScopeAnalyzerDriver(wb.regs, "analyzer", debug=True)
+
 # # #
 
-test_size = 128*1024*1024
+test_size = 64*1024*1024
+
+analyzer.configure_trigger(cond={"generator_user_port_cmd_valid": 1})
+time.sleep(2)
+analyzer.configure_subsampler(1)
+analyzer.run(offset=32, length=128)
 
 regs.generator_reset.write(1)
 regs.generator_reset.write(0)
@@ -28,6 +37,11 @@ while(not regs.checker_done.read()):
     pass
 
 print("errors: {:d}".format(regs.checker_error_count.read()))
+
+while not analyzer.done():
+    pass
+analyzer.upload()
+analyzer.save("dump.vcd")
 
 # # #
 
