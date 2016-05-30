@@ -16,19 +16,16 @@ from litex.soc.integration.builder import *
 from litex.soc.interconnect.wishbonebridge import WishboneStreamingBridge
 from litex.soc.interconnect.stream import *
 
-
-from litedram.common import LiteDRAMPort
 from litedram.modules import MT41K128M16
 from litedram.phy import a7ddrphy
 from litedram.core.controller import ControllerSettings
 from litedram.frontend.bist import LiteDRAMBISTGenerator
 from litedram.frontend.bist import LiteDRAMBISTChecker
+from litedram.common import LiteDRAMPort
 from litedram.frontend.adaptation import LiteDRAMPortCDC
 
 from liteeth.phy import LiteEthPHY
 from liteeth.core.mac import LiteEthMAC
-
-from litescope import LiteScopeAnalyzer
 
 from gateware import firmware
 from gateware import dna, xadc, led
@@ -150,13 +147,13 @@ class BaseSoC(SoCSDRAM):
         self.submodules.dna = dna.DNA()
         self.submodules.xadc = xadc.XADC()
 
-#        self.submodules.leds = led.ClassicLed(Cat(platform.request("user_led", i) for i in range(4)))
-#        self.submodules.rgb_leds = led.RGBLed(platform.request("rgb_leds"))
+        self.submodules.leds = led.ClassicLed(Cat(platform.request("user_led", i) for i in range(4)))
+        self.submodules.rgb_leds = led.RGBLed(platform.request("rgb_leds"))
 
-#        # firmware
-#        self.submodules.firmware_ram = firmware.FirmwareROM(firmware_ram_size, firmware_filename)
-#        self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
-#        self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
+        # firmware
+        self.submodules.firmware_ram = firmware.FirmwareROM(firmware_ram_size, firmware_filename)
+        self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
+        self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
 
         # sdram
         self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
@@ -183,28 +180,6 @@ class BaseSoC(SoCSDRAM):
         self.submodules += LiteDRAMPortCDC(checker_user_port,
                                            checker_crossbar_port)
         self.submodules.checker = LiteDRAMBISTChecker(checker_user_port)
-
-        analyzer_signals = [
-            generator_user_port.cmd.valid,
-            generator_user_port.cmd.ready,
-            generator_user_port.cmd.we,
-            generator_user_port.cmd.adr,
-
-            generator_user_port.wdata.valid,
-            generator_user_port.wdata.ready,
-            generator_user_port.wdata.data,
-            generator_user_port.wdata.we,
-
-#            checker_user_port.cmd.valid,
-#            checker_user_port.cmd.ready,
-#            checker_user_port.cmd.we,
-#            checker_user_port.cmd.adr,
-#
-#            checker_user_port.rdata.valid,
-#            checker_user_port.rdata.ready,
-#            checker_user_port.rdata.data
-        ]
-        self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 128)
 
         # spi flash
         if not self.integrated_rom_size:
@@ -245,10 +220,6 @@ class BaseSoC(SoCSDRAM):
         # uart bridge
         self.submodules.bridge = WishboneStreamingBridge(uart_phys["bridge"], self.clk_freq)
         self.add_wb_master(self.bridge.wishbone)
-
-    def do_exit(self, vns):
-        self.analyzer.export_csv(vns, "test/analyzer.csv")
-
 
 class MiniSoC(BaseSoC):
     csr_map = {
@@ -311,7 +282,6 @@ def main():
                       compile_gateware=not args.nocompile_gateware,
                       csr_csv="test/csr.csv")
     vns = builder.build()
-    soc.do_exit(vns)
 
 if __name__ == "__main__":
     main()
