@@ -14,6 +14,12 @@ from litex.soc.cores.uart.bridge import UARTWishboneBridge
 
 from litedram.modules import MT41K128M16
 from litedram.phy import a7ddrphy
+from litedram.common import LiteDRAMPort
+from litedram.frontend.adaptation import LiteDRAMPortCDC
+from litedram.frontend.bist import LiteDRAMBISTGenerator
+from litedram.frontend.bist import LiteDRAMBISTChecker
+
+from litescope import LiteScopeAnalyzer
 
 from gateware import dna, xadc
 
@@ -24,6 +30,7 @@ class _CRG(Module):
         self.clock_domains.cd_sys4x = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
         self.clock_domains.cd_clk200 = ClockDomain()
+        self.clock_domains.cd_clk50 = ClockDomain()
 
         clk100 = platform.request("clk100")
         rst = platform.request("cpu_reset")
@@ -34,6 +41,7 @@ class _CRG(Module):
         pll_sys4x = Signal()
         pll_sys4x_dqs = Signal()
         pll_clk200 = Signal()
+        pll_clk50 = Signal()
         self.specials += [
             Instance("PLLE2_BASE",
                      p_STARTUP_WAIT="FALSE", o_LOCKED=pll_locked,
@@ -67,8 +75,10 @@ class _CRG(Module):
             Instance("BUFG", i_I=pll_sys4x, o_O=self.cd_sys4x.clk),
             Instance("BUFG", i_I=pll_sys4x_dqs, o_O=self.cd_sys4x_dqs.clk),
             Instance("BUFG", i_I=pll_clk200, o_O=self.cd_clk200.clk),
+            Instance("BUFG", i_I=pll_clk50, o_O=self.cd_clk50.clk),
             AsyncResetSynchronizer(self.cd_sys, ~pll_locked | ~rst),
             AsyncResetSynchronizer(self.cd_clk200, ~pll_locked | rst),
+            AsyncResetSynchronizer(self.cd_clk50, ~pll_locked | rst),
         ]
 
         reset_counter = Signal(4, reset=15)
@@ -86,10 +96,12 @@ class BaseSoC(SoCSDRAM):
     default_platform = "arty"
 
     csr_map = {
-        "ddrphy":   17,
-        "dna":      18,
-        "xadc":     19,
-        "analyzer": 20
+        "ddrphy":    17,
+        "dna":       18,
+        "xadc":      19,
+        "generator": 20,
+        "checker":   21,
+        "analyzer":  22
     }
     csr_map.update(SoCSDRAM.csr_map)
 
@@ -114,9 +126,52 @@ class BaseSoC(SoCSDRAM):
                             sdram_module.geom_settings,
                             sdram_module.timing_settings)
 
+        # sdram bist
+        generator_crossbar_port = self.sdram.crossbar.get_port()
+        generator_user_port = LiteDRAMPort(generator_crossbar_port.aw,
+                                           generator_crossbar_port.dw,
+                                           cd="clk50")
+        self.submodules += LiteDRAMPortCDC(generator_user_port,
+                                           generator_crossbar_port)
+        self.submodules.generator = LiteDRAMBISTGenerator(generator_user_port)
+
+        checker_crossbar_port = self.sdram.crossbar.get_port()
+        checker_user_port = LiteDRAMPort(checker_crossbar_port.aw,
+                                         checker_crossbar_port.dw,
+                                         cd="clk50")
+        self.submodules += LiteDRAMPortCDC(checker_user_port,
+                                           checker_crossbar_port)
+        self.submodules.checker = LiteDRAMBISTChecker(checker_user_port)
+
         # uart
         self.add_cpu_or_bridge(UARTWishboneBridge(platform.request("serial"), clk_freq, baudrate=115200))
         self.add_wb_master(self.cpu_or_bridge.wishbone)
+
+        # logic analyzer
+        analyzer_signals = [
+            generator_user_port.cmd.valid,
+            generator_user_port.cmd.ready,
+            generator_user_port.cmd.we,
+            generator_user_port.cmd.adr,
+
+            generator_user_port.wdata.valid,
+            generator_user_port.wdata.ready,
+            generator_user_port.wdata.data,
+            generator_user_port.wdata.we,
+
+            checker_user_port.cmd.valid,
+            checker_user_port.cmd.ready,
+            checker_user_port.cmd.we,
+            checker_user_port.cmd.adr,
+
+            checker_user_port.rdata.valid,
+            checker_user_port.rdata.ready,
+            checker_user_port.rdata.data
+        ]
+        self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 512)
+
+    def do_exit(self, vns):
+        self.analyzer.export_csv(vns, "test/analyzer.csv")
 
 
 def main():
@@ -129,6 +184,7 @@ def main():
     soc = BaseSoC(platform, **soc_sdram_argdict(args))
     builder = Builder(soc, output_dir="build", csr_csv="test/csr.csv")
     vns = builder.build()
+    soc.do_exit(vns)
 
 if __name__ == "__main__":
     main()
