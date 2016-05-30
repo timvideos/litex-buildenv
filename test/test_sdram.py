@@ -19,7 +19,7 @@ dfii_command_ras    = 0x08
 dfii_command_wrdata = 0x10
 dfii_command_rddata = 0x20
 
-wb = RemoteClient(csr_data_width=8)
+wb = RemoteClient(csr_data_width=8, debug=True)
 wb.open()
 regs = wb.regs
 

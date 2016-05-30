@@ -128,45 +128,61 @@ class BaseSoC(SoCSDRAM):
 
         # sdram bist
         generator_crossbar_port = self.sdram.crossbar.get_port()
-        generator_user_port = LiteDRAMPort(generator_crossbar_port.aw,
-                                           generator_crossbar_port.dw,
-                                           cd="clk50")
-        self.submodules += LiteDRAMPortCDC(generator_user_port,
-                                           generator_crossbar_port)
-        self.submodules.generator = LiteDRAMBISTGenerator(generator_user_port)
+        #generator_user_port = LiteDRAMPort(generator_crossbar_port.aw,
+        #                                   generator_crossbar_port.dw,
+        #                                   cd="clk50")
+        #self.submodules += LiteDRAMPortCDC(generator_user_port,
+        #                                   generator_crossbar_port)
+        #self.submodules.generator = LiteDRAMBISTGenerator(generator_user_port)
+        self.submodules.generator = LiteDRAMBISTGenerator(generator_crossbar_port)
 
         checker_crossbar_port = self.sdram.crossbar.get_port()
-        checker_user_port = LiteDRAMPort(checker_crossbar_port.aw,
-                                         checker_crossbar_port.dw,
-                                         cd="clk50")
-        self.submodules += LiteDRAMPortCDC(checker_user_port,
-                                           checker_crossbar_port)
-        self.submodules.checker = LiteDRAMBISTChecker(checker_user_port)
+        #checker_user_port = LiteDRAMPort(checker_crossbar_port.aw,
+        #                                 checker_crossbar_port.dw,
+        #                                 cd="clk50")
+        #self.submodules += LiteDRAMPortCDC(checker_user_port,
+        #                                   checker_crossbar_port)
+        #self.submodules.checker = LiteDRAMBISTChecker(checker_user_port)
+        self.submodules.checker = LiteDRAMBISTChecker(checker_crossbar_port)
 
         # uart
         self.add_cpu_or_bridge(UARTWishboneBridge(platform.request("serial"), clk_freq, baudrate=115200))
         self.add_wb_master(self.cpu_or_bridge.wishbone)
 
         # logic analyzer
+        generator_crossbar_port_wdata_data = Signal(8)
+        checker_crossbar_port_rdata_data = Signal(8)
+        self.comb += [
+            generator_crossbar_port_wdata_data.eq(generator_crossbar_port.wdata.data),
+            checker_crossbar_port_rdata_data.eq(checker_crossbar_port.rdata.data)
+        ]
+
         analyzer_signals = [
-            generator_user_port.cmd.valid,
-            generator_user_port.cmd.ready,
-            generator_user_port.cmd.we,
-            generator_user_port.cmd.adr,
+            generator_crossbar_port.cmd.valid,
+            generator_crossbar_port.cmd.ready,
+            generator_crossbar_port.cmd.we,
+            generator_crossbar_port.cmd.adr,
 
-            generator_user_port.wdata.valid,
-            generator_user_port.wdata.ready,
-            generator_user_port.wdata.data,
-            generator_user_port.wdata.we,
+            generator_crossbar_port.wdata.valid,
+            generator_crossbar_port.wdata.ready,
+            generator_crossbar_port_wdata_data,
+            generator_crossbar_port.wdata.we,
 
-            checker_user_port.cmd.valid,
-            checker_user_port.cmd.ready,
-            checker_user_port.cmd.we,
-            checker_user_port.cmd.adr,
+            checker_crossbar_port.cmd.valid,
+            checker_crossbar_port.cmd.ready,
+            checker_crossbar_port.cmd.we,
+            checker_crossbar_port.cmd.adr,
 
-            checker_user_port.rdata.valid,
-            checker_user_port.rdata.ready,
-            checker_user_port.rdata.data
+            checker_crossbar_port.rdata.valid,
+            checker_crossbar_port.rdata.ready,
+            checker_crossbar_port_rdata_data,
+
+            self.generator.core.shoot,
+            self.generator.core.done,
+
+            self.checker.core.shoot,
+            self.checker.core.done,
+            self.checker.core.error_count,
         ]
         self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 512)
 
