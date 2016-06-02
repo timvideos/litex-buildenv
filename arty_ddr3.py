@@ -67,9 +67,9 @@ class _CRG(Module):
                      p_CLKOUT3_DIVIDE=8, p_CLKOUT3_PHASE=0.0,
                      o_CLKOUT3=pll_clk200,
 
-                     # 400MHz
-                     p_CLKOUT4_DIVIDE=4, p_CLKOUT4_PHASE=0.0,
-                     #o_CLKOUT4=
+                     # 50MHz
+                     p_CLKOUT4_DIVIDE=32, p_CLKOUT4_PHASE=0.0,
+                     o_CLKOUT4=pll_clk50
             ),
             Instance("BUFG", i_I=self.pll_sys, o_O=self.cd_sys.clk),
             Instance("BUFG", i_I=pll_sys4x, o_O=self.cd_sys4x.clk),
@@ -77,8 +77,8 @@ class _CRG(Module):
             Instance("BUFG", i_I=pll_clk200, o_O=self.cd_clk200.clk),
             Instance("BUFG", i_I=pll_clk50, o_O=self.cd_clk50.clk),
             AsyncResetSynchronizer(self.cd_sys, ~pll_locked | ~rst),
-            AsyncResetSynchronizer(self.cd_clk200, ~pll_locked | rst),
-            AsyncResetSynchronizer(self.cd_clk50, ~pll_locked | rst),
+            AsyncResetSynchronizer(self.cd_clk200, ~pll_locked | ~rst),
+            AsyncResetSynchronizer(self.cd_clk50, ~pll_locked | ~rst),
         ]
 
         reset_counter = Signal(4, reset=15)
@@ -112,6 +112,7 @@ class BaseSoC(SoCSDRAM):
         SoCSDRAM.__init__(self, platform, clk_freq,
             cpu_type=None,
             l2_size=0,
+            csr_data_width=32,
             with_uart=False,
             with_timer=False)
 
@@ -128,22 +129,20 @@ class BaseSoC(SoCSDRAM):
 
         # sdram bist
         generator_crossbar_port = self.sdram.crossbar.get_port()
-        #generator_user_port = LiteDRAMPort(generator_crossbar_port.aw,
-        #                                   generator_crossbar_port.dw,
-        #                                   cd="clk50")
-        #self.submodules += LiteDRAMPortCDC(generator_user_port,
-        #                                   generator_crossbar_port)
-        #self.submodules.generator = LiteDRAMBISTGenerator(generator_user_port)
-        self.submodules.generator = LiteDRAMBISTGenerator(generator_crossbar_port)
+        generator_user_port = LiteDRAMPort(generator_crossbar_port.aw,
+                                           generator_crossbar_port.dw,
+                                           cd="clk50")
+        self.submodules += LiteDRAMPortCDC(generator_user_port,
+                                           generator_crossbar_port)
+        self.submodules.generator = LiteDRAMBISTGenerator(generator_user_port, random=False)
 
         checker_crossbar_port = self.sdram.crossbar.get_port()
-        #checker_user_port = LiteDRAMPort(checker_crossbar_port.aw,
-        #                                 checker_crossbar_port.dw,
-        #                                 cd="clk50")
-        #self.submodules += LiteDRAMPortCDC(checker_user_port,
-        #                                   checker_crossbar_port)
-        #self.submodules.checker = LiteDRAMBISTChecker(checker_user_port)
-        self.submodules.checker = LiteDRAMBISTChecker(checker_crossbar_port)
+        checker_user_port = LiteDRAMPort(checker_crossbar_port.aw,
+                                         checker_crossbar_port.dw,
+                                         cd="clk50")
+        self.submodules += LiteDRAMPortCDC(checker_user_port,
+                                           checker_crossbar_port)
+        self.submodules.checker = LiteDRAMBISTChecker(checker_user_port, random=False)
 
         # uart
         self.add_cpu_or_bridge(UARTWishboneBridge(platform.request("serial"), clk_freq, baudrate=115200))
@@ -157,33 +156,37 @@ class BaseSoC(SoCSDRAM):
             checker_crossbar_port_rdata_data.eq(checker_crossbar_port.rdata.data)
         ]
 
-        analyzer_signals = [
-            generator_crossbar_port.cmd.valid,
-            generator_crossbar_port.cmd.ready,
-            generator_crossbar_port.cmd.we,
-            generator_crossbar_port.cmd.adr,
+        if True:
+            analyzer_signals = [
+                generator_crossbar_port.cmd.valid,
+                generator_crossbar_port.cmd.ready,
+                generator_crossbar_port.cmd.we,
+                generator_crossbar_port.cmd.adr,
 
-            generator_crossbar_port.wdata.valid,
-            generator_crossbar_port.wdata.ready,
-            generator_crossbar_port_wdata_data,
-            generator_crossbar_port.wdata.we,
+                generator_crossbar_port.wdata.valid,
+                generator_crossbar_port.wdata.ready,
+                generator_crossbar_port_wdata_data,
+                generator_crossbar_port.wdata.we,
 
-            checker_crossbar_port.cmd.valid,
-            checker_crossbar_port.cmd.ready,
-            checker_crossbar_port.cmd.we,
-            checker_crossbar_port.cmd.adr,
+                self.generator.shoot.re,
+                self.checker.shoot.re
+            ]
 
-            checker_crossbar_port.rdata.valid,
-            checker_crossbar_port.rdata.ready,
-            checker_crossbar_port_rdata_data,
+        if False:
+            analyzer_signals = [
+                checker_crossbar_port.cmd.valid,
+                checker_crossbar_port.cmd.ready,
+                checker_crossbar_port.cmd.we,
+                checker_crossbar_port.cmd.adr,
 
-            self.generator.core.shoot,
-            self.generator.core.done,
+                checker_crossbar_port.rdata.valid,
+                checker_crossbar_port.rdata.ready,
+                checker_crossbar_port_rdata_data,
 
-            self.checker.core.shoot,
-            self.checker.core.done,
-            self.checker.core.error_count,
-        ]
+                self.generator.shoot.re,
+                self.checker.shoot.re
+            ]
+
         self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 512)
 
     def do_exit(self, vns):

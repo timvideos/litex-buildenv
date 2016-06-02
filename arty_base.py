@@ -90,8 +90,8 @@ class _CRG(Module):
             Instance("BUFG", i_I=pll_clk200, o_O=self.cd_clk200.clk),
             Instance("BUFG", i_I=pll_clk50, o_O=self.cd_clk50.clk),
             AsyncResetSynchronizer(self.cd_sys, ~pll_locked | ~rst),
-            AsyncResetSynchronizer(self.cd_clk200, ~pll_locked | rst),
-            AsyncResetSynchronizer(self.cd_clk50, ~pll_locked | rst),
+            AsyncResetSynchronizer(self.cd_clk200, ~pll_locked | ~rst),
+            AsyncResetSynchronizer(self.cd_clk50, ~pll_locked | ~rst),
         ]
 
         reset_counter = Signal(4, reset=15)
@@ -121,8 +121,7 @@ class BaseSoC(SoCSDRAM):
         "leds":      20,
         "rgb_leds":  21,
         "generator": 22,
-        "checker":   23,
-        "analyzer":  24
+        "checker":   23
     }
     csr_map.update(SoCSDRAM.csr_map)
 
@@ -165,13 +164,14 @@ class BaseSoC(SoCSDRAM):
                             sdram_module.timing_settings,
                             controller_settings=ControllerSettings(cmd_buffer_depth=8))
 
+        # sdram bist
         generator_crossbar_port = self.sdram.crossbar.get_port()
         generator_user_port = LiteDRAMPort(generator_crossbar_port.aw,
                                            generator_crossbar_port.dw,
                                            cd="clk50")
         self.submodules += LiteDRAMPortCDC(generator_user_port,
                                            generator_crossbar_port)
-        self.submodules.generator = LiteDRAMBISTGenerator(generator_user_port)
+        self.submodules.generator = LiteDRAMBISTGenerator(generator_user_port, random=False)
 
         checker_crossbar_port = self.sdram.crossbar.get_port()
         checker_user_port = LiteDRAMPort(checker_crossbar_port.aw,
@@ -179,7 +179,7 @@ class BaseSoC(SoCSDRAM):
                                          cd="clk50")
         self.submodules += LiteDRAMPortCDC(checker_user_port,
                                            checker_crossbar_port)
-        self.submodules.checker = LiteDRAMBISTChecker(checker_user_port)
+        self.submodules.checker = LiteDRAMBISTChecker(checker_user_port, random=False)
 
         # spi flash
         if not self.integrated_rom_size:

@@ -2,8 +2,8 @@ CPU ?= lm32
 
 arty_base:
 	rm -rf build
-#	./arty_base.py --nocompile-gateware --cpu-type $(CPU)
-#	cd firmware && make clean all
+	./arty_base.py --nocompile-gateware --cpu-type $(CPU)
+	cd firmware && make clean all
 	./arty_base.py --cpu-type $(CPU)
 
 arty_minisoc:
