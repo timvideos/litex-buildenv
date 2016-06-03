@@ -3,11 +3,11 @@ import time
 from litex.soc.tools.remote import RemoteClient
 from litescope.software.driver.analyzer import LiteScopeAnalyzerDriver
 
-wb = RemoteClient(csr_data_width=32, debug=True)
+wb = RemoteClient(csr_data_width=32, debug=False)
 wb.open()
 regs = wb.regs
 
-analyzer = LiteScopeAnalyzerDriver(wb.regs, "analyzer", debug=True)
+analyzer = LiteScopeAnalyzerDriver(wb.regs, "analyzer", debug=False)
 
 # # #
 
@@ -89,6 +89,9 @@ for k in range(2):
 #
 
 test_size = 1024*1024
+run_analyzer = False
+
+#
 
 analyzer.configure_trigger(cond={"generator_shoot_re": 1})
 analyzer.configure_trigger(cond={"checker_shoot_re": 1})
@@ -115,10 +118,11 @@ while(not regs.checker_done.read()):
 
 print("errors: {:d}".format(regs.checker_error_count.read()))
 
-while not analyzer.done():
-    pass
-analyzer.upload()
-analyzer.save("dump.vcd")
+if run_analyzer:
+    while not analyzer.done():
+        pass
+    analyzer.upload()
+    analyzer.save("dump.vcd")
 
 # # #
 

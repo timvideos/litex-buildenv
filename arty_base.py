@@ -90,7 +90,7 @@ class _CRG(Module):
             Instance("BUFG", i_I=pll_clk200, o_O=self.cd_clk200.clk),
             Instance("BUFG", i_I=pll_clk50, o_O=self.cd_clk50.clk),
             AsyncResetSynchronizer(self.cd_sys, ~pll_locked | ~rst),
-            AsyncResetSynchronizer(self.cd_clk200, ~pll_locked | ~rst),
+            AsyncResetSynchronizer(self.cd_clk200, ~pll_locked | rst),
             AsyncResetSynchronizer(self.cd_clk50, ~pll_locked | ~rst),
         ]
 
@@ -134,6 +134,7 @@ class BaseSoC(SoCSDRAM):
                  platform,
                  firmware_ram_size=0x10000,
                  firmware_filename="firmware/firmware.bin",
+                 with_sdram_bist=True, bist_async=True, bist_random=True,
                  **kwargs):
         clk_freq = 100*1000000
         SoCSDRAM.__init__(self, platform, clk_freq,
@@ -165,21 +166,29 @@ class BaseSoC(SoCSDRAM):
                             controller_settings=ControllerSettings(cmd_buffer_depth=8))
 
         # sdram bist
-        generator_crossbar_port = self.sdram.crossbar.get_port()
-        generator_user_port = LiteDRAMPort(generator_crossbar_port.aw,
-                                           generator_crossbar_port.dw,
-                                           cd="clk50")
-        self.submodules += LiteDRAMPortCDC(generator_user_port,
-                                           generator_crossbar_port)
-        self.submodules.generator = LiteDRAMBISTGenerator(generator_user_port, random=False)
+        if with_sdram_bist:
+            generator_crossbar_port = self.sdram.crossbar.get_port()
+            if bist_async:
+               generator_user_port = LiteDRAMPort(generator_crossbar_port.aw,
+                                                  generator_crossbar_port.dw,
+                                                  cd="clk50")
+               self.submodules += LiteDRAMPortCDC(generator_user_port,
+                                                  generator_crossbar_port)
+            else:
+               generator_user_port = generator_crossbar_port
+            self.submodules.generator = LiteDRAMBISTGenerator(generator_user_port, random=bist_random)
 
-        checker_crossbar_port = self.sdram.crossbar.get_port()
-        checker_user_port = LiteDRAMPort(checker_crossbar_port.aw,
-                                         checker_crossbar_port.dw,
-                                         cd="clk50")
-        self.submodules += LiteDRAMPortCDC(checker_user_port,
-                                           checker_crossbar_port)
-        self.submodules.checker = LiteDRAMBISTChecker(checker_user_port, random=False)
+            checker_crossbar_port = self.sdram.crossbar.get_port()
+            if bist_async:
+               checker_user_port = LiteDRAMPort(checker_crossbar_port.aw,
+                                                checker_crossbar_port.dw,
+                                                 cd="clk50")
+               self.submodules += LiteDRAMPortCDC(checker_user_port,
+                                                  checker_crossbar_port)
+            else:
+               checker_user_port = checker_crossbar_port
+            self.submodules.checker = LiteDRAMBISTChecker(checker_user_port, random=bist_random)
+
 
         # spi flash
         if not self.integrated_rom_size:
