@@ -128,35 +128,38 @@ class BaseSoC(SoCSDRAM):
                             sdram_module.timing_settings)
 
         # sdram bist
+        async_generator = True
+        async_checker = True
+
         generator_crossbar_port = self.sdram.crossbar.get_port()
-        generator_user_port = LiteDRAMPort(generator_crossbar_port.aw,
-                                           generator_crossbar_port.dw,
-                                           cd="clk50")
-        self.submodules += LiteDRAMPortCDC(generator_user_port,
-                                           generator_crossbar_port)
+        if async_generator:
+        	generator_user_port = LiteDRAMPort(generator_crossbar_port.aw,
+            	                               generator_crossbar_port.dw,
+                	                           cd="clk50")
+        	self.submodules += LiteDRAMPortCDC(generator_user_port,
+            	                               generator_crossbar_port)
+        else:
+        	generator_user_port = generator_crossbar_port
         self.submodules.generator = LiteDRAMBISTGenerator(generator_user_port, random=False)
 
         checker_crossbar_port = self.sdram.crossbar.get_port()
-        checker_user_port = LiteDRAMPort(checker_crossbar_port.aw,
-                                         checker_crossbar_port.dw,
-                                         cd="clk50")
-        self.submodules += LiteDRAMPortCDC(checker_user_port,
-                                           checker_crossbar_port)
+        if async_checker:
+        	checker_user_port = LiteDRAMPort(checker_crossbar_port.aw,
+            	                             checker_crossbar_port.dw,
+                	                         cd="clk50")
+        	self.submodules += LiteDRAMPortCDC(checker_user_port,
+            	                               checker_crossbar_port)
+        else:
+        	checker_user_port = checker_crossbar_port
         self.submodules.checker = LiteDRAMBISTChecker(checker_user_port, random=False)
+
 
         # uart
         self.add_cpu_or_bridge(UARTWishboneBridge(platform.request("serial"), clk_freq, baudrate=115200))
         self.add_wb_master(self.cpu_or_bridge.wishbone)
 
         # logic analyzer
-        generator_crossbar_port_wdata_data = Signal(8)
-        checker_crossbar_port_rdata_data = Signal(8)
-        self.comb += [
-            generator_crossbar_port_wdata_data.eq(generator_crossbar_port.wdata.data),
-            checker_crossbar_port_rdata_data.eq(checker_crossbar_port.rdata.data)
-        ]
-
-        if True:
+        if False:
             analyzer_signals = [
                 generator_crossbar_port.cmd.valid,
                 generator_crossbar_port.cmd.ready,
@@ -165,14 +168,15 @@ class BaseSoC(SoCSDRAM):
 
                 generator_crossbar_port.wdata.valid,
                 generator_crossbar_port.wdata.ready,
-                generator_crossbar_port_wdata_data,
                 generator_crossbar_port.wdata.we,
 
                 self.generator.shoot.re,
-                self.checker.shoot.re
+                self.checker.shoot.re,
+
+                generator_crossbar_port_wdata_data,
             ]
 
-        if False:
+        if True:
             analyzer_signals = [
                 checker_crossbar_port.cmd.valid,
                 checker_crossbar_port.cmd.ready,
@@ -181,10 +185,33 @@ class BaseSoC(SoCSDRAM):
 
                 checker_crossbar_port.rdata.valid,
                 checker_crossbar_port.rdata.ready,
-                checker_crossbar_port_rdata_data,
 
                 self.generator.shoot.re,
-                self.checker.shoot.re
+                self.checker.shoot.re,
+
+                self.ddrphy.dfi.phases[0].cas_n,
+                self.ddrphy.dfi.phases[0].ras_n,
+                self.ddrphy.dfi.phases[0].rddata_en,
+                self.ddrphy.dfi.phases[0].rddata_valid,
+                self.ddrphy.dfi.phases[0].rddata,
+
+                self.ddrphy.dfi.phases[1].cas_n,
+                self.ddrphy.dfi.phases[1].ras_n,
+                self.ddrphy.dfi.phases[1].rddata_en,
+                self.ddrphy.dfi.phases[1].rddata_valid,
+                self.ddrphy.dfi.phases[1].rddata,
+
+                self.ddrphy.dfi.phases[2].cas_n,
+                self.ddrphy.dfi.phases[2].ras_n,
+                self.ddrphy.dfi.phases[2].rddata_en,
+                self.ddrphy.dfi.phases[2].rddata_valid,
+                self.ddrphy.dfi.phases[2].rddata,
+
+                self.ddrphy.dfi.phases[3].cas_n,
+                self.ddrphy.dfi.phases[3].ras_n,
+                self.ddrphy.dfi.phases[3].rddata_en,
+                self.ddrphy.dfi.phases[3].rddata_valid,
+                self.ddrphy.dfi.phases[3].rddata,
             ]
 
         self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 512)
