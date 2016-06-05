@@ -26,4 +26,4 @@ time scripts/get-env.sh
 
 set +x
 set +e
-. scripts/setup-env.sh
+. scripts/enter-env.sh

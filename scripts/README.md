@@ -1,6 +1,7 @@
 # Building HDMI2USB-misoc-firmware
 
-These scripts are designed to bootstrap a firmware build environment on Ubuntu 14.04 LTS and also works on 15.04 though with less testing.
+These scripts are designed to bootstrap a firmware build environment on Ubuntu
+14.04 LTS and also works on 15.04 though with less testing.
 
 ## Prerequisite
 
@@ -27,94 +28,187 @@ Install Xilinx ISE WebPACK 14.7 + activate a licence:
  
 ## Bootstrap
  
-Run the bootstrap script to build an environment required for flashing firmware:
-  ```
-  curl -fsS https://raw.githubusercontent.com/timvideos/HDMI2USB-misoc-firmware/master/scripts/bootstrap.sh | bash
-  ```
+Run the bootstrap script to build an environment required for flashing
+firmware:
+```
+curl -fsS https://raw.githubusercontent.com/timvideos/HDMI2USB-misoc-firmware/master/scripts/bootstrap.sh | bash
+```
 
-This clones the HDMI2USB-misoc-firmware repository, adds the timvideos fpga-support PPA, installs packages required then downloads misoc and its dependencies. Depending on your connection speed this could take a while to download.
+This clones the HDMI2USB-misoc-firmware repository, adds the timvideos
+fpga-support PPA, installs packages required then downloads misoc and its
+dependencies. Depending on your connection speed this could take a while to
+download.
 
-## Building the firmware
+## Working with the firmware
 
-1. Initalise the environment (required for any of the build/load steps below[2]):
-  ```
-  cd HDMI2USB-misoc-firmware
-  source scripts/setup-env.sh
-  ```
+### 1) Enter the environment
 
-2.  Build the gateware:
-  ```
-  make gateware
-  ```
+Before being able to run any of the build steps you must first `enter` the
+development environment.
 
-  This may fail at the end after it builds the gateware (as it will try to flash the gateware), this is OK, as long as the gateware files have been built:
+Before entering, you should set the type of board you want to use.  This is
+done by doing;
+```
+export BOARD=opsis
+```
 
-  ```
-  Saving bit stream in "atlys_hdmi2usb-hdmi2usbsoc-atlys.bit".
-  Saving bit stream in "atlys_hdmi2usb-hdmi2usbsoc-atlys.bin".
-  ```
+To do this do the following steps;
+```
+cd HDMI2USB-misoc-firmware
+source scripts/enter-env.sh
+```
 
-   The built gateware will be in build/misoc/build/.
+Once you source the environment your prompt should change to look something
+like;
+```
+(H2U BOARD=opsis) #
+```
 
-3. You've now built the HDMI2USB firmware/gateware.  Ensure board has the right pins set before flashing anything, and plug it in:
+FIXME: Add a `make test-env` which verifies the environment is working
+(excpecially that the Xilinx stuff has a proper license stuff).
 
-  As the HDMI2USB firmware manipulates the EDID information the following jumpers must be removed;
+### 2) Build the gateware
 
-  ```
-  JP2/SDA (which connects the EDID lines from J1/HDMI IN to JA/HDMI OUT).
-  JP6 and JP7 (which connects the EDID lines from J3/HDMI IN to J2/HDMI OUT).
-  ```
+Once you have entered the environment, you can build things.
 
-  * Plug board in using USB PROG port & switch on.  If using a VM, ensure the device is passed through.
-  * Other USB port is for the HDMI2USB capture.  Recommend plugging this in too so you can use/test the device.
- 
-4.  Flash the gateware and firmware - see [1] if using a VM:
+Building the full HDMI2USB gateware takes roughly between 15 minutes and 30
+minutes on a modern fast machine.
 
-  ```
-  make load-gateware
-  ```
-  (may need to run several times)
+```
+make gateware
+```
 
-5.  Load fx2 firmware to enable USB capture:
-  ```
-  make load-fx2
-  ```
+At the end of running the build command, you should end up with;
+```
+Creating bit map...
+Saving bit stream in "opsis_hdmi2usb-hdmi2usbsoc-opsis.bit".
+Saving bit stream in "opsis_hdmi2usb-hdmi2usbsoc-opsis.bin".
+Bitstream generation is complete.
+Firmware 56008 bytes (9528 bytes left)
+```
 
-6. Connect to lm32 softcore to send direct commands to the HDMI2USB such as changing resolution:
-  ```
-  make connect-lm32
-  ```
-  Set a mode/capture - type 'help' and read instructions.
+The built gateware will be in build/misoc/build/.
 
-  You likely need to enable a video mode, framebuffer & encoder.
+### 3) Configure your board
 
-  'status' helps to see what the firmware is doing.
-
-  The following commands are an example of what is needed;
-  ```
-  encoder on
-  encoder quality 85
-  video_matrix connect input1 output0
-  video_matrix connect input1 output1
-  video_matrix connect input1 encoder
-  ```
-
-7. View the video output on your computer with your preferred tool.
-
-  The scripts/view-hdmi2usb.sh script will try and find a suitable tool to display.
-  ```
-  make view
-  # or
-  scripts/view-hdmi2usb.sh
-  ```
+Before loading onto your board, you need to ensure that your board is in the
+correct state.
 
 ---
 
+#### Configuring the Opsis
 
-Once everything has been built, get HDMI2USB running again after a power cycle by running this script, possibly multiple times if errors first attempt (does non-build steps above):
-   ```
-   ~/HDMI2USB-misoc-firmware/scripts/flash-hdmi2usb.sh
-   ```
+To use the Opsis, you need to set the jumpers correctly, connect cables
+correctly and then put the board into JTAG mode.
+
+FIXME: Put something here about the Opsis.
+
+##### Jumpers Configuration
+
+The jumpers as set on the Opsis when it ships work.
+
+FIXME: Put picture showing correct jumper configuration.
+
+##### Cables
+
+The programming computer must be connected to the USB-B port.
+
+##### JTAG mode
+
+By default the Opsis will boot into HDMI2USB mode. To load gateware onto the
+board it must be switched into JTAG mode.
+
+FIXME: Add instructions for switching the Opsis into JTAG mode.
+
+ - HDMI2USB-mode-switch
+ - Connect to console and use fx2 switch command.
+
+---
+
+#### Configuring the Atlys
+
+Before loading the gateware you need to set the jumpers correctly and connect
+the cables correctly.
+
+FIXME: Put something here about the Atlys.
+
+##### Jumpers Configuration
+
+As the HDMI2USB firmware manipulates the EDID information the following jumpers
+must be removed;
+
+```
+JP2/SDA (which connects the EDID lines from J1/HDMI IN to JA/HDMI OUT).
+JP6 and JP7 (which connects the EDID lines from J3/HDMI IN to J2/HDMI OUT).
+```
+
+##### Cables
+
+  * Plug board in using `PROG` port & switch on. If using a VM, ensure the
+    device is passed through.
+
+  * The other UART port is for the controlling the firmware. Recommend plugging
+   :w
+his in too so you can use/test the device.
+
+---
+
+### 4) Loading temporarily
+
+You can load gateware and firmware onto your device temporarily for testing. If
+you power cycle the device after this step it will go back to the state before
+this step.
+
+Load the gateware and firmware - see [1] if using a VM:
+```
+make load-gateware
+```
+
+Load fx2 firmware to enable USB capture:
+```
+make load-fx2
+```
+
+### 5) Testing
+
+Connect to lm32 softcore to send direct commands to the HDMI2USB such as
+changing resolution:
+```
+make connect-lm32
+```
+Set a mode/capture - type 'help' and read instructions.
+
+You likely need to enable a video mode, frame buffer & encoder.
+
+'status' helps to see what the firmware is doing.
+
+The following commands are an example of what is needed;
+```
+encoder on
+encoder quality 85
+video_matrix connect input1 output0
+video_matrix connect input1 output1
+video_matrix connect input1 encoder
+```
+
+View the video output on your computer with your preferred tool.
+
+The scripts/view-hdmi2usb.sh script will try and find a suitable tool to display.
+```
+make view
+# or
+scripts/view-hdmi2usb.sh
+```
+
+### 6) Loading permanently
+
+If you are happy with the firmware you can load it onto the board so that if
+persists after power cycle.
+
+
+```
+make flash
+```
 
 #### Footnotes
 
@@ -128,8 +222,10 @@ Once everything has been built, get HDMI2USB running again after a power cycle b
 
   * bootstrap.sh: script to run on a fresh Ubuntu 14.04 LTS install
   * get-env.sh: called from bootstrap (gets and installs software)
-  * setup-env.sh: script to run after installation to setup environemnt
+  * enter-env.sh: script to run after installation to enter environment
 
   * 52-hdmi2usb.rules: udev rules loaded by get-env.sh
   * view-hdmi2usb.sh: test script to view HDMI2USB output
-  * flash-hdmi2usb.sh: script to run after gateware/firmware built
+
+
+
