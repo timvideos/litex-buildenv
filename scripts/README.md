@@ -120,7 +120,12 @@ board it must be switched into JTAG mode.
 
 FIXME: Add instructions for switching the Opsis into JTAG mode.
 
- - HDMI2USB-mode-switch
+ - [HDMI2USB-mode-switch](https://github.com/timvideos/HDMI2USB-mode-switch)
+   then run:
+   ```
+   hdmi2usb-mode-switch --mode=jtag
+   ```
+
  - Connect to console and use fx2 switch command.
 
 ---
@@ -164,10 +169,61 @@ Load the gateware and firmware - see [1] if using a VM:
 make load-gateware
 ```
 
+On the Opsis, while loading the Blue LED (D1 / Done) and Green LED (D2) will
+light up. After it has finished, both LED will turn off.
+
+The output will look like this;
+```
+jtagspi_program
+Info : usb blaster interface using libftdi
+Info : This adapter doesn't support configurable speed
+Info : JTAG tap: xc6s.tap tap/device found: 0x44028093 (mfg: 0x049 (Xilinx), part: 0x4028, ver: 0x4)
+loaded file build/opsis_hdmi2usb-hdmi2usbsoc-opsis.bit to pld device 0 in 31s 983152us
+```
+
 Load fx2 firmware to enable USB capture:
 ```
 make load-fx2
 ```
+
+#### Common Errors
+
+##### unable to open ftdi device: device not found
+
+This error means that a HDMI2USB board in JTAG mode was not detected. Power cycle the board and make sure
+you have followed the `3) Configure your board` section.
+
+```
+Warn : Adapter driver 'usb_blaster' did not declare which transports it allows; assuming legacy JTAG-only
+Info : only one transport option; autoselect 'jtag'
+Warn : incomplete ublast_vid_pid configuration
+jtagspi_program
+Info : usb blaster interface using libftdi
+Error: unable to open ftdi device: device not found
+```
+
+
+##### Warn: Bypassing JTAG setup events due to errors
+
+If you get an error like this;
+```
+Info : This adapter doesn't support configurable speed
+Info : JTAG tap: xc6s.tap tap/device found: 0x03030303 (mfg: 0x181 (Solectron), part: 0x3030, ver: 0x0)
+Warn : JTAG tap: xc6s.tap       UNEXPECTED: 0x03030303 (mfg: 0x181 (Solectron), part: 0x3030, ver: 0x0)
+Error: JTAG tap: xc6s.tap expected 1 of 13: 0x04000093 (mfg: 0x049 (Xilinx), part: 0x4000, ver: 0x0)
+Error: JTAG tap: xc6s.tap expected 2 of 13: 0x04001093 (mfg: 0x049 (Xilinx), part: 0x4001, ver: 0x0)
+Error: JTAG tap: xc6s.tap expected 3 of 13: 0x04002093 (mfg: 0x049 (Xilinx), part: 0x4002, ver: 0x0)
+Error: JTAG tap: xc6s.tap expected 4 of 13: 0x04004093 (mfg: 0x049 (Xilinx), part: 0x4004, ver: 0x0)
+Error: JTAG tap: xc6s.tap expected 5 of 13: 0x04024093 (mfg: 0x049 (Xilinx), part: 0x4024, ver: 0x0)
+```
+
+It means the JTAG firmware on the FX2 has gotten confused. Use mode-switch tool
+to switch to serial mode and then back to the jtag mode like this;
+```
+hdmi2usb-mode-switch --mode=serial
+hdmi2usb-mode-switch --mode=jtag
+```
+
 
 ### 5) Testing
 
