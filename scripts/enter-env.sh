@@ -156,10 +156,8 @@ export HDMI2USB_ENV=1
 # Set prompt
 ORIG_PS1="$PS1"
 hdmi2usb_prompt() {
-	P=""
-	if [ ! -z "$BOARD" ]; then
-		P="$P B=$BOARD"
-	fi
+	P="(H2U B=$BOARD"
+
 	if [ ! -z "$TARGET" ]; then
 		P="$P T=$TARGET"
 	fi
@@ -167,12 +165,6 @@ hdmi2usb_prompt() {
 		P="$P P=$PROG"
 	fi
 
-	if [ ! -z "$P" ]; then
-		P="(H2U$P) $ORIG_PS1"
-	else
-		P="(HDMI2USB) $ORIG_PS1"
-	fi
-
-	PS1=$P
+	PS1="$P) $ORIG_PS1"
 }
 PROMPT_COMMAND=hdmi2usb_prompt

@@ -10,7 +10,9 @@ PYTHONHASHSEED := 0
 export PYTHONHASHSEED
 
 # Default board
-BOARD ?= atlys
+ifeq ($(BOARD),)
+    $(error "BOARD not set, please set it.")
+endif
 export BOARD
 # Default targets for a given board
 ifeq ($(BOARD),pipistrello)
