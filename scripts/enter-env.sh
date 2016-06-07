@@ -165,6 +165,14 @@ hdmi2usb_prompt() {
 		P="$P P=$PROG"
 	fi
 
+	BRANCH="$(git symbolic-ref --short HEAD 2> /dev/null)"
+	if [ "$BRANCH" != "master" ]; then
+		if [ x"$BRANCH" = x ]; then
+			BRANCH="???"
+		fi
+		P="$P R=$BRANCH"
+	fi
+
 	PS1="$P) $ORIG_PS1"
 }
 PROMPT_COMMAND=hdmi2usb_prompt
