@@ -36,15 +36,7 @@ apt-get install -y iverilog gtkwave
 # liteeth
 # Nothing needed
 
-# libfpgalink
-
 apt-get install -y libreadline-dev libusb-1.0-0-dev libftdi-dev python-yaml fxload
-
-# Load custom udev rules
-(
-	cp -uf  $SETUP_DIR/52-hdmi2usb.rules /etc/udev/rules.d/
-#	adduser $USER dialout
-)
 
 # Get the vizzini module needed for the Atlys board
 apt-get install -y software-properties-common

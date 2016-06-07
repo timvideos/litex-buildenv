@@ -188,7 +188,9 @@ make load-fx2
 
 #### Common Errors
 
-##### unable to open ftdi device: device not found
+##### unable to open ftdi device
+
+###### `device not found`
 
 This error means that a HDMI2USB board in JTAG mode was not detected. Power cycle the board and make sure
 you have followed the `3) Configure your board` section.
@@ -202,6 +204,20 @@ Info : usb blaster interface using libftdi
 Error: unable to open ftdi device: device not found
 ```
 
+###### `inappropriate permissions on device`
+
+This error means that your user doesn't have permission to talk to the HDMI2USB
+board. This is normally caused by not installing the udev rules which come
+with HDMI2USB-mode-switch.
+
+```
+Warn : Adapter driver 'usb_blaster' did not declare which transports it allows; assuming legacy JTAG-only
+Info : only one transport option; autoselect 'jtag'
+Warn : incomplete ublast_vid_pid configuration
+jtagspi_program
+Info : usb blaster interface using libftdi
+Error: unable to open ftdi device: inappropriate permissions on device!
+```
 
 ##### Warn: Bypassing JTAG setup events due to errors
 
@@ -223,7 +239,6 @@ to switch to serial mode and then back to the jtag mode like this;
 hdmi2usb-mode-switch --mode=serial
 hdmi2usb-mode-switch --mode=jtag
 ```
-
 
 ### 5) Testing
 
@@ -280,7 +295,6 @@ make flash
   * get-env.sh: called from bootstrap (gets and installs software)
   * enter-env.sh: script to run after installation to enter environment
 
-  * 52-hdmi2usb.rules: udev rules loaded by get-env.sh
   * view-hdmi2usb.sh: test script to view HDMI2USB output
 
 
