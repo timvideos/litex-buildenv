@@ -78,6 +78,7 @@ int main(void)
 	encoder_enable(1);
 	processor_update();
 #endif
+#if 0
 	// draw a pattern
 	int inc_color(int color) {
 		color++;
@@ -119,6 +120,7 @@ int main(void)
 	video_out_initiator_base_write(0);
 	video_out_initiator_end_write(640*480-1);
 	video_out_initiator_enable_write(1);
+#endif
 
 	ci_prompt();
 	while(1) {
