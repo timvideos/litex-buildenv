@@ -11,10 +11,11 @@ from litex.soc.integration.builder import *
 from litex.soc.cores import uart
 from litex.soc.integration.soc_core import mem_decoder
 
-from litedram.common import PhySettings
+from litedram.common import PhySettings, LiteDRAMPort
 from litedram.modules import IS42S16160
 from litedram.phy.model import SDRAMPHYModel
 from litedram.core.controller import ControllerSettings
+from litedram.frontend.adaptation import LiteDRAMPortConverter
 
 from liteeth.phy.model import LiteEthPHYModel
 from liteeth.core.mac import LiteEthMAC
@@ -102,7 +103,11 @@ class BaseSoC(SoCSDRAM):
         self.add_constant("MEMTEST_ADDR_SIZE", 1024)
         self.add_constant("SIMULATION", 1)
 
-        self.submodules.video_out = VideoOutCore(self.sdram.crossbar.get_port())
+        video_out_crossbar_port = self.sdram.crossbar.get_port()
+        video_out_user_port = LiteDRAMPort(video_out_crossbar_port.aw, 32)
+        self.submodules += LiteDRAMPortConverter(video_out_user_port, video_out_crossbar_port)
+
+        self.submodules.video_out = VideoOutCore(video_out_user_port)
         self.submodules.vga = VGAModel(platform.request("vga"))
         self.comb += self.video_out.source.connect(self.vga.sink)
 
