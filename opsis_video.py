@@ -4,6 +4,9 @@ from opsis_base import *
 from litevideo.input import HDMIIn
 from litevideo.output import VideoOut
 
+from litedram.common import LiteDRAMPort
+from litedram.frontend.adaptation import LiteDRAMPortCDC, LiteDRAMPortConverter
+
 base_cls = MiniSoC
 
 
@@ -26,22 +29,43 @@ class VideoMixerSoC(base_cls):
 
     def __init__(self, platform, **kwargs):
         base_cls.__init__(self, platform, **kwargs)
-        # hdmi in 0
-        self.submodules.hdmi_in0 = HDMIIn(platform.request("hdmi_in", 0),
-                                          self.sdram.crossbar.get_port(),
-                                          fifo_depth=512)
-        # hdmi in 1
-        self.submodules.hdmi_in1 = HDMIIn(platform.request("hdmi_in", 1),
-                                          self.sdram.crossbar.get_port(),
-                                          fifo_depth=512)
+        ## hdmi in 0
+        #self.submodules.hdmi_in0 = HDMIIn(platform.request("hdmi_in", 0),
+        #                                  self.sdram.crossbar.get_port(),
+        #                                  fifo_depth=512)
+        ## hdmi in 1
+        #self.submodules.hdmi_in1 = HDMIIn(platform.request("hdmi_in", 1),
+        #                                  self.sdram.crossbar.get_port(),
+        #                                  fifo_depth=512)
         # hdmi out 0
+        hdmi_out0_crossbar_port = self.sdram.crossbar.get_port()
+        hdmi_out0_crossbar_port_32 = LiteDRAMPort(hdmi_out0_crossbar_port.aw, 32)
+        hdmi_out0_user_port_32 = LiteDRAMPort(hdmi_out0_crossbar_port.aw, 32, cd="sys") # FIXME
+
+        self.submodules += [
+            LiteDRAMPortConverter(hdmi_out0_crossbar_port_32, hdmi_out0_crossbar_port),
+            LiteDRAMPortCDC(hdmi_out0_user_port_32, hdmi_out0_crossbar_port_32)
+        ]
+
         self.submodules.hdmi_out0 = VideoOut(platform.device,
                                             platform.request("hdmi_out", 0),
-                                            self.sdram.crossbar.get_port())
-        # hdmi out 1 : Share clocking with hdmi_out0 since no PLL_ADV left.
+                                            hdmi_out0_user_port_32,
+                                            "rgb")
+
+        # hdmi out 1 : Share clocking with hdmi_out1 since no PLL_ADV left.
+        hdmi_out1_crossbar_port = self.sdram.crossbar.get_port()
+        hdmi_out1_crossbar_port_32 = LiteDRAMPort(hdmi_out1_crossbar_port.aw, 32)
+        hdmi_out1_user_port_32 = LiteDRAMPort(hdmi_out1_crossbar_port.aw, 32, cd="sys") # FIXME
+
+        self.submodules += [
+            LiteDRAMPortConverter(hdmi_out1_crossbar_port_32, hdmi_out1_crossbar_port),
+            LiteDRAMPortCDC(hdmi_out1_user_port_32, hdmi_out1_crossbar_port_32)
+        ]
+
         self.submodules.hdmi_out1 = VideoOut(platform.device,
                                             platform.request("hdmi_out", 1),
-                                            self.sdram.crossbar.get_port(),
+                                            hdmi_out1_user_port_32,
+                                            "rgb",
                                             self.hdmi_out0.driver.clocking)
 
         # all PLL_ADV are used: router needs help...
