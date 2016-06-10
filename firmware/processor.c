@@ -367,7 +367,7 @@ static void fb_set_mode(const struct video_timing *mode)
 	hdmi_out0_core_initiator_vsync_end_write(mode->v_active + mode->v_sync_offset + mode->v_sync_width);
 	hdmi_out0_core_initiator_vscan_write(mode->v_active + mode->v_blanking);
 
-	hdmi_out0_core_initiator_end_write(mode->h_active*mode->v_active*2); //FIXME
+	hdmi_out0_core_initiator_end_write(mode->h_active*mode->v_active-1); //FIXME convert to bytes
 #endif
 
 #ifdef CSR_HDMI_OUT1_BASE
@@ -380,7 +380,7 @@ static void fb_set_mode(const struct video_timing *mode)
 	hdmi_out1_core_initiator_vsync_end_write(mode->v_active + mode->v_sync_offset + mode->v_sync_width);
 	hdmi_out1_core_initiator_vscan_write(mode->v_active + mode->v_blanking);
 
-	hdmi_out1_core_initiator_end_write(mode->h_active*mode->v_active*2); //FIXME
+	hdmi_out1_core_initiator_end_write(mode->h_active*mode->v_active-1); //FIXME convert to bytes
 #endif
 
 	fb_clkgen_write(0x1, clock_d-1);
@@ -471,10 +471,10 @@ void processor_start(int mode)
 
 #ifdef CSR_HDMI_OUT0_BASE
 	hdmi_out0_driver_clocking_pll_reset_write(0);
-	hdmi_out0_core_initiator_enable_write(1);
+	hdmi_out0_core_initiator_enable_write(0);
 #endif
 #ifdef CSR_HDMI_OUT1_BASE
-	hdmi_out1_core_initiator_enable_write(1);
+	hdmi_out1_core_initiator_enable_write(0);
 #endif
 #ifdef CSR_HDMI_IN0_BASE
 	hdmi_in0_edid_hpd_en_write(1);

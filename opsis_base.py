@@ -200,7 +200,9 @@ class BaseSoC(SoCSDRAM):
         self.register_sdram(self.ddrphy,
                             sdram_module.geom_settings,
                             sdram_module.timing_settings,
-                            controller_settings=ControllerSettings(with_bandwidth=True))
+                            controller_settings=ControllerSettings(with_bandwidth=True,
+                                                                   cmd_buffer_depth=8,
+                                                                   with_refresh=False))
         self.comb += [
             self.ddrphy.clk8x_wr_strb.eq(self.crg.clk8x_wr_strb),
             self.ddrphy.clk8x_rd_strb.eq(self.crg.clk8x_rd_strb),
