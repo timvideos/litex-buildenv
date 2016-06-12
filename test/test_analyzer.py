@@ -12,7 +12,7 @@ logic_analyzer = LiteScopeAnalyzerDriver(wb.regs, "analyzer", debug=True)
 
 cond = {}
 logic_analyzer.configure_trigger(cond=cond)
-logic_analyzer.run(offset=256, length=512)
+logic_analyzer.run(offset=256, length=2048)
 
 while not logic_analyzer.done():
     pass

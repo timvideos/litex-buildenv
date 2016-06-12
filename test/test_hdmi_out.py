@@ -65,11 +65,13 @@ def read_mmcm_config():
     for i in range(32):
         print("%d : %04x" %(i, read_mmcm_reg(i)))
 
-
 # # #
 
 #config_1080p60()
 config_720p60()
+
+for i in range(100000):
+    wb.write(wb.mems.main_ram.base + 4*i, 0x00ff0000)
 
 # # #
 

@@ -25,24 +25,66 @@ class VideoOutSoC(base_cls):
 
         # # #
 
-        hdmi_out0_crossbar_port_sys = self.sdram.crossbar.get_port()
-        hdmi_out0_crossbar_port_pix = LiteDRAMPort(hdmi_out0_crossbar_port_sys.aw, hdmi_out0_crossbar_port_sys.dw, cd="pix")
-        hdmi_out0_user_port_16_pix = LiteDRAMPort(32, 16, cd="pix")
 
-        port_converter = ClockDomainsRenamer("pix")(LiteDRAMPortUpConverter(hdmi_out0_user_port_16_pix, hdmi_out0_crossbar_port_pix))
-        port_cdc = LiteDRAMPortCDC(hdmi_out0_crossbar_port_pix, hdmi_out0_crossbar_port_sys)
-        self.submodules += port_converter, port_cdc
+        mode = "rgb"
 
-        self.submodules.hdmi_out0 = VideoOut(platform.device,
-                                             platform.request("hdmi_out"),
-                                             hdmi_out0_user_port_16_pix,
-                                             "ycbcr422")
+        if mode == "ycbcr422":
+            hdmi_out0_crossbar_port_sys = self.sdram.crossbar.get_port()
+            hdmi_out0_crossbar_port_pix = LiteDRAMPort(hdmi_out0_crossbar_port_sys.aw, hdmi_out0_crossbar_port_sys.dw, cd="pix")
+            hdmi_out0_user_port_16_pix = LiteDRAMPort(32, 16, cd="pix")
+
+            port_converter = ClockDomainsRenamer("pix")(LiteDRAMPortUpConverter(hdmi_out0_user_port_16_pix,
+                                                                                hdmi_out0_crossbar_port_pix))
+            port_cdc = LiteDRAMPortCDC(hdmi_out0_crossbar_port_pix, hdmi_out0_crossbar_port_sys)
+            self.submodules += port_converter, port_cdc
+
+            self.submodules.hdmi_out0 = VideoOut(platform.device,
+                                                 platform.request("hdmi_out"),
+                                                 hdmi_out0_user_port_16_pix,
+                                                 "ycbcr422")
+        elif mode == "rgb":
+            hdmi_out0_crossbar_port_sys = self.sdram.crossbar.get_port()
+            hdmi_out0_crossbar_port_pix = LiteDRAMPort(hdmi_out0_crossbar_port_sys.aw, hdmi_out0_crossbar_port_sys.dw, cd="pix")
+            hdmi_out0_user_port_32_pix = LiteDRAMPort(32, 32, cd="pix")
+
+            port_converter = ClockDomainsRenamer("pix")(LiteDRAMPortUpConverter(hdmi_out0_user_port_32_pix,
+                                                                                hdmi_out0_crossbar_port_pix))
+            port_cdc = LiteDRAMPortCDC(hdmi_out0_crossbar_port_pix, hdmi_out0_crossbar_port_sys)
+            self.submodules += port_converter, port_cdc
+
+            self.submodules.hdmi_out0 = VideoOut(platform.device,
+                                                 platform.request("hdmi_out"),
+                                                 hdmi_out0_user_port_32_pix,
+                                                 "rgb")
+
 
         self.platform.add_false_path_constraints(
             self.crg.cd_sys.clk,
             self.hdmi_out0.driver.clocking.cd_pix.clk)
 
         analyzer_signals = [
+            hdmi_out0_user_port_32_pix.cmd.valid,
+            hdmi_out0_user_port_32_pix.cmd.ready,
+            hdmi_out0_user_port_32_pix.cmd.we,
+            hdmi_out0_user_port_32_pix.cmd.adr,
+            hdmi_out0_user_port_32_pix.wdata.valid,
+            hdmi_out0_user_port_32_pix.wdata.ready,
+            #hdmi_out0_user_port_32_pix.wdata.data,
+            hdmi_out0_user_port_32_pix.wdata.we,
+            hdmi_out0_user_port_32_pix.rdata.valid,
+            hdmi_out0_user_port_32_pix.rdata.ready,
+            #hdmi_out0_user_port_32_pix.rdata.data,
+            hdmi_out0_crossbar_port_sys.cmd.valid,
+            hdmi_out0_crossbar_port_sys.cmd.ready,
+            hdmi_out0_crossbar_port_sys.cmd.we,
+            hdmi_out0_crossbar_port_sys.cmd.adr,
+            hdmi_out0_crossbar_port_sys.wdata.valid,
+            hdmi_out0_crossbar_port_sys.wdata.ready,
+            #hdmi_out0_crossbar_port_sys.wdata.data,
+            hdmi_out0_crossbar_port_sys.wdata.we,
+            hdmi_out0_crossbar_port_sys.rdata.valid,
+            hdmi_out0_crossbar_port_sys.rdata.ready,
+            #hdmi_out0_crossbar_port_sys.rdata.data,
             self.hdmi_out0.driver.sink.valid,
             self.hdmi_out0.driver.sink.de,
             self.hdmi_out0.driver.sink.hsync,
