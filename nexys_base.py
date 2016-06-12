@@ -14,6 +14,7 @@ from litex.soc.integration.builder import *
 
 from litedram.modules import MT41K256M16
 from litedram.phy import a7ddrphy
+from litedram.core import ControllerSettings
 
 from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 from liteeth.core.mac import LiteEthMAC
@@ -130,7 +131,10 @@ class BaseSoC(SoCSDRAM):
         sdram_module = MT41K256M16(self.clk_freq, "1:4")
         self.register_sdram(self.ddrphy,
                             sdram_module.geom_settings,
-                            sdram_module.timing_settings)
+                            sdram_module.timing_settings,
+                            controller_settings=ControllerSettings(with_bandwidth=True,
+                                                                   cmd_buffer_depth=8,
+                                                                   with_refresh=False))
 
 
 class MiniSoC(BaseSoC):

@@ -8,12 +8,15 @@ from litevideo.output import VideoOut
 from litedram.common import LiteDRAMPort
 from litedram.frontend.adaptation import LiteDRAMPortCDC, LiteDRAMPortUpConverter
 
+from litescope import LiteScopeAnalyzer
+
 base_cls = MiniSoC
 
 
 class VideoOutSoC(base_cls):
     csr_map = {
-        "hdmi_out0": 21
+        "hdmi_out0": 21,
+        "analyzer":  22
     }
     csr_map.update(base_cls.csr_map)
 
@@ -35,6 +38,22 @@ class VideoOutSoC(base_cls):
                                              hdmi_out0_user_port_16_pix,
                                              "ycbcr422")
 
+        self.platform.add_false_path_constraints(
+            self.crg.cd_sys.clk,
+            self.hdmi_out0.driver.clocking.cd_pix.clk)
+
+        analyzer_signals = [
+            self.hdmi_out0.driver.sink.valid,
+            self.hdmi_out0.driver.sink.de,
+            self.hdmi_out0.driver.sink.hsync,
+            self.hdmi_out0.driver.sink.vsync,
+            self.hdmi_out0.driver.sink.r,
+            self.hdmi_out0.driver.sink.g,
+            self.hdmi_out0.driver.sink.b
+        ]
+        self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 2048, cd="pix", cd_ratio=2)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Nexys LiteX SoC")
     builder_args(parser)
@@ -48,6 +67,7 @@ def main():
                       compile_gateware=not args.nocompile_gateware,
                       csr_csv="test/csr.csv")
     vns = builder.build()
+    soc.analyzer.export_csv(vns, "test/analyzer.csv")
 
 if __name__ == "__main__":
     main()

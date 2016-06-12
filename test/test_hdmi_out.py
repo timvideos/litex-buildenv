@@ -1,3 +1,5 @@
+import time
+
 from litex.soc.tools.remote import RemoteClient
 
 wb = RemoteClient("192.168.1.50", 1234, csr_data_width=8)
@@ -19,9 +21,9 @@ def config_1080p60():
     regs.hdmi_out0_core_initiator_vsync_end.write(1080+4+5)
     regs.hdmi_out0_core_initiator_vscan.write(1125)
 
+    regs.hdmi_out0_core_initiator_enable.write(0)
     regs.hdmi_out0_core_initiator_base.write(0)
     regs.hdmi_out0_core_initiator_end.write(1920*1080-1)
-
     regs.hdmi_out0_core_initiator_enable.write(1)
 
 
@@ -39,9 +41,9 @@ def config_720p60():
     regs.hdmi_out0_core_initiator_vsync_end.write(730)
     regs.hdmi_out0_core_initiator_vscan.write(750)
 
+    regs.hdmi_out0_core_initiator_enable.write(0)
     regs.hdmi_out0_core_initiator_base.write(0)
     regs.hdmi_out0_core_initiator_end.write(1280*720-1)
-
     regs.hdmi_out0_core_initiator_enable.write(1)
 
 
@@ -66,7 +68,7 @@ def read_mmcm_config():
 
 # # #
 
-config_1080p60()
+#config_1080p60()
 config_720p60()
 
 # # #
