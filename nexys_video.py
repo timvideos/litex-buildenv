@@ -4,53 +4,36 @@ from nexys_base import *
 
 from litex.soc.interconnect import stream
 
-from litevideo.output.common import *
-from litevideo.output.hdmi.s7 import S7HDMIOutClocking
-from litevideo.output.hdmi.s7 import S7HDMIOutPHY
-from litevideo.output.core import Initiator, TimingGenerator
-from litevideo.output.pattern import ColorBarsPattern
+from litevideo.output import VideoOut
+from litedram.common import LiteDRAMPort
+from litedram.frontend.adaptation import LiteDRAMPortCDC, LiteDRAMPortUpConverter
 
 base_cls = MiniSoC
 
 
 class VideoOutSoC(base_cls):
     csr_map = {
-        "initiator": 21,
-        "clocking":  22
+        "hdmi_out0": 21
     }
     csr_map.update(base_cls.csr_map)
 
     def __init__(self, platform, *args, **kwargs):
         base_cls.__init__(self, platform, *args, **kwargs)
 
-        pads = platform.request("hdmi_out")
-
         # # #
 
-        self.submodules.initiator = Initiator("pix")
-        self.submodules.timing = ClockDomainsRenamer("pix")(TimingGenerator())
-        self.submodules.pattern = ClockDomainsRenamer("pix")(ColorBarsPattern())
-        self.comb += [
-            self.initiator.source.connect(self.timing.sink, omit=["base", "end"]),
-            self.pattern.sink.valid.eq(self.timing.sink.valid),
-            self.pattern.sink.hres.eq(self.timing.sink.hres)
-        ]
+        hdmi_out0_crossbar_port_sys = self.sdram.crossbar.get_port()
+        hdmi_out0_crossbar_port_pix = LiteDRAMPort(hdmi_out0_crossbar_port_sys.aw, hdmi_out0_crossbar_port_sys.dw, cd="pix")
+        hdmi_out0_user_port_16_pix = LiteDRAMPort(32, 16, cd="pix")
 
-        self.submodules.clocking = S7HDMIOutClocking(pads)
-        self.submodules.phy = S7HDMIOutPHY(pads)
+        port_converter = ClockDomainsRenamer("pix")(LiteDRAMPortUpConverter(hdmi_out0_user_port_16_pix, hdmi_out0_crossbar_port_pix))
+        port_cdc = LiteDRAMPortCDC(hdmi_out0_crossbar_port_pix, hdmi_out0_crossbar_port_sys)
+        self.submodules += port_converter, port_cdc
 
-        self.comb += [
-            self.phy.sink.valid.eq(self.timing.source.valid),
-            self.phy.sink.de.eq(self.timing.source.de),
-            self.phy.sink.hsync.eq(self.timing.source.hsync),
-            self.phy.sink.vsync.eq(self.timing.source.vsync),
-            self.phy.sink.r.eq(self.pattern.source.r),
-            self.phy.sink.g.eq(self.pattern.source.g),
-            self.phy.sink.b.eq(self.pattern.source.b),
-            self.pattern.source.ready.eq(self.timing.source.de),
-            self.timing.source.ready.eq(1),
-        ]
-
+        self.submodules.hdmi_out0 = VideoOut(platform.device,
+                                             platform.request("hdmi_out"),
+                                             hdmi_out0_user_port_16_pix,
+                                             "ycbcr422")
 
 def main():
     parser = argparse.ArgumentParser(description="Nexys LiteX SoC")
