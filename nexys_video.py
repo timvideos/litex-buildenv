@@ -27,15 +27,11 @@ class VideoOutSoC(base_cls):
 
         # # #
 
-        self.submodules.initiator = Initiator()
-        cdc = stream.AsyncFIFO(frame_parameter_layout + frame_dma_layout, 8)
-        cdc = ClockDomainsRenamer({"write": "sys", "read": "pix"})(cdc)
-        self.submodules += cdc
+        self.submodules.initiator = Initiator("pix")
         self.submodules.timing = ClockDomainsRenamer("pix")(TimingGenerator())
         self.submodules.pattern = ClockDomainsRenamer("pix")(ColorBarsPattern())
         self.comb += [
-            self.initiator.source.connect(cdc.sink),
-            cdc.source.connect(self.timing.sink, omit=["base", "end"]),
+            self.initiator.source.connect(self.timing.sink, omit=["base", "end"]),
             self.pattern.sink.valid.eq(self.timing.sink.valid),
             self.pattern.sink.hres.eq(self.timing.sink.hres)
         ]
@@ -44,11 +40,15 @@ class VideoOutSoC(base_cls):
         self.submodules.phy = S7HDMIOutPHY(pads)
 
         self.comb += [
-            self.timing.source.connect(self.phy.sink),
+            self.phy.sink.valid.eq(self.timing.source.valid),
+            self.phy.sink.de.eq(self.timing.source.de),
+            self.phy.sink.hsync.eq(self.timing.source.hsync),
+            self.phy.sink.vsync.eq(self.timing.source.vsync),
             self.phy.sink.r.eq(self.pattern.source.r),
             self.phy.sink.g.eq(self.pattern.source.g),
             self.phy.sink.b.eq(self.pattern.source.b),
-            self.pattern.source.ready.eq(self.timing.source.de)
+            self.pattern.source.ready.eq(self.timing.source.de),
+            self.timing.source.ready.eq(1),
         ]
 
 
