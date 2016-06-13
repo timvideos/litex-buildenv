@@ -26,7 +26,7 @@ class VideoOutSoC(base_cls):
         # # #
 
 
-        mode = "rgb"
+        mode = "ycbcr422"
 
         if mode == "ycbcr422":
             hdmi_out0_dram_port = self.sdram.crossbar.get_port(16, "pix")
