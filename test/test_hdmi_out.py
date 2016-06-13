@@ -91,10 +91,36 @@ def draw_color_bar_rgb():
             color = color_bar_rgb[(x*8)//1280]
             wb.write(wb.mems.main_ram.base + 4*(1280*y + x), color)
 
+
+YCBCR422_WHITE  = 0x80ff80ff
+YCBCR422_YELLOW = 0x00e194e1
+YCBCR422_CYAN   = 0xabb200b2
+YCBCR422_GREEN  = 0x2b951595
+YCBCR422_PURPLE = 0xd469e969
+YCBCR422_RED    = 0x544cff4c
+YCBCR422_BLUE   = 0xff1d6f1d
+YCBCR422_BLACK  = 0x80108010
+
+color_bar_ycbcr422 = [YCBCR422_WHITE,
+                      YCBCR422_YELLOW,
+                      YCBCR422_CYAN,
+                      YCBCR422_GREEN,
+                      YCBCR422_PURPLE,
+                      YCBCR422_RED,
+                      YCBCR422_BLUE,
+                      YCBCR422_BLACK]
+
+def draw_color_bar_ycbcr422():
+    for y in range(720):
+        for x in range(1280):
+            if x%2 == 0:
+                color = color_bar_ycbcr422[(x*8)//1280]
+                wb.write(wb.mems.main_ram.base + 4*(1280//2*y + x//2), color)
+
 # # #
 
 config_720p60()
-draw_color_bar_rgb()
+draw_color_bar_ycbcr422()
 
 # # #
 
