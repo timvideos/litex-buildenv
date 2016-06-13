@@ -14,8 +14,6 @@ from litex.soc.cores.uart.bridge import UARTWishboneBridge
 
 from litedram.modules import MT41K128M16
 from litedram.phy import a7ddrphy
-from litedram.common import LiteDRAMPort
-from litedram.frontend.adaptation import LiteDRAMPortCDC
 from litedram.frontend.bist import LiteDRAMBISTGenerator
 from litedram.frontend.bist import LiteDRAMBISTChecker
 
@@ -130,26 +128,10 @@ class BaseSoC(SoCSDRAM):
 
         # sdram bist
         if with_sdram_bist:
-            generator_crossbar_port = self.sdram.crossbar.get_port()
-            if bist_async:
-               generator_user_port = LiteDRAMPort(generator_crossbar_port.aw,
-                                                  generator_crossbar_port.dw,
-                                                  cd="clk50")
-               self.submodules += LiteDRAMPortCDC(generator_user_port,
-                                                  generator_crossbar_port)
-            else:
-               generator_user_port = generator_crossbar_port
+            generator_user_port = self.sdram.crossbar.get_port(cd="clk50" if bist_async else "sys")
             self.submodules.generator = LiteDRAMBISTGenerator(generator_user_port, random=bist_random)
 
-            checker_crossbar_port = self.sdram.crossbar.get_port()
-            if bist_async:
-               checker_user_port = LiteDRAMPort(checker_crossbar_port.aw,
-                                                checker_crossbar_port.dw,
-                                                 cd="clk50")
-               self.submodules += LiteDRAMPortCDC(checker_user_port,
-                                                  checker_crossbar_port)
-            else:
-               checker_user_port = checker_crossbar_port
+            checker_user_port = self.sdram.crossbar.get_port(cd="clk50" if bist_async else "sys")
             self.submodules.checker = LiteDRAMBISTChecker(checker_user_port, random=bist_random)
 
         # uart
