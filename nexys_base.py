@@ -134,7 +134,7 @@ class BaseSoC(SoCSDRAM):
                             sdram_module.timing_settings,
                             controller_settings=ControllerSettings(with_bandwidth=True,
                                                                    cmd_buffer_depth=8,
-                                                                   with_refresh=False))
+                                                                   with_refresh=True))
 
 
 class MiniSoC(BaseSoC):
