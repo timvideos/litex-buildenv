@@ -67,11 +67,34 @@ def read_mmcm_config():
 
 # # #
 
-#config_1080p60()
-config_720p60()
+RGB_WHITE  = 0x00ffffff
+RGB_YELLOW = 0x0000ffff
+RGB_CYAN   = 0x00ffff00
+RGB_GREEN  = 0x0000ff00
+RGB_PURPLE = 0x00ff00ff
+RGB_RED    = 0x000000ff
+RGB_BLUE   = 0x00ff0000
+RGB_BLACK  = 0x00000000
 
-for i in range(100000):
-    wb.write(wb.mems.main_ram.base + 4*i, 0x00ff0000)
+color_bar_rgb = [RGB_WHITE,
+                 RGB_YELLOW,
+                 RGB_CYAN,
+                 RGB_GREEN,
+                 RGB_PURPLE,
+                 RGB_RED,
+                 RGB_BLUE,
+                 RGB_BLACK]
+
+def draw_color_bar_rgb():
+    for y in range(720):
+        for x in range(1280):
+            color = color_bar_rgb[(x*8)//1280]
+            wb.write(wb.mems.main_ram.base + 4*(1280*y + x), color)
+
+# # #
+
+config_720p60()
+draw_color_bar_rgb()
 
 # # #
 
