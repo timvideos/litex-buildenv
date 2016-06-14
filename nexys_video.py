@@ -46,17 +46,25 @@ class VideoOutSoC(base_cls):
             self.hdmi_out0.driver.clocking.cd_pix.clk)
 
         analyzer_signals = [
-            hdmi_out0_dram_port.cmd.valid,
-            hdmi_out0_dram_port.cmd.ready,
-            hdmi_out0_dram_port.cmd.we,
-            hdmi_out0_dram_port.cmd.adr,
-            hdmi_out0_dram_port.wdata.valid,
-            hdmi_out0_dram_port.wdata.ready,
-            #hdmi_out0_dram_port.wdata.data,
-            hdmi_out0_dram_port.wdata.we,
-            hdmi_out0_dram_port.rdata.valid,
-            hdmi_out0_dram_port.rdata.ready,
-            #hdmi_out0_dram_port.rdata.data,
+            self.hdmi_out0.core.source.valid,
+            self.hdmi_out0.core.source.last,
+            self.hdmi_out0.core.source.data,
+            self.hdmi_out0.core.source.de,
+            self.hdmi_out0.core.source.hsync,
+            self.hdmi_out0.core.source.vsync,
+            self.hdmi_out0.core.source.ready,
+
+            self.hdmi_out0.ycbcr422to444.sink.valid,
+            self.hdmi_out0.ycbcr422to444.sink.y,
+            self.hdmi_out0.ycbcr422to444.sink.cb_cr,
+            self.hdmi_out0.ycbcr422to444.sink.ready,
+
+            self.hdmi_out0.ycbcr2rgb.sink.valid,
+            self.hdmi_out0.ycbcr2rgb.sink.y,
+            self.hdmi_out0.ycbcr2rgb.sink.cb,
+            self.hdmi_out0.ycbcr2rgb.sink.cr,
+            self.hdmi_out0.ycbcr2rgb.sink.ready,
+
             self.hdmi_out0.driver.sink.valid,
             self.hdmi_out0.driver.sink.de,
             self.hdmi_out0.driver.sink.hsync,
