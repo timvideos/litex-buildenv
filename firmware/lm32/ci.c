@@ -13,6 +13,7 @@
 #include "hdmi_in0.h"
 #include "hdmi_in1.h"
 #include "processor.h"
+#include "heartbeat.h"
 #include "pll.h"
 #include "ci.h"
 #include "encoder.h"
@@ -52,6 +53,12 @@ static void help_status(void)
 	puts("status commands (alias: 's')");
 	puts("  status                         - print status message once");
 	puts("  status <on/off>                - repeatedly print status message");
+}
+
+static void help_heartbeat(void)
+{
+	puts("change heartbeat status (alias: 'h')");
+	puts("  heartbeat <on/off>             - Turn on/off heartbeat feature");
 }
 
 #ifdef CSR_HDMI_OUT0_BASE
@@ -128,6 +135,8 @@ static void help(void)
 	puts("");
 #endif
 	help_debug();
+	puts("");
+	help_heartbeat();
 }
 
 static void reboot(void)
@@ -228,6 +237,20 @@ static void status_service(void)
 			printf("\r\n");
 		}
 	}
+}
+
+static void heartbeat_enable(void)
+{
+	hb_status(1);
+	printf("Heartbeat enabled\r\n");
+
+}
+
+static void heartbeat_disable(void)
+{
+	hb_status(0);
+	printf("Heartbeat disabled\r\n");
+
 }
 
 static void video_matrix_list(void)
@@ -536,6 +559,10 @@ void ci_service(void)
 #endif
 		else if(strcmp(token, "debug") == 0)
 			help_debug();
+
+		else if(strcmp(token, "heartbeat") == 0)
+			help_heartbeat();
+
 		else
 			help();
 		puts("");
@@ -751,7 +778,17 @@ void ci_service(void)
 				printf("%s port has no EDID capabilities\r\n", token);
 		} else
 			help_debug();
-	} else {
+	} 
+
+	else if((strcmp(token, "heartbeat") == 0) || (strcmp(token, "h") == 0)) {
+		token = get_token(&str);
+		if((strcmp(token, "on") == 0) )
+			heartbeat_enable();
+		else if((strcmp(token, "off") == 0) )
+			heartbeat_disable();
+	}
+
+	else {
 		if(status_enabled)
 			status_disable();
 	}
