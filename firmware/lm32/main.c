@@ -18,7 +18,6 @@
 #include "hdmi_out1.h"
 #include "fx2.h"
 #include "version.h"
-#include "heartbeat.h"
 
 int main(void)
 {

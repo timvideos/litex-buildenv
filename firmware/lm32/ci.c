@@ -120,6 +120,8 @@ static void help(void)
 	puts("");
 	help_video_mode();
 	puts("");
+	help_heartbeat();
+	puts("");
 	help_hdp_toggle();
 	puts("");
 #ifdef CSR_HDMI_OUT0_BASE
@@ -135,8 +137,6 @@ static void help(void)
 	puts("");
 #endif
 	help_debug();
-	puts("");
-	help_heartbeat();
 }
 
 static void reboot(void)
@@ -623,6 +623,13 @@ void ci_service(void)
 		else
 			video_mode_set(atoi(token));
 	}
+	else if((strcmp(token, "heartbeat") == 0) || (strcmp(token, "h") == 0)) {
+		token = get_token(&str);
+		if((strcmp(token, "on") == 0) )
+			heartbeat_enable();
+		else if((strcmp(token, "off") == 0) )
+			heartbeat_disable();
+	}
 	else if(strcmp(token, "hdp_toggle") == 0) {
 		token = get_token(&str);
 		hdp_toggle(atoi(token));
@@ -779,15 +786,6 @@ void ci_service(void)
 		} else
 			help_debug();
 	} 
-
-	else if((strcmp(token, "heartbeat") == 0) || (strcmp(token, "h") == 0)) {
-		token = get_token(&str);
-		if((strcmp(token, "on") == 0) )
-			heartbeat_enable();
-		else if((strcmp(token, "off") == 0) )
-			heartbeat_disable();
-	}
-
 	else {
 		if(status_enabled)
 			status_disable();
