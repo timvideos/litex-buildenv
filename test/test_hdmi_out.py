@@ -7,7 +7,7 @@ wb.open()
 regs = wb.regs
 
 
-def config_1080p60():
+def config_1080p60(bpp):
     write_mmcm_reg(0x8, 0x1000 + (2 << 6) + 3)
     write_mmcm_reg(0xa, 0x1000 + (1 << 6) + 1)
 
@@ -23,11 +23,11 @@ def config_1080p60():
 
     regs.hdmi_out0_core_initiator_enable.write(0)
     regs.hdmi_out0_core_initiator_base.write(0)
-    regs.hdmi_out0_core_initiator_end.write(1920*1080-1)
+    regs.hdmi_out0_core_initiator_length.write(1920*1080*bpp)
     regs.hdmi_out0_core_initiator_enable.write(1)
 
 
-def config_720p60():
+def config_720p60(bpp):
     write_mmcm_reg(0x8, 0x1000 + (4 << 6)  + 6)
     write_mmcm_reg(0xa, 0x1000 + (2  << 6) + 2)
 
@@ -43,7 +43,7 @@ def config_720p60():
 
     regs.hdmi_out0_core_initiator_enable.write(0)
     regs.hdmi_out0_core_initiator_base.write(0)
-    regs.hdmi_out0_core_initiator_end.write(1280*720-1)
+    regs.hdmi_out0_core_initiator_length.write(1280*720*bpp)
     regs.hdmi_out0_core_initiator_enable.write(1)
 
 
@@ -119,7 +119,7 @@ def draw_color_bar_ycbcr422():
 
 # # #
 
-config_720p60()
+config_720p60(2)
 draw_color_bar_ycbcr422()
 
 # # #
