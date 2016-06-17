@@ -11,9 +11,10 @@ wb.open()
 logic_analyzer = LiteScopeAnalyzerDriver(wb.regs, "analyzer", debug=True)
 
 #cond = {"initiator_enable_storage" : 1}
+#cond = {"initiator_source_source_ready" : 1}
 cond = {}
 logic_analyzer.configure_trigger(cond=cond)
-logic_analyzer.run(offset=256, length=2048)
+logic_analyzer.run(offset=256, length=512)
 
 while not logic_analyzer.done():
     pass

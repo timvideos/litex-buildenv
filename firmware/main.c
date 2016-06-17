@@ -118,7 +118,7 @@ int main(void)
 	video_out_initiator_vsync_end_write(491);
 	video_out_initiator_vscan_write(520);
 	video_out_initiator_base_write(0);
-	video_out_initiator_end_write(640*480-1);
+	video_out_initiator_length_write(640*480*2);
 	video_out_initiator_enable_write(1);
 #endif
 

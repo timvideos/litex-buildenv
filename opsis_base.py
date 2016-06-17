@@ -200,9 +200,7 @@ class BaseSoC(SoCSDRAM):
         self.register_sdram(self.ddrphy,
                             sdram_module.geom_settings,
                             sdram_module.timing_settings,
-                            controller_settings=ControllerSettings(with_bandwidth=True,
-                                                                   cmd_buffer_depth=8,
-                                                                   with_refresh=False))
+                            controller_settings=ControllerSettings(with_bandwidth=True))
         self.comb += [
             self.ddrphy.clk8x_wr_strb.eq(self.crg.clk8x_wr_strb),
             self.ddrphy.clk8x_rd_strb.eq(self.crg.clk8x_rd_strb),
@@ -237,9 +235,6 @@ class MiniSoC(BaseSoC):
         self.submodules.ethmac = LiteEthMAC(phy=self.ethphy, dw=32, interface="wishbone")
         self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)
         self.add_memory_region("ethmac", self.mem_map["ethmac"] | self.shadow_base, 0x2000)
-
-        self.submodules.bridge = UARTWishboneBridge(self.platform.request("serial_debug"), self.clk_freq, baudrate=115200)
-        self.add_wb_master(self.bridge.wishbone)
 
         self.specials += [
             Keep(self.ethphy.crg.cd_eth_rx.clk),
