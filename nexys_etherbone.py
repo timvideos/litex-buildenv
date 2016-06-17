@@ -20,13 +20,8 @@ class EtherboneSoC(BaseSoC):
     def __init__(self,
                  platform,
                  mac_address=0x10e2d5000000,
-                 ip_address="192.168.1.50",
-                 **kwargs):
-        BaseSoC.__init__(self, platform, cpu_type=None,
-                         integrated_rom_size=0,
-                         integrated_main_ram_size=0,
-                         csr_data_width=32,
-                         **kwargs)
+                 ip_address="192.168.1.50"):
+        BaseSoC.__init__(self, platform, cpu_type=None, csr_data_width=32)
 
         # Ethernet PHY and UDP/IP stack
         self.submodules.ethphy = LiteEthPHYRGMII(self.platform.request("eth_clocks"),
@@ -63,7 +58,7 @@ def main():
     args = parser.parse_args()
 
     platform = nexys.Platform()
-    soc = EtherboneSoC(platform, **soc_sdram_argdict(args))
+    soc = EtherboneSoC(platform)
     builder = Builder(soc, output_dir="build",
                       compile_gateware=not args.nocompile_gateware,
                       csr_csv="test/csr.csv")

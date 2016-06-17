@@ -13,8 +13,8 @@ from litex.soc.integration.builder import *
 from litex.soc.cores.uart.bridge import UARTWishboneBridge
 
 from litedram.modules import MT41K256M16
-from litedram.phy import a7ddrphy 
- 
+from litedram.phy import a7ddrphy
+
 from gateware import dna, xadc
 
 
@@ -99,7 +99,7 @@ class BaseSoC(SoCSDRAM):
         clk_freq = 100*1000000
         SoCSDRAM.__init__(self, platform, clk_freq,
             cpu_type=None,
-            l2_size=0,
+            l2_size=32,
             with_uart=False,
             with_timer=False)
 
