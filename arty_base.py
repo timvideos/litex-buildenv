@@ -165,10 +165,10 @@ class BaseSoC(SoCSDRAM):
 
         # sdram bist
         if with_sdram_bist:
-            generator_user_port = self.sdram.crossbar.get_port(cd="clk50" if bist_async else "sys")
+            generator_user_port = self.sdram.crossbar.get_port(mode="write", cd="clk50" if bist_async else "sys")
             self.submodules.generator = LiteDRAMBISTGenerator(generator_user_port, random=bist_random)
 
-            checker_user_port = self.sdram.crossbar.get_port(cd="clk50" if bist_async else "sys")
+            checker_user_port = self.sdram.crossbar.get_port(mode="read", cd="clk50" if bist_async else "sys")
             self.submodules.checker = LiteDRAMBISTChecker(checker_user_port, random=bist_random)
 
         # spi flash
