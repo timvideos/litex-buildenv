@@ -6,7 +6,6 @@ from litex.soc.interconnect import stream
 
 from litevideo.output import VideoOut
 from litedram.common import LiteDRAMPort
-from litedram.frontend.adaptation import LiteDRAMPortCDC, LiteDRAMPortUpConverter
 
 base_cls = MiniSoC
 
@@ -27,13 +26,13 @@ class VideoOutSoC(base_cls):
         mode = "ycbcr422"
 
         if mode == "ycbcr422":
-            hdmi_out0_dram_port = self.sdram.crossbar.get_port(16, "pix")
+            hdmi_out0_dram_port = self.sdram.crossbar.get_port(mode="read", dw=16, cd="pix")
             self.submodules.hdmi_out0 = VideoOut(platform.device,
                                                  platform.request("hdmi_out"),
                                                  hdmi_out0_dram_port,
                                                  "ycbcr422")
         elif mode == "rgb":
-            hdmi_out0_dram_port = self.sdram.crossbar.get_port(32, "pix")
+            hdmi_out0_dram_port = self.sdram.crossbar.get_port(mode="read", dw=32, cd="pix")
             self.submodules.hdmi_out0 = VideoOut(platform.device,
                                                  platform.request("hdmi_out"),
                                                  hdmi_out0_dram_port,
