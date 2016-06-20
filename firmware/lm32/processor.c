@@ -301,9 +301,6 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 
 };
 
-int processor_h_active ;
-int processor_v_active ;
-
 
 void processor_list_modes(char *mode_descriptors)
 {
@@ -559,19 +556,19 @@ void processor_service(void)
 {
 #ifdef CSR_HDMI_IN0_BASE
 	hdmi_in0_service();
-	hb_service(processor_h_active, processor_v_active, HDMI_IN0_SOURCE);
+	hb_service(VIDEO_IN_HDMI_IN0);
 
 #endif
 #ifdef CSR_HDMI_IN1_BASE
 	hdmi_in1_service();
-	hb_service(processor_h_active, processor_v_active, HDMI_IN1_SOURCE);
+	hb_service(VIDEO_IN_HDMI_IN1);
 
 #endif
+
 	processor_update();
 #ifdef ENCODER_BASE
 	encoder_service();
 #endif
 
-	hb_service(processor_h_active, processor_v_active, PATTERN_SOURCE);
-
+	hb_service(VIDEO_IN_PATTERN);
 }

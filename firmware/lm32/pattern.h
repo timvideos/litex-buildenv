@@ -15,6 +15,7 @@
 
 unsigned int pattern_framebuffer_base(void);
 
+static const unsigned int color_bar[8];
 int pattern;
 
 #define COLOR_BAR_PATTERN 0

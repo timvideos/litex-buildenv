@@ -6,7 +6,7 @@
 #define PATTERN_SOURCE 2
 
 void hb_status(int val);
-void hb_service(int h_active, int v_active, int source) ;
-void hb_fill(int h_active, int v_active, int n, int source);
+void hb_service(int source) ;
+void hb_fill(int color_v, int source);
 
 #endif /* __HEARTBEAT_H */

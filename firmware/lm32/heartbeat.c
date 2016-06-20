@@ -11,6 +11,17 @@
 #include "hdmi_in1.h"
 #include "pattern.h"
 
+static const unsigned int color_bar[8] = {
+	YCBCR422_WHITE,
+	YCBCR422_YELLOW,
+	YCBCR422_CYAN,
+	YCBCR422_GREEN,
+	YCBCR422_PURPLE,
+	YCBCR422_RED,
+	YCBCR422_BLUE,
+	YCBCR422_BLACK
+};
+
 static int heartbeat_status = 0;
 
 void hb_status(int val)
@@ -23,55 +34,54 @@ void hb_status(int val)
 	}		
 }
 
-void hb_service(int h_active, int v_active, int source)
+void hb_service(int source)
 {
 	static int last_event;
 	static int counter;		
 	
-	if (heartbeat_status==1) {		
+	if (heartbeat_status==1) {	
+
 		if(elapsed(&last_event, identifier_frequency_read()/5)) {
-			if(counter==1) {
-				hb_fill(h_active, v_active, 0, source);
-				counter = 0;
-			}
-			else {
-				hb_fill(h_active, v_active, 1, source);
-				counter = 1;
-			}
+			hb_fill(counter, source);
+			counter = (counter+1)%8	;
 		}
 	}
 }
 
-void hb_fill(int h_active, int v_active, int n, int source)
+void hb_fill(int color_v, int source)
 {
 	int addr, i, j;
-	volatile unsigned int *framebuffer = (unsigned int *)(MAIN_RAM_BASE + PATTERN_FRAMEBUFFER_BASE);
+	volatile unsigned int *framebuffer = (unsigned int *)(MAIN_RAM_BASE + pattern_framebuffer_base());
 
 #ifdef CSR_HDMI_IN0_BASE
-	if (source == HDMI_IN0_SOURCE) {
+	if (source == VIDEO_IN_HDMI_IN0) {
 		framebuffer = (unsigned int *)(MAIN_RAM_BASE + hdmi_in0_framebuffer_base(hdmi_in0_fb_index));
 	}
 #endif
 #ifdef CSR_HDMI_IN1_BASE
-	if (source == HDMI_IN1_SOURCE) {
+	if (source == VIDEO_IN_HDMI_IN1) {
 		framebuffer = (unsigned int *)(MAIN_RAM_BASE + hdmi_in1_framebuffer_base(hdmi_in1_fb_index));
 	}
 #endif
-	if (source == PATTERN_SOURCE) {
+	if (source == VIDEO_IN_PATTERN) {
 		framebuffer = (unsigned int *)(MAIN_RAM_BASE + pattern_framebuffer_base());
 	}
 	/*
 	8x8 pixel square at right bottom corner
+	8 pixel = 4 memory locations in horizoantal
+	8 pixel = 8 memory locations in vertical
 	Toggles between red and blue
 	*/
-	addr = 0 + (h_active/2)*(v_active-10) + (h_active/2) - 5;
+	addr = 0 + (processor_h_active/2)*(processor_v_active-8) + (processor_h_active/2) - 4;
 	
 	for (i=0; i<4; i++){
 		for (j=0; j<8; j++){
-			if(n==1)	
-				framebuffer[addr+i+(h_active/2)*j] = YCBCR422_RED;
-			else if (n==0) 
-				framebuffer[addr+i+(h_active/2)*j] = YCBCR422_BLUE;
+			framebuffer[addr+i+(processor_h_active/2)*j] = color_bar[color_v];
+/*			if(color_v==1)	
+				framebuffer[addr+i+(processor_h_active/2)*j] = YCBCR422_RED;
+			else if (color_v==0) 
+				framebuffer[addr+i+(processor_h_active/2)*j] = YCBCR422_BLUE;
+*/
 		}
 	}	
 }
