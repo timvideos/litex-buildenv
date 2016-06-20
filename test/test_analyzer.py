@@ -10,17 +10,18 @@ wb.open()
 
 logic_analyzer = LiteScopeAnalyzerDriver(wb.regs, "analyzer", debug=True)
 
-#cond = {"initiator_enable_storage" : 1}
-#cond = {"initiator_source_source_ready" : 1}
 cond = {}
 logic_analyzer.configure_trigger(cond=cond)
-logic_analyzer.run(offset=256, length=512)
+logic_analyzer.run(offset=32, length=2048)
 
 while not logic_analyzer.done():
     pass
 logic_analyzer.upload()
 
 logic_analyzer.save("dump.vcd")
+
+print("%08x" %wb.regs.hdmi_out0_core_initiator_base.read())
+print("%08x" %wb.regs.hdmi_out0_core_initiator_length.read())
 
 # # #
 
