@@ -77,11 +77,6 @@ void hb_fill(int color_v, int source)
 	for (i=0; i<4; i++){
 		for (j=0; j<8; j++){
 			framebuffer[addr+i+(processor_h_active/2)*j] = color_bar[color_v];
-/*			if(color_v==1)	
-				framebuffer[addr+i+(processor_h_active/2)*j] = YCBCR422_RED;
-			else if (color_v==0) 
-				framebuffer[addr+i+(processor_h_active/2)*j] = YCBCR422_BLUE;
-*/
 		}
 	}	
 }
