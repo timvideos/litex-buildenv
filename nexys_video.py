@@ -26,13 +26,13 @@ class VideoOutSoC(base_cls):
         mode = "ycbcr422"
 
         if mode == "ycbcr422":
-            hdmi_out0_dram_port = self.sdram.crossbar.get_port(mode="read", dw=16, cd="pix")
+            hdmi_out0_dram_port = self.sdram.crossbar.get_port(mode="read", dw=16, cd="pix", reverse=True)
             self.submodules.hdmi_out0 = VideoOut(platform.device,
                                                  platform.request("hdmi_out"),
                                                  hdmi_out0_dram_port,
                                                  "ycbcr422")
         elif mode == "rgb":
-            hdmi_out0_dram_port = self.sdram.crossbar.get_port(mode="read", dw=32, cd="pix")
+            hdmi_out0_dram_port = self.sdram.crossbar.get_port(mode="read", dw=32, cd="pix", reverse=True)
             self.submodules.hdmi_out0 = VideoOut(platform.device,
                                                  platform.request("hdmi_out"),
                                                  hdmi_out0_dram_port,
