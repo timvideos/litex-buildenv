@@ -27,13 +27,13 @@ void hb_service(int source)
 {
 	static int last_event;
 	static int counter;		
-	
-	if (heartbeat_status==1) {	
-
+		if (heartbeat_status==1) {	
 		if(elapsed(&last_event, identifier_frequency_read()/5)) {
 			hb_fill(counter, source);
-			if(counter==5) counter = 6;	//BLUE in color_bar[6]
-			else counter = 5;			//RED in color_bar[5]
+			if(counter==5) 
+				counter = 6;	//BLUE in color_bar[6]
+			else 
+				counter = 5;	//RED in color_bar[5]
 		}
 	}
 }
@@ -62,8 +62,7 @@ void hb_fill(int color_v, int source)
 	8 pixel = 8 memory locations in vertical
 	Toggles between the colors defined in color_bar array from pattern.c
 	*/
-	addr = 0 + (processor_h_active/2)*(processor_v_active-8) + (processor_h_active/2) - 4;
-	
+	addr = 0 + (processor_h_active/2)*(processor_v_active-8) + (processor_h_active/2) - 4;	
 	for (i=0; i<4; i++){
 		for (j=0; j<8; j++){
 			framebuffer[addr+i+(processor_h_active/2)*j] = color_bar[color_v];
