@@ -11,17 +11,6 @@
 #include "hdmi_in1.h"
 #include "pattern.h"
 
-static const unsigned int color_bar[8] = {
-	YCBCR422_WHITE,
-	YCBCR422_YELLOW,
-	YCBCR422_CYAN,
-	YCBCR422_GREEN,
-	YCBCR422_PURPLE,
-	YCBCR422_RED,
-	YCBCR422_BLUE,
-	YCBCR422_BLACK
-};
-
 static int heartbeat_status = 0;
 
 void hb_status(int val)
@@ -43,7 +32,8 @@ void hb_service(int source)
 
 		if(elapsed(&last_event, identifier_frequency_read()/5)) {
 			hb_fill(counter, source);
-			counter = (counter+1)%8	;
+			if(counter==5) counter = 6;	//BLUE in color_bar[6]
+			else counter = 5;			//RED in color_bar[5]
 		}
 	}
 }
@@ -70,7 +60,7 @@ void hb_fill(int color_v, int source)
 	8x8 pixel square at right bottom corner
 	8 pixel = 4 memory locations in horizoantal
 	8 pixel = 8 memory locations in vertical
-	Toggles between red and blue
+	Toggles between the colors defined in color_bar array from pattern.c
 	*/
 	addr = 0 + (processor_h_active/2)*(processor_v_active-8) + (processor_h_active/2) - 4;
 	
