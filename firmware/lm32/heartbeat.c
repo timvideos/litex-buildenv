@@ -26,11 +26,16 @@ void hb_status(int val)
 void hb_service(int sink)
 {
 	static int last_event;
-	static bool counter;		
-		if (heartbeat_status==1) {	
-		if(elapsed(&last_event, identifier_frequency_read()/10)) {
-			hb_fill(counter, sink);
-			counter = !counter;	
+	static int counter;		
+	static bool color_v;
+	if (heartbeat_status==1) {	
+		if(elapsed(&last_event, identifier_frequency_read()/120)) {
+			counter = counter+1;
+			hb_fill(color_v, sink);
+			if(counter>60){
+				color_v = !color_v;
+				counter = 0;
+			}
 		}
 	}
 }
