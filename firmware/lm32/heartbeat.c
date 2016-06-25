@@ -23,33 +23,33 @@ void hb_status(int val)
 	}		
 }
 
-void hb_service(int source)
+void hb_service(int sink)
 {
 	static int last_event;
 	static bool counter;		
 		if (heartbeat_status==1) {	
-		if(elapsed(&last_event, identifier_frequency_read()/5)) {
-			hb_fill(counter, source);
+		if(elapsed(&last_event, identifier_frequency_read()/10)) {
+			hb_fill(counter, sink);
 			counter = !counter;	
 		}
 	}
 }
 
-void hb_fill(bool color_v, int source)
+void hb_fill(bool color_v, int sink)
 {
 	int addr, i, j;
 	unsigned int color;
 
 	volatile unsigned int *framebuffer = (unsigned int *)(MAIN_RAM_BASE + pattern_framebuffer_base());
 
-	if (source == VIDEO_IN_HDMI_IN0) {
-		framebuffer = (unsigned int *)(MAIN_RAM_BASE + hdmi_in0_framebuffer_base(hdmi_in0_fb_index));
+	if (sink == VIDEO_OUT_HDMI_OUT0) {
+		framebuffer = (unsigned int *)(MAIN_RAM_BASE + hdmi_out0_fi_base0_read());
 	}
-	if (source == VIDEO_IN_HDMI_IN1) {
-		framebuffer = (unsigned int *)(MAIN_RAM_BASE + hdmi_in1_framebuffer_base(hdmi_in1_fb_index));
+	if (sink == VIDEO_OUT_HDMI_OUT1) {
+		framebuffer = (unsigned int *)(MAIN_RAM_BASE + hdmi_out1_fi_base0_read());
 	}
-	if (source == VIDEO_IN_PATTERN) {
-		framebuffer = (unsigned int *)(MAIN_RAM_BASE + pattern_framebuffer_base());
+	if (sink == VIDEO_OUT_ENCODER) {
+		framebuffer = (unsigned int *)(MAIN_RAM_BASE + encoder_reader_base_read());
 	}
 	/*
 	8x8 pixel square at right bottom corner

@@ -519,6 +519,8 @@ void processor_update(void)
 #endif
 	if(processor_hdmi_out0_source == VIDEO_IN_PATTERN)
 		hdmi_out0_fi_base0_write(pattern_framebuffer_base());
+
+	hb_service(VIDEO_OUT_HDMI_OUT0);
 #endif
 
 #ifdef CSR_HDMI_OUT1_BASE
@@ -533,6 +535,8 @@ void processor_update(void)
 #endif
 	if(processor_hdmi_out1_source == VIDEO_IN_PATTERN)
 		hdmi_out1_fi_base0_write(pattern_framebuffer_base());
+
+	hb_service(VIDEO_OUT_HDMI_OUT1);
 #endif
 
 #ifdef ENCODER_BASE
@@ -549,6 +553,8 @@ void processor_update(void)
 #endif
 	if(processor_encoder_source == VIDEO_IN_PATTERN)
 		encoder_reader_base_write(pattern_framebuffer_base());
+
+	hb_service(VIDEO_OUT_ENCODER);
 #endif
 }
 
@@ -556,19 +562,14 @@ void processor_service(void)
 {
 #ifdef CSR_HDMI_IN0_BASE
 	hdmi_in0_service();
-	hb_service(VIDEO_IN_HDMI_IN0);
-
 #endif
 #ifdef CSR_HDMI_IN1_BASE
 	hdmi_in1_service();
-	hb_service(VIDEO_IN_HDMI_IN1);
-
 #endif
-
+	
 	processor_update();
 #ifdef ENCODER_BASE
 	encoder_service();
 #endif
 
-	hb_service(VIDEO_IN_PATTERN);
 }
