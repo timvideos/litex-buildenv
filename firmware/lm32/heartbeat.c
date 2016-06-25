@@ -47,15 +47,22 @@ void hb_fill(bool color_v, int sink)
 
 	volatile unsigned int *framebuffer = (unsigned int *)(MAIN_RAM_BASE + pattern_framebuffer_base());
 
+#ifdef CSR_HDMI_OUT0_BASE
 	if (sink == VIDEO_OUT_HDMI_OUT0) {
 		framebuffer = (unsigned int *)(MAIN_RAM_BASE + hdmi_out0_fi_base0_read());
 	}
+#endif
+#ifdef CSR_HDMI_OUT1_BASE
 	if (sink == VIDEO_OUT_HDMI_OUT1) {
 		framebuffer = (unsigned int *)(MAIN_RAM_BASE + hdmi_out1_fi_base0_read());
 	}
+#endif
+#ifdef ENCODER_BASE
 	if (sink == VIDEO_OUT_ENCODER) {
 		framebuffer = (unsigned int *)(MAIN_RAM_BASE + encoder_reader_base_read());
 	}
+#endif
+
 	/*
 	8x8 pixel square at right bottom corner
 	8 pixel = 4 memory locations in horizoantal
