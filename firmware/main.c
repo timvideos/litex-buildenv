@@ -53,8 +53,6 @@ int main(void)
 
 	config_init();
 	time_init();
-	processor_init();
-	processor_start(config_get(CONFIG_KEY_RESOLUTION));
 
 #ifdef CSR_ETHPHY_MDIO_W_ADDR
 	mdio_status();
@@ -66,6 +64,7 @@ int main(void)
 	telnet_init();
 #endif
 
+	processor_init();
 #ifdef CSR_HDMI_OUT0_BASE
 	processor_set_hdmi_out0_source(VIDEO_IN_PATTERN);
 #endif
@@ -73,10 +72,12 @@ int main(void)
 	processor_set_hdmi_out1_source(VIDEO_IN_PATTERN);
 #endif
 	processor_update();
+	processor_start(config_get(CONFIG_KEY_RESOLUTION));
+
+
 #ifdef ENCODER_BASE
 	processor_set_encoder_source(VIDEO_IN_PATTERN);
 	encoder_enable(1);
-	processor_update();
 #endif
 #if 0
 	// draw a pattern
@@ -132,6 +133,7 @@ int main(void)
 #ifdef CSR_FRONT_PANEL_BASE
 		front_panel_service();
 #endif
+		pattern_service();
 	}
 
 	return 0;
