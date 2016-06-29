@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from opsis_base import *
 
+from litevideo.input import HDMIIn
 from litevideo.output import VideoOut
 
 base_cls = MiniSoC
@@ -9,23 +10,39 @@ base_cls = MiniSoC
 class VideoMixerSoC(base_cls):
     csr_peripherals = (
         "hdmi_out0",
-        "hdmi_out1"
+        "hdmi_out1",
+        "hdmi_in0",
+        "hdmi_in0_edid_mem",
+        "hdmi_in1",
+        "hdmi_in1_edid_mem",
     )
     csr_map_update(base_cls.csr_map, csr_peripherals)
 
+    interrupt_map = {
+        "hdmi_in0": 3,
+        "hdmi_in1": 4,
+    }
+    interrupt_map.update(base_cls.interrupt_map)
+
     def __init__(self, platform, **kwargs):
         base_cls.__init__(self, platform, **kwargs)
+        # hdmi in 0
+        self.submodules.hdmi_in0 = HDMIIn(platform.request("hdmi_in", 0),
+                                          self.sdram.crossbar.get_port(mode="write"),
+                                          fifo_depth=512)
+        # hdmi in 1
+        self.submodules.hdmi_in1 = HDMIIn(platform.request("hdmi_in", 1),
+                                          self.sdram.crossbar.get_port(mode="write"),
+                                          fifo_depth=512)
         # hdmi out 0
-        hdmi_out0_dram_port = self.sdram.crossbar.get_port(mode="read", dw=16, cd="hdmi_out0_pix", reverse=True)
         self.submodules.hdmi_out0 = VideoOut(platform.device,
                                             platform.request("hdmi_out", 0),
-                                            hdmi_out0_dram_port,
+                                            self.sdram.crossbar.get_port(mode="read", dw=16, cd="hdmi_out0_pix", reverse=True),
                                             "ycbcr422")
         # hdmi out 1 : Share clocking with hdmi_out0 since no PLL_ADV left.
-        hdmi_out1_dram_port = self.sdram.crossbar.get_port(mode="read", dw=16, cd="hdmi_out1_pix", reverse=True)
         self.submodules.hdmi_out1 = VideoOut(platform.device,
                                             platform.request("hdmi_out", 1),
-                                            hdmi_out1_dram_port,
+                                            self.sdram.crossbar.get_port(mode="read", dw=16, cd="hdmi_out1_pix", reverse=True),
                                             "ycbcr422",
                                             self.hdmi_out0.driver.clocking)
 
