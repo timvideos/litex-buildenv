@@ -240,6 +240,10 @@ NET "{eth_clocks_rx}" CLOCK_DEDICATED_ROUTE = FALSE;
 PIN "BUFG_5.O" CLOCK_DEDICATED_ROUTE = FALSE;
 """, eth_clocks_rx=self.platform.lookup_request("eth_clocks").rx)
 
+        self.add_constant("DEBUG_MICROUDP_TX", 1)
+        self.add_constant("DEBUG_MICROUDP_RX", 1)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Opsis LiteX SoC")
     builder_args(parser)
