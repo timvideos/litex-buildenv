@@ -19,7 +19,6 @@ from litedram.core import ControllerSettings
 from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 from liteeth.core.mac import LiteEthMAC
 
-from gateware import firmware
 from gateware import dna, xadc, oled
 
 
@@ -104,10 +103,7 @@ class BaseSoC(SoCSDRAM):
     }
     mem_map.update(SoCSDRAM.mem_map)
 
-    def __init__(self, platform,
-                 firmware_ram_size=0x10000,
-                 firmware_filename="firmware/firmware.bin",
-                 **kwargs):
+    def __init__(self, platform, **kwargs):
         clk_freq = 100*1000000
         SoCSDRAM.__init__(self, platform, clk_freq,
             integrated_rom_size=0x8000,
@@ -118,11 +114,6 @@ class BaseSoC(SoCSDRAM):
         self.submodules.dna = dna.DNA()
         self.submodules.xadc = xadc.XADC()
         self.submodules.oled = oled.OLED(platform.request("oled"))
-
-        # firmware
-        self.submodules.firmware_ram = firmware.FirmwareROM(firmware_ram_size, firmware_filename)
-        self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
-        self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
 
         # sdram
         self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
