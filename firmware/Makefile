@@ -14,6 +14,7 @@ OBJECTS=isr.o \
 		ci.o \
 		i2c.o \
 		oled.o \
+		pattern.o \
 		main.o
 
 CFLAGS += -I. -I$(UIPDIR) -I$(LIBUIPDIR)
