@@ -31,6 +31,6 @@ firmware:
 	cd firmware && make clean all
 
 load-firmware:
-	litex_term --kernel firmware/firmware.bin COM10
+	litex_term --kernel firmware/firmware.bin COM8
 
 .PHONY: load firmware load-firmware
