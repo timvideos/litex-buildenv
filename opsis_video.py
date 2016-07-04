@@ -38,13 +38,15 @@ class VideoMixerSoC(base_cls):
         self.submodules.hdmi_out0 = VideoOut(platform.device,
                                             platform.request("hdmi_out", 0),
                                             self.sdram.crossbar.get_port(mode="read", dw=16, cd="hdmi_out0_pix", reverse=True),
-                                            "ycbcr422")
+                                            mode="ycbcr422",
+                                            fifo_depth=512)
         # hdmi out 1 : Share clocking with hdmi_out0 since no PLL_ADV left.
         self.submodules.hdmi_out1 = VideoOut(platform.device,
                                             platform.request("hdmi_out", 1),
                                             self.sdram.crossbar.get_port(mode="read", dw=16, cd="hdmi_out1_pix", reverse=True),
-                                            "ycbcr422",
-                                            self.hdmi_out0.driver.clocking)
+                                            mode="ycbcr422",
+                                            fifo_depth=512,
+                                            external_clocking=self.hdmi_out0.driver.clocking)
 
         # all PLL_ADV are used: router needs help...
         platform.add_platform_command("""INST PLL_ADV LOC=PLL_ADV_X0Y0;""")
