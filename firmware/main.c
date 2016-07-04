@@ -79,49 +79,6 @@ int main(void)
 	processor_set_encoder_source(VIDEO_IN_PATTERN);
 	encoder_enable(1);
 #endif
-#if 0
-	// draw a pattern
-	int inc_color(int color) {
-		color++;
-		return color%8;
-	}
-
-	static const unsigned int color_bar[8] = {
-		RGB_WHITE,
-		RGB_YELLOW,
-		RGB_CYAN,
-		RGB_GREEN,
-		RGB_PURPLE,
-		RGB_RED,
-		RGB_BLUE,
-		RGB_BLACK
-	};
-
-	int i;
-	int color;
-	volatile unsigned int *framebuffer = (unsigned int *)(MAIN_RAM_BASE);
-	flush_l2_cache();
-	color = -1;
-	for(i=0; i<640*64; i++) {
-		if(i%(640/8) == 0)
-			color = inc_color(color);
-		if(color >= 0)
-			framebuffer[i] = color_bar[color];
-	}
-
-	// init framebuffer
-	video_out_initiator_hres_write(640);
-	video_out_initiator_hsync_start_write(664);
-	video_out_initiator_hsync_end_write(704);
-	video_out_initiator_hscan_write(832);
-	video_out_initiator_vres_write(480);
-	video_out_initiator_vsync_start_write(489);
-	video_out_initiator_vsync_end_write(491);
-	video_out_initiator_vscan_write(520);
-	video_out_initiator_base_write(0);
-	video_out_initiator_length_write(640*480*2);
-	video_out_initiator_enable_write(1);
-#endif
 
 	ci_prompt();
 	while(1) {
