@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-void hb_status(int val);
+void hb_status(bool val);
 void hb_service(int sink) ;
 void hb_fill(bool color_v, int sink);
 

@@ -629,6 +629,8 @@ void ci_service(void)
 			heartbeat_enable();
 		else if((strcmp(token, "off") == 0) )
 			heartbeat_disable();
+		else
+			help_heartbeat();
 	}
 	else if(strcmp(token, "hdp_toggle") == 0) {
 		token = get_token(&str);

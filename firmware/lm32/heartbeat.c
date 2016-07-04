@@ -11,9 +11,9 @@
 #include "hdmi_in1.h"
 #include "pattern.h"
 
-static int heartbeat_status = 0;
+static bool heartbeat_status = 0;
 
-void hb_status(int val)
+void hb_status(bool val)
 {
 	if(val==1) { 
 		heartbeat_status = 1; 
@@ -62,13 +62,13 @@ void hb_fill(bool color_v, int sink)
 		framebuffer = (unsigned int *)(MAIN_RAM_BASE + encoder_reader_base_read());
 	}
 #endif
-
 	/*
 	8x8 pixel square at right bottom corner
 	8 pixel = 4 memory locations in horizoantal
 	8 pixel = 8 memory locations in vertical
-	Toggles between the colors defined in color_bar array from pattern.c
+	Toggles between BLUE and RED
 	*/
+
 	if (color_v == 0)
     	color = YCBCR422_BLUE;
 	else
