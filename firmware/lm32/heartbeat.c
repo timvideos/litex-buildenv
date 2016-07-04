@@ -11,16 +11,14 @@
 #include "hdmi_in1.h"
 #include "pattern.h"
 
-static bool heartbeat_status = 0;
+static bool heartbeat_status = false;
+
+#define HEARTBEAT_FREQUENCY 1	// In Hertz
+#define FILL_RATE 120 			// In Hertz, double the standard frame rate
 
 void hb_status(bool val)
 {
-	if(val==1) { 
-		heartbeat_status = 1; 
-	}
-	else {
-		heartbeat_status = 0;
-	}		
+	heartbeat_status = val; 
 }
 
 void hb_service(int sink)
@@ -28,11 +26,12 @@ void hb_service(int sink)
 	static int last_event;
 	static int counter;		
 	static bool color_v;
-	if (heartbeat_status==1) {	
-		if(elapsed(&last_event, identifier_frequency_read()/120)) {
+
+	if (heartbeat_status==1) {
+		if(elapsed(&last_event, identifier_frequency_read()/FILL_RATE)) {
 			counter = counter+1;
 			hb_fill(color_v, sink);
-			if(counter>60){
+			if(counter > FILL_RATE/(HEARTBEAT_FREQUENCY*2)) {
 				color_v = !color_v;
 				counter = 0;
 			}

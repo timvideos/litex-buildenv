@@ -11,11 +11,8 @@
 #define YCBCR422_BLUE   0xff1d6f1d
 #define YCBCR422_BLACK  0x80108010
 
-#define PATTERN_FRAMEBUFFER_BASE 0x03000000
-
 unsigned int pattern_framebuffer_base(void);
 
-static const unsigned int color_bar[8];
 int pattern;
 
 #define COLOR_BAR_PATTERN 0

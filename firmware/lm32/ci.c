@@ -241,14 +241,14 @@ static void status_service(void)
 
 static void heartbeat_enable(void)
 {
-	hb_status(1);
+	hb_status(true);
 	printf("Heartbeat enabled\r\n");
 
 }
 
 static void heartbeat_disable(void)
 {
-	hb_status(0);
+	hb_status(false);
 	printf("Heartbeat disabled\r\n");
 
 }
