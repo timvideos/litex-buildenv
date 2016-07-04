@@ -3,24 +3,24 @@ import os
 from litex.gen import *
 from litex.gen.genlib.cdc import MultiReg
 
-from litex.soc.interconnect import dma_lasmi
 from litex.soc.interconnect import wishbone
 from litex.soc.interconnect import stream
 from litex.soc.interconnect.csr import *
 from litex.soc.interconnect.csr_eventmanager import *
 
+from litedram.frontend.dma import LiteDRAMDMAReader
 from litevideo.csc.ycbcr422to444 import YCbCr422to444
 
 from gateware.spi import DMAReadController, MODE_SINGLE_SHOT
 
 
 class EncoderDMAReader(Module, AutoCSR):
-    def __init__(self, lasmim):
+    def __init__(self, dram_port):
         self.source = source = stream.Endpoint([("data", 16)])
 
-        reader = dma_lasmi.Reader(lasmim)
+        reader = LiteDRAMDMAReader(dram_port)
         self.submodules.dma = DMAReadController(reader, mode=MODE_SINGLE_SHOT)
-        self.submodules.converter = stream.Converter(lasmim.dw, 16)
+        self.submodules.converter = stream.Converter(dram_port.dw, 16)
 
         self.comb += [
             self.dma.source.connect(self.converter.sink),

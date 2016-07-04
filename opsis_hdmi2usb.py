@@ -21,7 +21,7 @@ class HDMI2USBSoC(base_cls):
     def __init__(self, platform, **kwargs):
         base_cls.__init__(self, platform, **kwargs)
 
-        self.submodules.encoder_reader = EncoderDMAReader(self.sdram.crossbar.get_master())
+        self.submodules.encoder_reader = EncoderDMAReader(self.sdram.crossbar.get_port())
         self.submodules.encoder = Encoder(platform)
         self.submodules.encoder_streamer = USBStreamer(platform, platform.request("fx2"))
 
