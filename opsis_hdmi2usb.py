@@ -34,6 +34,7 @@ class HDMI2USBSoC(base_cls):
 
         self.platform.add_period_constraint(self.encoder_streamer.cd_usb.clk, 10.0) # XXX
 
+        self.specials += Keep(self.encoder_streamer.cd_usb.clk)
         self.platform.add_false_path_constraints(
             self.crg.cd_sys.clk,
             self.encoder_streamer.cd_usb.clk)
