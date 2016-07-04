@@ -575,6 +575,8 @@ void ci_service(void)
 	char *str;
 	char *token;
 
+	status_service();
+
 	str = readstr();
 	if(str == NULL) return;
 
