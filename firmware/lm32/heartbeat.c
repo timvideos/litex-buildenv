@@ -69,9 +69,9 @@ void hb_fill(bool color_v, int sink)
 	*/
 
 	if (color_v == 0)
-    	color = YCBCR422_BLUE;
+		color = YCBCR422_BLUE;
 	else
-    	color = YCBCR422_RED;
+		color = YCBCR422_RED;
 
 	addr = 0 + (processor_h_active/2)*(processor_v_active-8) + (processor_h_active/2) - 4;	
 	for (i=0; i<4; i++){
