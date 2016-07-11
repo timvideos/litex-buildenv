@@ -14,6 +14,7 @@
 #include "edid.h"
 #include "pll.h"
 #include "processor.h"
+#include "heartbeat.h"
 
 /*
  ----------------->>> Time ----------->>>
@@ -300,6 +301,7 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 
 };
 
+
 void processor_list_modes(char *mode_descriptors)
 {
 	int i;
@@ -517,6 +519,8 @@ void processor_update(void)
 #endif
 	if(processor_hdmi_out0_source == VIDEO_IN_PATTERN)
 		hdmi_out0_fi_base0_write(pattern_framebuffer_base());
+
+	hb_service(VIDEO_OUT_HDMI_OUT0);
 #endif
 
 #ifdef CSR_HDMI_OUT1_BASE
@@ -531,6 +535,8 @@ void processor_update(void)
 #endif
 	if(processor_hdmi_out1_source == VIDEO_IN_PATTERN)
 		hdmi_out1_fi_base0_write(pattern_framebuffer_base());
+
+	hb_service(VIDEO_OUT_HDMI_OUT1);
 #endif
 
 #ifdef ENCODER_BASE
@@ -547,6 +553,8 @@ void processor_update(void)
 #endif
 	if(processor_encoder_source == VIDEO_IN_PATTERN)
 		encoder_reader_base_write(pattern_framebuffer_base());
+
+	hb_service(VIDEO_OUT_ENCODER);
 #endif
 }
 
@@ -558,8 +566,10 @@ void processor_service(void)
 #ifdef CSR_HDMI_IN1_BASE
 	hdmi_in1_service();
 #endif
+	
 	processor_update();
 #ifdef ENCODER_BASE
 	encoder_service();
 #endif
+
 }
