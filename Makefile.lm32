@@ -64,9 +64,15 @@ image-lm32: firmware-lm32
 	$(MAKEIMAGE_CMD) --fbi --output $(HDMI2USBDIR)/firmware/lm32/firmware.fbi $(HDMI2USBDIR)/firmware/lm32/firmware.bin
 
 flash-lm32: image-lm32
-	export FIRMWARE_ADDRESS=$$($(PYTHON) -c "import platforms.$(BOARD) as b; print(b.Platform.gateware_size)"); \
-	echo "Flashing to $$($(PYTHON) -c "print(hex($$FIRMWARE_ADDRESS))") ($$FIRMWARE_ADDRESS)"; \
-	$(FLASHEXTRA_CMD) $(HDMI2USBDIR)/firmware/lm32/firmware.fbi $$FIRMWARE_ADDRESS
+	@echo
+	@echo "Skipping writing lm32 firmware to flash."
+	@echo "(Loading lm32 firmware from flash is current disabled --"
+	@echo " see https://github.com/timvideos/HDMI2USB-misoc-firmware/issues/274)"
+	@echo "Booting will use lm32 firmware embedded in the gateware."
+	@echo
+#	export FIRMWARE_ADDRESS=$$($(PYTHON) -c "import platforms.$(BOARD) as b; print(b.Platform.gateware_size)"); \
+#	echo "Flashing to $$($(PYTHON) -c "print(hex($$FIRMWARE_ADDRESS))") ($$FIRMWARE_ADDRESS)"; \
+#	$(FLASHEXTRA_CMD) $(HDMI2USBDIR)/firmware/lm32/firmware.fbi $$FIRMWARE_ADDRESS
 
 clear-flash-lm32:
 	export FIRMWARE_ADDRESS=$$($(PYTHON) -c "import platforms.$(BOARD) as b; print(b.Platform.gateware_size)"); \
