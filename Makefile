@@ -110,7 +110,7 @@ third_party/%/.git: .gitmodules
 	touch $@ -r .gitmodules
 
 # Gateware
-MODULES=migen misoc liteeth litescope
+MODULES=migen misoc liteeth litescope flash_proxies
 gateware-submodules: $(addsuffix /.git,$(addprefix third_party/,$(MODULES)))
 	@true
 
@@ -150,7 +150,7 @@ load: load-gateware $(addprefix load-,$(TARGETS))
 	@true
 
 # Flash
-flash-gateware:
+flash-gateware: gateware-submodules
 	$(MAKEPY_CMD) flash-bitstream
 
 flash: flash-gateware  $(addprefix flash-,$(TARGETS))
