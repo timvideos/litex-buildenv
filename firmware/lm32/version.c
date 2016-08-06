@@ -57,6 +57,8 @@ void print_version(void) {
 	printf("\r\n");
 	printf("firmware version info\r\n");
 	printf("===============================================\r\n");
+	printf("      platform: %s\n", board);
+	printf("        target: %s\n", target);
 	printf("    git commit: %s\n", git_commit);
 	printf("    git branch: %s\n", git_branch);
 	printf("  git describe: %s\n", git_describe);
