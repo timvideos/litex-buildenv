@@ -599,8 +599,8 @@ class Platform(XilinxPlatform):
         XilinxPlatform.__init__(self,  "xc6slx45-csg324-3", _io, _connectors)
         self.programmer = programmer
 
-        # FPGA AUX is connected to the 2.5V supply on the Atlys
-        self.add_platform_command("""CONFIG VCCAUX="2.5";""")
+        # FPGA AUX is connected to the 3.3V supply on the Atlys
+        self.add_platform_command("""CONFIG VCCAUX="3.3";""")
 
     def create_programmer(self):
 	# Preferred programmer - Needs ixo-usb-jtag and latest openocd.
