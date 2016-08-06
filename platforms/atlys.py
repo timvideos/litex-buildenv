@@ -13,6 +13,36 @@ from mibuild.xilinx import iMPACT
 
 # There appear to be 4 x LTC2481C on the U1-SCL / U1-SDA lines connected to the Cypress
 
+class DynamicLVCMOS(object):
+    """Object to allow configuration of IOBs connected to VCCB2.
+
+    VCCB2 can be connected to either the VCC2V5 or VCC3V3 rail depending on
+    JP12, however there is no way to autodetect this.
+    """
+
+    def __init__(self):
+        self.level = None
+
+    def set(self, value):
+        self.level = {
+            "VCC2V5": "LVCMOS25",
+            "VCC3V3": "LVCMOS33",
+        }[value]
+
+    def __str__(self):
+        assert self.level, "VCCB2 object accessed before voltage level set!"
+        return self.level
+
+    def __add__(self, o):
+        return str(self) + o
+
+    def __radd__(self, o):
+        return o + str(self)
+
+
+VCCB2 = DynamicLVCMOS()
+
+
 _io = [
     # NET "clk"   LOC = "L15"; # Bank = 1, Pin name = IO_L42P_GCLK7_M1UDM, Type = GCLK, Sch name = GCLK
     # SG8002JF - 100MHz - CMOS Crystal Oscillator
@@ -23,7 +53,7 @@ _io = [
     #                 |
     #    GND -[ BTN ]-+--[390]- BTNRST
     # NET "btn<0>" LOC = "T15"; # Bank = 2, Pin name = IO_L1N_M0_CMPMISO_2,    Sch name = M0/RESET
-    ("cpu_reset", 0, Pins("T15"), IOStandard("LVCMOS25")),
+    ("cpu_reset", 0, Pins("T15"), IOStandard(VCCB2)),
 
     ## onBoard USB controller - FIXME
     # CY7C68013A-56
@@ -73,7 +103,7 @@ _io = [
         # NET "FlashMemDq<2>"     LOC = "T14"; # Bank = 2, Pin name = IO_L12P_D1_MISO2_2, Sch name = DQ2
         # NET "FlashMemDq<3>"     LOC = "V14"; # Bank = 2, Pin name = IO_L12N_D2_MISO3_2, Sch name = DQ3
         Subsignal("dq", Pins("T13", "R13", "T14", "V14")),
-        IOStandard("LVCMOS33"), Misc("SLEW=FAST")
+        IOStandard(VCCB2), Misc("SLEW=FAST")
     ),
 
     ## onBoard Leds
@@ -85,14 +115,14 @@ _io = [
     # NET "Led<5>" LOC = "D4";  # Bank = 0, Pin name = IO_L1P_HSWAPEN_0,     Sch name = HSWAP/LD5
     # NET "Led<6>" LOC = "P16"; # Bank = 1, Pin name = IO_L74N_DOUT_BUSY_1,  Sch name = LD6
     # NET "Led<7>" LOC = "N12"; # Bank = 2, Pin name = IO_L13P_M1_2,         Sch name = M1/LD7
-    ("user_led", 0, Pins("U18")),
-    ("user_led", 1, Pins("M14")),
-    ("user_led", 2, Pins("N14")),
-    ("user_led", 3, Pins("L14")),
-    ("user_led", 4, Pins("M13")),
-    ("user_led", 5, Pins("D4"), IOStandard("LVCMOS33")),
-    ("user_led", 6, Pins("P16")),
-    ("user_led", 7, Pins("N12")),
+    ("user_led", 0, Pins("U18"), IOStandard("LVCMOS25")),
+    ("user_led", 1, Pins("M14"), IOStandard("LVCMOS25")),
+    ("user_led", 2, Pins("N14"), IOStandard("LVCMOS25")),
+    ("user_led", 3, Pins("L14"), IOStandard("LVCMOS25")),
+    ("user_led", 4, Pins("M13"), IOStandard("LVCMOS25")),
+    ("user_led", 5, Pins("D4"),  IOStandard("LVCMOS33")),
+    ("user_led", 6, Pins("P16"), IOStandard("LVCMOS25")),
+    ("user_led", 7, Pins("N12"), IOStandard(VCCB2)),
 
     ## onBoard PUSH BUTTONS - FIXME
     # Mapping "up" to north
@@ -124,10 +154,10 @@ _io = [
     ("user_dip", 1, Pins("D14"), IOStandard("LVCMOS33")),
     ("user_dip", 2, Pins("C14"), IOStandard("LVCMOS33")),
     ("user_dip", 3, Pins("P15"), IOStandard("LVCMOS33")),
-    ("user_dip", 4, Pins("P12"), IOStandard("LVCMOS33")),
-    ("user_dip", 5, Pins("R5"), IOStandard("LVCMOS33")),
-    ("user_dip", 6, Pins("T5"), IOStandard("LVCMOS33")),
-    ("user_dip", 7, Pins("E4"), IOStandard("LVCMOS18")),
+    ("user_dip", 4, Pins("P12"), IOStandard(VCCB2)),
+    ("user_dip", 5, Pins("R5"),  IOStandard(VCCB2)),
+    ("user_dip", 6, Pins("T5"),  IOStandard(VCCB2)),
+    ("user_dip", 7, Pins("E4"),  IOStandard("LVCMOS18")),
 
     ## TEMAC Ethernet MAC - FIXME
     # 10/100/1000 Ethernet PHY
@@ -141,7 +171,7 @@ _io = [
         Subsignal("gtx", Pins("L12")),
         # NET "phyrxclk"  LOC = "K15"; # Bank = 1, Pin name = IO_L41P_GCLK9_IRDY1_M1RASN, Sch name = E-RXCLK
         Subsignal("rx", Pins("K15")),
-        IOStandard("LVCMOS25")
+        IOStandard(VCCB2)
     ),
     ("eth", 0,
         # NET "phyrst"    LOC = "G13"; # Bank = 1, Pin name = IO_L32N_A16_M1A9,    Sch name = E-RESET
@@ -182,7 +212,7 @@ _io = [
         Subsignal("col", Pins("C17")),
         # C18 - from Atlys reference manual, not listed in UCF file?
         Subsignal("crs", Pins("C18")),
-        IOStandard("LVCMOS25")
+        IOStandard(VCCB2)
     ),
 
     ## DDR2
@@ -594,7 +624,11 @@ class Platform(XilinxPlatform):
     gateware_size = 0x200000
 
 
-    def __init__(self, programmer="openocd"):
+    def __init__(self, programmer="openocd", vccb2_voltage="VCC2V5"):
+        # Resolve the VCCB2 voltage level before anything uses the _io
+        # definition.
+        VCCB2.set(vccb2_voltage)
+
         # XC6SLX45-2CSG324C
         XilinxPlatform.__init__(self,  "xc6slx45-csg324-3", _io, _connectors)
         self.programmer = programmer
