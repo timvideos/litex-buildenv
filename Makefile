@@ -152,8 +152,11 @@ load: load-gateware $(addprefix load-,$(TARGETS))
 # Flash
 flash-gateware: gateware-submodules
 	$(MAKEPY_CMD) flash-bitstream
+	@echo ""
+	@echo ""
+	@echo "Gateware has been flashed."
 
-flash: flash-gateware  $(addprefix flash-,$(TARGETS))
+flash: flash-gateware $(addprefix flash-,$(TARGETS))
 	@echo ""
 	@echo ""
 	@echo "Power cycle your board to boot newly flashed stuff."
