@@ -106,6 +106,11 @@ static void help_debug(void)
 #ifdef CSR_FX2_RESET_OUT_ADDR
 	puts("  debug fx2_reboot firmware      - reboot the FX2 USB IC into firmware");
 #endif
+#ifdef CSR_CAS_BASE
+	puts("  debug cas leds <value>         - change the status LEDs");
+	puts("  debug cas switches             - read the control switches status");
+	puts("  debug cas buttons              - read the control buttons status");
+#endif
 }
 
 static void help(void)
@@ -785,7 +790,23 @@ void ci_service(void)
 #endif
 			if(found == 0)
 				printf("%s port has no EDID capabilities\r\n", token);
-		} else
+		}
+#ifdef CSR_CAS_BASE
+		else if(strcmp(token, "cas") == 0) {
+			token = get_token(&str);
+			if(strcmp(token, "leds") == 0) {
+				token = get_token(&str);
+				cas_leds_out_write(atoi(token));
+			}
+			else if(strcmp(token, "switches") == 0) {
+				printf("%X\r\n", (int)cas_switches_in_read());
+			}
+			else if(strcmp(token, "buttons") == 0) {
+				printf("%X\r\n", (int)cas_buttons_in_read());
+			}
+		}
+#endif
+		else
 			help_debug();
 	} 
 	else {
