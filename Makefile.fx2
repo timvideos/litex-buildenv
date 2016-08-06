@@ -36,6 +36,9 @@ embed-fx2: firmware/lm32/fx2_fw_hdmi2usb.c
 load-fx2: firmware/fx2/hdmi2usb.hex
 	firmware/fx2/download.sh firmware/fx2/hdmi2usb.hex
 
+flash-fx2:
+	@true
+
 clean-fx2:
 	$(MAKE) -C firmware/fx2 clean
 
