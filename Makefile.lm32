@@ -68,6 +68,11 @@ flash-lm32: image-lm32
 	echo "Flashing to $$($(PYTHON) -c "print(hex($$FIRMWARE_ADDRESS))") ($$FIRMWARE_ADDRESS)"; \
 	$(FLASHEXTRA_CMD) $(HDMI2USBDIR)/firmware/lm32/firmware.fbi $$FIRMWARE_ADDRESS
 
+clear-flash-lm32:
+	export FIRMWARE_ADDRESS=$$($(PYTHON) -c "import platforms.$(BOARD) as b; print(b.Platform.gateware_size)"); \
+	echo "Zeroing $$($(PYTHON) -c "print(hex($$FIRMWARE_ADDRESS))") ($$FIRMWARE_ADDRESS)"; \
+	$(FLASHEXTRA_CMD) $(HDMI2USBDIR)/firmware/zero.bin $$FIRMWARE_ADDRESS
+
 clean-lm32:
 	if [ -f $(MSCDIR)/software/include/generated/cpu.mak ]; then \
 		$(MAKE) -C firmware/lm32 clean; \
