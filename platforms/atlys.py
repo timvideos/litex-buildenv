@@ -395,8 +395,8 @@ _io = [
         Subsignal("data2_n", Pins("J18")),
         # Disconnect JP6 and JP7 for FPGA SCL/SDA control, otherwise
         # this is connected to J2's SCL/SDA pins.
-        Subsignal("scl", Pins("M16"), IOStandard("LVCMOS25")),
-        Subsignal("sda", Pins("M18"), IOStandard("LVCMOS25")),
+        Subsignal("scl", Pins("M16"), IOStandard(LVCMOS_BANK1)),
+        Subsignal("sda", Pins("M18"), IOStandard(LVCMOS_BANK1)),
         #Subsignal("hpd_notif", Pins("G16"), IOStandard("LVCMOS33")),
         #Subsignal("hpd_en", Pins("B20"), IOStandard("LVCMOS33"))
     ),
