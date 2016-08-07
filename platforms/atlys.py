@@ -634,7 +634,7 @@ class Platform(XilinxPlatform):
     gateware_size = 0x200000
 
 
-    def __init__(self, programmer="openocd", vccb2_voltage="VCC2V5"):
+    def __init__(self, programmer="openocd", vccb2_voltage="VCC3V3"):
 	# Resolve the LVCMOS_BANK2 voltage level before anything uses the _io
 	# definition.
         LVCMOS_BANK2.set(vccb2_voltage)
