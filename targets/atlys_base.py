@@ -154,7 +154,7 @@ class BaseSoC(SDRAMSoC):
         self.submodules.dna = dna.DNA()
         self.submodules.git_info = git_info.GitInfo()
         self.submodules.platform_info = platform_info.PlatformInfo("atlys", self.__class__.__name__[:8])
-        self.submodules.cas = cas.ControlAndStatus(platform)
+        self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
 
         self.submodules.firmware_ram = firmware.FirmwareROM(firmware_ram_size, firmware_filename)
         self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)

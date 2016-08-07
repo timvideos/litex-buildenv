@@ -6,13 +6,14 @@ LEDs.
 from mibuild.generic_platform import ConstraintError
 
 from migen.bank.description import AutoCSR
+from migen.bank.eventmanager import *
 from migen.fhdl.std import *
 from migen.genlib.misc import WaitTimer
 
 from misoclib.com import gpio
 
 class ControlAndStatus(Module, AutoCSR):
-    def __init__(self, platform):
+    def __init__(self, platform, clk_freq):
 
         # Work out how many LEDs this board has
         user_leds = []
@@ -55,12 +56,21 @@ class ControlAndStatus(Module, AutoCSR):
                 break
 
         if user_btns:
-            buttons = Signal(len(user_btns))
-            self.submodules.buttons = gpio.GPIOIn(buttons)
-            # TODO: Pressing the button for 5 milliseconds, causes the CSR
-            # value to become set. Once set it needs to be cleared by writing
-            # to the register.
+            self.submodules.buttons_ev = EventManager()
+
+            _10ms = int(clk_freq*(10e-3))
+
             for i in range(0, len(user_btns)):
+                btn_ev = EventSourceProcess()
+                btn_timer = WaitTimer(_10ms)
+
+                setattr(self.buttons_ev, "btn_ev{}".format(i), btn_ev)
+
                 self.comb += [
-                    buttons[i].eq(~user_btns[i]),
+                    btn_timer.wait.eq(user_btns[i]),
+                    btn_ev.trigger.eq(~btn_timer.done),
                 ]
+
+                self.submodules += [btn_timer]
+
+            self.buttons_ev.finalize()

@@ -109,7 +109,8 @@ static void help_debug(void)
 #ifdef CSR_CAS_BASE
 	puts("  debug cas leds <value>         - change the status LEDs");
 	puts("  debug cas switches             - read the control switches status");
-	puts("  debug cas buttons              - read the control buttons status");
+	puts("  debug cas buttons read         - read the control buttons status");
+	puts("  debug cas buttons clear        - clear any asserted buttons status");
 #endif
 }
 
@@ -802,7 +803,13 @@ void ci_service(void)
 				printf("%X\r\n", (int)cas_switches_in_read());
 			}
 			else if(strcmp(token, "buttons") == 0) {
-				printf("%X\r\n", (int)cas_buttons_in_read());
+				int status = cas_buttons_ev_status_read();
+				int pending = cas_buttons_ev_pending_read();
+				printf("%X %X\r\n", status, pending);
+				token = get_token(&str);
+				if(strcmp(token, "clear") == 0) {
+					cas_buttons_ev_pending_write(pending);
+				}
 			}
 		}
 #endif
