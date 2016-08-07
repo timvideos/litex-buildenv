@@ -436,6 +436,24 @@ _io = [
         Subsignal("tx", Pins("B16"), IOStandard("LVCMOS33")),
     ),
 
+#        ("fpga_cfg",
+#            Subsignal("din", Pins("T14")),
+#            Subsignal("cclk", Pins("R14")),
+#            Subsignal("init_b", Pins("T12")),
+#            Subsignal("prog_b", Pins("A2")),
+#            Subsignal("done", Pins("T15")),
+#        ),
+#        ("jtag",
+#            Subsignal("tms", Pins("B2")),
+#            Subsignal("tdo", Pins("B16")),
+#            Subsignal("tdi", Pins("B1")),
+#            Subsignal("tck", Pins("A15")),
+#        ),
+
+]
+
+# This Micro-D HDMI connector only works when VCCB2 is set to 3V3.
+_io_vccb2_3v3 = [
     ## PMOD Connector
     # Micro-D connector, marked as JB, on the same side as switches + LEDs
     # but on the underside of the board below MOD connector. Works as
@@ -466,22 +484,9 @@ _io = [
         #Subsignal("scl", Pins("C13"), IOStandard("LVCMOS33")),
         #Subsignal("sda", Pins("A13"), IOStandard("LVCMOS33")),
     ),
-
-#        ("fpga_cfg",
-#            Subsignal("din", Pins("T14")),
-#            Subsignal("cclk", Pins("R14")),
-#            Subsignal("init_b", Pins("T12")),
-#            Subsignal("prog_b", Pins("A2")),
-#            Subsignal("done", Pins("T15")),
-#        ),
-#        ("jtag",
-#            Subsignal("tms", Pins("B2")),
-#            Subsignal("tdo", Pins("B16")),
-#            Subsignal("tdi", Pins("B1")),
-#            Subsignal("tck", Pins("A15")),
-#        ),
-
 ]
+
+_io_vccb2_2v5 = []
 
 _connectors = [
     ## onboard VHDCI - FIXME
@@ -635,8 +640,16 @@ class Platform(XilinxPlatform):
 
 
     def __init__(self, programmer="openocd", vccb2_voltage="VCC3V3"):
-	# Resolve the LVCMOS_BANK2 voltage level before anything uses the _io
-	# definition.
+        # Some IO configurations only work at certain vccb2 voltages.
+        if vccb2_voltage == "VCC3V3":
+            _io.extend(_io_vccb2_3v3)
+        elif vccb2_voltage == "VCC2V5":
+            _io.extend(_io_vccb2_2v5)
+        else:
+            raise SystemError("Unknown vccb2_voltage=%r" % vccb2_voltage)
+
+        # Resolve the LVCMOS_BANK2 voltage level before anything uses the _io
+        # definition.
         LVCMOS_BANK2.set(vccb2_voltage)
 
         # XC6SLX45-2CSG324C
