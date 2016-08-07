@@ -93,8 +93,6 @@ class HDMI2EthSoC(EtherVideoMixerSoC):
         self.submodules.encoder_streamer = UDPStreamer(convert_ip("192.168.1.15"), 8000)
 
         self.comb += [
-            platform.request("user_led", 0).eq(self.encoder_reader.source.stb),
-            platform.request("user_led", 1).eq(self.encoder_reader.source.ack),
             Record.connect(self.encoder_reader.source, self.encoder_cdc.sink),
             Record.connect(self.encoder_cdc.source, self.encoder_buffer.sink),
             Record.connect(self.encoder_buffer.source, self.encoder_fifo.sink),
