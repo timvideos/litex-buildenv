@@ -11,7 +11,7 @@ from gateware.i2c import I2C
 
 
 class HDMIOut(Module, AutoCSR):
-    def __init__(self, pads, lasmim, external_clocking=None):
+    def __init__(self, pads, lasmim, external_clocking=None, fifo_depth=None):
         pack_factor = lasmim.dw//bpp
 
         if hasattr(pads, "scl"):
@@ -28,7 +28,7 @@ class HDMIOut(Module, AutoCSR):
 
         cast = structuring.Cast(lasmim.dw, pixel_layout(pack_factor), reverse_to=True)
         vtg = VTG(pack_factor)
-        self.driver = Driver(pack_factor, pads, external_clocking)
+        self.driver = Driver(pack_factor, pads, external_clocking, fifo_depth)
 
         g.add_connection(self.fi, vtg, source_subr=self.fi.timing_subr, sink_ep="timing")
         g.add_connection(dma_out, cast)
