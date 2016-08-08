@@ -1,4 +1,5 @@
 from gateware.hdmi_in import HDMIIn
+
 from gateware.hdmi_out import HDMIOut
 
 from targets.common import *
@@ -26,14 +27,18 @@ def CreateVideoMixerSoC(base):
     
         def __init__(self, platform, **kwargs):
             base.__init__(self, platform, **kwargs)
+
             self.submodules.hdmi_in0 = HDMIIn(
                 platform.request("hdmi_in", 0),
                 self.sdram.crossbar.get_master(),
-                fifo_depth=512)
+                fifo_depth=512,
+                soc=self)
             self.submodules.hdmi_in1 = HDMIIn(
                 platform.request("hdmi_in", 1),
                 self.sdram.crossbar.get_master(),
-                fifo_depth=512)
+                fifo_depth=512,
+                soc=self)
+
             self.submodules.hdmi_out0 = HDMIOut(
                 platform.request("hdmi_out", 0),
                 self.sdram.crossbar.get_master())

@@ -163,7 +163,7 @@ void hdmi_in1_print_status(void)
 	hdmi_in1_data0_wer_update_write(1);
 	hdmi_in1_data1_wer_update_write(1);
 	hdmi_in1_data2_wer_update_write(1);
-	printf("dvisampler1: ph:%4d %4d %4d // charsync:%d%d%d [%d %d %d] // WER:%3d %3d %3d // chansync:%d // res:%dx%d\r\n",
+	printf("dvisampler1: ph:%4d %4d %4d // charsync:%d%d%d [%d %d %d] // WER:%3d %3d %3d // chansync:%d // res:%dx%d",
 		hdmi_in1_d0, hdmi_in1_d1, hdmi_in1_d2,
 		hdmi_in1_data0_charsync_char_synced_read(),
 		hdmi_in1_data1_charsync_char_synced_read(),
@@ -177,6 +177,10 @@ void hdmi_in1_print_status(void)
 		hdmi_in1_chansync_channels_synced_read(),
 		hdmi_in1_resdetection_hres_read(),
 		hdmi_in1_resdetection_vres_read());
+#ifdef CSR_HDMI_IN1_FREQUENCY_VALUE_ADDR
+	printf(" // pixclk:%d Hz", hdmi_in1_frequency_value_read());
+#endif
+	printf("\r\n");
 }
 
 static int wait_idelays(void)

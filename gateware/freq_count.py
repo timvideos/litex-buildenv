@@ -114,12 +114,12 @@ class FrequencyCounter(Module, AutoCSR):
     # full_width: Bit width of the dest domain sampling counter, output being
     # the sum of all samples in the current period.
 
-    # freq_out: Number of src eventstotal in last sampling period.
+    # value: Number of src eventstotal in last sampling period.
     # num_events: Number of src events in current elapsed sampling period.
     # num_samples: Number of elapsed dest clks in current period.
     # last_inc: Number of elapsed src clks in last sample.
     def __init__(self, sample_clk_ticks, sample_width, full_width):
-        self.freq_out = CSRStatus(full_width)
+        self.value = CSRStatus(full_width)
         self.num_events = CSRStatus(full_width)
         self.num_samples = CSRStatus(full_width)
         self.last_inc = CSRStatus(sample_width)
@@ -130,7 +130,7 @@ class FrequencyCounter(Module, AutoCSR):
         self.submodules.core = FreqCountCore(sample_width, full_width)
 
         ###
-        self.comb += [self.freq_out.status.eq(self.core.count_latched),
+        self.comb += [self.value.status.eq(self.core.count_latched),
             self.num_events.status.eq(self.core.count_curr),
             self.last_inc.status.eq(self.core.sampler.inc)]
 

@@ -1,6 +1,7 @@
 from migen.fhdl.std import *
 from migen.bank.description import AutoCSR
 
+from gateware import freq_count
 from gateware.hdmi_in.edid import EDID
 from gateware.hdmi_in.clocking import Clocking
 from gateware.hdmi_in.datacapture import DataCapture
@@ -13,9 +14,19 @@ from gateware.hdmi_in.dma import DMA
 
 
 class HDMIIn(Module, AutoCSR):
-    def __init__(self, pads, lasmim, n_dma_slots=2, fifo_depth=512):
+    def __init__(self, pads, lasmim, n_dma_slots=2, fifo_depth=512, soc=None):
         self.submodules.edid = EDID(pads)
         self.submodules.clocking = Clocking(pads)
+
+        if soc:
+            self.submodules.frequency = freq_count.FrequencyCounter(soc.clk_freq, 6, 32)
+            # Only rename source, manually connect dest b/c of Migen decoration rules.
+            # self.submodules.freq_count = ClockDomainsRenamer({"src" : "pix"})(freq_count.FrequencyCounter(80*1000000, 6, 32))
+            self.comb += [
+                self.frequency.core.cd_src.clk.eq(self.clocking._cd_pix.clk),
+                self.frequency.core.cd_dest.clk.eq(soc.crg.cd_sys.clk),
+                self.frequency.core.cd_dest.rst.eq(soc.crg.cd_sys.rst),
+            ]
 
         for datan in range(3):
             name = "data" + str(datan)

@@ -170,7 +170,6 @@ class BaseSoC(SDRAMSoC):
         self.submodules.git_info = git_info.GitInfo()
         self.submodules.platform_info = platform_info.PlatformInfo("opsis", self.__class__.__name__[:8])
 
-
         fx2_uart_pads = platform.request("serial_fx2")
         sd_card_uart_pads = platform.request("serial_sd_card")
         uart_pads = UARTSharedPads()

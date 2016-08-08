@@ -97,6 +97,7 @@ static void help_debug(void)
 	puts("  debug ddr                      - show DDR bandwidth");
 	puts("  debug dna                      - show Board's DNA");
 	puts("  debug edid                     - dump monitor EDID");
+	puts("  debug freq                     - get input frequencies");
 #ifdef CSR_OPSIS_EEPROM_I2C_W_ADDR
 	puts("  debug opsis_eeprom             - dump Opsis Info EEPROM");
 #endif
@@ -168,6 +169,9 @@ static void status_print(void)
 		"input0:  %dx%d",
 		hdmi_in0_resdetection_hres_read(),
 		hdmi_in0_resdetection_vres_read());
+#ifdef CSR_HDMI_IN0_FREQUENCY_VALUE_ADDR
+	printf(" (@ %d kHz)", hdmi_in0_frequency_value_read() / 1000);
+#endif
 	printf("\r\n");
 #endif
 
@@ -176,6 +180,9 @@ static void status_print(void)
 		"input1:  %dx%d",
 		hdmi_in1_resdetection_hres_read(),
 		hdmi_in1_resdetection_vres_read());
+#ifdef CSR_HDMI_IN1_FREQUENCY_VALUE_ADDR
+	printf(" (@ %d kHz)", hdmi_in1_frequency_value_read() / 1000);
+#endif
 	printf("\r\n");
 #endif
 
@@ -465,6 +472,20 @@ static void debug_input(unsigned int channels, unsigned int change, unsigned int
 }
 #endif
 
+static void debug_freq(void)
+{
+#ifdef CSR_HDMI_IN0_FREQ_COUNT_BASE
+	int hdmi0_freq = hdmi_in0_freq_count_freq_out_read();
+	int hdmi0_mhz = hdmi0_freq/((int)1e6);
+	printf("HDMI Input 0 Frequency: %d MHz (%d Hz)\n", hdmi0_mhz, hdmi0_freq);
+#endif
+#ifdef CSR_HDMI_IN1_FREQ_COUNT_BASE
+	int hdmi1_freq = hdmi_in1_freq_count_freq_out_read();
+	int hdmi1_mhz = hdmi1_freq/((int)1e6);
+	printf("HDMI Input 1 Frequency: %d MHz (%d Hz)\n", hdmi1_mhz, hdmi1_freq);
+#endif
+}
+
 static char *readstr(void)
 {
 	char c[2];
@@ -742,6 +763,9 @@ void ci_service(void)
 			debug_ddr();
 		else if(strcmp(token, "dna") == 0)
 			print_board_dna();
+		else if(strcmp(token, "freq") == 0) {
+			debug_freq();
+                }
 #ifdef CSR_OPSIS_EEPROM_I2C_W_ADDR
 		else if(strcmp(token, "opsis_eeprom") == 0) {
 			opsis_eeprom_dump();
