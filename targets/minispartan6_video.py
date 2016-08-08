@@ -1,3 +1,5 @@
+from migen.fhdl.std import ClockSignal
+
 from gateware.hdmi_in import HDMIIn
 from gateware.hdmi_out import HDMIOut
 
@@ -26,7 +28,8 @@ class VideoMixerSoC(BaseSoC):
 #            fifo_depth=1024)
         self.submodules.hdmi_out0 = HDMIOut(
             platform.request("hdmi_out", 0),
-            self.sdram.crossbar.get_master())
+            self.sdram.crossbar.get_master(),
+            clock50=ClockSignal(self.crg.cd_base50.name))
 
         # FIXME: Fix the HDMI out so this can be removed.
         platform.add_platform_command(
