@@ -32,6 +32,11 @@ env:
    - BOARD=minispartan6 TARGET=base
    - BOARD=minispartan6 TARGET=video
 
+matrix:
+  allow_failures:
+  - env: BOARD=atlys TARGET=hdmi2eth
+  fast_finish: true
+
 install:
  - $PWD/.travis/setup.sh
 
