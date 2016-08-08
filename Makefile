@@ -27,12 +27,13 @@ ifneq ($(PROG),)
     PROGRAMMER_OPTION ?= --platform-option programmer $(PROG)
 endif
 
-FILTER ?= tee
+FILTER ?= tee -a
 
 MSCDIR ?= third_party/misoc
 HDMI2USBDIR = $(realpath .)
 PYTHON = python3
-DATE = `date +%Y_%m_%d`
+DATE = $(shell date +%Y%m%d-%H%M%S)
+LOGFILE = $(PWD)/build/output.$(DATE).log
 
 # We use the special PIPESTATUS which is bash only below.
 SHELL := /bin/bash
@@ -118,7 +119,7 @@ gateware-generate: gateware-submodules $(addprefix gateware-generate-,$(TARGETS)
 	@echo 'Building target: $@. First dep: $<'
 ifneq ($(OS),Windows_NT)
 	$(MAKEPY_CMD) --build-option run False build-csr-csv build-bitstream \
-	| $(FILTER) $(PWD)/build/output.$(DATE).log; (exit $${PIPESTATUS[0]})
+	| $(FILTER) $(LOGFILE); (exit $${PIPESTATUS[0]})
 else
 	$(MAKEPY_CMD) --build-option run False build-csr-csv build-bitstream
 endif
@@ -126,7 +127,7 @@ endif
 gateware-build: gateware-submodules $(addprefix gateware-build-,$(TARGETS))
 ifneq ($(OS),Windows_NT)
 	$(MAKEPY_CMD) build-csr-csv build-bitstream \
-	| $(FILTER) $(PWD)/build/output.$(DATE).log; (exit $${PIPESTATUS[0]})
+	| $(FILTER) $(LOGFILE); (exit $${PIPESTATUS[0]})
 else
 	$(MAKEPY_CMD) build-csr-csv build-bitstream
 endif
