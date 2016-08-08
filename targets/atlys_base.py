@@ -219,4 +219,4 @@ TIMESPEC "TSise_sucks4" = FROM "GRPsys_clk" TO "GRPeth_rx_clk" TIG;
      eth_clocks_tx=platform.lookup_request("eth_clocks").tx)
 
 
-default_subtarget = MiniSoC
+default_subtarget = BaseSoC
