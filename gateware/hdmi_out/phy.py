@@ -12,7 +12,10 @@ from gateware.csc.ycbcr422to444 import YCbCr422to444
 from gateware.csc.ymodulator import YModulator
 
 class _FIFO(Module):
-    def __init__(self, pack_factor):
+    def __init__(self, pack_factor, depth=None):
+        if depth is None:
+            depth = 512
+
         self.phy = Sink(phy_layout(pack_factor))
         self.busy = Signal()
 
@@ -24,7 +27,7 @@ class _FIFO(Module):
 
         ###
 
-        fifo = RenameClockDomains(AsyncFIFO(phy_layout(pack_factor), 512),
+        fifo = RenameClockDomains(AsyncFIFO(phy_layout(pack_factor), depth),
             {"write": "sys", "read": "pix"})
         self.submodules += fifo
         self.comb += [
@@ -204,8 +207,8 @@ class _Clocking(Module, AutoCSR):
 
 
 class Driver(Module, AutoCSR):
-    def __init__(self, pack_factor, pads, external_clocking):
-        fifo = _FIFO(pack_factor)
+    def __init__(self, pack_factor, pads, external_clocking, fifo_depth=None):
+        fifo = _FIFO(pack_factor, depth=fifo_depth)
         self.submodules += fifo
         self.phy = fifo.phy
         self.busy = fifo.busy

@@ -421,7 +421,7 @@ class Platform(XilinxPlatform):
             pass
 
         try:
-            self.add_period_constraint(self.lookup_request("fx2").ifclk, 20.8)
+            self.add_period_constraint(self.lookup_request("fx2").ifclk, 10)
         except ConstraintError:
             pass
 

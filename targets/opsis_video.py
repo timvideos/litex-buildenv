@@ -36,12 +36,14 @@ def CreateVideoMixerSoC(base):
                 fifo_depth=512)
             self.submodules.hdmi_out0 = HDMIOut(
                 platform.request("hdmi_out", 0),
-                self.sdram.crossbar.get_master())
+                self.sdram.crossbar.get_master(),
+                fifo_depth=1024)
             # Share clocking with hdmi_out0 since no PLL_ADV left.
             self.submodules.hdmi_out1 = HDMIOut(
                 platform.request("hdmi_out", 1),
                 self.sdram.crossbar.get_master(),
-                self.hdmi_out0.driver.clocking)
+                self.hdmi_out0.driver.clocking,
+                fifo_depth=1024)
     
             # all PLL_ADV are used: router needs help...
             platform.add_platform_command("""INST PLL_ADV LOC=PLL_ADV_X0Y0;""")
