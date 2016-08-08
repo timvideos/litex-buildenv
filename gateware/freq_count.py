@@ -1,10 +1,7 @@
 from migen.fhdl.std import *
-from migen.genlib.fifo import AsyncFIFO
 from migen.genlib.misc import ClockDomainsRenamer
-from migen.fhdl.bitcontainer import flen
 from migen.genlib.cdc import GrayCounter
 from migen.bank.description import *
-from migen.fhdl import verilog
 
 
 # Essentially an "Always-enabled GrayCounter with a separate clock domain."
@@ -26,7 +23,7 @@ class Synchronizer(Module):
 
         ###
         self.sync.dest += [stage1.eq(self.inp),
-            self.out.eq(stage1)]
+                           self.out.eq(stage1)]
 
 
 class GrayToBinary(Module):
@@ -38,7 +35,8 @@ class GrayToBinary(Module):
         self.comb += [self.binary_out[-1].eq(self.gray_in[-1])]
 
         for n in range(width - 2, -1, -1):
-            self.comb += [self.binary_out[n].eq(self.binary_out[n + 1] ^ self.gray_in[n])]
+            self.comb += [self.binary_out[n].eq(self.binary_out[n + 1]
+                          ^ self.gray_in[n])]
 
 
 @ResetInserter
@@ -81,7 +79,7 @@ class Sampler(Module):
         # During period reset, curr_total won't latch the final value, so
         # store it in separate location.
         self.sync.dest += [If(self.end_period,
-            self.last_total.eq(self.curr_total.inp))]
+                           self.last_total.eq(self.curr_total.inp))]
 
 
 class FreqCountCore(Module):
@@ -100,11 +98,16 @@ class FreqCountCore(Module):
 
         ###
         self.comb += [self.clk_sync.inp.eq(self.ev_count.q),
-            self.gray2bin.gray_in.eq(self.clk_sync.out),
-            self.sampler.sample_in.eq(self.gray2bin.binary_out),
-            self.count_latched.eq(self.sampler.last_total),
-            self.count_curr.eq(self.sampler.curr_total.out),
-            self.sampler.end_period.eq(self.latch)]
+                      self.gray2bin.gray_in.eq(
+                          self.clk_sync.out),
+                      self.sampler.sample_in.eq(
+                          self.gray2bin.binary_out),
+                      self.count_latched.eq(
+                          self.sampler.last_total),
+                      self.count_curr.eq(
+                          self.sampler.curr_total.out),
+                      self.sampler.end_period.eq(
+                          self.latch)]
 
 
 class FrequencyCounter(Module, AutoCSR):
@@ -131,12 +134,15 @@ class FrequencyCounter(Module, AutoCSR):
 
         ###
         self.comb += [self.value.status.eq(self.core.count_latched),
-            self.num_events.status.eq(self.core.count_curr),
-            self.last_inc.status.eq(self.core.sampler.inc)]
+                      self.num_events.status.eq(self.core.count_curr),
+                      self.last_inc.status.eq(self.core.sampler.inc)]
 
-        # sample_clk_ticks = 0 is a legal sample period. It means sample each cycle.
+        # sample_clk_ticks = 0 is a legal sample period.
+        # It means sample each cycle.
         self.sync.dest += [self.core.latch.eq(0),
-            If(self.num_samples.status == sample_clk_ticks,
-                self.num_samples.status.eq(0),
-                self.core.latch.eq(1)).
-            Else(self.num_samples.status.eq(self.num_samples.status + 1))]
+                           If(self.num_samples.status ==
+                              sample_clk_ticks,
+                              self.num_samples.status.eq(0),
+                              self.core.latch.eq(1)).
+                           Else(self.num_samples.status.eq(
+                                    self.num_samples.status + 1))]
