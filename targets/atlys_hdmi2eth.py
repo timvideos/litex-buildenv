@@ -21,7 +21,6 @@ from targets.common import *
 from targets.atlys_base import BaseSoC
 from targets.atlys_video import CreateVideoMixerSoC
 
-
 class EtherboneSoC(BaseSoC):
     csr_peripherals = (
         "ethphy",
@@ -39,7 +38,7 @@ class EtherboneSoC(BaseSoC):
 
         # Ethernet PHY and UDP/IP stack
         self.submodules.ethphy = LiteEthPHYMII(platform.request("eth_clocks"), platform.request("eth"))
-        self.submodules.ethcore = LiteEthUDPIPCore(self.ethphy, mac_address, convert_ip(ip_address), self.clk_freq, with_icmp=False)
+        self.submodules.ethcore = LiteEthUDPIPCore(self.ethphy, mac_address, convert_ip(ip_address), int(self.clk_freq), with_icmp=False)
 
         # Etherbone bridge
         self.submodules.etherbone = LiteEthEtherbone(self.ethcore.udp, 20000)
@@ -50,19 +49,29 @@ class EtherboneSoC(BaseSoC):
             Keep(self.ethphy.crg.cd_eth_tx.clk)
         ]
         platform.add_platform_command("""
+# Separate TMNs for FROM:TO TIG constraints
 NET "{eth_clocks_rx}" CLOCK_DEDICATED_ROUTE = FALSE;
-NET "{eth_clocks_rx}" TNM_NET = "GRPeth_clocks_rx";
-NET "{eth_rx_clk}" TNM_NET = "GRPeth_rx_clk";
-NET "{eth_tx_clk}" TNM_NET = "GRPeth_tx_clk";
-TIMESPEC "TSise_sucks1" = FROM "GRPeth_clocks_rx" TO "GRPsys_clk" TIG;
-TIMESPEC "TSise_sucks2" = FROM "GRPsys_clk" TO "GRPeth_clocks_rx" TIG;
-TIMESPEC "TSise_sucks3" = FROM "GRPeth_tx_clk" TO "GRPsys_clk" TIG;
-TIMESPEC "TSise_sucks4" = FROM "GRPsys_clk" TO "GRPeth_tx_clk" TIG;
-TIMESPEC "TSise_sucks5" = FROM "GRPeth_rx_clk" TO "GRPsys_clk" TIG;
-TIMESPEC "TSise_sucks6" = FROM "GRPsys_clk" TO "GRPeth_rx_clk" TIG;
-""", eth_clocks_rx=platform.lookup_request("eth_clocks").rx,
-     eth_rx_clk=self.ethphy.crg.cd_eth_rx.clk,
-     eth_tx_clk=self.ethphy.crg.cd_eth_tx.clk)
+NET "{eth_clocks_rx}" TNM_NET = "TIGeth_clocks_rx";
+TIMESPEC "TSeth_clocks_rx_to_sys" = FROM "TIGeth_clocks_rx" TO "TIGsys_clk" TIG;
+TIMESPEC "TSsys_to_eth_clocks_rx" = FROM "TIGsys_clk" TO "TIGeth_clocks_rx" TIG;
+
+NET "{eth_clocks_tx}" TNM_NET = "TIGeth_clocks_tx";
+TIMESPEC "TSeth_clocks_tx_to_sys" = FROM "TIGeth_clocks_tx" TO "TIGsys_clk" TIG;
+TIMESPEC "TSsys_to_eth_clocks_tx" = FROM "TIGsys_clk" TO "TIGeth_clocks_tx" TIG;
+
+NET "{eth_rx_clk}" TNM_NET = "TIGeth_rx_clk";
+TIMESPEC "TSeth_rx_to_sys" = FROM "TIGeth_rx_clk" TO "TIGsys_clk" TIG;
+TIMESPEC "TSsys_to_eth_rx" = FROM "TIGsys_clk" TO "TIGeth_rx_clk" TIG;
+
+NET "{eth_tx_clk}" TNM_NET = "TIGeth_tx_clk";
+TIMESPEC "TSeth_tx_to_sys" = FROM "TIGeth_tx_clk" TO "TIGsys_clk" TIG;
+TIMESPEC "TSsys_to_eth_tx" = FROM "TIGsys_clk" TO "TIGeth_tx_clk" TIG;
+""",
+            eth_clocks_rx=platform.lookup_request("eth_clocks").rx,
+            eth_clocks_tx=platform.lookup_request("eth_clocks").tx,
+            eth_rx_clk=self.ethphy.crg.cd_eth_rx.clk,
+            eth_tx_clk=self.ethphy.crg.cd_eth_tx.clk,
+        )
 
 
 EtherVideoMixerSoC = CreateVideoMixerSoC(EtherboneSoC)

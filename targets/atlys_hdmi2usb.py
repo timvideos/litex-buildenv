@@ -48,10 +48,14 @@ class HDMI2USBSoC(VideoMixerSoC):
         self.add_memory_region("encoder", self.mem_map["encoder"]+self.shadow_base, 0x2000)
 
         platform.add_platform_command("""
-NET "{usb_clk}" TNM_NET = "GRPusb_clk";
-TIMESPEC "TSise_sucks11" = FROM "GRPusb_clk" TO "GRPsys_clk" TIG;
-TIMESPEC "TSise_sucks12" = FROM "GRPsys_clk" TO "GRPusb_clk" TIG;
-""", usb_clk=platform.lookup_request("fx2").ifclk)
+# Separate TMNs for FROM:TO TIG constraints
+NET "{usb_clk}" TNM_NET = "TIGusb_clk";
+TIMESPEC "TSusb_to_sys" = FROM "TIGusb_clk" TO "TIGsys_clk" TIG;
+TIMESPEC "TSsys_to_usb" = FROM "TIGsys_clk" TO "TIGusb_clk" TIG;
+""",
+            usb_clk=platform.lookup_request("fx2").ifclk,
+        )
+
 
 
 default_subtarget = HDMI2USBSoC
