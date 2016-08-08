@@ -303,4 +303,4 @@ TIMESPEC "TSsys_to_eth_clocks_tx" = FROM "TIGsys_clk" TO "TIGeth_clocks_tx" TIG;
         )
 
 
-default_subtarget = MiniSoC
+default_subtarget = BaseSoC
