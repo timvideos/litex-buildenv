@@ -29,6 +29,9 @@ for BOARD in $BOARDS; do
 	fi
 	(
 	for TARGET in $TARGETS; do
+		export LOGFILE=$PWD/build/output.$(date +%Y%m%d-%H%M%S).log
+		echo "Using logfile $LOGFILE"
+
 		echo ""
 		echo ""
 		echo ""

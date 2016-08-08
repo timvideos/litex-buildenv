@@ -32,8 +32,7 @@ FILTER ?= tee -a
 MSCDIR ?= third_party/misoc
 HDMI2USBDIR = $(realpath .)
 PYTHON = python3
-DATE = $(shell date +%Y%m%d-%H%M%S)
-LOGFILE = $(PWD)/build/output.$(DATE).log
+LOGFILE ?= $(PWD)/build/output.$(shell date +%Y%m%d-%H%M%S).log
 
 # We use the special PIPESTATUS which is bash only below.
 SHELL := /bin/bash
