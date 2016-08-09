@@ -138,15 +138,15 @@ _io = [
     # Mapping "up" to north
     # VCC1V8 - pulled down to GND via 10k
     # NET "btn<1>" LOC = "N4";  # Bank = 3, Pin name = IO_L1P,               Sch name = BTNU
-    ("user_btn_n", 0, Pins("N4"), IOStandard(LVCMOS_BANK3)),
+    ("user_btn", 0, Pins("N4"), IOStandard(LVCMOS_BANK3)), # North button
     # NET "btn<2>" LOC = "P4";  # Bank = 3, Pin name = IO_L2P,               Sch name = BTNL
-    ("user_btn_e", 1, Pins("P4"), IOStandard(LVCMOS_BANK3)),
+    ("user_btn", 1, Pins("P4"), IOStandard(LVCMOS_BANK3)), # East button
     # NET "btn<3>" LOC = "P3";  # Bank = 3, Pin name = IO_L2N,               Sch name = BTND
-    ("user_btn_s", 2, Pins("P3"), IOStandard(LVCMOS_BANK3)),
+    ("user_btn", 2, Pins("P3"), IOStandard(LVCMOS_BANK3)), # South button
     # NET "btn<4>" LOC = "F6";  # Bank = 3, Pin name = IO_L55P_M3A13,        Sch name = BTNR
-    ("user_btn_w", 3, Pins("F6"), IOStandard(LVCMOS_BANK3)),
+    ("user_btn", 3, Pins("F6"), IOStandard(LVCMOS_BANK3)), # West button
     # NET "btn<5>" LOC = "F5";  # Bank = 3, Pin name = IO_L55N_M3A14,        Sch name = BTNC
-    ("user_btn_c", 4, Pins("F5"), IOStandard(LVCMOS_BANK3)),
+    ("user_btn", 4, Pins("F5"), IOStandard(LVCMOS_BANK3)), # Center button
 
     ## onBoard SWITCHES - FIXME
     # SW(0,1,2,3) - VCC3V3 / GND
@@ -160,14 +160,14 @@ _io = [
     # NET "sw<5>" LOC = "R5";  # Bank = 2, Pin name = IO_L48P_D7,             Sch name = SW5
     # NET "sw<6>" LOC = "T5";  # Bank = 2, Pin name = IO_L48N_RDWR_B_VREF_2,  Sch name = SW6
     # NET "sw<7>" LOC = "E4";  # Bank = 3, Pin name = IO_L54P_M3RESET,        Sch name = SW7
-    ("user_dip", 0, Pins("A10"), IOStandard(LVCMOS_BANK0)),
-    ("user_dip", 1, Pins("D14"), IOStandard(LVCMOS_BANK0)),
-    ("user_dip", 2, Pins("C14"), IOStandard(LVCMOS_BANK0)),
-    ("user_dip", 3, Pins("P15"), IOStandard(LVCMOS_BANK1)),
-    ("user_dip", 4, Pins("P12"), IOStandard(LVCMOS_BANK2)),
-    ("user_dip", 5, Pins("R5"),  IOStandard(LVCMOS_BANK2)),
-    ("user_dip", 6, Pins("T5"),  IOStandard(LVCMOS_BANK2)),
-    ("user_dip", 7, Pins("E4"),  IOStandard(LVCMOS_BANK3)),
+    ("user_sw", 0, Pins("A10"), IOStandard(LVCMOS_BANK0)),
+    ("user_sw", 1, Pins("D14"), IOStandard(LVCMOS_BANK0)),
+    ("user_sw", 2, Pins("C14"), IOStandard(LVCMOS_BANK0)),
+    ("user_sw", 3, Pins("P15"), IOStandard(LVCMOS_BANK1)),
+    ("user_sw", 4, Pins("P12"), IOStandard(LVCMOS_BANK2)),
+    ("user_sw", 5, Pins("R5"),  IOStandard(LVCMOS_BANK2)),
+    ("user_sw", 6, Pins("T5"),  IOStandard(LVCMOS_BANK2)),
+    ("user_sw", 7, Pins("E4"),  IOStandard(LVCMOS_BANK3)),
 
     ## TEMAC Ethernet MAC - FIXME
     # 10/100/1000 Ethernet PHY
@@ -683,7 +683,7 @@ class Platform(XilinxPlatform):
         XilinxPlatform.do_finalize(self, fragment)
         for i in range(2):
             try:
-                self.add_period_constraint(self.lookup_request("hdmi_in", i).clk_p, 12)
+                self.add_period_constraint(self.lookup_request("hdmi_in", i).clk_p, 10)
             except ConstraintError:
                 pass
 
@@ -693,7 +693,7 @@ class Platform(XilinxPlatform):
             pass
 
         try:
-            self.add_period_constraint(self.lookup_request("fx2").ifclk, 20.8)
+            self.add_period_constraint(self.lookup_request("fx2").ifclk, 10)
         except ConstraintError:
             pass
 

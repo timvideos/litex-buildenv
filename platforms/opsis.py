@@ -411,7 +411,7 @@ class Platform(XilinxPlatform):
         XilinxPlatform.do_finalize(self, fragment)
         for i in range(2):
             try:
-                self.add_period_constraint(self.lookup_request("hdmi_in", i).clk_p, 12)
+                self.add_period_constraint(self.lookup_request("hdmi_in", i).clk_p, 10)
             except ConstraintError:
                 pass
 
@@ -421,7 +421,7 @@ class Platform(XilinxPlatform):
             pass
 
         try:
-            self.add_period_constraint(self.lookup_request("fx2").ifclk, 20.8)
+            self.add_period_constraint(self.lookup_request("fx2").ifclk, 10)
         except ConstraintError:
             pass
 

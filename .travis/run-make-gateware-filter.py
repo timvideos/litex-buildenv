@@ -10,7 +10,7 @@ import sys
 import threading
 import time
 
-log_file = open(sys.argv[1], 'w')
+log_file = open(sys.argv[1], 'w+')
 
 # Suppressions for warning / info messages
 #suppressions = [x.strip() for x in open(sys.argv[2], 'r').readlines() if not x.startswith('#')]
