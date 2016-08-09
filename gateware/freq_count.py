@@ -316,16 +316,6 @@ class FrequencyCounter(Module, AutoCSR):
     clock frequency, it is the user's responsibility to calculate
     the frequency by converting the unit of time measured to 1 second.
     """
-    # sample_clk_ticks: How many clocks of the dest domain should elapsed
-    # to be considered a full period.
-    # sample_width: Bit width of the src domain sampling counter.
-    # full_width: Bit width of the dest domain sampling counter, output being
-    # the sum of all samples in the current period.
-
-    # value: Number of src eventstotal in last sampling period.
-    # num_events: Number of src events in current elapsed sampling period.
-    # num_samples: Number of elapsed dest clks in current period.
-    # last_inc: Number of elapsed src clks in last sample.
     def __init__(self, sample_clk_ticks, sample_width, full_width):
         self.value = CSRStatus(full_width)
         self.num_events = CSRStatus(full_width)
