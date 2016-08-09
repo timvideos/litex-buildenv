@@ -55,11 +55,16 @@ for BOARD in $BOARDS; do
 		BOARD=$BOARD TARGET=$TARGET make firmware
 		echo "- Firmware version data"
 		echo "---------------------------------------------"
-		cat $(find -name version_data.h)
+		cat $(find -name version_data.c)
+		echo "---------------------------------------------"
+
 		# https://github.com/timvideos/HDMI2USB-misoc-firmware/issues/83
 		# We have to clean after doing this otherwise if the gateware
 		# has a dependency on the firmware that isn't correctly working
 		# the travis build will still pass.
+		echo ""
+		echo ""
+		echo ""
 		echo "- make clean ($BOARD $TARGET) (prerun)"
 		echo "---------------------------------------------"
 		BOARD=$BOARD TARGET=$TARGET make clean
