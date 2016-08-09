@@ -19,7 +19,7 @@ class HDMIIn(Module, AutoCSR):
         self.submodules.clocking = Clocking(pads)
 
         if soc:
-            self.submodules.frequency = freq_count.FrequencyCounter(soc.clk_freq, 6, 32)
+            self.submodules.frequency = freq_count.FrequencyCounter(int(soc.clk_freq), 6, 32)
             # Only rename source, manually connect dest b/c of Migen decoration rules.
             # self.submodules.freq_count = ClockDomainsRenamer({"src" : "pix"})(freq_count.FrequencyCounter(80*1000000, 6, 32))
             self.comb += [
