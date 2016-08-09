@@ -43,4 +43,3 @@ apt-get install -y software-properties-common
 add-apt-repository -y ppa:timvideos/fpga-support
 apt-get update
 apt-get install -y vizzini-dkms
-apt-get install -y ixo-usb-jtag
