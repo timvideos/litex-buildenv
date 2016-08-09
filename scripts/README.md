@@ -1,7 +1,7 @@
 # Building HDMI2USB-misoc-firmware
 
 These scripts are designed to bootstrap a firmware build environment on Ubuntu
-14.04 LTS and also works on 15.04 though with less testing.
+14.04 LTS and also works on 16.04 though with less testing.
 
 ## Prerequisite
 
