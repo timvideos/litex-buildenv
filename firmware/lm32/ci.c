@@ -480,13 +480,13 @@ static void debug_input(unsigned int channels, unsigned int change, unsigned int
 
 static void debug_freq(void)
 {
-#ifdef CSR_HDMI_IN0_FREQ_COUNT_BASE
-	int hdmi0_freq = hdmi_in0_freq_count_freq_out_read();
+#ifdef CSR_HDMI_IN0_FREQUENCY_VALUE_ADDR
+	int hdmi0_freq = hdmi_in0_frequency_value_read();
 	int hdmi0_mhz = hdmi0_freq/((int)1e6);
 	printf("HDMI Input 0 Frequency: %d MHz (%d Hz)\n", hdmi0_mhz, hdmi0_freq);
 #endif
-#ifdef CSR_HDMI_IN1_FREQ_COUNT_BASE
-	int hdmi1_freq = hdmi_in1_freq_count_freq_out_read();
+#ifdef CSR_HDMI_IN1_FREQUENCY_VALUE_ADDR
+	int hdmi1_freq = hdmi_in1_frequency_value_read();
 	int hdmi1_mhz = hdmi1_freq/((int)1e6);
 	printf("HDMI Input 1 Frequency: %d MHz (%d Hz)\n", hdmi1_mhz, hdmi1_freq);
 #endif
