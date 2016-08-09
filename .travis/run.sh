@@ -58,6 +58,11 @@ for BOARD in $BOARDS; do
 		cat $(find -name version_data.c)
 		echo "---------------------------------------------"
 
+		if grep -q -- "-dirty" $(find -name version_data.c); then
+			echo "Repository was dirty, failing to build!"
+			exit 1
+		fi
+
 		# https://github.com/timvideos/HDMI2USB-misoc-firmware/issues/83
 		# We have to clean after doing this otherwise if the gateware
 		# has a dependency on the firmware that isn't correctly working
