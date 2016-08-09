@@ -36,8 +36,6 @@ class HDMI2USBSoC(VideoMixerSoC):
         self.submodules.usb_streamer = USBStreamer(platform, platform.request("fx2"))
 
         self.comb += [
-            platform.request("user_led", 0).eq(self.encoder_reader.source.stb),
-            platform.request("user_led", 1).eq(self.encoder_reader.source.ack),
             Record.connect(self.encoder_reader.source, self.encoder_cdc.sink),
             Record.connect(self.encoder_cdc.source, self.encoder_buffer.sink),
             Record.connect(self.encoder_buffer.source, self.encoder_fifo.sink),
