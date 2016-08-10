@@ -160,6 +160,14 @@ load-gateware:
 load: load-gateware $(addprefix load-,$(TARGETS))
 	@true
 
+# FIXME: Hack to work around our dodgy FX2 firmware
+jtag-toggle:
+	$(MODESWITCH_CMD) --mode=jtag
+	sleep 1
+	$(MODESWITCH_CMD) --mode=serial
+	sleep 1
+	$(MODESWITCH_CMD) --mode=jtag
+
 # Flash
 flash-gateware: gateware-submodules
 	$(MODESWITCH_CMD) --mode=jtag
