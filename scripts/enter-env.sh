@@ -41,6 +41,13 @@ if [ -d /lib/firmware/ixo-usb-jtag/ ]; then
 	return
 fi
 
+if [ ! -f /etc/udev/rules.d/99-hdmi2usb-permissions.rules ]; then
+	echo "Please install the HDMI2USB udev rules."
+	echo "These are installed by scripts/download-env-root.sh"
+	echo
+	return
+fi
+
 . $SETUP_DIR/settings.sh
 
 echo "             This script is: $SETUP_SRC"
