@@ -39,9 +39,9 @@ fi
 yn=y
 #read -p "Need to install packages as root. Continue? (y/n) " yn
 if [ "$yn" = "y" -o "$yn" = "Y" -o -z "$yn" ]; then
-  sudo -E ./scripts/get-env-root.sh || exit 1
+  sudo -E ./scripts/download-env-root.sh || exit 1
 else
   echo "Aborting.."
   exit 1
 fi
-./scripts/get-env.sh || exit 1
+./scripts/download-env.sh || exit 1

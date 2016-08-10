@@ -70,7 +70,7 @@ function check_version {
 	else
 		$TOOL --version
 		echo "$TOOL (version $VERSION) *NOT* found"
-		echo "Please try running the $SETUP_DIR/get-env.sh script again."
+		echo "Please try running the $SETUP_DIR/download-env.sh script again."
 		return 1
 	fi
 }
@@ -82,7 +82,7 @@ function check_import {
 		return 0
 	else
 		echo "$MODULE *NOT* found!"
-		echo "Please try running the $SETUP_DIR/get-env.sh script again."
+		echo "Please try running the $SETUP_DIR/download-env.sh script again."
 		return 1
 	fi
 }
@@ -136,6 +136,7 @@ check_import_version hexfile $HEXFILE_VERSION
 
 # Tool for changing the mode (JTAG/Serial/etc) of HDMI2USB boards
 check_import_version hdmi2usb.modeswitch $HDMI2USB_MODESWITCH_VERSION
+
 # git submodules
 echo ""
 echo "Checking git submodules"

@@ -292,7 +292,8 @@ make flash
 #### Files
 
   * bootstrap.sh: script to run on a fresh Ubuntu 14.04 LTS install
-  * get-env.sh: called from bootstrap (gets and installs software)
+  * download-env.sh: called from bootstrap (gets and installs software)
+  * download-env-root.sh: called from bootstrap and runs as root.
   * enter-env.sh: script to run after installation to enter environment
 
   * view-hdmi2usb.sh: test script to view HDMI2USB output

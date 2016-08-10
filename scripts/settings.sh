@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Settings for the get-env.sh and setup-env.sh scripts
+# Settings for the download-env.sh and setup-env.sh scripts
 
 BOARD=${BOARD:-opsis}
 

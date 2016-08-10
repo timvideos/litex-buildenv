@@ -104,7 +104,7 @@ function check_version {
 	else
 		$TOOL --version
 		echo "$TOOL (version $VERSION) *NOT* found"
-		echo "Please try running the $SETUP_DIR/get-env.sh script again."
+		echo "Please try running the $SETUP_DIR/download-env.sh script again."
 		return 1
 	fi
 }
@@ -116,7 +116,7 @@ function check_import {
 		return 0
 	else
 		echo "$MODULE *NOT* found!"
-		echo "Please try running the $SETUP_DIR/get-env.sh script again."
+		echo "Please try running the $SETUP_DIR/download-env.sh script again."
 		return 1
 	fi
 }
