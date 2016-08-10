@@ -60,6 +60,9 @@ int main(void)
 	encoder_enable(1);
 	processor_update();
 #endif
+
+	reconfigure_pyconau2016();
+
 	ci_prompt();
 	while(1) {
 		processor_service();

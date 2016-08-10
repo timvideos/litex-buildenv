@@ -847,3 +847,32 @@ void ci_service(void)
 
 	ci_prompt();
 }
+
+void reconfigure_pyconau2016(void) {
+	// PyCon AU 2016 settings
+#if (BOARD_OPSIS || BOARD_ATLYS) && TARGET_HDMI2USB
+	printf("Setting for PyCon AU\r\n");
+	printf("------------\r\n");
+
+	// video_mode 10
+	video_mode_set(10);
+
+	// x c 1 1
+	video_matrix_connect(VIDEO_IN_HDMI_IN1, VIDEO_OUT_HDMI_OUT1);
+	// output0 off
+	output0_off();
+	// input0 off
+	/* Does nothing - debug_input(1, 1, 0); */
+
+	// x c 1 encoder
+	video_matrix_connect(VIDEO_IN_HDMI_IN1, VIDEO_OUT_ENCODER);
+	// encoder on
+	/* Does nothing - encoder_enable(1); */
+	// encoder fps 25
+	encoder_set_fps(25);
+	// encoder quality 85
+	encoder_set_quality(85);
+
+	printf("------------\r\n");
+#endif
+}
