@@ -16,9 +16,6 @@ TARGETS += lm32
 
 RAM_ADDR ?= 0x20000000
 
-ifeq ($(BOARD),atlys)
-SERIAL ?= /dev/ttyVIZ0
-else
 ifeq ($(BOARD),minispartan6)
 SERIAL ?= /dev/ttyUSB1
 RAM_ADDR = 0x40000000
@@ -26,9 +23,8 @@ else
 ifeq ($(BOARD),pipistrello)
 SERIAL ?= /dev/ttyUSB1
 else
-# Opsis fall through
-SERIAL ?= /dev/ttyACM0
-endif
+# Atlys/Opsis use modeswitch to find the serial port
+SERIAL ?= $$($(MODEINFO_CMD) --get-serial)
 endif
 endif
 
@@ -70,11 +66,13 @@ flash-lm32: image-lm32
 	@echo " see https://github.com/timvideos/HDMI2USB-misoc-firmware/issues/274)"
 	@echo "Booting will use lm32 firmware embedded in the gateware."
 	@echo
+#	$(MODESWITCH_CMD) --mode=jtag
 #	export FIRMWARE_ADDRESS=$$($(PYTHON) -c "import platforms.$(BOARD) as b; print(b.Platform.gateware_size)"); \
 #	echo "Flashing to $$($(PYTHON) -c "print(hex($$FIRMWARE_ADDRESS))") ($$FIRMWARE_ADDRESS)"; \
 #	$(FLASHEXTRA_CMD) $(HDMI2USBDIR)/firmware/lm32/firmware.fbi $$FIRMWARE_ADDRESS
 
 clear-flash-lm32:
+	$(MODESWITCH_CMD) --mode=jtag
 	export FIRMWARE_ADDRESS=$$($(PYTHON) -c "import platforms.$(BOARD) as b; print(b.Platform.gateware_size)"); \
 	echo "Zeroing $$($(PYTHON) -c "print(hex($$FIRMWARE_ADDRESS))") ($$FIRMWARE_ADDRESS)"; \
 	$(FLASHEXTRA_CMD) $(HDMI2USBDIR)/firmware/zero.bin $$FIRMWARE_ADDRESS

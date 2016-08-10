@@ -67,6 +67,14 @@ FLASHEXTRA_CMD = \
     $(PROGRAMMER_OPTION) \
     $(BOARD)
 
+MODESWITCH_CMD = \
+  hdmi2usb-mode-switch \
+    --by-type=$(BOARD) \
+    --verbose
+
+MODEINFO_CMD = \
+  hdmi2usb-find-board \
+    --by-type=$(BOARD)
 
 ifeq ($(OS),Windows_NT)
 	FLTERM = $(PYTHON) $(MSCDIR)/tools/flterm.py
@@ -146,6 +154,7 @@ download-prebuilt:
 	
 # Load
 load-gateware:
+	$(MODESWITCH_CMD) --mode=jtag
 	$(MAKEPY_CMD) load-bitstream
 
 load: load-gateware $(addprefix load-,$(TARGETS))
@@ -153,6 +162,7 @@ load: load-gateware $(addprefix load-,$(TARGETS))
 
 # Flash
 flash-gateware: gateware-submodules
+	$(MODESWITCH_CMD) --mode=jtag
 	$(MAKEPY_CMD) flash-bitstream
 	@echo ""
 	@echo ""
