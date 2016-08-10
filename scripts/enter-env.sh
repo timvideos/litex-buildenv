@@ -87,6 +87,20 @@ function check_import {
 	fi
 }
 
+function check_import_version {
+	MODULE=$1
+	EXPECT_VERSION=$2
+        ACTUAL_VERSION=$(python3 -c "import $MODULE; print($MODULE.__version__)")
+	if echo "$ACTUAL_VERSION" | grep -q $EXPECT_VERSION > /dev/null; then
+		echo "$MODULE found at $ACTUAL_VERSION"
+		return 0
+	else
+		echo "$MODULE (version $EXPECT_VERSION) *NOT* found!"
+		echo "Please try running the $SETUP_DIR/get-env.sh script again."
+		return 1
+	fi
+}
+
 # Install and setup conda for downloading packages
 echo ""
 echo "Checking modules from conda"
@@ -118,8 +132,10 @@ check_version sdcc $SDCC_VERSION || return 1
 check_version openocd 0.10.0-dev || return 1
 
 # hexfile for embedding the Cypress FX2 firmware.
-check_import hexfile
+check_import_version hexfile $HEXFILE_VERSION
 
+# Tool for changing the mode (JTAG/Serial/etc) of HDMI2USB boards
+check_import_version hdmi2usb.modeswitch $HDMI2USB_MODESWITCH_VERSION
 # git submodules
 echo ""
 echo "Checking git submodules"
