@@ -52,6 +52,7 @@ firmware-lm32: third_party/misoc/.git $(EXTRA_DEPS)
 	$(MAKE) -C firmware/lm32 all
 
 load-lm32: firmware-lm32
+	@if [ x"$(BOARD)" = x"opsis" ]; then $(MODESWITCH_CMD) --mode=serial; fi
 	@echo "To load new firmware, reboot the running firmware and then"
 	@echo "select serialboot at the BIOS prompt."
 	$(FLTERM) --port $(SERIAL) --kernel=$(HDMI2USBDIR)/firmware/lm32/firmware.bin --kernel-adr=$(RAM_ADDR) --speed 115200
