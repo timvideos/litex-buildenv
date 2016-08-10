@@ -20,14 +20,14 @@ if [ $SOURCED = 0 ]; then
 fi
 
 if [ ! -z $HDMI2USB_ENV ]; then
-  echo "Already sourced this file."
-  return
+	echo "Already sourced this file."
+	return
 fi
 
 if [ ! -z $SETTINGS_FILE ]; then
-  echo "You appear to have sourced the Xilinx ISE settings, these are incompatible with building."
-  echo "Please exit this terminal and run again from a clean shell."
-  return
+	echo "You appear to have sourced the Xilinx ISE settings, these are incompatible with building."
+	echo "Please exit this terminal and run again from a clean shell."
+	return
 fi
 
 # Check ixo-usb-jtag *isn't* install
@@ -143,9 +143,15 @@ check_version sdcc $SDCC_VERSION || return 1
 check_version openocd 0.10.0-dev || return 1
 
 # hexfile for embedding the Cypress FX2 firmware.
+
+
+
 check_import_version hexfile $HEXFILE_VERSION
 
 # Tool for changing the mode (JTAG/Serial/etc) of HDMI2USB boards
+
+
+
 check_import_version hdmi2usb.modeswitch $HDMI2USB_MODESWITCH_VERSION
 
 # git submodules
