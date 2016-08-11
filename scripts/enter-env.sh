@@ -41,7 +41,9 @@ if [ -d /lib/firmware/ixo-usb-jtag/ ]; then
 	return
 fi
 
-if [ ! -f /etc/udev/rules.d/99-hdmi2usb-permissions.rules ]; then
+if [ -f /etc/udev/rules.d/99-hdmi2usb-permissions.rules -o -f /lib/udev/rules.d/99-hdmi2usb-permissions.rules -o ! -z "$HDMI2USB_UDEV_IGNORE" ]; then
+	true
+else
 	echo "Please install the HDMI2USB udev rules."
 	echo "These are installed by scripts/download-env-root.sh"
 	echo
