@@ -854,8 +854,8 @@ void reconfigure_pyconau2016(void) {
 	printf("Setting for PyCon AU\r\n");
 	printf("------------\r\n");
 
-	// video_mode 10
-	video_mode_set(10);
+	// video_mode 9
+	video_mode_set(9);
 
 	// x c 1 1
 	video_matrix_connect(VIDEO_IN_HDMI_IN1, VIDEO_OUT_HDMI_OUT1);
