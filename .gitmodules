@@ -1,0 +1,3 @@
+[submodule "edid-decode"]
+	path = edid-decode
+	url = git://anongit.freedesktop.org/xorg/app/edid-decode
