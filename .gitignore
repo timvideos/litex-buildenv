@@ -1,0 +1,11 @@
+__pycache__
+*.pyc
+*.egg-info
+*.vcd
+*.o
+*.bin
+*.elf
+*.a
+test/csr.csv
+outgoing
+build
