@@ -1,5 +1,11 @@
 CPU ?= lm32
 
+opsis_base:
+	rm -rf build
+	./opsis_base.py --nocompile-gateware --cpu-type $(CPU)
+	cd firmware && make clean all
+	./opsis_base.py --cpu-type $(CPU)
+
 opsis_minisoc:
 	rm -rf build
 	./opsis_base.py --with-ethernet --nocompile-gateware --cpu-type $(CPU)
