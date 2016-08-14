@@ -12,7 +12,7 @@ from litex.gen.genlib.io import CRG
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 from litex.gen.genlib.misc import WaitTimer
 
-
+from litex.soc.cores.flash import spi_flash
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
@@ -157,13 +157,22 @@ class _CRG(Module):
         self.specials += AsyncResetSynchronizer(self.cd_base50, self.cd_sys.rst | ~dcm_base50_locked)
         platform.add_period_constraint(self.cd_base50.clk, 20)
 
+
 class BaseSoC(SoCSDRAM):
     csr_peripherals = (
+        "spiflash",
         "front_panel",
         "ddrphy",
         "dna",
     )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
+
+    mem_map = {
+        "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
+        "spiflash":     0x30000000,  # (default shadow @0xb0000000)
+    }
+    mem_map.update(SoCSDRAM.mem_map)
+
 
     def __init__(self, platform, **kwargs):
         clk_freq = 50*1000000
@@ -173,6 +182,13 @@ class BaseSoC(SoCSDRAM):
             **kwargs)
         self.submodules.crg = _CRG(platform, clk_freq)
         self.submodules.dna = dna.DNA()
+
+        self.submodules.spiflash = spi_flash.SpiFlash(
+            platform.request("spiflash4x"), dummy=platform.spiflash_read_dummy_bits, div=platform.spiflash_clock_div)
+        self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
+        self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
+        self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size
+        self.register_mem("spiflash", self.mem_map["spiflash"], self.spiflash.bus, size=platform.gateware_size)
 
         # front panel (ATX)
         self.submodules.front_panel = FrontPanelGPIO(platform, clk_freq)
@@ -249,7 +265,7 @@ def main():
     builder_args(parser)
     soc_sdram_args(parser)
     parser.add_argument("--with-ethernet", action="store_true",
-                        help="enable Ethernet support")
+                        help="enable Ethernet support", default=False)
     parser.add_argument("--nocompile-gateware", action="store_true")
     args = parser.parse_args()
 
