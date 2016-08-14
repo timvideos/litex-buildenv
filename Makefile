@@ -33,4 +33,7 @@ firmware:
 load-firmware:
 	litex_term --kernel firmware/firmware.bin COM8
 
+clean:
+	rm -rf build
+
 .PHONY: load firmware load-firmware
