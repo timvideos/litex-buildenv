@@ -1,4 +1,5 @@
 CPU ?= lm32
+export CLANG=0
 
 opsis_base:
 	rm -rf build
