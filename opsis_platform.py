@@ -101,6 +101,26 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    ## onBoard Quad-SPI Flash
+    ## W25Q128FVEIG - component U3
+    ## 128M (16M x 8) - 104MHz
+    ("spiflash4x", 0,
+        ## \/ Strongly pulled (10k) to VCC3V3 via R18
+        #NET "???"                  LOC =    "AA3"       |IOSTANDARD =            None;     #                      (/FPGA_Bank_1_2/SPI_CS_N)
+        Subsignal("cs_n", Pins("AA3")),
+        #NET "???"                  LOC =    "Y20"       |IOSTANDARD =            None;     #                      (/FPGA_Bank_1_2/SPI_CLK)
+        Subsignal("clk", Pins("Y20")),
+        #NET "???"                  LOC =   "AB20"       |IOSTANDARD =            None;     #                      (/FPGA_Bank_1_2/SPI_MOSI_CSI_N_MISO0)
+        ## \/ Strongly pulled (10k) to VCC3V3 via R19
+        #NET "???"                  LOC =   "AA20"       |IOSTANDARD =            None;     #                      (/FPGA_Bank_1_2/SPI_DO_DIN_MISO1 | Net-(R16-Pad1))
+        ## \/ Strongly pulled (10k) to VCC3V3 via R20
+        #NET "???"                  LOC =    "R13"       |IOSTANDARD =            None;     #                      (/FPGA_Bank_1_2/SPI_D1_MISO2 | Net-(R17-Pad1))
+        ## \/ Strongly pulled (10k) to VCC3V3 via R21
+        #NET "???"                  LOC =    "T14"       |IOSTANDARD =            None;     #                      (/FPGA_Bank_1_2/SPI_D2_MISO3)
+        Subsignal("dq", Pins("AB20", "AA20", "R13", "T14")),
+        IOStandard("LVCMOS33"), Misc("SLEW=FAST")
+    ),
+
     # frontend switches / leds
     ("hdled", 0, Pins("J7"), IOStandard("LVCMOS15")),
     ("pwled", 0, Pins("H8"), IOStandard("LVCMOS15")), #pwled+ connected to 3.3V
@@ -235,8 +255,27 @@ class Platform(XilinxPlatform):
     default_clk_name = "clk100"
     default_clk_period = 10.0
 
-    def __init__(self):
+    # W25Q128FVEIG - component U3
+    # 128M (16M x 8) - 104MHz
+    # Pretends to be a Micron N25Q128 (ID 0x0018ba20)
+    # FIXME: Create a "spi flash module" object in the same way we have SDRAM
+    # module objects.
+    spiflash_read_dummy_bits = 10
+    spiflash_clock_div = 4
+    spiflash_total_size = int((128/8)*1024*1024) # 128Mbit
+    spiflash_page_size = 256
+    spiflash_sector_size = 0x10000
+
+
+    # The Opsis has a XC6SLX45 which bitstream takes up ~12Mbit (1484472 bytes)
+    # 0x200000 offset (16Mbit) gives plenty of space
+    gateware_size = 0x200000
+
+
+    def __init__(self, programmer="openocd"):
         XilinxPlatform.__init__(self,  "xc6slx45t-fgg484-3", _io)
+        self.programmer = programmer
+
         pins = {
           'ProgPin': 'PullUp',
           'DonePin': 'PullUp',
@@ -250,6 +289,19 @@ class Platform(XilinxPlatform):
             self.toolchain.bitgen_opt += " -g %s:%s " % (pin, config)
         self.add_platform_command("""CONFIG VCCAUX="3.3";""")
 
+    def create_programmer(self):
+	# Preferred programmer - Needs ixo-usb-jtag and latest openocd.
+        proxy="bscan_spi_{}.bit".format(self.device.split('-')[0])
+        if self.programmer == "openocd":
+            return OpenOCD(config="board/numato_opsis.cfg", flash_proxy_basename=proxy)
+	# Alternative programmers - not regularly tested.
+        elif self.programmer == "urjtag":
+            return UrJTAG(cable="USBBlaster")
+        elif self.programmer == "impact":
+            return iMPACT()
+        else:
+            raise ValueError("{} programmer is not supported".format(self.programmer))
+
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
         for i in range(2):
@@ -257,10 +309,8 @@ class Platform(XilinxPlatform):
                 self.add_period_constraint(self.lookup_request("hdmi_in", i).clk_p, 12)
             except ConstraintError:
                 pass
+
         try:
             self.add_period_constraint(self.lookup_request("eth_clocks").rx, 8.0)
         except ConstraintError:
             pass
-
-    def create_programmer(self):
-        return iMPACT()

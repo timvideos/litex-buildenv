@@ -1,3 +1,4 @@
+#include "asm.h"
 #include "i2c.h"
 
 /* I2C bit banging */
@@ -18,7 +19,7 @@ void i2c_delay(void)
 {
 	unsigned int i;
 
-	for(i=0;i<1000;i++) __asm__("nop");
+	for(i=0;i<1000;i++) NOP;
 }
 
 /* I2C bit-banging functions from http://en.wikipedia.org/wiki/I2c */

@@ -9,6 +9,7 @@
 #include <console.h>
 #include <hw/flags.h>
 
+#include "asm.h"
 #include "config.h"
 #include "hdmi_in0.h"
 #include "hdmi_in1.h"
@@ -247,7 +248,7 @@ static char *get_token(char **str)
 
 static void reboot(void)
 {
-	asm("call r0");
+	REBOOT;
 }
 
 static void status_enable(void)

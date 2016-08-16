@@ -1,4 +1,11 @@
 CPU ?= lm32
+export CLANG=0
+
+opsis_base:
+	rm -rf build
+	./opsis_base.py --nocompile-gateware --cpu-type $(CPU)
+	cd firmware && make clean all
+	./opsis_base.py --cpu-type $(CPU)
 
 opsis_minisoc:
 	rm -rf build
@@ -32,5 +39,8 @@ firmware:
 
 load-firmware:
 	litex_term --kernel firmware/firmware.bin COM8
+
+clean:
+	rm -rf build
 
 .PHONY: load firmware load-firmware
