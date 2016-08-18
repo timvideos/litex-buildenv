@@ -12,9 +12,10 @@ CALLED=$_
 SETUP_SRC=$(realpath ${BASH_SOURCE[0]})
 SETUP_DIR=$(dirname $SETUP_SRC)
 TOP_DIR=$(realpath $SETUP_DIR/..)
+LIKELY_XILINX_LICENSE_LOCATION="$HOME/.Xilinx/Xilinx.lic"
 
 if [ $SOURCED = 0 ]; then
-	echo "You must source this script, rather then try and run it."
+	echo "You must source this script, rather than try and run it."
 	echo ". $SETUP_SRC"
 	exit 1
 fi
@@ -32,7 +33,7 @@ fi
 
 # Check ixo-usb-jtag *isn't* install
 if [ -d /lib/firmware/ixo-usb-jtag/ ]; then
-	echo "Please uninstall ixo-usb-jtag package, the require firmware is"
+	echo "Please uninstall ixo-usb-jtag package, the required firmware is"
 	echo "included in the HDMI2USB modeswitch tool."
 	echo
 	echo "On Debian/Ubuntu run:"
@@ -50,12 +51,25 @@ else
 	return
 fi
 
+# Detect a likely lack of license early, but just warn if it's missing
+# just in case they've set it up elsewhere.
+license_found=0
+if [ ! -e $LIKELY_XILINX_LICENSE_LOCATION ]; then
+	echo "(WARNING) Please ensure you have installed Xilinx and have a license."
+	echo "(WARNING) Copy your Xilinx license to $LIKELY_XILINX_LICENSE_LOCATION to suppress this warning."
+else
+	license_found=1
+fi
+
 . $SETUP_DIR/settings.sh
 
 echo "             This script is: $SETUP_SRC"
 echo "         Firmware directory: $TOP_DIR"
 echo "         Build directory is: $BUILD_DIR"
 echo "     3rd party directory is: $THIRD_DIR"
+if [ $license_found == 1 ]; then
+	echo "          Xilinx license in: $LIKELY_XILINX_LICENSE_LOCATION"
+fi
 
 # Check the build dir
 if [ ! -d $BUILD_DIR ]; then
@@ -116,7 +130,7 @@ function check_import_version {
 		return 0
 	else
 		echo "$MODULE (version $EXPECT_VERSION) *NOT* found!"
-		echo "Please try running the $SETUP_DIR/get-env.sh script again."
+		echo "Please try running the $SETUP_DIR/download-env.sh script again."
 		return 1
 	fi
 }

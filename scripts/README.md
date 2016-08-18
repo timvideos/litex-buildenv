@@ -1,23 +1,63 @@
-# Building HDMI2USB-misoc-firmware
+For project description and information see the project [README.md](/) file.
+
+# Building HDMI2USB-misoc-firmware on Ubuntu 14.04 LTS
 
 These scripts are designed to bootstrap a firmware build environment on Ubuntu
-14.04 LTS and also works on 16.04 though with less testing.
+14.04 LTS and also works on 16.04 though with less testing.  This is only
+required if you wish to make changes to the firmware.
+For using a HDMI2USB board, prebuilt versions of the firmware
+are available in the
+[HDMI2USB-firmware-prebuilt](http://github.com/timvideos/HDMI2USB-firmware-prebuilt)
+repository.
 
-## Prerequisite
+# Table of Contents
 
-Install Xilinx ISE WebPACK 14.7 + activate a licence:
+  * Prerequisite (Xilinx)
+  * Bootstrap HDMI2USB-misoc-firmware and dependencies
+  * Working with the firmware
+    * 1) Enter the environment
+    * 2) Build the gateware
+    * 3) Configure your board
+      * Configuring the Opsis
+         * Jumpers Configuration
+         * Cables
+         * JTAG mode
+      * Configuring the Atlys
+         * Jumpers Configuration
+         * Cables
+    * 4) Loading temporarily
+      * Common Errors
+         * unable to open ftdi device
+           * `device not found`
+           * `inappropriate permissions on device`
+         * Warn: Bypassing JTAG setup events due to errors
+    * 5) Testing
+    * 6) Loading permanently
+  * Footnotes
+  * Files
 
-  * Download from [http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/design-tools.html]
+# Prerequisite (Xilinx)
+
+Install Xilinx ISE Design Suite 14.7 + activate a licence:
+
+  * Download ISE Design Suite, 14.7 (Full Installer for Linux, TAR/GZIP 6.09 GB, MD5 Sum: e8065b2ffb411bb74ae32efa475f9817) from [http://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/design-tools.html]
+
   * Install into the default location in /opt (requires X11 GUI):
   ```
   tar xvf Xilinx_ISE_DS_Lin_14.7_1015_1.tar
   cd Xilinx_ISE_DS_Lin_14.7_1015_1
   sudo ./xsetup
   ```
-  Ensure you select "ISE WebPACK" 17403 MB
+  **NOTE: We are aware that Xilix has End-of-Lifed ISE Design Suite, and they change their download page from time to time. Submit a bug report if there is no product by this name on the given page.**
 
+  * Register with Xilinx (free) and get a (free) "ISE WebPACK License" from [http://www.xilinx.com/getlicense]
+  Your license, once generated, will be emailed to you.  It can also be
+recovered as follows. Go to [http://www.xilinx.com/getlicense]. Log in if
+required. Confirm your profile details. Upon submission you should end up
+at the "Product Licensing" page. Use the "Manage Licenses" tab to see your
+existing licenses.
 
-  * Ensure you have a free WebPACK license for ISE installed, see [http://www.xilinx.com/getlicense], ensure installed into ```~/.Xilinx/Xilinx.lic```
+  * Copy your license into ```~/.Xilinx/Xilinx.lic```
 
   * Ensure licence is activated by checking ISE:
   ```
@@ -25,13 +65,19 @@ Install Xilinx ISE WebPACK 14.7 + activate a licence:
   ise
   ```
   Go to About > Licence, ensure under "information" you can see your ISE WebPACK licence.
- 
-## Bootstrap
+
+# Bootstrap HDMI2USB-misoc-firmware and dependencies
  
 Run the bootstrap script to build an environment required for flashing
 firmware:
+
 ```
 curl -fsS https://raw.githubusercontent.com/timvideos/HDMI2USB-misoc-firmware/master/scripts/bootstrap.sh | bash
+```
+
+Check that the final line of output is:
+```
+Bootstrap: Set up complete, you're good to go!
 ```
 
 This clones the HDMI2USB-misoc-firmware repository, adds the timvideos
@@ -39,35 +85,48 @@ fpga-support PPA, installs packages required then downloads misoc and its
 dependencies. Depending on your connection speed this could take a while to
 download.
 
-## Working with the firmware
+This script will object if you alredy have cloned the
+HDMI2USB-misoc-firmware repo in the same directory so rename it if required.
 
-### 1) Enter the environment
+**NOTE: This script requires sudo access (and will ask for your sudo password) to install required software and dependencies. See [scripts/download-env-root.sh](scripts/) to see what is installed.**
+
+# Working with the firmware
+
+## 1) Enter the environment
 
 Before being able to run any of the build steps you must first `enter` the
 development environment.
 
-Before entering, you should set the type of board you want to use.  This is
-done by doing;
+Set the type of board you want to use.
 ```
 export BOARD=opsis
 ```
 
-To do this do the following steps;
+Set-up the environment:
 ```
 cd HDMI2USB-misoc-firmware
 source scripts/enter-env.sh
 ```
 
-Once you source the environment your prompt should change to look something
-like;
+If your environment is set up correctly your prompt should change to look
+something like:
 ```
 (H2U BOARD=opsis) #
 ```
 
-FIXME: Add a `make test-env` which verifies the environment is working
-(excpecially that the Xilinx stuff has a proper license stuff).
+If your prompt does not change, then check the output to see whether there are
+any errors. You may also find it helpful to rerun the following commands and
+check those for errors.  (These are originally run by the scripts/bootstrap.sh
+script recommended for use to set up your environment in the previous step.)
+Fix any errors reported (including install failures from apt) before
+continuing.
+```
+cd HDMI2USB-misoc-firmware
+sudo scripts/download-env-root.sh
+sudo scripts/download-env.sh
+```
 
-### 2) Build the gateware
+## 2) Build the gateware
 
 Once you have entered the environment, you can build things.
 
@@ -89,31 +148,31 @@ Firmware 56008 bytes (9528 bytes left)
 
 The built gateware will be in build/misoc/build/.
 
-### 3) Configure your board
+## 3) Configure your board
 
 Before loading onto your board, you need to ensure that your board is in the
 correct state.
 
 ---
 
-#### Configuring the Opsis
+### Configuring the Opsis
 
 To use the Opsis, you need to set the jumpers correctly, connect cables
 correctly and then put the board into JTAG mode.
 
 FIXME: Put something here about the Opsis.
 
-##### Jumpers Configuration
+#### Jumpers Configuration
 
 The jumpers as set on the Opsis when it ships work.
 
 FIXME: Put picture showing correct jumper configuration.
 
-##### Cables
+#### Cables
 
 The programming computer must be connected to the USB-B port.
 
-##### JTAG mode
+#### JTAG mode
 
 By default the Opsis will boot into HDMI2USB mode. To load gateware onto the
 board it must be switched into JTAG mode.
@@ -130,14 +189,14 @@ FIXME: Add instructions for switching the Opsis into JTAG mode.
 
 ---
 
-#### Configuring the Atlys
+### Configuring the Atlys
 
 Before loading the gateware you need to set the jumpers correctly and connect
 the cables correctly.
 
 FIXME: Put something here about the Atlys.
 
-##### Jumpers Configuration
+#### Jumpers Configuration
 
 As the HDMI2USB firmware manipulates the EDID information the following jumpers
 must be removed;
@@ -147,7 +206,7 @@ JP2/SDA (which connects the EDID lines from J1/HDMI IN to JA/HDMI OUT).
 JP6 and JP7 (which connects the EDID lines from J3/HDMI IN to J2/HDMI OUT).
 ```
 
-##### Cables
+#### Cables
 
   * Plug board in using `PROG` port & switch on. If using a VM, ensure the
     device is passed through.
@@ -158,7 +217,7 @@ his in too so you can use/test the device.
 
 ---
 
-### 4) Loading temporarily
+## 4) Loading temporarily
 
 You can load gateware and firmware onto your device temporarily for testing. If
 you power cycle the device after this step it will go back to the state before
@@ -186,11 +245,11 @@ Load fx2 firmware to enable USB capture:
 make load-fx2
 ```
 
-#### Common Errors
+### Common Errors
 
-##### unable to open ftdi device
+#### unable to open ftdi device
 
-###### `device not found`
+##### `device not found`
 
 This error means that a HDMI2USB board in JTAG mode was not detected. Power cycle the board and make sure
 you have followed the `3) Configure your board` section.
@@ -204,7 +263,7 @@ Info : usb blaster interface using libftdi
 Error: unable to open ftdi device: device not found
 ```
 
-###### `inappropriate permissions on device`
+##### `inappropriate permissions on device`
 
 This error means that your user doesn't have permission to talk to the HDMI2USB
 board. This is normally caused by not installing the udev rules which come
@@ -219,7 +278,7 @@ Info : usb blaster interface using libftdi
 Error: unable to open ftdi device: inappropriate permissions on device!
 ```
 
-##### Warn: Bypassing JTAG setup events due to errors
+#### Warn: Bypassing JTAG setup events due to errors
 
 If you get an error like this;
 ```
@@ -240,7 +299,7 @@ hdmi2usb-mode-switch --mode=serial
 hdmi2usb-mode-switch --mode=jtag
 ```
 
-### 5) Testing
+## 5) Testing
 
 Connect to lm32 softcore to send direct commands to the HDMI2USB such as
 changing resolution:
@@ -271,7 +330,7 @@ make view
 scripts/view-hdmi2usb.sh
 ```
 
-### 6) Loading permanently
+## 6) Loading permanently
 
 If you are happy with the firmware you can load it onto the board so that if
 persists after power cycle.
@@ -281,7 +340,7 @@ persists after power cycle.
 make flash
 ```
 
-#### Footnotes
+# Footnotes
 
   [1] If you are in a VM, during flashing the device will change USB UUID's up to 3 times.  You can just run the command above again until you see "Programming successful!" (you may need to choose the new USB vendor/device ID in your hypervisor to pass through).
 
@@ -289,7 +348,7 @@ make flash
 
 ---
 
-#### Files
+# Files
 
   * bootstrap.sh: script to run on a fresh Ubuntu 14.04 LTS install
   * download-env.sh: called from bootstrap (gets and installs software)
