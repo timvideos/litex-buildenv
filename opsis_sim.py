@@ -2,6 +2,7 @@
 
 import argparse
 import importlib
+import os
 
 from litex.gen import *
 from litex.gen.genlib.io import CRG
