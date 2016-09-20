@@ -271,10 +271,13 @@ def main():
 
     platform = opsis_platform.Platform()
     cls = MiniSoC if args.with_ethernet else BaseSoC
+    builddir = "opsis_base/" if not args.with_ethernet else "opsis_base/"
     soc = cls(platform, **soc_sdram_argdict(args))
-    builder = Builder(soc, output_dir="build",
+    builder = Builder(soc, output_dir="build/{}".format(builddir),
                       compile_gateware=not args.nocompile_gateware,
-                      csr_csv="test/csr.csv")
+                      csr_csv="build/{}/test/csr.csv".format(builddir))
+    builder.add_software_package("libuip", "{}/firmware/libuip".format(os.getcwd()))
+    builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
     vns = builder.build()
 
 if __name__ == "__main__":

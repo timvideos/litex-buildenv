@@ -1,16 +1,15 @@
-OPSIS_DIR=../../build
-
-include $(OPSIS_DIR)/software/include/generated/variables.mak
+include ../include/generated/variables.mak
 include $(SOC_DIRECTORY)/software/common.mak
 
-UIPDIR=../uip
-LIBUIPDIR=../libuip
+VPATH=$(LIBUIP_DIRECTORY)
 
-CFLAGS += $(CPPFLAGS) -I. \
-	-I$(UIPDIR) \
-	-I$(UIPDIR)/net \
-	-I$(UIPDIR)/net\ip \
-	-I$(UIPDIR)/net\ipv4 \
+UIPDIR=../uip
+LIBUIPDIR=.
+
+CFLAGS += $(CPPFLAGS) \
+	-I$(LIBUIP_DIRECTORY)/$(LIBUIPDIR) \
+	-I$(LIBUIP_DIRECTORY)/$(UIPDIR) \
+	-I$(LIBUIP_DIRECTORY)/$(UIPDIR)/net \
 	-Wno-char-subscripts \
 	-fno-strict-aliasing -fpack-struct
 
@@ -50,9 +49,10 @@ UIPCOREOBJS=$(UIPDIR)/net/ip/dhcpc.o \
 	$(UIPDIR)/sys/timer.o \
 	$(UIPDIR)/lib/list.o
 
-UIPARCHOBJS=clock-arch.o \
-	rtimer-arch.o \
-	liteethmac-drv.o
+UIPARCHOBJS=\
+	$(LIBUIPDIR)/clock-arch.o \
+	$(LIBUIPDIR)/rtimer-arch.o \
+	$(LIBUIPDIR)/liteethmac-drv.o
 
 UIPOBJS=$(UIPCOREOBJS) $(UIPARCHOBJS)
 OBJS_LIB+=$(UIPOBJS)
@@ -64,9 +64,11 @@ all: $(UIPLIB)
 .PHONY: all compile clean
 
 %.o: %.c
+	@mkdir -p $(@D)
 	$(compile)
 
 %.o: %.S
+	@mkdir -p $(@D)
 	$(assemble)
 
 clean:
