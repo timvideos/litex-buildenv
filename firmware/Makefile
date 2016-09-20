@@ -35,7 +35,7 @@ all: firmware.bin
 %.bin: %.elf
 	$(OBJCOPY) -O binary $< $@
 	chmod -x $@
-	cp $@ $(BUILD_DIRECTORY)/boot.bin
+	cp $@ $(BUILD_DIRECTORY)/software/boot.bin
 
 firmware.elf: $(OBJECTS) libs
 	$(LD) $(LDFLAGS) \
