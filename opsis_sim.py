@@ -149,6 +149,7 @@ def main():
                       csr_csv="build/opsis_sim/test/csr.csv")
     builder.add_software_package("libuip", "{}/firmware/libuip".format(os.getcwd()))
     builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
+    os.makedirs("build/opsis_sim/test") # FIXME: Remove when builder does this.
     builder.build()
 
 
