@@ -17,6 +17,19 @@ opsis_hdmi2usb:
 	rm -rf build/opsis_hdmi2usb
 	./opsis_hdmi2usb.py --cpu-type $(CPU)
 
+opsis_sim_setup:
+	sudo openvpn --mktun --dev tap0
+	sudo ifconfig tap0 192.168.1.100 up
+	sudo mknod /dev/net/tap0 c 10 200
+	sudo chown $(shell whoami) /dev/net/tap0
+	sudo atftpd --bind-address 192.168.1.100 --daemon --logfile /dev/stdout --no-fork --user $(shell whoami) build/opsis_sim/software/ &
+
+opsis_sim_teardown:
+	sudo killall atftpd || true	# FIXME: This is dangerous...
+	sudo rm -f /dev/net/tap0
+	sudo ifconfig tap0 down
+	sudo openvpn --rmtun --dev tap0
+
 opsis_sim:
 	rm -rf build/opsis_sim
 	./opsis_sim.py --with-ethernet --cpu-type $(CPU)
