@@ -63,6 +63,9 @@ _tofe_low_speed_pmod_io = {
    # Pin  1, Pin  2, Pin  3, Pin  4, Pin  5 (GND), Pin  6 (VCC) - Outside Row / Top
    # Pin  7, Pin  8, Pin  9, Pin 10, Pin 11 (GND), Pin 12 (VCC) - Inside Row / Bottom
 
+   # WARNING: On the older revisions of the board, the silk screen has labels
+   # for Pin 2/11 on the Pmod connectors which are *wrong*.
+
    # Dedicated Pmod connectors
   'p1': {
       1: "gpio0_p", 2: "gpio1_p", 3: "gpio2_p", 4: "gpio3_n",
