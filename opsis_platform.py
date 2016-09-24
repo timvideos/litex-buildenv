@@ -1,6 +1,8 @@
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxPlatform, iMPACT
 
+from tofe_lowspeedio import *
+
 _tofe_io = {
     "diff_io_a0n" : "C18",
     "diff_io_a0p" : "D17",
@@ -49,57 +51,14 @@ _tofe_io = {
     "pcie_reset"  : "D3"
 }
 
-_tofe_low_speed_io = {
-    "tx" : "diff_io_xp",
-    "rx" : "diff_io_xn",
-
-    "d0" : "diff_io_yn",
-    "d1" : "diff_io_b1p",
-    "d2" : "diff_io_b1n",
-    "d3" : "diff_io_b2p",
-    "d4" : "diff_io_b2n",
-    "d5" : "diff_io_yp",
-    "d6" : "diff_io_b3n",
-    "d7" : "diff_io_b3p",
-    "d8" : "diff_clk_b0n",
-    "d9" : "diff_clk_b0p",
-    "d10": "diff_io_zn",
-    "d11": "diff_io_zp",
-    "d12": "diff_io_b4p",
-    "d13": "diff_io_b4n",
-    "d14": "diff_io_b5n",
-    "d15": "diff_io_b6p",
-
-    "led1": "diff_io_a5p",
-    "led2": "diff_io_a5n",
-    "led3": "diff_io_b6n",
-    "led4": "diff_io_a6p",
-
-    "sw1" : "diff_clk_b1p",
-    "sw2" : "diff_clk_b1n",
-    "sw3" : "diff_clk_a1p",
-    "sw4" : "diff_clk_a1n"
-}
-
-def _get_tofe_low_speed_io(name):
-    return _tofe_io[_tofe_low_speed_io[name]]
-
-_tofe_low_speed_pmod3_io = ["d9", "d8", "d11", "d10", "d13", "d12", "d15", "d14"]
-
-def _get_tofe_low_speed_pmod3_io(n):
-    return _get_tofe_low_speed_io(_tofe_low_speed_pmod3_io[n])
+def tofe_pin(tofe_netname):
+    """Get the FPGA pin associated with a TOFE net name."""
+    return _tofe_io[tofe_netname]
 
 _io = [
     # clock / reset
     ("clk100", 0, Pins("AB13"), IOStandard("LVCMOS33")),
     ("cpu_reset", 0, Pins("Y3"), IOStandard("LVCMOS15"), Misc("PULLUP")),
-
-    # serial
-    ("serial_debug", 0,
-        Subsignal("tx", Pins(_get_tofe_low_speed_io("rx"))),
-        Subsignal("rx", Pins(_get_tofe_low_speed_io("tx"))),
-        IOStandard("LVCMOS33")
-    ),
 
     ## onBoard Quad-SPI Flash
     ## W25Q128FVEIG - component U3
@@ -125,12 +84,6 @@ _io = [
     ("hdled", 0, Pins("J7"), IOStandard("LVCMOS15")),
     ("pwled", 0, Pins("H8"), IOStandard("LVCMOS15")), #pwled+ connected to 3.3V
     ("pwrsw", 0, Pins("F5"), IOStandard("LVCMOS15")),
-
-    # user leds
-    ("user_led", 0, Pins(_get_tofe_low_speed_io("led1")), IOStandard("LVCMOS33")),
-    ("user_led", 1, Pins(_get_tofe_low_speed_io("led2")), IOStandard("LVCMOS33")),
-    ("user_led", 2, Pins(_get_tofe_low_speed_io("led3")), IOStandard("LVCMOS33")),
-    ("user_led", 3, Pins(_get_tofe_low_speed_io("led4")), IOStandard("LVCMOS33")),
 
     # dram
     ("ddram_clock", 0,
@@ -171,13 +124,6 @@ _io = [
         Subsignal("rx_data", Pins("R9 R8 W6 Y6")),
         Subsignal("tx_ctl", Pins("W8")),
         Subsignal("tx_data", Pins("W9 Y8 AA6 AB6")),
-        IOStandard("LVCMOS33")
-    ),
-
-    # serial
-    ("serial", 0,
-        Subsignal("tx", Pins(_get_tofe_low_speed_pmod3_io(0))),
-        Subsignal("rx", Pins(_get_tofe_low_speed_pmod3_io(1))),
         IOStandard("LVCMOS33")
     ),
 
@@ -248,6 +194,29 @@ _io = [
         Subsignal("wr_n", Pins("R19"), IOStandard("LVCMOS33")),
         Subsignal("oe_n", Pins("H16"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
         Subsignal("pktend_n", Pins("J16"), IOStandard("LVCMOS33"),  Misc("DRIVE=12"))
+    ),
+
+    # FIXME: This assumes a TOFE LowSpeedIO board is currently connected.
+    # -----------------------------------
+
+    # serial
+    ("serial_debug", 0,
+        Subsignal("tx", Pins(tofe_pin(tofe_low_speed_io("rx")))),
+        Subsignal("rx", Pins(tofe_pin(tofe_low_speed_io("tx")))),
+        IOStandard("LVCMOS33")
+    ),
+
+    # user leds
+    ("user_led", 0, Pins(tofe_pin(tofe_low_speed_io("led1"))), IOStandard("LVCMOS33")),
+    ("user_led", 1, Pins(tofe_pin(tofe_low_speed_io("led2"))), IOStandard("LVCMOS33")),
+    ("user_led", 2, Pins(tofe_pin(tofe_low_speed_io("led3"))), IOStandard("LVCMOS33")),
+    ("user_led", 3, Pins(tofe_pin(tofe_low_speed_io("led4"))), IOStandard("LVCMOS33")),
+
+    # serial
+    ("serial", 0,
+        Subsignal("tx", Pins(tofe_pin(tofe_low_speed_pmod_io('p3', 1)))), # d9
+        Subsignal("rx", Pins(tofe_pin(tofe_low_speed_pmod_io('p3', 7)))), # d8
+        IOStandard("LVCMOS33")
     ),
 ]
 
