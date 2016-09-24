@@ -214,8 +214,16 @@ _io = [
 
     # serial
     ("serial", 0,
-        Subsignal("tx", Pins(tofe_pin(tofe_low_speed_pmod_io('p3', 1)))), # d9
-        Subsignal("rx", Pins(tofe_pin(tofe_low_speed_pmod_io('p3', 7)))), # d8
+        # PmodUSBUART
+        # Pmod Type4 - UART
+        # Pin 1 - CTS - In  - Peripheral can transmit
+        # Pin 2 - TXD - Out - Data - Host to peripheral
+        # Pin 3 - RXD - In  - Data - Peripheral to host
+        # Pin 4 - RTS - Out - Peripheral ready for data
+        # Pin 5 - GND
+        # Pin 6 - VCC
+        Subsignal("tx", Pins(tofe_pin(tofe_low_speed_pmod_io('p3', 2)))),
+        Subsignal("rx", Pins(tofe_pin(tofe_low_speed_pmod_io('p3', 3)))),
         IOStandard("LVCMOS33")
     ),
 ]
