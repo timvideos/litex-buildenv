@@ -48,6 +48,8 @@ _tofe_io = {
     "diff_io_a6p" : "B2",
     "diff_io_b4n" : "D5",
     "diff_io_b4p" : "D4",
+    "smclk"       : "N6",
+    "smdat"       : "N7",
     "pcie_reset"  : "D3"
 }
 
@@ -217,11 +219,16 @@ _io = [
 
     # FIXME: This assumes a TOFE LowSpeedIO board is currently connected.
     # -----------------------------------
+    ("tofe", 0,
+        Subsignal("rst", Pins(tofe_pin("pcie_reset")), IOStandard("I2C"), Misc("PULLUP")),
+        Subsignal("scl", Pins(tofe_pin("smclk")), IOStandard("I2C")),
+        Subsignal("sda", Pins(tofe_pin("smdat")), IOStandard("I2C")),
+    ),
 
     # serial
     ("tofe_lsio_serial", 0,
-        Subsignal("tx", Pins(tofe_pin(tofe_low_speed_io("tx")))),
-        Subsignal("rx", Pins(tofe_pin(tofe_low_speed_io("rx"))), Misc("PULLUP")),
+        Subsignal("tx", Pins(tofe_pin(tofe_low_speed_io("rx")))),
+        Subsignal("rx", Pins(tofe_pin(tofe_low_speed_io("tx"))), Misc("PULLUP")),
         IOStandard("LVCMOS33")
     ),
 
@@ -230,6 +237,12 @@ _io = [
     ("tofe_lsio_user_led", 1, Pins(tofe_pin(tofe_low_speed_io("led2"))), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
     ("tofe_lsio_user_led", 2, Pins(tofe_pin(tofe_low_speed_io("led3"))), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
     ("tofe_lsio_user_led", 3, Pins(tofe_pin(tofe_low_speed_io("led4"))), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+
+    # push buttons
+    ("tofe_lsio_user_sw", 0, Pins(tofe_pin(tofe_low_speed_io("sw1"))), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ("tofe_lsio_user_sw", 1, Pins(tofe_pin(tofe_low_speed_io("sw2"))), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ("tofe_lsio_user_sw", 2, Pins(tofe_pin(tofe_low_speed_io("sw3"))), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ("tofe_lsio_user_sw", 3, Pins(tofe_pin(tofe_low_speed_io("sw4"))), IOStandard("LVCMOS33"), Misc("PULLUP")),
 
     # PmodUSBUART or similar device connected to the "p3" Pmod connector.
     ("tofe_lsio_pmod_serial", 0,

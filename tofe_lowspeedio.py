@@ -1,8 +1,8 @@
 
 _tofe_low_speed_io = {
     # UART interface
-    "tx": "diff_io_xp",
-    "rx": "diff_io_xn",
+    "tx": "diff_io_xp", # UART->Host
+    "rx": "diff_io_xn", # Host->UART
 
     # LEDs
     "led1": "diff_io_a5p",

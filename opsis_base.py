@@ -165,6 +165,9 @@ class BaseSoC(SoCSDRAM):
         "front_panel",
         "ddrphy",
         "dna",
+        "tofe_ctrl",
+        "tofe_lsio_leds",
+        "tofe_lsio_sws",
     )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
@@ -187,8 +190,6 @@ class BaseSoC(SoCSDRAM):
 
         self.submodules.suart = shared_uart.SharedUART(self.clk_freq, 115200)
         self.suart.add_uart_pads(platform.request('fx2_serial'))
-        self.suart.add_uart_pads(platform.request('tofe_lsio_serial'))
-        self.suart.add_uart_pads(platform.request('tofe_lsio_pmod_serial'))
         self.submodules.uart = self.suart.uart
 
         self.submodules.spiflash = spi_flash.SpiFlash(
@@ -218,6 +219,41 @@ class BaseSoC(SoCSDRAM):
         ]
 
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1/clk_freq*1e9)
+
+        # TOFE board
+        tofe_ctrl = Signal(3) # rst, sda, scl
+        ptofe_ctrl = platform.request('tofe')
+        self.submodules.tofe_ctrl = GPIOOut(tofe_ctrl)
+        self.comb += [
+            ptofe_ctrl.rst.eq(~tofe_ctrl[0]),
+            ptofe_ctrl.sda.eq(~tofe_ctrl[1]),
+            ptofe_ctrl.scl.eq(~tofe_ctrl[2]),
+        ]
+
+        # TOFE LowSpeedIO board
+        # ---------------------------------
+        # UARTs
+        self.suart.add_uart_pads(platform.request('tofe_lsio_serial'))
+        self.suart.add_uart_pads(platform.request('tofe_lsio_pmod_serial'))
+        # LEDs
+        tofe_lsio_leds = Signal(4)
+        self.submodules.tofe_lsio_leds = GPIOOut(tofe_lsio_leds)
+        self.comb += [
+            platform.request('tofe_lsio_user_led', 0).eq(tofe_lsio_leds[0]),
+            platform.request('tofe_lsio_user_led', 1).eq(tofe_lsio_leds[1]),
+            platform.request('tofe_lsio_user_led', 2).eq(tofe_lsio_leds[2]),
+            platform.request('tofe_lsio_user_led', 3).eq(tofe_lsio_leds[3]),
+        ]
+        # Switches
+        tofe_lsio_sws = Signal(4)
+        self.submodules.tofe_lsio_sws = GPIOIn(tofe_lsio_sws)
+        self.comb += [
+            tofe_lsio_sws[0].eq(~platform.request('tofe_lsio_user_sw', 0)),
+            tofe_lsio_sws[1].eq(~platform.request('tofe_lsio_user_sw', 1)),
+            tofe_lsio_sws[2].eq(~platform.request('tofe_lsio_user_sw', 2)),
+            tofe_lsio_sws[3].eq(~platform.request('tofe_lsio_user_sw', 3)),
+        ]
+
 
 
 class MiniSoC(BaseSoC):
