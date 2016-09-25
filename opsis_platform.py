@@ -220,8 +220,8 @@ _io = [
 
     # serial
     ("tofe_lsio_serial", 0,
-        Subsignal("tx", Pins(tofe_pin(tofe_low_speed_io("rx")))),
-        Subsignal("rx", Pins(tofe_pin(tofe_low_speed_io("tx")))),
+        Subsignal("tx", Pins(tofe_pin(tofe_low_speed_io("tx")))),
+        Subsignal("rx", Pins(tofe_pin(tofe_low_speed_io("rx"))), Misc("PULLUP")),
         IOStandard("LVCMOS33")
     ),
 
@@ -241,7 +241,7 @@ _io = [
         # Pin 5 - GND
         # Pin 6 - VCC
         Subsignal("tx", Pins(tofe_pin(tofe_low_speed_pmod_io('p3', 2)))),
-        Subsignal("rx", Pins(tofe_pin(tofe_low_speed_pmod_io('p3', 3)))),
+        Subsignal("rx", Pins(tofe_pin(tofe_low_speed_pmod_io('p3', 3))), Misc("PULLUP")),
         IOStandard("LVCMOS33")
     ),
 ]

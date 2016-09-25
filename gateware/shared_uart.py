@@ -21,7 +21,6 @@ class SharedUART(Module):
         self.submodules.phy = uart.RS232PHY(self, clk_freq, baud_rate)
         self.submodules.uart = uart.UART(self.phy)
 
-
     def add_uart_pads(self, new_pads):
         self.tx_signals.append(new_pads.tx)
         self.rx_signals.append(new_pads.rx)
