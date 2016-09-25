@@ -182,6 +182,8 @@ _io = [
         Subsignal("sda", Pins("AB17"), IOStandard("I2C")),
         Subsignal("hpd_notif", Pins("AB18"), IOStandard("LVCMOS33"))
     ),
+
+    # FX2 USB Interface
     ("fx2", 0,
         Subsignal("ifclk", Pins("P20"), IOStandard("LVCMOS33")),
         Subsignal("data", Pins("C20 C22 L15 K16 D21 D22 G19 F20 H18 H19 F21 F22 E20 E22 J19 H20"), IOStandard("LVCMOS33")),
@@ -196,26 +198,42 @@ _io = [
         Subsignal("pktend_n", Pins("J16"), IOStandard("LVCMOS33"),  Misc("DRIVE=12"))
     ),
 
+    # To Cypress FX2 UART0
+    # WARNING: This was labelled incorrectly - https://github.com/timvideos/HDMI2USB-numato-opsis-hardware/issues/13
+    # Can be accessed via `opsis-mode-switch --mode=serial`
+    # FIXME: Will be supported by `opsis-mode-switch --mode=jtag` longer term.
+    ("fx2_serial", 0,
+        # CY_RXD1 - P18 - Cypress RXD0
+        Subsignal("tx", Pins("P18"), IOStandard("LVCMOS33")),
+        # CY_TXD1 - T17 - Cypress TXD0
+        Subsignal("rx", Pins("T17"), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ),
+    # To Cypress FX2 UART1
+    #("serial", 1,
+    #    Subsignal("rx", Pins("A16"), IOStandard("LVCMOS33")),
+    #    Subsignal("tx", Pins("B16"), IOStandard("LVCMOS33")),
+    #),
+    #
+
     # FIXME: This assumes a TOFE LowSpeedIO board is currently connected.
     # -----------------------------------
 
     # serial
-    ("serial_debug", 0,
+    ("tofe_lsio_serial", 0,
         Subsignal("tx", Pins(tofe_pin(tofe_low_speed_io("rx")))),
         Subsignal("rx", Pins(tofe_pin(tofe_low_speed_io("tx")))),
         IOStandard("LVCMOS33")
     ),
 
     # user leds
-    ("user_led", 0, Pins(tofe_pin(tofe_low_speed_io("led1"))), IOStandard("LVCMOS33")),
-    ("user_led", 1, Pins(tofe_pin(tofe_low_speed_io("led2"))), IOStandard("LVCMOS33")),
-    ("user_led", 2, Pins(tofe_pin(tofe_low_speed_io("led3"))), IOStandard("LVCMOS33")),
-    ("user_led", 3, Pins(tofe_pin(tofe_low_speed_io("led4"))), IOStandard("LVCMOS33")),
+    ("tofe_lsio_user_led", 0, Pins(tofe_pin(tofe_low_speed_io("led1"))), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+    ("tofe_lsio_user_led", 1, Pins(tofe_pin(tofe_low_speed_io("led2"))), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+    ("tofe_lsio_user_led", 2, Pins(tofe_pin(tofe_low_speed_io("led3"))), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+    ("tofe_lsio_user_led", 3, Pins(tofe_pin(tofe_low_speed_io("led4"))), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
 
-    # serial
-    ("serial", 0,
-        # PmodUSBUART
-        # Pmod Type4 - UART
+    # PmodUSBUART or similar device connected to the "p3" Pmod connector.
+    ("tofe_lsio_pmod_serial", 0,
+        # PmodUSBUART - Pmod Type4 - UART
         # Pin 1 - CTS - In  - Peripheral can transmit
         # Pin 2 - TXD - Out - Data - Host to peripheral
         # Pin 3 - RXD - In  - Data - Peripheral to host

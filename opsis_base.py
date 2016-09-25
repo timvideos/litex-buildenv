@@ -32,6 +32,7 @@ import opsis_platform
 
 from gateware import dna
 from gateware import firmware
+from gateware import shared_uart
 
 
 def csr_map_update(csr_map, csr_peripherals):
@@ -179,9 +180,16 @@ class BaseSoC(SoCSDRAM):
         SoCSDRAM.__init__(self, platform, clk_freq,
             integrated_rom_size=0x8000,
             integrated_sram_size=0x8000,
+            with_uart=False,
             **kwargs)
         self.submodules.crg = _CRG(platform, clk_freq)
         self.submodules.dna = dna.DNA()
+
+        self.submodules.suart = shared_uart.SharedUART(self.clk_freq, 115200)
+        self.suart.add_uart_pads(platform.request('fx2_serial'))
+        self.suart.add_uart_pads(platform.request('tofe_lsio_serial'))
+        self.suart.add_uart_pads(platform.request('tofe_lsio_pmod_serial'))
+        self.submodules.uart = self.suart.uart
 
         self.submodules.spiflash = spi_flash.SpiFlash(
             platform.request("spiflash4x"), dummy=platform.spiflash_read_dummy_bits, div=platform.spiflash_clock_div)
