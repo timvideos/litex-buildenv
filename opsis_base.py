@@ -271,7 +271,7 @@ def main():
 
     platform = opsis_platform.Platform()
     cls = MiniSoC if args.with_ethernet else BaseSoC
-    builddir = "opsis_base/" if not args.with_ethernet else "opsis_base/"
+    builddir = "opsis_base/" if not args.with_ethernet else "opsis_minisoc/"
     soc = cls(platform, **soc_sdram_argdict(args))
     builder = Builder(soc, output_dir="build/{}".format(builddir),
                       compile_gateware=not args.nocompile_gateware,
