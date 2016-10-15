@@ -1,10 +1,7 @@
-OPSIS_DIR=../build
-
-include $(OPSIS_DIR)/software/include/generated/variables.mak
+include ../include/generated/variables.mak
 include $(SOC_DIRECTORY)/software/common.mak
 
-UIPDIR=uip
-LIBUIPDIR=libuip
+BUILD_DIRECTORY=$(BUILDINC_DIRECTORY)/../../
 
 OBJECTS=isr.o \
 		ethernet.o \
@@ -25,7 +22,10 @@ OBJECTS=isr.o \
                 i2c.o \
 		main.o
 
-CFLAGS += -I. -I$(UIPDIR) -I$(LIBUIPDIR)
+CFLAGS += \
+	-I. \
+	-I$(LIBUIP_DIRECTORY)/../uip \
+	-I$(LIBUIP_DIRECTORY)
 
 all: firmware.bin
 
@@ -35,37 +35,34 @@ all: firmware.bin
 %.bin: %.elf
 	$(OBJCOPY) -O binary $< $@
 	chmod -x $@
-	cp $@ boot.bin
+	cp $@ $(BUILD_DIRECTORY)/software/boot.bin
 
 firmware.elf: $(OBJECTS) libs
 	$(LD) $(LDFLAGS) \
-		-T linker.ld \
+		-T $(FIRMWARE_DIRECTORY)/linker.ld \
 		-N -o $@ \
-		 $(OPSIS_DIR)/software/libbase/crt0-$(CPU).o \
-		$(OBJECTS) \
-		-L$(OPSIS_DIR)/software/libbase \
-		-L$(OPSIS_DIR)/software/libcompiler_rt \
-		-L$(LIBUIPDIR) \
+                ../libbase/crt0-$(CPU).o \
+                $(OBJECTS) \
+                -L../libnet \
+                -L../libbase \
+                -L../libcompiler_rt \
+		-L../libuip \
 		-lbase-nofloat -luip -lcompiler_rt
 	chmod -x $@
 
-main.o: main.c
+main.o: $(FIRMWARE_DIRECTORY)/main.c
 	$(compile)
 
-%.o: %.c
+%.o: $(FIRMWARE_DIRECTORY)/%.c
 	$(compile)
 
-%.o: %.S
+%.o: $(FIRMWARE_DIRECTORY)/%.S
 	$(assemble)
-
-libs:
-	$(MAKE) -C $(LIBUIPDIR)
 
 load: firmware.bin
 	litex_term --kernel firmware.bin COM8
 
 clean:
-	cd libuip && make clean
 	$(RM) $(OBJECTS) $(OBJECTS:.o=.d) firmware.elf firmware.bin .*~ *~
 
 .PHONY: all main.o clean libs load
