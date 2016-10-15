@@ -1,105 +1,106 @@
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxPlatform, iMPACT
 
+from tofe_lowspeedio import *
+
 _tofe_io = {
+    # A pairs - 2 x Diff CLK, 6 x Diff IO
+    # --------------------
+    # CLK A0 pair - L36
+    "diff_io_a0n" : "F15", # GCLK14
+    "diff_io_a0p" : "F14", # GCLK15
+    # CLK A1 Pair - L34
+    # - Connected with swapped N/P on Opsis (https://github.com/timvideos/HDMI2USB-numato-opsis-hardware/issues/56)
+    "diff_clk_a1n": "G9",
+    "diff_clk_a1p": "F10",
+    # IO A0 Pair
     "diff_io_a0n" : "C18",
     "diff_io_a0p" : "D17",
-    "diff_io_b0n" : "A20",
-    "diff_io_b0p" : "B20",
-    "diff_io_xn"  : "A19",
-    "diff_io_xp"  : "C19",
+    # IO A1 Pair
     "diff_io_a1n" : "A18",
     "diff_io_a1p" : "B18",
-    "diff_clk_xn" : "D19",
-    "diff_clk_xp" : "D18",
-    "diff_io_b1n" : "F17",
-    "diff_io_b1p" : "G16",
-    "diff_io_b2n" : "A17",
-    "diff_io_b2p" : "C17",
+    # IO A2 Pair
     "diff_io_a2n" : "G15",
     "diff_io_a2p" : "H14",
+    # IO A3 Pair
     "diff_io_a3n" : "G13",
     "diff_io_a3p" : "H13",
-    "diff_clk_b0p": "F16",
-    "diff_clk_b0n": "E16",
-    "diff_io_a0n" : "F15",
-    "diff_io_a0p" : "F14",
-    "diff_clk_b1n": "G11",
-    "diff_clk_b1p": "H12",
-    "diff_clk_a1n": "F10",
-    "diff_clk_a1p": "G9",
-    "diff_io_b3n" : "H11",
-    "diff_io_b3p" : "H10",
-    "diff_io_zn"  : "F9",
-    "diff_io_zp"  : "G8",
-    "diff_io_b5n" : "A5",
-    "diff_io_b5p" : "C5",
-    "diff_io_yn"  : "F8",
-    "diff_io_yp"  : "F7",
-    "diff_io_a5n" : "A4",
-    "diff_io_a5p" : "C4",
-    "diff_io_b6n" : "A3",
-    "diff_io_b6p" : "B3",
+    # IO A4 Pair
     "diff_io_a4n" : "E6",
     "diff_io_a4p" : "E5",
+    # IO A5 Pair
+    "diff_io_a5n" : "A4",
+    "diff_io_a5p" : "C4",
+    # IO A6 Pair
     "diff_io_a6n" : "A2",
     "diff_io_a6p" : "B2",
+
+    # B pairs - 2 x Diff CLK, 6 x Diff IO
+    # --------------------
+    # CLK B0 Pair
+    # - Connected with swapped N/P on Opsis (https://github.com/timvideos/HDMI2USB-numato-opsis-hardware/issues/58)
+    "diff_clk_b0p": "F16",
+    "diff_clk_b0n": "E16",
+    # CLK B1 Pair
+    "diff_clk_b1n": "G11",
+    "diff_clk_b1p": "H12",
+    # IO B0 Pair
+    "diff_io_b0n" : "A20",
+    "diff_io_b0p" : "B20",
+    # IO B1 Pair
+    "diff_io_b1n" : "F17",
+    "diff_io_b1p" : "G16",
+    # IO B2 Pair
+    "diff_io_b2n" : "A17",
+    "diff_io_b2p" : "C17",
+    # IO B3 Pair
+    "diff_io_b3n" : "H11",
+    "diff_io_b3p" : "H10",
+    # IO B4 Pair
     "diff_io_b4n" : "D5",
     "diff_io_b4p" : "D4",
-    "pcie_reset"  : "D3"
+    # IO B5 Pair
+    "diff_io_b5n" : "A5",
+    "diff_io_b5p" : "C5",
+    # IO B6 Pair
+    "diff_io_b6n" : "A3",
+    "diff_io_b6p" : "B3",
+
+    # Special pairs
+    # --------------------
+    # CLK XN Pair
+    # - Not a clock pair on Opsis
+    "diff_clk_xn" : "D19",
+    "diff_clk_xp" : "D18",
+    # IO X Pair
+    "diff_io_xn"  : "A19",
+    "diff_io_xp"  : "C19",
+    # IO Y Pair
+    "diff_io_yn"  : "F8",
+    "diff_io_yp"  : "F7",
+    # IO Z Pair
+    "diff_io_zn"  : "F9",
+    "diff_io_zp"  : "G8",
+
+    # IO0
+    # - Isn't connected on Opsis board.
+    "io0"         : None,
+
+    # Control Signals
+    # --------------------
+    "smclk"       : "N6",
+    "smdat"       : "N7",
+    "pcie_reset"  : "D3",
 }
 
-_tofe_low_speed_io = {
-    "tx" : "diff_io_xp",
-    "rx" : "diff_io_xn",
-
-    "d0" : "diff_io_yn",
-    "d1" : "diff_io_b1p",
-    "d2" : "diff_io_b1n",
-    "d3" : "diff_io_b2p",
-    "d4" : "diff_io_b2n",
-    "d5" : "diff_io_yp",
-    "d6" : "diff_io_b3n",
-    "d7" : "diff_io_b3p",
-    "d8" : "diff_clk_b0n",
-    "d9" : "diff_clk_b0p",
-    "d10": "diff_io_zn",
-    "d11": "diff_io_zp",
-    "d12": "diff_io_b4p",
-    "d13": "diff_io_b4n",
-    "d14": "diff_io_b5n",
-    "d15": "diff_io_b6p",
-
-    "led1": "diff_io_a5p",
-    "led2": "diff_io_a5n",
-    "led3": "diff_io_b6n",
-    "led4": "diff_io_a6p",
-
-    "sw1" : "diff_clk_b1p",
-    "sw2" : "diff_clk_b1n",
-    "sw3" : "diff_clk_a1p",
-    "sw4" : "diff_clk_a1n"
-}
-
-def _get_tofe_low_speed_io(name):
-    return _tofe_io[_tofe_low_speed_io[name]]
-
-_tofe_low_speed_pmod3_io = ["d9", "d8", "d11", "d10", "d13", "d12", "d15", "d14"]
-
-def _get_tofe_low_speed_pmod3_io(n):
-    return _get_tofe_low_speed_io(_tofe_low_speed_pmod3_io[n])
+def tofe_pin(tofe_netname):
+    """Get the FPGA pin associated with a TOFE net name."""
+    return _tofe_io[tofe_netname]
 
 _io = [
     # clock / reset
     ("clk100", 0, Pins("AB13"), IOStandard("LVCMOS33")),
     ("cpu_reset", 0, Pins("Y3"), IOStandard("LVCMOS15"), Misc("PULLUP")),
-
-    # serial
-    ("serial_debug", 0,
-        Subsignal("tx", Pins(_get_tofe_low_speed_io("rx"))),
-        Subsignal("rx", Pins(_get_tofe_low_speed_io("tx"))),
-        IOStandard("LVCMOS33")
-    ),
 
     ## onBoard Quad-SPI Flash
     ## W25Q128FVEIG - component U3
@@ -125,12 +126,6 @@ _io = [
     ("hdled", 0, Pins("J7"), IOStandard("LVCMOS15")),
     ("pwled", 0, Pins("H8"), IOStandard("LVCMOS15")), #pwled+ connected to 3.3V
     ("pwrsw", 0, Pins("F5"), IOStandard("LVCMOS15")),
-
-    # user leds
-    ("user_led", 0, Pins(_get_tofe_low_speed_io("led1")), IOStandard("LVCMOS33")),
-    ("user_led", 1, Pins(_get_tofe_low_speed_io("led2")), IOStandard("LVCMOS33")),
-    ("user_led", 2, Pins(_get_tofe_low_speed_io("led3")), IOStandard("LVCMOS33")),
-    ("user_led", 3, Pins(_get_tofe_low_speed_io("led4")), IOStandard("LVCMOS33")),
 
     # dram
     ("ddram_clock", 0,
@@ -171,13 +166,6 @@ _io = [
         Subsignal("rx_data", Pins("R9 R8 W6 Y6")),
         Subsignal("tx_ctl", Pins("W8")),
         Subsignal("tx_data", Pins("W9 Y8 AA6 AB6")),
-        IOStandard("LVCMOS33")
-    ),
-
-    # serial
-    ("serial", 0,
-        Subsignal("tx", Pins(_get_tofe_low_speed_pmod3_io(0))),
-        Subsignal("rx", Pins(_get_tofe_low_speed_pmod3_io(1))),
         IOStandard("LVCMOS33")
     ),
 
@@ -236,6 +224,8 @@ _io = [
         Subsignal("sda", Pins("AB17"), IOStandard("I2C")),
         Subsignal("hpd_notif", Pins("AB18"), IOStandard("LVCMOS33"))
     ),
+
+    # FX2 USB Interface
     ("fx2", 0,
         Subsignal("ifclk", Pins("P20"), IOStandard("LVCMOS33")),
         Subsignal("data", Pins("C20 C22 L15 K16 D21 D22 G19 F20 H18 H19 F21 F22 E20 E22 J19 H20"), IOStandard("LVCMOS33")),
@@ -248,6 +238,64 @@ _io = [
         Subsignal("wr_n", Pins("R19"), IOStandard("LVCMOS33")),
         Subsignal("oe_n", Pins("H16"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
         Subsignal("pktend_n", Pins("J16"), IOStandard("LVCMOS33"),  Misc("DRIVE=12"))
+    ),
+
+    # To Cypress FX2 UART0
+    # WARNING: This was labelled incorrectly - https://github.com/timvideos/HDMI2USB-numato-opsis-hardware/issues/13
+    # Can be accessed via `opsis-mode-switch --mode=serial`
+    # FIXME: Will be supported by `opsis-mode-switch --mode=jtag` longer term.
+    ("fx2_serial", 0,
+        # CY_RXD1 - P18 - Cypress RXD0
+        Subsignal("tx", Pins("P18"), IOStandard("LVCMOS33")),
+        # CY_TXD1 - T17 - Cypress TXD0
+        Subsignal("rx", Pins("T17"), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ),
+    # To Cypress FX2 UART1
+    #("serial", 1,
+    #    Subsignal("rx", Pins("A16"), IOStandard("LVCMOS33")),
+    #    Subsignal("tx", Pins("B16"), IOStandard("LVCMOS33")),
+    #),
+    #
+
+    # FIXME: This assumes a TOFE LowSpeedIO board is currently connected.
+    # -----------------------------------
+    ("tofe", 0,
+        Subsignal("rst", Pins(tofe_pin("pcie_reset")), IOStandard("I2C"), Misc("PULLUP")),
+        Subsignal("scl", Pins(tofe_pin("smclk")), IOStandard("I2C")),
+        Subsignal("sda", Pins(tofe_pin("smdat")), IOStandard("I2C")),
+    ),
+
+    # serial
+    ("tofe_lsio_serial", 0,
+        Subsignal("tx", Pins(tofe_pin(tofe_low_speed_io("rx")))),
+        Subsignal("rx", Pins(tofe_pin(tofe_low_speed_io("tx"))), Misc("PULLUP")),
+        IOStandard("LVCMOS33")
+    ),
+
+    # user leds
+    ("tofe_lsio_user_led", 0, Pins(tofe_pin(tofe_low_speed_io("led1"))), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+    ("tofe_lsio_user_led", 1, Pins(tofe_pin(tofe_low_speed_io("led2"))), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+    ("tofe_lsio_user_led", 2, Pins(tofe_pin(tofe_low_speed_io("led3"))), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+    ("tofe_lsio_user_led", 3, Pins(tofe_pin(tofe_low_speed_io("led4"))), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+
+    # push buttons
+    ("tofe_lsio_user_sw", 0, Pins(tofe_pin(tofe_low_speed_io("sw1"))), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ("tofe_lsio_user_sw", 1, Pins(tofe_pin(tofe_low_speed_io("sw2"))), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ("tofe_lsio_user_sw", 2, Pins(tofe_pin(tofe_low_speed_io("sw3"))), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ("tofe_lsio_user_sw", 3, Pins(tofe_pin(tofe_low_speed_io("sw4"))), IOStandard("LVCMOS33"), Misc("PULLUP")),
+
+    # PmodUSBUART or similar device connected to the "p3" Pmod connector.
+    ("tofe_lsio_pmod_serial", 0,
+        # PmodUSBUART - Pmod Type4 - UART
+        # Pin 1 - CTS - In  - Peripheral can transmit
+        # Pin 2 - TXD - Out - Data - Host to peripheral
+        # Pin 3 - RXD - In  - Data - Peripheral to host
+        # Pin 4 - RTS - Out - Peripheral ready for data
+        # Pin 5 - GND
+        # Pin 6 - VCC
+        Subsignal("tx", Pins(tofe_pin(tofe_low_speed_pmod_io('p3', 2)))),
+        Subsignal("rx", Pins(tofe_pin(tofe_low_speed_pmod_io('p3', 3))), Misc("PULLUP")),
+        IOStandard("LVCMOS33")
     ),
 ]
 
