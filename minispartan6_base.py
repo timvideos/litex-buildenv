@@ -105,8 +105,6 @@ class _CRG(Module):
 
 
 class BaseSoC(SoCSDRAM):
-    default_platform = "minispartan6"
-
     csr_peripherals = (
         "spiflash",
         "ddrphy",
@@ -115,20 +113,16 @@ class BaseSoC(SoCSDRAM):
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
     mem_map = {
-#        "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
-        "spiflash": 0x30000000,  # (default shadow @0xb0000000)
+        "spiflash": 0x20000000,  # (default shadow @0xb0000000)
     }
     mem_map.update(SoCSDRAM.mem_map)
 
-    def __init__(self, platform,
-                 firmware_ram_size=0xa000,
-                 firmware_filename=None,
-                 **kwargs):
+    def __init__(self, platform, **kwargs):
         clk_freq = 80*1000000
         SoCSDRAM.__init__(self, platform, clk_freq,
-                          integrated_rom_size=0x8000,
-                          **kwargs)
-
+            integrated_rom_size=0x8000,
+            integrated_sram_size=0x8000,
+            **kwargs)
         self.submodules.crg = _CRG(platform, clk_freq)
         self.submodules.dna = dna.DNA()
 
@@ -202,7 +196,8 @@ def main():
     soc = cls(platform, **soc_sdram_argdict(args))
     builder = Builder(soc, output_dir=os.path.join("build", builddir),
             compile_gateware = not args.nocompile_gateware,
-            csr_csv=os.path.join(test_dir, 'test/csr.csv'))
+            csr_csv=os.path.join(test_dir, 'csr.csv'))
+    builder.add_software_package("libuip", "{}/firmware/libuip".format(os.getcwd()))
     builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
     os.makedirs(test_dir) # FIXME: Remove when builder does this.
     vns = builder.build()
