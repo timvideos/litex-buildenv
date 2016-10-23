@@ -25,12 +25,6 @@ from litedram.modules import AS4C16M16
 from litedram.phy import gensdrphy
 from litedram.core import ControllerSettings
 
-#from liteusb.common import *
-#from liteusb.phy.ft245 import FT245PHY
-#from liteusb.core import LiteUSBCore
-#from liteusb.frontend.uart import LiteUSBUART
-#from liteusb.frontend.wishbone import LiteUSBWishboneBridge
-
 import minispartan6_platform
 
 from gateware import dna
@@ -43,7 +37,6 @@ class _CRG(Module):
     def __init__(self, platform, clk_freq):
         self.clock_domains.cd_sys = ClockDomain()
         self.clock_domains.cd_sys_ps = ClockDomain()
-        self.clock_domains.cd_base50 = ClockDomain()
 
         f0 = 32*1000000
         clk32 = platform.request("clk32")
@@ -90,21 +83,6 @@ class _CRG(Module):
                                   i_C0=self.cd_sys.clk, i_C1=~self.cd_sys.clk,
                                   o_Q=platform.request("sdram_clock"))
 
-        self.specials += Instance("BUFG", i_I=platform.request("clk50"), o_O=self.cd_base50.clk)
-
-
-# Patch the CPU interface to map firmware_ram into main_ram region.
-#from misoclib.soc import cpuif
-#original_get_linker_regions = cpuif.get_linker_regions
-#def replacement_get_linker_regions(regions):
-#    s = original_get_linker_regions(regions)
-#    s += """\
-#REGION_ALIAS("firmware_ram", main_ram);
-#"""
-#    return s
-#cpuif.get_linker_regions = replacement_get_linker_regions
-
-
 class BaseSoC(SoCSDRAM):
     csr_peripherals = (
         "spiflash",
@@ -140,49 +118,6 @@ class BaseSoC(SoCSDRAM):
         self.register_sdram(self.ddrphy,
                             sdram_module.geom_settings,
                             sdram_module.timing_settings)
-
-
-
-# class USBSoC(BaseSoC):
-#     csr_map = {
-#         "usb_dma": 16,
-#     }
-#     csr_map.update(BaseSoC.csr_map)
-#
-#     usb_map = {
-#         "uart":   0,
-#         "dma":    1,
-#         "bridge": 2
-#     }
-#
-#     def __init__(self, platform, **kwargs):
-#         BaseSoC.__init__(self, platform, with_uart=False, **kwargs)
-#
-#         self.submodules.usb_phy = FT245PHY(platform.request("usb_fifo"), self.clk_freq)
-#         self.submodules.usb_core = LiteUSBCore(self.usb_phy, self.clk_freq, with_crc=False)
-#
-#         # UART
-#         usb_uart_port = self.usb_core.crossbar.get_port(self.usb_map["uart"])
-#         self.submodules.uart = LiteUSBUART(usb_uart_port)
-#
-#         # DMA
-#         usb_dma_port = self.usb_core.crossbar.get_port(self.usb_map["dma"])
-#         usb_dma_loopback_fifo = SyncFIFO(user_description(8), 1024, buffered=True)
-#         self.submodules += usb_dma_loopback_fifo
-#         self.comb += [
-#             usb_dma_port.source.connect(usb_dma_loopback_fifo.sink),
-#             usb_dma_loopback_fifo.source.connect(usb_dma_port.sink)
-#         ]
-#
-#         # Wishbone Bridge
-#         usb_bridge_port = self.usb_core.crossbar.get_port(self.usb_map["bridge"])
-#         usb_bridge = LiteUSBWishboneBridge(usb_bridge_port, self.clk_freq)
-#         self.submodules += usb_bridge
-#         self.add_wb_master(usb_bridge.wishbone)
-#
-#         # Leds
-#         leds = Cat(iter([platform.request("user_led", i) for i in range(8)]))
-#         self.submodules.leds = GPIOOut(leds)
 
 def main():
     parser = argparse.ArgumentParser(description="Minispartan LiteX SoC")
