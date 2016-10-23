@@ -34,6 +34,10 @@ opsis_sim:
 	rm -rf build/opsis_sim
 	./opsis_sim.py --with-ethernet --cpu-type $(CPU)
 
+minispartan6_base:
+	rm -rf build/minispartan_base
+	./minispartan6_base.py --cpu-type $(CPU)
+
 reset:
 	opsis-mode-switch --verbose --mode=serial
 	opsis-mode-switch --verbose --mode=jtag
