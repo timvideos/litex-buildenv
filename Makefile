@@ -35,7 +35,7 @@ opsis_sim:
 	./opsis_sim.py --with-ethernet --cpu-type $(CPU)
 
 minispartan6_base:
-	rm -rf build/minispartan_base
+	rm -rf build/minispartan6_base
 	./minispartan6_base.py --cpu-type $(CPU)
 
 reset:
@@ -43,7 +43,11 @@ reset:
 	opsis-mode-switch --verbose --mode=jtag
 	opsis-mode-switch --verbose --mode=serial
 
-load:
+load-minispartan6:
+	openocd -f ../conda/share/openocd/scripts/board/minispartan6.cfg -c "init; pld load 0 ./build/$(TARGET)/gateware/top.bit; exit"
+	flterm --port=/dev/ttyUSB1 --kernel=./build/$(TARGET)/software/firmware/firmware.bin
+
+load-opsis:
 	opsis-mode-switch --verbose --load-gateware build/$(TARGET)/gateware/top.bit
 	opsis-mode-switch --verbose --mode=serial
 	flterm --port=/dev/hdmi2usb/by-num/opsis0/tty --kernel=build/$(TARGET)/software/boot.bin
