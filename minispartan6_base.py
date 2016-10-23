@@ -20,6 +20,7 @@ from litex.soc.cores.gpio import GPIOIn, GPIOOut
 from litex.soc.interconnect.csr import AutoCSR
 from litex.soc.cores.uart.bridge import UARTWishboneBridge
 
+
 from litedram.modules import AS4C16M16
 from litedram.phy import gensdrphy
 from litedram.core import ControllerSettings
@@ -113,7 +114,7 @@ class BaseSoC(SoCSDRAM):
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
     mem_map = {
-        "spiflash": 0x20000000,  # (default shadow @0xb0000000)
+        "spiflash":     0x20000000,  # (default shadow @0xa0000000)
     }
     mem_map.update(SoCSDRAM.mem_map)
 
@@ -126,18 +127,20 @@ class BaseSoC(SoCSDRAM):
         self.submodules.crg = _CRG(platform, clk_freq)
         self.submodules.dna = dna.DNA()
 
+        self.submodules.spiflash = spi_flash.SpiFlash(
+            platform.request("spiflash2x"), dummy=platform.spiflash_read_dummy_bits, div=platform.spiflash_clock_div)
+        self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
+        self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
+        self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size
+        self.register_mem("spiflash", self.mem_map["spiflash"], self.spiflash.bus, size=platform.gateware_size)
+
+        # sdram
         self.submodules.ddrphy = gensdrphy.GENSDRPHY(platform.request("sdram"))
         sdram_module = AS4C16M16(self.clk_freq, "1:1")
         self.register_sdram(self.ddrphy,
                             sdram_module.geom_settings,
                             sdram_module.timing_settings)
 
-#        self.submodules.spiflash = spiflash.SpiFlash(
-#            platform.request("spiflash2x"), dummy=platform.spiflash_read_dummy_bits, div=platform.spiflash_clock_div)
-#        self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
-#        self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
-#        self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size
-#        self.register_mem("spiflash", self.mem_map["spiflash"], self.spiflash.bus, size=platform.gateware_size)
 
 
 # class USBSoC(BaseSoC):
