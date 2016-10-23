@@ -118,6 +118,7 @@ class BaseSoC(SoCSDRAM):
         self.register_sdram(self.ddrphy,
                             sdram_module.geom_settings,
                             sdram_module.timing_settings)
+        self.platform.add_period_constraint(self.crg.cd_sys.clk, 1/clk_freq*1e9)
 
 def main():
     parser = argparse.ArgumentParser(description="Minispartan LiteX SoC")
