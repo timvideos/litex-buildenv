@@ -34,8 +34,15 @@ opsis_sim:
 	rm -rf build/opsis_sim
 	./opsis_sim.py --with-ethernet --cpu-type $(CPU)
 
+reset:
+	opsis-mode-switch --verbose --mode=serial
+	opsis-mode-switch --verbose --mode=jtag
+	opsis-mode-switch --verbose --mode=serial
+
 load:
-	./load.py
+	opsis-mode-switch --verbose --load-gateware build/$(TARGET)/gateware/top.bit
+	opsis-mode-switch --verbose --mode=serial
+	flterm --port=/dev/hdmi2usb/by-num/opsis0/tty --kernel=build/$(TARGET)/software/boot.bin
 
 clean:
 	rm -rf build
