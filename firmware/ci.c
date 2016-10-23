@@ -94,6 +94,10 @@ static void help_debug(void)
 #endif
 	wputs("  debug dna                      - show Board's DNA");
 	wputs("  debug edid                     - dump monitor EDID");
+#ifdef CSR_CAS_BASE
+	wputs("  debug cas leds <value>         - change the status LEDs");
+	wputs("  debug cas switches             - read the control switches status");
+#endif
 }
 
 static void ci_help(void)
@@ -758,6 +762,17 @@ void ci_service(void)
 #endif
 			if(found == 0)
 				wprintf("%s port has no EDID capabilities\r\n", token);
+#ifdef CSR_CAS_BASE
+		} else if(strcmp(token, "cas") == 0) {
+			token = get_token(&str);
+			if(strcmp(token, "leds") == 0) {
+				token = get_token(&str);
+				cas_leds_out_write(atoi(token));
+			}
+			else if(strcmp(token, "switches") == 0) {
+				printf("%X\r\n", (int)cas_switches_in_read());
+			}
+#endif
 		} else
 			help_debug();
 	} else {

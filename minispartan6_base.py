@@ -29,6 +29,7 @@ import minispartan6_platform
 
 from gateware import dna
 from gateware import firmware
+from gateware import cas
 
 def csr_map_update(csr_map, csr_peripherals):
   csr_map.update(dict((n, v) for v, n in enumerate(csr_peripherals, start=max(csr_map.values()) + 1)))
@@ -88,6 +89,7 @@ class BaseSoC(SoCSDRAM):
         "spiflash",
         "ddrphy",
         "dna",
+        "cas",
     )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
@@ -104,6 +106,7 @@ class BaseSoC(SoCSDRAM):
             **kwargs)
         self.submodules.crg = _CRG(platform, clk_freq)
         self.submodules.dna = dna.DNA()
+        self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
 
         self.submodules.spiflash = spi_flash.SpiFlash(
             platform.request("spiflash2x"), dummy=platform.spiflash_read_dummy_bits, div=platform.spiflash_clock_div)
