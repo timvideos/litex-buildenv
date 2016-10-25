@@ -36,7 +36,8 @@ from gateware import shared_uart
 
 
 def csr_map_update(csr_map, csr_peripherals):
-  csr_map.update(dict((n, v) for v, n in enumerate(csr_peripherals, start=max(csr_map.values()) + 1)))
+    csr_map.update(dict((n, v)
+        for v, n in enumerate(csr_peripherals, start=max(csr_map.values()) + 1)))
 
 
 class FrontPanelGPIO(Module, AutoCSR):
@@ -94,29 +95,31 @@ class _CRG(Module):
         pll_lckd = Signal()
         pll_fb = Signal()
         pll = Signal(6)
-        self.specials.pll = Instance("PLL_ADV", p_SIM_DEVICE="SPARTAN6",
-                                     p_BANDWIDTH="OPTIMIZED", p_COMPENSATION="INTERNAL",
-                                     p_REF_JITTER=.01, p_CLK_FEEDBACK="CLKFBOUT",
-                                     i_DADDR=0, i_DCLK=0, i_DEN=0, i_DI=0, i_DWE=0, i_RST=0, i_REL=0,
-                                     p_DIVCLK_DIVIDE=1, p_CLKFBOUT_MULT=m*p//n, p_CLKFBOUT_PHASE=0.,
-                                     i_CLKIN1=clk100b, i_CLKIN2=0, i_CLKINSEL=1,
-                                     p_CLKIN1_PERIOD=1e9/f0, p_CLKIN2_PERIOD=0.,
-                                     i_CLKFBIN=pll_fb, o_CLKFBOUT=pll_fb, o_LOCKED=pll_lckd,
-                                     o_CLKOUT0=pll[0], p_CLKOUT0_DUTY_CYCLE=.5,
-                                     o_CLKOUT1=pll[1], p_CLKOUT1_DUTY_CYCLE=.5,
-                                     o_CLKOUT2=pll[2], p_CLKOUT2_DUTY_CYCLE=.5,
-                                     o_CLKOUT3=pll[3], p_CLKOUT3_DUTY_CYCLE=.5,
-                                     o_CLKOUT4=pll[4], p_CLKOUT4_DUTY_CYCLE=.5,
-                                     o_CLKOUT5=pll[5], p_CLKOUT5_DUTY_CYCLE=.5,
-                                     p_CLKOUT0_PHASE=0., p_CLKOUT0_DIVIDE=p//8,    # sdram wr/rd full clock
-                                     p_CLKOUT1_PHASE=0., p_CLKOUT1_DIVIDE=p//8,    # unused
-                                     p_CLKOUT2_PHASE=230., p_CLKOUT2_DIVIDE=p//4,  # sdram dqs adr ctrl off-chip
-                                     p_CLKOUT3_PHASE=210., p_CLKOUT3_DIVIDE=p//4,  # ddr half clock
-                                     p_CLKOUT4_PHASE=0., p_CLKOUT4_DIVIDE=p//2,    # 2x system clock
-                                     p_CLKOUT5_PHASE=0., p_CLKOUT5_DIVIDE=p//1,    # system clock
-        )
-        self.specials += Instance("BUFG", i_I=pll[4], o_O=self.cd_sys2x.clk)
-        self.specials += Instance("BUFG", i_I=pll[5], o_O=self.cd_sys.clk)
+        self.specials.pll = [
+            Instance("PLL_ADV",
+                p_SIM_DEVICE="SPARTAN6",
+                p_BANDWIDTH="OPTIMIZED", p_COMPENSATION="INTERNAL",
+                p_REF_JITTER=.01, p_CLK_FEEDBACK="CLKFBOUT",
+                i_DADDR=0, i_DCLK=0, i_DEN=0, i_DI=0, i_DWE=0, i_RST=0, i_REL=0,
+                p_DIVCLK_DIVIDE=1, p_CLKFBOUT_MULT=m*p//n, p_CLKFBOUT_PHASE=0.,
+                i_CLKIN1=clk100b, i_CLKIN2=0, i_CLKINSEL=1,
+                p_CLKIN1_PERIOD=1e9/f0, p_CLKIN2_PERIOD=0.,
+                i_CLKFBIN=pll_fb, o_CLKFBOUT=pll_fb, o_LOCKED=pll_lckd,
+                o_CLKOUT0=pll[0], p_CLKOUT0_DUTY_CYCLE=.5,
+                o_CLKOUT1=pll[1], p_CLKOUT1_DUTY_CYCLE=.5,
+                o_CLKOUT2=pll[2], p_CLKOUT2_DUTY_CYCLE=.5,
+                o_CLKOUT3=pll[3], p_CLKOUT3_DUTY_CYCLE=.5,
+                o_CLKOUT4=pll[4], p_CLKOUT4_DUTY_CYCLE=.5,
+                o_CLKOUT5=pll[5], p_CLKOUT5_DUTY_CYCLE=.5,
+                p_CLKOUT0_PHASE=0., p_CLKOUT0_DIVIDE=p//8,    # ddr3 wr/rd full clock
+                p_CLKOUT1_PHASE=0., p_CLKOUT1_DIVIDE=p//8,    # unused
+                p_CLKOUT2_PHASE=230., p_CLKOUT2_DIVIDE=p//4,  # ddr3 dqs adr ctrl off-chip
+                p_CLKOUT3_PHASE=210., p_CLKOUT3_DIVIDE=p//4,  # ddr3 half clock
+                p_CLKOUT4_PHASE=0., p_CLKOUT4_DIVIDE=p//2,    # 2x system clock
+                p_CLKOUT5_PHASE=0., p_CLKOUT5_DIVIDE=p//1),   # system clock
+            Instance("BUFG", i_I=pll[4], o_O=self.cd_sys2x.clk),
+            Instance("BUFG", i_I=pll[5], o_O=self.cd_sys.clk)
+        ]
         reset = ~platform.request("cpu_reset") | self.reset
         self.clock_domains.cd_por = ClockDomain()
         por = Signal(max=1 << 11, reset=(1 << 11) - 1)
@@ -128,7 +131,8 @@ class _CRG(Module):
         self.specials += Instance("BUFG", i_I=pll[2], o_O=self.cd_sdram_half.clk)
         self.specials += Instance("BUFPLL", p_DIVIDE=4,
                                   i_PLLIN=pll[0], i_GCLK=self.cd_sys2x.clk,
-                                  i_LOCKED=pll_lckd, o_IOCLK=self.cd_sdram_full_wr.clk,
+                                  i_LOCKED=pll_lckd,
+                                  o_IOCLK=self.cd_sdram_full_wr.clk,
                                   o_SERDESSTROBE=self.clk8x_wr_strb)
         self.comb += [
             self.cd_sdram_full_rd.clk.eq(self.cd_sdram_full_wr.clk),
@@ -142,20 +146,26 @@ class _CRG(Module):
         self.specials += Instance("ODDR2", p_DDR_ALIGNMENT="NONE",
                                   p_INIT=0, p_SRTYPE="SYNC",
                                   i_D0=1, i_D1=0, i_S=0, i_R=0, i_CE=1,
-                                  i_C0=clk_sdram_half_shifted, i_C1=~clk_sdram_half_shifted,
+                                  i_C0=clk_sdram_half_shifted,
+                                  i_C1=~clk_sdram_half_shifted,
                                   o_Q=output_clk)
         self.specials += Instance("OBUFDS", i_I=output_clk, o_O=clk.p, o_OB=clk.n)
 
 
         dcm_base50_locked = Signal()
-        self.specials += Instance("DCM_CLKGEN",
-                                  p_CLKFXDV_DIVIDE=2, p_CLKFX_DIVIDE=4, p_CLKFX_MD_MAX=1.0, p_CLKFX_MULTIPLY=2,
-                                  p_CLKIN_PERIOD=10.0, p_SPREAD_SPECTRUM="NONE", p_STARTUP_WAIT="FALSE",
+        self.specials += [
+            Instance("DCM_CLKGEN",
+                     p_CLKFXDV_DIVIDE=2, p_CLKFX_DIVIDE=4,
+                     p_CLKFX_MD_MAX=1.0, p_CLKFX_MULTIPLY=2,
+                     p_CLKIN_PERIOD=10.0, p_SPREAD_SPECTRUM="NONE",
+                     p_STARTUP_WAIT="FALSE",
 
-                                  i_CLKIN=clk100a, o_CLKFX=self.cd_base50.clk,
-                                  o_LOCKED=dcm_base50_locked,
-                                  i_FREEZEDCM=0, i_RST=ResetSignal())
-        self.specials += AsyncResetSynchronizer(self.cd_base50, self.cd_sys.rst | ~dcm_base50_locked)
+                     i_CLKIN=clk100a, o_CLKFX=self.cd_base50.clk,
+                     o_LOCKED=dcm_base50_locked,
+                     i_FREEZEDCM=0, i_RST=ResetSignal()),
+            AsyncResetSynchronizer(self.cd_base50,
+                self.cd_sys.rst | ~dcm_base50_locked)
+        ]
         platform.add_period_constraint(self.cd_base50.clk, 20)
 
 
@@ -192,26 +202,31 @@ class BaseSoC(SoCSDRAM):
         self.submodules.uart = self.suart.uart
 
         self.submodules.spiflash = spi_flash.SpiFlash(
-            platform.request("spiflash4x"), dummy=platform.spiflash_read_dummy_bits, div=platform.spiflash_clock_div)
+            platform.request("spiflash4x"),
+            dummy=platform.spiflash_read_dummy_bits,
+            div=platform.spiflash_clock_div)
         self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
         self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
         self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size
-        self.register_mem("spiflash", self.mem_map["spiflash"], self.spiflash.bus, size=platform.gateware_size)
+        self.register_mem("spiflash", self.mem_map["spiflash"],
+            self.spiflash.bus, size=platform.gateware_size)
 
         # front panel (ATX)
         self.submodules.front_panel = FrontPanelGPIO(platform, clk_freq)
         self.comb += self.crg.reset.eq(self.front_panel.reset)
 
         # sdram
-        self.submodules.ddrphy = s6ddrphy.S6QuarterRateDDRPHY(platform.request("ddram"),
-                                                              rd_bitslip=0,
-                                                              wr_bitslip=4,
-                                                              dqs_ddr_alignment="C0")
+        self.submodules.ddrphy = s6ddrphy.S6QuarterRateDDRPHY(
+            platform.request("ddram"),
+            rd_bitslip=0,
+            wr_bitslip=4,
+            dqs_ddr_alignment="C0")
         sdram_module = MT41J128M16(self.clk_freq, "1:4")
+        controller_settings = ControllerSettings(with_bandwidth=True)
         self.register_sdram(self.ddrphy,
                             sdram_module.geom_settings,
                             sdram_module.timing_settings,
-                            controller_settings=ControllerSettings(with_bandwidth=True))
+                            controller_settings=controller_settings)
         self.comb += [
             self.ddrphy.clk8x_wr_strb.eq(self.crg.clk8x_wr_strb),
             self.ddrphy.clk8x_rd_strb.eq(self.crg.clk8x_rd_strb),
@@ -275,11 +290,14 @@ class MiniSoC(BaseSoC):
     def __init__(self, *args, **kwargs):
         BaseSoC.__init__(self, *args, **kwargs)
 
-        self.submodules.ethphy = LiteEthPHYRGMII(self.platform.request("eth_clocks"),
-                                                 self.platform.request("eth"))
-        self.submodules.ethmac = LiteEthMAC(phy=self.ethphy, dw=32, interface="wishbone")
+        self.submodules.ethphy = LiteEthPHYRGMII(
+            self.platform.request("eth_clocks"),
+            self.platform.request("eth"))
+        self.submodules.ethmac = LiteEthMAC(
+            self.ethphy, 32, interface="wishbone")
         self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)
-        self.add_memory_region("ethmac", self.mem_map["ethmac"] | self.shadow_base, 0x2000)
+        self.add_memory_region("ethmac",
+            self.mem_map["ethmac"] | self.shadow_base, 0x2000)
 
         self.specials += [
             Keep(self.ethphy.crg.cd_eth_rx.clk),
