@@ -611,6 +611,12 @@ void ci_service(void)
 		ci_puts("");
 	}
 	else if(strcmp(token, "reboot") == 0) reboot();
+#ifdef CSR_ETHPHY_MDIO_W_ADDR
+	else if(strcmp(token, "mdio_status") == 0)
+		mdio_status();
+	else if(strcmp(token, "mdio_dump") == 0)
+		mdio_dump();
+#endif
 	else if((strcmp(token, "video_matrix") == 0) || (strcmp(token, "x") == 0)) {
 		token = get_token(&str);
 		if((strcmp(token, "list") == 0) || (strcmp(token, "l") == 0)) {
