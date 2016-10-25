@@ -7,32 +7,14 @@ opsis_base:
 
 opsis_minisoc:
 	rm -rf build/opsis_minisoc
-# FIXME
-	mkdir -p build/opsis_minisoc/software/uip
-	cp -r firmware/uip/* build/opsis_minisoc/software/uip
-	mkdir -p build/opsis_minisoc/software/libuip
-	cp -r firmware/libuip/* build/opsis_minisoc/software/libuip
-# FIXME
 	./opsis_base.py --with-ethernet --cpu-type $(CPU)
 
 opsis_video:
 	rm -rf build/opsis_video
-# FIXME
-	mkdir -p build/opsis_video/software/uip
-	cp -r firmware/uip/* build/opsis_video/software/uip
-	mkdir -p build/opsis_video/software/libuip
-	cp -r firmware/libuip/* build/opsis_video/software/libuip
-# FIXME
 	./opsis_video.py --cpu-type $(CPU)
 
 opsis_hdmi2usb:
 	rm -rf build/opsis_hdmi2usb
-# FIXME
-	mkdir -p build/opsis_hdmi2usb/software/uip
-	cp -r firmware/uip/* build/opsis_hdmi2usb/software/uip
-	mkdir -p build/opsis_hdmi2usb/software/libuip
-	cp -r firmware/libuip/* build/opsis_hdmi2usb/software/libuip
-# FIXME
 	./opsis_hdmi2usb.py --cpu-type $(CPU)
 
 opsis_sim_setup:
