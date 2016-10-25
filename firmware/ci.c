@@ -58,81 +58,71 @@ int status_enabled;
 
 static void help_video_matrix(void)
 {
-	ci_puts("video_matrix commands (alias: 'x')");
-	ci_puts("  video_matrix list              - list available video sinks and sources");
-	ci_puts("  x l                            - list available video sinks and sources");
-	ci_puts("  video_matrix connect <source>  - connect video source to video sink");
-	ci_puts("                       <sink>");
-	ci_puts("  x c <source> <sink>            - connect video source to video sink");
+	ci_puts("video_matrix list              - list available video sinks and sources");
+	ci_puts("video_matrix connect <source>  - connect video source to video sink");
+	ci_puts("                     <sink>");
 }
 
 static void help_video_mode(void)
 {
-	ci_puts("video_mode commands (alias: 'm')");
-	ci_puts("  video_mode list                - list available video modes");
-	ci_puts("  m l                            - list available video modes");
-	ci_puts("  video_mode <mode>              - select video mode");
+	ci_puts("video_mode list                - list available video modes");
+	ci_puts("video_mode <mode>              - select video mode");
 }
 
 static void help_hdp_toggle(void)
 {
-	ci_puts("hdp_toggle <source>              - toggle HDP on source for EDID rescan");
+	ci_puts("hdp_toggle <source>             - toggle HDP on source for EDID rescan");
 }
 
 static void help_status(void)
 {
-	ci_puts("status commands (alias: 's')");
-	ci_puts("  status                         - print status message once");
-	ci_puts("  status <on/off>                - repeatedly print status message");
+	ci_puts("status                         - print status message once");
+	ci_puts("status <on/off>                - repeatedly print status message");
 }
 
 #ifdef CSR_HDMI_OUT0_BASE
 static void help_output0(void)
 {
-	ci_puts("output0 commands (alias: '0')");
-	ci_puts("  output0 on                     - enable output0");
-	ci_puts("  output0 off                    - disable output0");
+	ci_puts("output0 on                     - enable output0");
+	ci_puts("output0 off                    - disable output0");
 }
 #endif
 
 #ifdef CSR_HDMI_OUT1_BASE
 static void help_output1(void)
 {
-	ci_puts("output1 commands (alias: '1')");
-	ci_puts("  output1 on                     - enable output1");
-	ci_puts("  output1 off                    - disable output1");
+	ci_puts("output1 on                     - enable output1");
+	ci_puts("output1 off                    - disable output1");
 }
 #endif
 
 #ifdef ENCODER_BASE
 static void help_encoder(void)
 {
-	ci_puts("encoder commands (alias: 'e')");
-	ci_puts("  encoder on                     - enable encoder");
-	ci_puts("  encoder off                    - disable encoder");
-	ci_puts("  encoder quality <quality>      - select quality");
-	ci_puts("  encoder fps <fps>              - configure target fps");
+	ci_puts("encoder on                     - enable encoder");
+	ci_puts("encoder off                    - disable encoder");
+	ci_puts("encoder quality <quality>      - select quality");
+	ci_puts("encoder fps <fps>              - configure target fps");
 }
 #endif
 
 static void help_debug(void)
 {
-    ci_puts("debug commands (alias 'd')");
-	ci_puts("  debug pll                      - dump pll configuration");
+	ci_puts("debug pll                      - dump pll configuration");
 #ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
-	ci_puts("  debug ddr                      - show DDR bandwidth");
+	ci_puts("debug ddr                      - show DDR bandwidth");
 #endif
-	ci_puts("  debug dna                      - show Board's DNA");
-	ci_puts("  debug edid                     - dump monitor EDID");
+	ci_puts("debug dna                      - show Board's DNA");
+	ci_puts("debug edid                     - dump monitor EDID");
 }
 
 static void ci_help(void)
 {
-	ci_puts("help        - this command");
-	ci_puts("reboot      - reboot CPU");
+	ci_puts("help                           - this command");
+	ci_puts("reboot                         - reboot CPU");
 #ifdef CSR_ETHPHY_MDIO_W_ADDR
-	ci_puts("mdio_dump   - dump mdio registers");
-	ci_puts("mdio_status - show mdio status");
+	ci_puts("mdio_dump                      - dump mdio registers");
+	ci_puts("mdio_status                    - show mdio status");
 #endif
 	puts("");
 	help_status();
@@ -364,27 +354,27 @@ static void video_matrix_list(void)
 {
 	ci_printf("Video sources:\r\n");
 #ifdef CSR_HDMI_IN0_BASE
-	ci_printf("input0 (0): %s\r\n", HDMI_IN0_MNEMONIC);
+	ci_printf("input0: %s\r\n", HDMI_IN0_MNEMONIC);
 	ci_puts(HDMI_IN0_DESCRIPTION);
 #endif
 #ifdef CSR_HDMI_IN1_BASE
-	ci_printf("input1 (1): %s\r\n", HDMI_IN1_MNEMONIC);
+	ci_printf("input1: %s\r\n", HDMI_IN1_MNEMONIC);
 	ci_puts(HDMI_IN1_DESCRIPTION);
 #endif
-	ci_printf("pattern (p):\r\n");
+	ci_printf("pattern:\r\n");
 	ci_printf("  Video pattern\r\n");
 	ci_puts(" ");
 	ci_printf("Video sinks:\r\n");
 #ifdef CSR_HDMI_OUT0_BASE
-	ci_printf("output0 (0): %s\r\n", HDMI_OUT0_MNEMONIC);
+	ci_printf("output0: %s\r\n", HDMI_OUT0_MNEMONIC);
 	ci_puts(HDMI_OUT0_DESCRIPTION);
 #endif
 #ifdef CSR_HDMI_OUT1_BASE
-	ci_printf("output1 (1): %s\r\n", HDMI_OUT1_MNEMONIC);
+	ci_printf("output1: %s\r\n", HDMI_OUT1_MNEMONIC);
 	ci_puts(HDMI_OUT1_DESCRIPTION);
 #endif
 #ifdef ENCODER_BASE
-	ci_printf("encoder (e):\r\n");
+	ci_printf("encoder:\r\n");
 	ci_printf("  JPEG encoder (USB output)\r\n");
 #endif
 	ci_puts(" ");
@@ -617,24 +607,24 @@ void ci_service(void)
 	else if(strcmp(token, "mdio_dump") == 0)
 		mdio_dump();
 #endif
-	else if((strcmp(token, "video_matrix") == 0) || (strcmp(token, "x") == 0)) {
+	else if(strcmp(token, "video_matrix") == 0) {
 		token = get_token(&str);
-		if((strcmp(token, "list") == 0) || (strcmp(token, "l") == 0)) {
+		if(strcmp(token, "list") == 0) {
 			video_matrix_list();
 		}
-		else if((strcmp(token, "connect") == 0) || (strcmp(token, "c") == 0)) {
+		else if(strcmp(token, "connect") == 0) {
 			int source;
 			int sink;
 			/* get video source */
 			token = get_token(&str);
 			source = -1;
-			if((strcmp(token, "input0") == 0) || (strcmp(token, "0") == 0)) {
+			if(strcmp(token, "input0") == 0) {
 				source = VIDEO_IN_HDMI_IN0;
 			}
-			else if((strcmp(token, "input1") == 0) || (strcmp(token, "1") == 0)) {
+			else if(strcmp(token, "input1") == 0) {
 				source = VIDEO_IN_HDMI_IN1;
 			}
-			else if((strcmp(token, "pattern") == 0) || (strcmp(token, "p") == 0)) {
+			else if(strcmp(token, "pattern") == 0) {
 				source = VIDEO_IN_PATTERN;
 			}
 			else {
@@ -644,13 +634,13 @@ void ci_service(void)
 			/* get video sink */
 			token = get_token(&str);
 			sink = -1;
-			if((strcmp(token, "output0") == 0) || (strcmp(token, "0") == 0)) {
+			if(strcmp(token, "output0") == 0) {
 				sink = VIDEO_OUT_HDMI_OUT0;
 			}
-			else if((strcmp(token, "output1") == 0) || (strcmp(token, "1") == 0)) {
+			else if(strcmp(token, "output1") == 0) {
 				sink = VIDEO_OUT_HDMI_OUT1;
 			}
-			else if((strcmp(token, "encoder") == 0) || (strcmp(token, "e") == 0)) {
+			else if(strcmp(token, "encoder") == 0) {
 				sink = VIDEO_OUT_ENCODER;
 			}
 			else
@@ -664,9 +654,9 @@ void ci_service(void)
 			help_video_matrix();
 		}
 	}
-	else if((strcmp(token, "video_mode") == 0) || (strcmp(token, "m") == 0)) {
+	else if(strcmp(token, "video_mode") == 0) {
 		token = get_token(&str);
-		if((strcmp(token, "list") == 0) || (strcmp(token, "l") == 0))
+		if(strcmp(token, "list") == 0)
 			video_mode_list();
 		else
 			video_mode_set(atoi(token));
@@ -676,7 +666,7 @@ void ci_service(void)
 		hdp_toggle(atoi(token));
 	}
 #ifdef CSR_HDMI_OUT0_BASE
-	else if((strcmp(token, "output0") == 0) || (strcmp(token, "0") == 0)) {
+	else if(strcmp(token, "output0") == 0) {
 		token = get_token(&str);
 		if(strcmp(token, "on") == 0)
 			output0_on();
@@ -687,7 +677,7 @@ void ci_service(void)
 	}
 #endif
 #ifdef CSR_HDMI_OUT1_BASE
-	else if((strcmp(token, "output1") == 0) || (strcmp(token, "1") == 0)) {
+	else if(strcmp(token, "output1") == 0) {
 		token = get_token(&str);
 		if(strcmp(token, "on") == 0)
 			output1_on();
@@ -698,7 +688,7 @@ void ci_service(void)
 	}
 #endif
 #ifdef ENCODER_BASE
-	else if((strcmp(token, "encoder") == 0) || (strcmp(token, "e") == 0)) {
+	else if(strcmp(token, "encoder") == 0) {
 		token = get_token(&str);
 		if(strcmp(token, "on") == 0)
 			encoder_on();
@@ -712,7 +702,7 @@ void ci_service(void)
 			help_encoder();
 	}
 #endif
-	else if((strcmp(token, "status") == 0) || (strcmp(token, "s") == 0)) {
+	else if(strcmp(token, "status") == 0) {
 		token = get_token(&str);
 		if(strcmp(token, "on") == 0)
 			status_enable();
@@ -721,7 +711,7 @@ void ci_service(void)
 		else
 			status_print();
 	}
-	else if((strcmp(token, "debug") == 0) || (strcmp(token, "d") == 0)) {
+	else if(strcmp(token, "debug") == 0) {
 		token = get_token(&str);
 		if(strcmp(token, "pll") == 0)
 			debug_pll();
