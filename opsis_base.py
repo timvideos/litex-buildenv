@@ -12,7 +12,7 @@ from litex.gen.genlib.io import CRG
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 from litex.gen.genlib.misc import WaitTimer
 
-from litex.soc.cores.flash import spi_flash
+
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
@@ -32,7 +32,6 @@ import opsis_platform
 
 from gateware import dna
 from gateware import firmware
-from gateware import shared_uart
 
 
 def csr_map_update(csr_map, csr_peripherals):
@@ -171,45 +170,20 @@ class _CRG(Module):
 
 class BaseSoC(SoCSDRAM):
     csr_peripherals = (
-        "spiflash",
         "front_panel",
         "ddrphy",
         "dna",
-        "tofe_ctrl",
-        "tofe_lsio_leds",
-        "tofe_lsio_sws",
     )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
-
-    mem_map = {
-        "spiflash":     0x20000000,  # (default shadow @0xa0000000)
-    }
-    mem_map.update(SoCSDRAM.mem_map)
-
 
     def __init__(self, platform, **kwargs):
         clk_freq = 50*1000000
         SoCSDRAM.__init__(self, platform, clk_freq,
             integrated_rom_size=0x8000,
             integrated_sram_size=0x8000,
-            with_uart=False,
             **kwargs)
         self.submodules.crg = _CRG(platform, clk_freq)
         self.submodules.dna = dna.DNA()
-
-        self.submodules.suart = shared_uart.SharedUART(self.clk_freq, 115200)
-        self.suart.add_uart_pads(platform.request('fx2_serial'))
-        self.submodules.uart = self.suart.uart
-
-        self.submodules.spiflash = spi_flash.SpiFlash(
-            platform.request("spiflash4x"),
-            dummy=platform.spiflash_read_dummy_bits,
-            div=platform.spiflash_clock_div)
-        self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
-        self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
-        self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size
-        self.register_mem("spiflash", self.mem_map["spiflash"],
-            self.spiflash.bus, size=platform.gateware_size)
 
         # front panel (ATX)
         self.submodules.front_panel = FrontPanelGPIO(platform, clk_freq)
@@ -233,41 +207,6 @@ class BaseSoC(SoCSDRAM):
         ]
 
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1/clk_freq*1e9)
-
-        # TOFE board
-        tofe_ctrl = Signal(3) # rst, sda, scl
-        ptofe_ctrl = platform.request('tofe')
-        self.submodules.tofe_ctrl = GPIOOut(tofe_ctrl)
-        self.comb += [
-            ptofe_ctrl.rst.eq(~tofe_ctrl[0]),
-            ptofe_ctrl.sda.eq(~tofe_ctrl[1]),
-            ptofe_ctrl.scl.eq(~tofe_ctrl[2]),
-        ]
-
-        # TOFE LowSpeedIO board
-        # ---------------------------------
-        # UARTs
-        self.suart.add_uart_pads(platform.request('tofe_lsio_serial'))
-        self.suart.add_uart_pads(platform.request('tofe_lsio_pmod_serial'))
-        # LEDs
-        tofe_lsio_leds = Signal(4)
-        self.submodules.tofe_lsio_leds = GPIOOut(tofe_lsio_leds)
-        self.comb += [
-            platform.request('tofe_lsio_user_led', 0).eq(tofe_lsio_leds[0]),
-            platform.request('tofe_lsio_user_led', 1).eq(tofe_lsio_leds[1]),
-            platform.request('tofe_lsio_user_led', 2).eq(tofe_lsio_leds[2]),
-            platform.request('tofe_lsio_user_led', 3).eq(tofe_lsio_leds[3]),
-        ]
-        # Switches
-        tofe_lsio_sws = Signal(4)
-        self.submodules.tofe_lsio_sws = GPIOIn(tofe_lsio_sws)
-        self.comb += [
-            tofe_lsio_sws[0].eq(~platform.request('tofe_lsio_user_sw', 0)),
-            tofe_lsio_sws[1].eq(~platform.request('tofe_lsio_user_sw', 1)),
-            tofe_lsio_sws[2].eq(~platform.request('tofe_lsio_user_sw', 2)),
-            tofe_lsio_sws[3].eq(~platform.request('tofe_lsio_user_sw', 3)),
-        ]
-
 
 
 class MiniSoC(BaseSoC):
@@ -332,14 +271,10 @@ def main():
 
     platform = opsis_platform.Platform()
     cls = MiniSoC if args.with_ethernet else BaseSoC
-    builddir = "opsis_base/" if not args.with_ethernet else "opsis_minisoc/"
     soc = cls(platform, **soc_sdram_argdict(args))
-    builder = Builder(soc, output_dir="build/{}".format(builddir),
+    builder = Builder(soc, output_dir="build",
                       compile_gateware=not args.nocompile_gateware,
-                      csr_csv="build/{}/test/csr.csv".format(builddir))
-    builder.add_software_package("libuip", "{}/firmware/libuip".format(os.getcwd()))
-    builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
-    os.makedirs("build/{}/test".format(builddir)) # FIXME: Remove when builder does this.
+                      csr_csv="test/csr.csv")
     vns = builder.build()
 
 if __name__ == "__main__":
