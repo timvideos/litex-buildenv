@@ -25,13 +25,14 @@ from litedram.modules import MT41J128M16
 from litedram.phy import s6ddrphy
 from litedram.core import ControllerSettings
 
-from liteeth.phy.s6rgmii import LiteEthPHYRGMII
+
 from liteeth.core.mac import LiteEthMAC
 
 import opsis_platform
 
 from gateware import dna
 from gateware import firmware
+from gateware.s6rgmii import LiteEthPHYRGMII
 
 
 def csr_map_update(csr_map, csr_peripherals):
@@ -206,7 +207,7 @@ class BaseSoC(SoCSDRAM):
             self.ddrphy.clk8x_rd_strb.eq(self.crg.clk8x_rd_strb),
         ]
 
-        self.platform.add_period_constraint(self.crg.cd_sys.clk, 1/clk_freq*1e9)
+        self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
 
 
 class MiniSoC(BaseSoC):
@@ -232,32 +233,20 @@ class MiniSoC(BaseSoC):
         self.submodules.ethphy = LiteEthPHYRGMII(
             self.platform.request("eth_clocks"),
             self.platform.request("eth"))
+        self.platform.add_source("gateware/rgmii_if.vhd")
         self.submodules.ethmac = LiteEthMAC(
             self.ethphy, 32, interface="wishbone")
         self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)
         self.add_memory_region("ethmac",
             self.mem_map["ethmac"] | self.shadow_base, 0x2000)
 
-        self.specials += [
-            Keep(self.ethphy.crg.cd_eth_rx.clk),
-            Keep(self.ethphy.crg.cd_eth_tx.clk)
-        ]
+        self.specials += Keep(self.ethphy.crg.cd_eth_rx.clk),
 
         self.platform.add_period_constraint(self.ethphy.crg.cd_eth_rx.clk, 8.0)
-        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_tx.clk, 8.0)
 
         self.platform.add_false_path_constraints(
             self.crg.cd_sys.clk,
-            self.ethphy.crg.cd_eth_rx.clk,
-            self.ethphy.crg.cd_eth_tx.clk)
-
-        self.platform.add_platform_command("""
-NET "{eth_clocks_rx}" CLOCK_DEDICATED_ROUTE = FALSE;
-PIN "BUFG_5.O" CLOCK_DEDICATED_ROUTE = FALSE;
-""", eth_clocks_rx=self.platform.lookup_request("eth_clocks").rx)
-
-        self.add_constant("DEBUG_MICROUDP_TX", 1)
-        self.add_constant("DEBUG_MICROUDP_RX", 1)
+            self.ethphy.crg.cd_eth_rx.clk)
 
 
 def main():
