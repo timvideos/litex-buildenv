@@ -191,7 +191,7 @@ class BaseSoC(SoCSDRAM):
         clk_freq = 50*1000000
         SoCSDRAM.__init__(self, platform, clk_freq,
             integrated_rom_size=0x8000,
-            integrated_sram_size=0x8000,
+            integrated_sram_size=0x4000,
             with_uart=False,
             **kwargs)
         self.submodules.crg = _CRG(platform, clk_freq)
