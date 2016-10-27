@@ -21,8 +21,8 @@ OBJECTS=isr.o \
 		edid.o \
 		pll.o \
 		ci.o \
-                encoder.o \
-                i2c.o \
+		encoder.o \
+		i2c.o \
 		main.o
 
 CFLAGS += -I. -I$(UIPDIR) -I$(LIBUIPDIR)
