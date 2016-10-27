@@ -37,7 +37,7 @@ static unsigned int raw_read(void)
 	unsigned int i;
 
 	word = 0;
-	for(i=0;i<15;i++) {
+	for(i=0;i<16;i++) {
 		word <<= 1;
 		ethphy_mdio_w_write(MDIO_CLK);
 		delay();
@@ -51,10 +51,6 @@ static unsigned int raw_read(void)
 
 static void raw_turnaround(void)
 {
-	ethphy_mdio_w_write(MDIO_CLK);
-	delay();
-	ethphy_mdio_w_write(0);
-	delay();
 	ethphy_mdio_w_write(MDIO_CLK);
 	delay();
 	ethphy_mdio_w_write(0);
