@@ -134,15 +134,15 @@ static void ci_help(void)
 	ci_puts("mdio_dump   - dump mdio registers");
 	ci_puts("mdio_status - show mdio status");
 #endif
-	puts("");
+	ci_puts("");
 	help_status();
-	puts("");
+	ci_puts("");
 	help_video_matrix();
-	puts("");
+	ci_puts("");
 	help_video_mode();
-	puts("");
+	ci_puts("");
 	help_hdp_toggle();
-	puts("");
+	ci_puts("");
 #ifdef CSR_HDMI_OUT0_BASE
 	help_output0();
 	ci_puts("");
