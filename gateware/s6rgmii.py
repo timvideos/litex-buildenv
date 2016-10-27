@@ -39,6 +39,13 @@ class LiteEthPHYRGMII(Module, AutoCSR):
         rx_dv = Signal()
         rxd = Signal(8)
 
+        tx_data = Signal(8)
+        tx_valid = Signal()
+        self.sync.eth_tx += [
+            tx_data.eq(self.sink.data),
+            tx_valid.eq(self.sink.valid)
+        ]
+
         self.specials += Instance("rgmii_if",
             i_tx_reset=self.crg.reset.storage,
             i_rx_reset=self.crg.reset.storage,
@@ -55,8 +62,8 @@ class LiteEthPHYRGMII(Module, AutoCSR):
             #o_clock_speed=,
             #o_duplex_status=,
 
-            i_txd_from_mac=self.sink.data,
-            i_tx_en_from_mac=self.sink.valid,
+            i_txd_from_mac=tx_data,
+            i_tx_en_from_mac=tx_valid,
             i_tx_er_from_mac=0,
             i_tx_clk=self.crg.cd_eth_tx.clk,
 
