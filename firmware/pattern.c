@@ -177,7 +177,8 @@ void pattern_fill_framebuffer(int h_active, int m_active)
 		}
 	}
 	pattern_draw_text(1, 1, "HDMI2USB");
-	pattern_draw_text(1, 2, "TimVideos.us");
+	pattern_draw_text(1, 3, "timvideos.us");
+	pattern_draw_text(1, 4, "enjoy-digital.fr");
 	flush_l2_cache();
 }
 
@@ -187,9 +188,9 @@ void pattern_service(void)
 	static int counter;
 	char buffer[16];
 
-	if(elapsed(&last_event, SYSTEM_CLOCK_FREQUENCY/10)) {
-		sprintf(buffer, "%08x", counter);
-		pattern_draw_text(1, 3, buffer);
+	if(elapsed(&last_event, SYSTEM_CLOCK_FREQUENCY)) {
+		sprintf(buffer, "uptime: %06d", counter);
+		pattern_draw_text(1, 6, buffer);
 		counter++;
 	}
 	flush_l2_cache();
