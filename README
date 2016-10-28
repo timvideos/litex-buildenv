@@ -1,8 +1,8 @@
        ____           _        ____     _____
       / __ \___  ___ (_)______/ __/__  / ___/
-     / /_/ / _ \(_-</ (_-<___/\ \/ _ \/ /__  
-     \____/ .__/___/_/___/  /___/\___/\___/  
-         /_/                               
+     / /_/ / _ \(_-</ (_-<___/\ \/ _ \/ /__
+     \____/ .__/___/_/___/  /___/\___/\___/
+         /_/
            Copyright 2016 / EnjoyDigital
 
     TimVideos's Opsis SoC based on LiteX
@@ -22,18 +22,31 @@
   python3 setup.py develop
   cd ..
 
-4. Obtain LiteScope and install it:
+4. Obtain LiteDRAM and install it:
+  git clone https://github.com/enjoy-digital/litedram
+  cd litedram
+  python3 setup.py develop
+  cd ..
+
+5. Obtain LiteVideo and install it:
+  git clone https://github.com/enjoy-digital/litevideo
+  cd litevideo
+  python3 setup.py develop
+  cd ..
+
+6. Obtain LiteScope and install it:
   git clone https://github.com/enjoy-digital/litescope
   cd litescope
   python3 setup.py develop
   cd ..
 
-5. Build the gateware and software:
-  make opsis_minisoc
+7. Build the gateware and software:
+  make opsis_minisoc(video, hdmi2usb)
   make load
 
 [> Status:
-BaseSoC (DDR3 and SPI still missing).
+https://github.com/enjoy-digital/opsis-soc/issues
+
 
 [> Contact
 E-mail: florent@enjoy-digital.fr
