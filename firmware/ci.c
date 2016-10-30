@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -34,14 +35,20 @@ int ci_puts(const char *s)
 	return 0;
 }
 
+int ci_printf(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
 int ci_printf(const char *fmt, ...)
 {
+	int len;
+	va_list args;
+	va_start(args, fmt);
 #ifdef ETHMAC_BASE
 	if(telnet_active)
-		return telnet_printf(fmt);
+		len = telnet_vprintf(fmt, args);
 	else
 #endif
-		return printf(fmt);
+		len = vprintf(fmt, args);
+	va_end(args);
+	return len;
 }
 
 void ci_putsnonl(const char *s)

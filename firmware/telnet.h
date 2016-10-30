@@ -4,6 +4,8 @@
 #ifndef __TELNET_H
 #define __TELNET_H
 
+#include <stdarg.h>
+
 #include "contiki.h"
 #include "contiki-net.h"
 
@@ -35,6 +37,8 @@ int telnet_readchar_nonblock(void);
 int telnet_putchar(char c);
 int telnet_puts(const char *s);
 void telnet_putsnonl(const char *s);
-int telnet_printf(const char *fmt, ...);
+
+int telnet_vprintf(const char *fmt, va_list argp);
+int telnet_printf(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
 
 #endif
