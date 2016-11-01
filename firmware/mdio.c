@@ -88,38 +88,38 @@ int mdio_read(int phyadr, int reg)
 void mdio_dump(void) {
 	int i;
 	for(i=0; i<32; i++)
-		ci_printf("reg %d: %04x\n", i, mdio_read(0, i));
+		wprintf("reg %d: %04x\n", i, mdio_read(0, i));
 }
 
 int mdio_status(void) {
 	int status;
 	status = mdio_read(0, 17);
 
-	ci_printf("MDIO ");
+	wprintf("MDIO ");
 
-	ci_printf("mode: ");
+	wprintf("mode: ");
 	switch((status >> 14) & 0x3)
 	{
 		case 0b10:
-			ci_printf("1000Mbps");
+			wprintf("1000Mbps");
 			break;
 		case 0b01:
-			ci_printf("100Mbps");
+			wprintf("100Mbps");
 			break;
 		case 0b00:
-			ci_printf("10Mbps");
+			wprintf("10Mbps");
 			break;
 		default:
-			ci_printf("Reserved");
+			wprintf("Reserved");
 			break;
 	}
-	ci_printf(" / ");
-	ci_printf("link: ");
+	wprintf(" / ");
+	wprintf("link: ");
 	if((status >> 10) & 0x1)
-		ci_printf("up");
+		wprintf("up");
 	else
-		ci_printf("down");
-	ci_printf("\n");
+		wprintf("down");
+	wprintf("\n");
 	return 0;
 }
 

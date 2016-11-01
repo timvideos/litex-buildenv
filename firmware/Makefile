@@ -20,7 +20,8 @@ OBJECTS=isr.o \
 		ci.o \
 		encoder.o \
 		i2c.o \
-		main.o
+		main.o \
+		stdio_wrap.o \
 
 CFLAGS += \
 	-I. \
