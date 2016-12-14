@@ -74,11 +74,16 @@ def main():
     builder_args(parser)
     soc_sdram_args(parser)
     parser.add_argument("--nocompile-gateware", action="store_true")
+    parser.add_argument("--iprange", default="192.168.100")
     args = parser.parse_args()
 
     platform = opsis_platform.Platform()
     soc = VideoMixerSoC(platform, **soc_sdram_argdict(args))
-    builder = Builder(soc, output_dir="build/opsis_video/",
+    soc.configure_iprange(args.iprange)
+    builddir = "build/opsis_video/"
+    testdir = "{}/test".format(builddir)
+
+    builder = Builder(soc, output_dir=builddir,
                       compile_gateware=not args.nocompile_gateware,
                       csr_csv="build/opsis_video/test/csr.csv")
     builder.add_software_package("libuip", "{}/firmware/libuip".format(os.getcwd()))

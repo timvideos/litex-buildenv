@@ -20,11 +20,11 @@ tftpd_start:
 
 opsis_video:
 	rm -rf build/opsis_video
-	./opsis_video.py --cpu-type $(CPU)
+	./opsis_video.py --cpu-type $(CPU) --iprange=$(IPRANGE)
 
 opsis_hdmi2usb:
 	rm -rf build/opsis_hdmi2usb
-	./opsis_hdmi2usb.py --cpu-type $(CPU)
+	./opsis_hdmi2usb.py --cpu-type $(CPU) --iprange=$(IPRANGE)
 
 opsis_sim_setup:
 	sudo openvpn --mktun --dev tap0
