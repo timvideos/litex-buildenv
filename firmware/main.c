@@ -77,7 +77,6 @@ int main(void)
 
 #ifdef ENCODER_BASE
 	processor_set_encoder_source(VIDEO_IN_PATTERN);
-	encoder_enable(1);
 #endif
 
 	ci_prompt();

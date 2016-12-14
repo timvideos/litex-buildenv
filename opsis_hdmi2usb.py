@@ -25,7 +25,8 @@ class HDMI2USBSoC(base_cls):
 
         self.submodules.encoder_reader = EncoderDMAReader(self.sdram.crossbar.get_port())
         self.submodules.encoder = Encoder(platform)
-        self.submodules.encoder_streamer = USBStreamer(platform, platform.request("fx2"))
+        fx2_pads = platform.request("fx2")
+        self.submodules.encoder_streamer = USBStreamer(platform, fx2_pads)
 
         self.comb += [
             self.encoder_reader.source.connect(self.encoder.sink),
@@ -34,25 +35,30 @@ class HDMI2USBSoC(base_cls):
         self.add_wb_slave(mem_decoder(self.mem_map["encoder"]), self.encoder.bus)
         self.add_memory_region("encoder", self.mem_map["encoder"] + self.shadow_base, 0x2000)
 
-        self.platform.add_period_constraint(self.encoder_streamer.cd_usb.clk, 10.0) # XXX
+        self.platform.add_period_constraint(self.encoder_streamer.cd_usb.clk, 10.0)
 
         self.specials += Keep(self.encoder_streamer.cd_usb.clk)
         self.platform.add_false_path_constraints(
             self.crg.cd_sys.clk,
             self.encoder_streamer.cd_usb.clk)
 
-        analyzer_signals = [
-            self.encoder.sink.data,
-            self.encoder.sink.valid,
-            self.encoder.sink.ready,
-            self.encoder.source.data,
-            self.encoder.source.valid,
-            self.encoder.source.ready,
-        ]
-        self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 1024)
+    #    analyzer_signals = [
+    #        self.encoder.source.valid,
+    #        self.encoder.source.ready,
+    #        self.encoder.source.data,
+    #        self.encoder.source.last,
+
+    #        self.encoder.sink.valid,
+    #        self.encoder.sink.ready,
+    #        self.encoder.sink.data,
+    #        self.encoder.sink.last,
+    #
+    #    ]
+    #    self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 1024)
 
     def do_exit(self, vns):
-        self.analyzer.export_csv(vns, "test/analyzer.csv")
+        pass
+        #self.analyzer.export_csv(vns, "test/analyzer.csv")
 
 
 def main():
