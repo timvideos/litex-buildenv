@@ -48,7 +48,7 @@ reset:
 	opsis-mode-switch --verbose --mode=jtag
 	opsis-mode-switch --verbose --mode=serial
 
-load:
+load-gateware:
 	opsis-mode-switch --verbose --load-gateware build/$(TARGET)/gateware/top.bit
 	make TARGET=$(TARGET) load-firmware
 
