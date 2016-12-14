@@ -56,11 +56,11 @@ def main():
 
     builder = Builder(soc, output_dir=builddir,
                       compile_gateware=not args.nocompile_gateware,
-                      csr_csv="build/opsis_hdmi2usb/test/csr.csv")
+                      csr_csv="{}/csr.csv".format(testdir))
     builder.add_software_package("libuip", "{}/firmware/libuip".format(os.getcwd()))
     builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
-    os.makedirs("build/opsis_hdmi2usb/test") # FIXME: Remove when builder does this.
     vns = builder.build()
+
 
 if __name__ == "__main__":
     main()

@@ -145,13 +145,15 @@ def main():
 
     cls = MiniSoC if args.with_ethernet else BaseSoC
     soc = cls(**soc_sdram_argdict(args))
-    builder = Builder(soc, output_dir="build/opsis_sim/",
+    builddir = "build/opsis_sim/"
+    testdir = "{}/test".format(builddir)
+
+    builder = Builder(soc, output_dir=builddir,
                       compile_gateware=not args.nocompile_gateware,
-                      csr_csv="build/opsis_sim/test/csr.csv")
+                      csr_csv="{}/csr.csv".format(testdir))
     builder.add_software_package("libuip", "{}/firmware/libuip".format(os.getcwd()))
     builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
-    os.makedirs("build/opsis_sim/test") # FIXME: Remove when builder does this.
-    builder.build()
+    vns = builder.build()
 
 
 if __name__ == "__main__":
