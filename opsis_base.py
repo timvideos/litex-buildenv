@@ -308,6 +308,20 @@ class MiniSoC(BaseSoC):
             self.crg.cd_sys.clk,
             self.ethphy.crg.cd_eth_rx.clk)
 
+    def configure_iprange(self, iprange):
+        iprange = [int(x) for x in iprange.split(".")]
+        while len(iprange) < 4:
+            iprange.append(0)
+        # Our IP address
+        self._configure_ip("LOCALIP", iprange[:-1]+[50])
+        # IP address of tftp host
+        self._configure_ip("REMOTEIP", iprange[:-1]+[100])
+
+    def _configure_ip(self, ip_type, ip):
+        for i, e in enumerate(ip):
+            s = ip_type + str(i + 1)
+            s = s.upper()
+            self.add_constant(s, e)
 
 def main():
     parser = argparse.ArgumentParser(description="Opsis LiteX SoC")
@@ -316,12 +330,18 @@ def main():
     parser.add_argument("--with-ethernet", action="store_true",
                         help="enable Ethernet support", default=False)
     parser.add_argument("--nocompile-gateware", action="store_true")
+    parser.add_argument("--iprange", default="192.168.100")
     args = parser.parse_args()
 
     platform = opsis_platform.Platform()
-    cls = MiniSoC if args.with_ethernet else BaseSoC
-    builddir = "opsis_base/" if not args.with_ethernet else "opsis_minisoc/"
-    soc = cls(platform, **soc_sdram_argdict(args))
+    if not args.with_ethernet:
+        builddir = "opsis_base/"
+        soc = BaseSoC(platform, **soc_sdram_argdict(args))
+    else:
+        builddir = "opsis_minisoc/"
+        soc = MiniSoC(platform, **soc_sdram_argdict(args))
+        soc.configure_iprange(args.iprange)
+
     builder = Builder(soc, output_dir="build/{}".format(builddir),
                       compile_gateware=not args.nocompile_gateware,
                       csr_csv="build/{}/test/csr.csv".format(builddir))
