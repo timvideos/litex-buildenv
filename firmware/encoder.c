@@ -138,7 +138,6 @@ void encoder_start(short resx, short resy) {
 }
 
 int encoder_done(void) {
-	//printf("ENCODER_STS_REG %02x\n", encoder_read_reg(ENCODER_STS_REG));
 	return (encoder_read_reg(ENCODER_STS_REG) & 0x1) == 0;
 }
 

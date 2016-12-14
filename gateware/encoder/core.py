@@ -93,7 +93,6 @@ class EncoderBandwidth(Module, AutoCSR):
 
 class Encoder(Module, AutoCSR):
     def __init__(self, platform):
-        self.reset = CSR()
         self.sink = stream.Endpoint([("data", 16)])
         self.source = stream.Endpoint([("data", 8)])
         self.bus = wishbone.Interface()
@@ -123,7 +122,7 @@ class Encoder(Module, AutoCSR):
         # encoder
         self.specials += Instance("JpegEnc",
                             i_CLK=ClockSignal(),
-                            i_RST=ResetSignal() | (self.reset.r & self.reset.re),
+                            i_RST=ResetSignal(),
 
                             i_OPB_ABus=Cat(Signal(2), self.bus.adr) & 0x3ff,
                             i_OPB_BE=self.bus.sel,
