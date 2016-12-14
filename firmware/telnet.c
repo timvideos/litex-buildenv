@@ -1,6 +1,7 @@
 // This file is Copyright (c) 2015 Florent Kermarrec <florent@enjoy-digital.fr>
 // License: BSD
 
+#include <stdio.h>
 #include <stdarg.h>
 
 #include "telnet.h"
@@ -104,12 +105,17 @@ void telnet_putsnonl(const char *s)
 int telnet_printf(const char *fmt, ...)
 {
 	va_list args;
+	va_start(args, fmt);
+	telnet_vprintf(fmt, args);
+	va_end(args);
+}
+
+int telnet_vprintf(const char *fmt, va_list args)
+{
 	int len;
 	char outbuf[TELNET_PRINTF_BUFFER_SIZE];
 
-	va_start(args, fmt);
 	len = vscnprintf(outbuf, sizeof(outbuf), fmt, args);
-	va_end(args);
 	outbuf[len] = 0;
 	telnet_putsnonl(outbuf);
 
