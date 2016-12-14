@@ -50,6 +50,9 @@ reset:
 
 load:
 	opsis-mode-switch --verbose --load-gateware build/$(TARGET)/gateware/top.bit
+	make TARGET=$(TARGET) load-firmware
+
+load-firmware:
 	opsis-mode-switch --verbose --mode=serial
 	flterm --port=/dev/hdmi2usb/by-num/opsis0/tty --kernel=build/$(TARGET)/software/boot.bin
 
