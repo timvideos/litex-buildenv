@@ -13,6 +13,7 @@
 
 #include "config.h"
 #include "ci.h"
+#include "encoder.h"
 #include "ethernet.h"
 #include "etherbone.h"
 #include "telnet.h"
