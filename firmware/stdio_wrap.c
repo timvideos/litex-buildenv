@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <generated/mem.h> // Needed for ETHMAC_BASE
+
 #include "telnet.h"
 
 #include "stdio_wrap.h"

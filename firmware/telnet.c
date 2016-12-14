@@ -31,11 +31,13 @@ int telnet_event_callback(struct tcp_socket *s, void *ptr, tcp_socket_event_t ev
 	switch(event)
 	{
 		case TCP_SOCKET_CONNECTED:
+			printf("\nTelnet connected.\n");
 			telnet_active = 1;
 			break;
 		case TCP_SOCKET_CLOSED:
 		case TCP_SOCKET_TIMEDOUT:
 		case TCP_SOCKET_ABORTED:
+			printf("\nTelnet disconnected.\n");
 			telnet_active = 0;
 		default:
 			break;
