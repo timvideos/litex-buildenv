@@ -1,13 +1,22 @@
 CPU ?= lm32
 export CLANG=0
 
+IPRANGE ?= 192.168.100
+
 opsis_base:
 	rm -rf build/opsis_base
 	./opsis_base.py --cpu-type $(CPU)
 
 opsis_minisoc:
 	rm -rf build/opsis_minisoc
-	./opsis_base.py --with-ethernet --cpu-type $(CPU)
+	./opsis_base.py --with-ethernet --cpu-type $(CPU) --iprange=$(IPRANGE)
+
+# TFTP server for minisoc to load firmware from
+tftpd_stop:
+	sudo killall atftpd || true	# FIXME: This is dangerous...
+
+tftpd_start:
+	sudo atftpd --bind-address $(IPRANGE).100 --daemon --logfile /dev/stdout --no-fork --user $(shell whoami) build/$(TARGET)/software/ &
 
 opsis_video:
 	rm -rf build/opsis_video
@@ -19,13 +28,13 @@ opsis_hdmi2usb:
 
 opsis_sim_setup:
 	sudo openvpn --mktun --dev tap0
-	sudo ifconfig tap0 192.168.1.100 up
+	sudo ifconfig tap0 $(IPRANGE).100 up
 	sudo mknod /dev/net/tap0 c 10 200
 	sudo chown $(shell whoami) /dev/net/tap0
-	sudo atftpd --bind-address 192.168.1.100 --daemon --logfile /dev/stdout --no-fork --user $(shell whoami) build/opsis_sim/software/ &
+	make TARGET=opsis_sim tftpd_start
 
 opsis_sim_teardown:
-	sudo killall atftpd || true	# FIXME: This is dangerous...
+	make tftpd_stop
 	sudo rm -f /dev/net/tap0
 	sudo ifconfig tap0 down
 	sudo openvpn --rmtun --dev tap0
