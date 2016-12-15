@@ -44,7 +44,7 @@ reset:
 	opsis-mode-switch --verbose --mode=serial
 
 load-minispartan6:
-	openocd -f ../conda/share/openocd/scripts/board/minispartan6.cfg -c "init; pld load 0 ./build/$(TARGET)/gateware/top.bit; exit"
+	openocd -f board/minispartan6.cfg -c "init; pld load 0 ./build/$(TARGET)/gateware/top.bit; exit"
 	flterm --port=/dev/ttyUSB1 --kernel=./build/$(TARGET)/software/firmware/firmware.bin
 
 load-opsis:
