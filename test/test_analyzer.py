@@ -9,8 +9,7 @@ wb.open()
 # # #
 
 analyzer = LiteScopeAnalyzerDriver(wb.regs, "analyzer", debug=True)
-analyzer.configure_trigger(cond={"dma_sink_sink_valid": 1})
-#analyzer.configure_trigger(cond={})
+analyzer.configure_trigger(cond={"timinggenerator_sink_valid" : 0})
 analyzer.configure_subsampler(1)
 analyzer.run(offset=16, length=1024)
 while not analyzer.done():
