@@ -24,7 +24,6 @@ load-firmware: firmware load-firmware-$(PLATFORM)
 # opsis loading
 load-gateware-opsis:
 	opsis-mode-switch --verbose --load-gateware $(BUILD_DIR)/gateware/top.bit
-	make TARGET=$(TARGET) load-firmware
 
 load-firmware-opsis:
 	opsis-mode-switch --verbose --mode=serial
