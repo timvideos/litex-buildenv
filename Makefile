@@ -52,14 +52,15 @@ sim-teardown:
 # TFTP server for minisoc to load firmware from
 tftp: firmware
 	mkdir -p $(TFTPD_DIR)
-	cp build/$(PLATFORM)_$(TARGET)/software/boot.bin $(TFTPD_DIR)/boot.bin
+	cp $(BUILD_DIR)/software/boot.bin $(TFTPD_DIR)/boot.bin
 
 tftpd_stop:
 	sudo killall atftpd || true	# FIXME: This is dangerous...
 
 tftpd_start:
 	mkdir -p $(TFTPD_DIR)
-	sudo atftpd --bind-address $(IPRANGE).100 --daemon --logfile /dev/stdout --no-fork --user $(shell whoami) $(TFTPD_DIR) &
+	sudo true
+	sudo atftpd --verbose --bind-address $(IPRANGE).100 --daemon --logfile /dev/stdout --no-fork --user $(shell whoami) $(TFTPD_DIR) &
 
 # Opsis specific targets
 opsis-reset:
