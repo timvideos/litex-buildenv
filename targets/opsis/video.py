@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-from opsis_base import csr_map_update
-from opsis_net import NetSoC as BaseSoC
 
 from litevideo.input import HDMIIn
 from litevideo.output import VideoOut
+
+from targets.opsis.base import csr_map_update
+from targets.opsis.net import NetSoC as BaseSoC
 
 
 class VideoSoC(BaseSoC):

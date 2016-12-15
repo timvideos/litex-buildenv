@@ -22,8 +22,6 @@ from litedram.core import ControllerSettings
 
 from liteeth.core.mac import LiteEthMAC
 
-import opsis_platform
-
 from gateware import dna
 from gateware import firmware
 from gateware import shared_uart

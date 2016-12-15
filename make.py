@@ -19,17 +19,15 @@ def main():
     assert args.platform is not None
     assert args.target is not None
 
-    exec("from {}_platform import Platform".format(args.platform), globals())
+    exec("from platforms.{} import Platform".format(args.platform), globals())
     platform = Platform()
 
-    soc_name = "{}_{}".format(args.platform, args.target.lower())
-    exec("from {} import {}SoC as SoC".format(soc_name, args.target), globals())
+    exec("from targets.{}.{} import {}SoC as SoC".format(args.platform, args.target.lower(), args.target), globals())
     soc = SoC(platform, **soc_sdram_argdict(args))
-
     if hasattr(soc, 'configure_iprange'):
         soc.configure_iprange(args.iprange)
 
-    builddir = "build/{}_{}/".format(soc_name, args.cpu_type)
+    builddir = "build/{}_{}_{}/".format(args.platform, args.target.lower(), args.cpu_type)
     testdir = "{}/test".format(builddir)
 
     buildargs = builder_argdict(args)

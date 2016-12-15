@@ -6,7 +6,8 @@ from litex.soc.integration.soc_core import mem_decoder
 from gateware.encoder import EncoderDMAReader, Encoder
 from gateware.streamer import USBStreamer
 
-from opsis_video import *
+from targets.opsis.base import csr_map_update
+from targets.opsis.video import VideoSoC
 
 
 class HDMI2USBSoC(VideoSoC):

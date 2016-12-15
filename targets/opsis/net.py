@@ -7,8 +7,7 @@ from liteeth.core.mac import LiteEthMAC
 
 from gateware.s6rgmii import LiteEthPHYRGMII
 
-import opsis_platform
-from opsis_base import BaseSoC, csr_map_update
+from targets.opsis.base import BaseSoC, csr_map_update
 
 
 class NetSoC(BaseSoC):
