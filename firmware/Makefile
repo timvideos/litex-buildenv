@@ -38,7 +38,7 @@ all: firmware.bin
 	chmod -x $@
 	cp $@ $(BUILD_DIRECTORY)/software/boot.bin
 
-firmware.elf: $(OBJECTS) libs
+firmware.elf: $(OBJECTS)
 	$(LD) $(LDFLAGS) \
 		-T $(FIRMWARE_DIRECTORY)/linker.ld \
 		-N -o $@ \
@@ -50,9 +50,6 @@ firmware.elf: $(OBJECTS) libs
 		-L../libuip \
 		-lbase-nofloat -luip -lcompiler_rt
 	chmod -x $@
-
-main.o: $(FIRMWARE_DIRECTORY)/main.c
-	$(compile)
 
 %.o: $(FIRMWARE_DIRECTORY)/%.c
 	$(compile)
@@ -66,4 +63,4 @@ load: firmware.bin
 clean:
 	$(RM) $(OBJECTS) $(OBJECTS:.o=.d) firmware.elf firmware.bin .*~ *~
 
-.PHONY: all main.o clean libs load
+.PHONY: all clean libs load
