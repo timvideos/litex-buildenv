@@ -4,23 +4,39 @@ CPU ?= lm32
 PLATFORM ?= opsis
 TARGET ?= HDMI2USB
 
+BUILD_DIR = build/$(PLATFORM)_$(shell echo $(TARGET) | tr '[:upper:]' '[:lower:]')_$(CPU)/
+
 IPRANGE ?= 192.168.100
 TFTPD_DIR ?= build/tftpd/
 
 gateware:
-	rm -rf build/$(PLATFORM)_$(TARGET)_$(CPU)
 	./make.py --platform=$(PLATFORM) --target=$(TARGET) --cpu-type=$(CPU) --iprange=$(IPRANGE)
 
 firmware:
 	./make.py --platform=$(PLATFORM) --target=$(TARGET) --cpu-type=$(CPU) --iprange=$(IPRANGE) --no-compile-gateware
 
-load-gateware:
-	opsis-mode-switch --verbose --load-gateware build/$(TARGET)/gateware/top.bit
+load-gateware: load-gateware-$(PLATFORM)
+	true
+
+load-firmware: firmware load-firmware-$(PLATFORM)
+	true
+
+# opsis loading
+load-gateware-opsis:
+	opsis-mode-switch --verbose --load-gateware $(BUILD_DIR)/gateware/top.bit
 	make TARGET=$(TARGET) load-firmware
 
-load-firmware: firmware
+load-firmware-opsis:
 	opsis-mode-switch --verbose --mode=serial
-	flterm --port=/dev/hdmi2usb/by-num/opsis0/tty --kernel=build/$(TARGET)/software/boot.bin
+	flterm --port=/dev/hdmi2usb/by-num/opsis0/tty --kernel=$(BUILD_DIR)/software/boot.bin
+
+# minispartan6 loading
+load-gateware-minispartan6:
+	openocd -f board/minispartan6.cfg -c "init; pld load 0 $(BUILD_DIR)/gateware/top.bit; exit"
+
+load-firmware-minispartan6:
+	flterm --port=/dev/ttyUSB1 --kernel=$(BUILD_DIR)/software/boot.bin
+
 
 # Sim targets
 sim-setup:
