@@ -1,31 +1,19 @@
 #!/usr/bin/env python3
 
 # Support for the MiniSpartan6+ - https://www.scarabhardware.com/minispartan6/
-import argparse
-import os
-import struct
 from fractions import Fraction
-import importlib
 
 from litex.gen import *
-from litex.gen.fhdl.specials import Keep
 from litex.gen.genlib.io import CRG
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.soc.cores.flash import spi_flash
-from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
-from litex.soc.cores.gpio import GPIOIn, GPIOOut
-from litex.soc.interconnect.csr import AutoCSR
-from litex.soc.cores.uart.bridge import UARTWishboneBridge
-
 
 from litedram.modules import AS4C16M16
 from litedram.phy import gensdrphy
 from litedram.core import ControllerSettings
-
-import minispartan6_platform
 
 from gateware import dna
 from gateware import firmware
@@ -122,27 +110,3 @@ class BaseSoC(SoCSDRAM):
                             sdram_module.geom_settings,
                             sdram_module.timing_settings)
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1/clk_freq*1e9)
-
-def main():
-    parser = argparse.ArgumentParser(description="Minispartan LiteX SoC")
-    builder_args(parser)
-    soc_sdram_args(parser)
-    parser.add_argument("--nocompile-gateware", action="store_true")
-    args = parser.parse_args()
-
-    platform = minispartan6_platform.Platform()
-    cls = BaseSoC
-    builddir = "minispartan_base"
-    output_dir=os.path.join("build", builddir)
-    test_dir=os.path.join(output_dir, 'test')
-    soc = cls(platform, **soc_sdram_argdict(args))
-    builder = Builder(soc, output_dir=os.path.join("build", builddir),
-            compile_gateware = not args.nocompile_gateware,
-            csr_csv=os.path.join(test_dir, 'csr.csv'))
-    builder.add_software_package("libuip", "{}/firmware/libuip".format(os.getcwd()))
-    builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
-    os.makedirs(test_dir) # FIXME: Remove when builder does this.
-    vns = builder.build()
-
-if __name__ == "__main__":
-    main()
