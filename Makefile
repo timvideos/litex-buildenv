@@ -5,7 +5,7 @@ PLATFORM ?= opsis
 TARGET ?= HDMI2USB
 
 IPRANGE ?= 192.168.100
-TFTP_DIR := build/tftpd/
+TFTPD_DIR ?= build/tftpd/
 
 gateware:
 	rm -rf build/$(PLATFORM)_$(TARGET)_$(CPU)
@@ -14,12 +14,11 @@ gateware:
 firmware:
 	./make.py --platform=$(PLATFORM) --target=$(TARGET) --cpu-type=$(CPU) --iprange=$(IPRANGE) --no-compile-gateware
 
-
 load-gateware:
 	opsis-mode-switch --verbose --load-gateware build/$(TARGET)/gateware/top.bit
 	make TARGET=$(TARGET) load-firmware
 
-load-firmware:
+load-firmware: firmware
 	opsis-mode-switch --verbose --mode=serial
 	flterm --port=/dev/hdmi2usb/by-num/opsis0/tty --kernel=build/$(TARGET)/software/boot.bin
 
@@ -35,6 +34,10 @@ sim-teardown:
 	sudo killall atftpd || true	# FIXME: This is dangerous...
 
 # TFTP server for minisoc to load firmware from
+tftp: firmware
+	mkdir -p $(TFTPD_DIR)
+	cp build/$(PLATFORM)_$(TARGET)/software/boot.bin $(TFTPD_DIR)/boot.bin
+
 tftpd_stop:
 	sudo killall atftpd || true	# FIXME: This is dangerous...
 
