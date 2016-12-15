@@ -34,8 +34,10 @@ static void front_panel_service(void) {
 }
 #endif
 
+#ifdef ETHMAC_BASE
 static const unsigned char mac_addr[6] = {0x10, 0xe2, 0xd5, 0x00, 0x00, 0x00};
 static const unsigned char ip_addr[4] = {LOCALIP1, LOCALIP2, LOCALIP3, LOCALIP4};
+#endif
 
 int main(void)
 {
