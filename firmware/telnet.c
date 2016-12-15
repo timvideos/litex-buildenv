@@ -106,10 +106,12 @@ void telnet_putsnonl(const char *s)
 
 int telnet_printf(const char *fmt, ...)
 {
+	int len = 0;
 	va_list args;
 	va_start(args, fmt);
-	telnet_vprintf(fmt, args);
+	len = telnet_vprintf(fmt, args);
 	va_end(args);
+	return len;
 }
 
 int telnet_vprintf(const char *fmt, va_list args)
