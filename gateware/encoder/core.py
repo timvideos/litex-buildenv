@@ -12,7 +12,6 @@ from litedram.frontend.dma import LiteDRAMDMAReader
 from litevideo.csc.ycbcr422to444 import YCbCr422to444
 
 
-# XXX needs cleanup
 class EncoderDMAReader(Module, AutoCSR):
     def __init__(self, dram_port):
         self.shoot = CSR()
@@ -26,44 +25,28 @@ class EncoderDMAReader(Module, AutoCSR):
 
         self.submodules.dma = dma = LiteDRAMDMAReader(dram_port)
 
-        shoot = Signal()
-        self.comb += shoot.eq(self.shoot.re & self.shoot.r)
+        fsm = FSM(reset_state="IDLE")
+        self.submodules += fsm
 
-        shooted = Signal()
-        address_counter = Signal(dram_port.aw)
-        address_counter_ce = Signal()
-        data_counter = Signal(dram_port.aw)
-        data_counter_ce = Signal()
-        self.sync += [
-            If(shoot,
-                shooted.eq(1)
-            ),
-            If(shoot,
-                address_counter.eq(0)
-            ).Elif(address_counter_ce,
-                address_counter.eq(address_counter + 1)
-            ),
-            If(shoot,
-                data_counter.eq(0),
-            ).Elif(data_counter_ce,
-                data_counter.eq(data_counter + 1)
+        offset = Signal(dram_port.aw)
+
+        fsm.act("IDLE",
+            self.done.status.eq(1),
+            If(self.shoot.re & self.shoot.r,
+                NextValue(offset, 0),
+                NextState("RUN")
             )
-        ]
-
-        address_enable = Signal()
-        self.comb += address_enable.eq(shooted & (address_counter != (self.length.storage - 1)))
-
-        self.comb += [
-            dma.sink.valid.eq(address_enable),
-            dma.sink.address.eq(self.base.storage + address_counter),
-            address_counter_ce.eq(address_enable & dma.sink.ready)
-        ]
-
-        data_enable = Signal()
-        self.comb += data_enable.eq(shooted & (data_counter != (self.length.storage - 1)))
-        self.comb += data_counter_ce.eq(dma.source.valid & dma.source.ready)
-
-        self.comb += self.done.status.eq(~data_enable & ~address_enable)
+        )
+        fsm.act("RUN",
+            dma.sink.valid.eq(1),
+            If(dma.sink.ready,
+                NextValue(offset, offset + 1),
+                If(offset == (self.length.storage-1),
+                    NextState("IDLE")
+                )
+            )
+        )
+        self.comb += dma.sink.address.eq(self.base.storage + offset)
 
         self.submodules.converter = stream.Converter(dram_port.dw, 16, reverse=True)
         self.comb += [

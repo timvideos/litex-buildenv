@@ -178,14 +178,12 @@ void encoder_service(void) {
 	static int frame_cnt;
 
 	if(encoder_enabled) {
-		if(encoder_done()) {
+		if(encoder_reader_done_read() & encoder_done()) {
 			encoder_init(encoder_quality);
 			encoder_start(processor_h_active, processor_v_active);
-			frame_cnt++;
-		}
-		if (encoder_reader_done_read()) {
-			encoder_reader_length_write((processor_h_active*processor_v_active)/8); // FIXME
+			encoder_reader_length_write((processor_h_active*processor_v_active*2)/16); // FIXME use bytes in DMA registers
 			encoder_reader_shoot_write(1);
+			frame_cnt++;
 		}
 		if(elapsed(&last_fps_event, SYSTEM_CLOCK_FREQUENCY)) {
 			encoder_fps = frame_cnt;

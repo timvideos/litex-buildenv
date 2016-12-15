@@ -4,8 +4,6 @@ from opsis_video import *
 from gateware.encoder import EncoderDMAReader, Encoder
 from gateware.streamer import USBStreamer
 
-from litescope import LiteScopeAnalyzer
-
 base_cls = VideoMixerSoC
 
 class HDMI2USBSoC(base_cls):
@@ -42,25 +40,6 @@ class HDMI2USBSoC(base_cls):
             self.crg.cd_sys.clk,
             self.encoder_streamer.cd_usb.clk)
 
-    #    analyzer_signals = [
-    #        self.encoder.source.valid,
-    #        self.encoder.source.ready,
-    #        self.encoder.source.data,
-    #        self.encoder.source.last,
-
-    #        self.encoder.sink.valid,
-    #        self.encoder.sink.ready,
-    #        self.encoder.sink.data,
-    #        self.encoder.sink.last,
-    #
-    #    ]
-    #    self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 1024)
-
-    def do_exit(self, vns):
-        pass
-        #self.analyzer.export_csv(vns, "test/analyzer.csv")
-
-
 def main():
     parser = argparse.ArgumentParser(description="Opsis LiteX SoC")
     builder_args(parser)
@@ -74,7 +53,6 @@ def main():
                       compile_gateware=not args.nocompile_gateware,
                       csr_csv="test/csr.csv")
     vns = builder.build()
-    soc.do_exit(vns)
 
 if __name__ == "__main__":
     main()
