@@ -132,29 +132,3 @@ class MiniSoC(BaseSoC):
         self.submodules.ethmac = LiteEthMAC(phy=self.ethphy, dw=32, interface="wishbone")
         self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)
         self.add_memory_region("ethmac", self.mem_map["ethmac"] | self.shadow_base, 0x2000)
-
-
-def main():
-    parser = argparse.ArgumentParser(description="Generic LiteX SoC Simulation")
-    builder_args(parser)
-    soc_sdram_args(parser)
-    parser.add_argument("--with-ethernet", action="store_true",
-                        help="enable Ethernet support")
-    parser.add_argument("--nocompile-gateware", action="store_true")
-    args = parser.parse_args()
-
-    cls = MiniSoC if args.with_ethernet else BaseSoC
-    soc = cls(**soc_sdram_argdict(args))
-    builddir = "build/opsis_sim/"
-    testdir = "{}/test".format(builddir)
-
-    builder = Builder(soc, output_dir=builddir,
-                      compile_gateware=not args.nocompile_gateware,
-                      csr_csv="{}/csr.csv".format(testdir))
-    builder.add_software_package("libuip", "{}/firmware/libuip".format(os.getcwd()))
-    builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
-    vns = builder.build()
-
-
-if __name__ == "__main__":
-    main()
