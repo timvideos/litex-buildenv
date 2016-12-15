@@ -56,7 +56,10 @@ clean:
 	rm -rf build
 
 all:
-	for TARGET in Base Net Video HDMI2USB; do \
+	PLATFORM=opsis; for TARGET in Base Net Video HDMI2USB; do \
+		make PLATFORM=$(PLATFORM) TARGET=$$TARGET firmware; \
+	done
+	PLATFORM=minispartan6; for TARGET in Base; do \
 		make PLATFORM=$(PLATFORM) TARGET=$$TARGET firmware; \
 	done
 
