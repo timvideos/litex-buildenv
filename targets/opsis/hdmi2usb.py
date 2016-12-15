@@ -1,25 +1,28 @@
 #!/usr/bin/env python3
-from opsis_video import *
+
+from litex.gen.fhdl.specials import Keep
+from litex.soc.integration.soc_core import mem_decoder
 
 from gateware.encoder import EncoderDMAReader, Encoder
 from gateware.streamer import USBStreamer
 
-base_cls = VideoMixerSoC
+from targets.opsis.base import csr_map_update
+from targets.opsis.video import VideoSoC
 
 
-class HDMI2USBSoC(base_cls):
+class HDMI2USBSoC(VideoSoC):
     csr_peripherals = (
         "encoder_reader",
         "encoder",
     )
-    csr_map_update(base_cls.csr_map, csr_peripherals)
+    csr_map_update(VideoSoC.csr_map, csr_peripherals)
     mem_map = {
         "encoder": 0x50000000,  # (shadow @0xd0000000)
     }
-    mem_map.update(base_cls.mem_map)
+    mem_map.update(VideoSoC.mem_map)
 
     def __init__(self, platform, **kwargs):
-        base_cls.__init__(self, platform, **kwargs)
+        VideoSoC.__init__(self, platform, **kwargs)
 
         self.submodules.encoder_reader = EncoderDMAReader(self.sdram.crossbar.get_port())
         self.submodules.encoder = Encoder(platform)
@@ -38,24 +41,3 @@ class HDMI2USBSoC(base_cls):
         self.platform.add_false_path_constraints(
             self.crg.cd_sys.clk,
             self.encoder_streamer.cd_usb.clk)
-
-
-def main():
-    parser = argparse.ArgumentParser(description="Opsis LiteX SoC")
-    builder_args(parser)
-    soc_sdram_args(parser)
-    parser.add_argument("--nocompile-gateware", action="store_true")
-    args = parser.parse_args()
-
-    platform = opsis_platform.Platform()
-    soc = HDMI2USBSoC(platform, **soc_sdram_argdict(args))
-    builder = Builder(soc, output_dir="build/opsis_hdmi2usb/",
-                      compile_gateware=not args.nocompile_gateware,
-                      csr_csv="build/opsis_hdmi2usb/test/csr.csv")
-    builder.add_software_package("libuip", "{}/firmware/libuip".format(os.getcwd()))
-    builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
-    os.makedirs("build/opsis_hdmi2usb/test") # FIXME: Remove when builder does this.
-    vns = builder.build()
-
-if __name__ == "__main__":
-    main()

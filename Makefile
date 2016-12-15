@@ -1,58 +1,63 @@
-CPU ?= lm32
 export CLANG=0
 
-opsis_base:
-	rm -rf build/opsis_base
-	./opsis_base.py --cpu-type $(CPU)
+CPU ?= lm32
+PLATFORM ?= opsis
+TARGET ?= HDMI2USB
 
-opsis_minisoc:
-	rm -rf build/opsis_minisoc
-	./opsis_base.py --with-ethernet --cpu-type $(CPU)
+IPRANGE ?= 192.168.100
+TFTPD_DIR ?= build/tftpd/
 
-opsis_video:
-	rm -rf build/opsis_video
-	./opsis_video.py --cpu-type $(CPU)
+gateware:
+	rm -rf build/$(PLATFORM)_$(TARGET)_$(CPU)
+	./make.py --platform=$(PLATFORM) --target=$(TARGET) --cpu-type=$(CPU) --iprange=$(IPRANGE)
 
-opsis_hdmi2usb:
-	rm -rf build/opsis_hdmi2usb
-	./opsis_hdmi2usb.py --cpu-type $(CPU)
+firmware:
+	./make.py --platform=$(PLATFORM) --target=$(TARGET) --cpu-type=$(CPU) --iprange=$(IPRANGE) --no-compile-gateware
 
-opsis_sim_setup:
+load-gateware:
+	opsis-mode-switch --verbose --load-gateware build/$(TARGET)/gateware/top.bit
+	make TARGET=$(TARGET) load-firmware
+
+load-firmware: firmware
+	opsis-mode-switch --verbose --mode=serial
+	flterm --port=/dev/hdmi2usb/by-num/opsis0/tty --kernel=build/$(TARGET)/software/boot.bin
+
+# Sim targets
+sim-setup:
 	sudo openvpn --mktun --dev tap0
-	sudo ifconfig tap0 192.168.1.100 up
+	sudo ifconfig tap0 $(IPRANGE).100 up
 	sudo mknod /dev/net/tap0 c 10 200
 	sudo chown $(shell whoami) /dev/net/tap0
-	sudo atftpd --bind-address 192.168.1.100 --daemon --logfile /dev/stdout --no-fork --user $(shell whoami) build/opsis_sim/software/ &
+	make TARGET=opsis_sim tftpd_start
 
-opsis_sim_teardown:
+sim-teardown:
 	sudo killall atftpd || true	# FIXME: This is dangerous...
-	sudo rm -f /dev/net/tap0
-	sudo ifconfig tap0 down
-	sudo openvpn --rmtun --dev tap0
 
-opsis_sim:
-	rm -rf build/opsis_sim
-	./opsis_sim.py --with-ethernet --cpu-type $(CPU)
+# TFTP server for minisoc to load firmware from
+tftp: firmware
+	mkdir -p $(TFTPD_DIR)
+	cp build/$(PLATFORM)_$(TARGET)/software/boot.bin $(TFTPD_DIR)/boot.bin
 
-minispartan6_base:
-	rm -rf build/minispartan6_base
-	./minispartan6_base.py --cpu-type $(CPU)
+tftpd_stop:
+	sudo killall atftpd || true	# FIXME: This is dangerous...
 
-reset:
+tftpd_start:
+	mkdir -p $(TFTPD_DIR)
+	sudo atftpd --bind-address $(IPRANGE).100 --daemon --logfile /dev/stdout --no-fork --user $(shell whoami) $(TFTPD_DIR) &
+
+# Opsis specific targets
+opsis-reset:
 	opsis-mode-switch --verbose --mode=serial
 	opsis-mode-switch --verbose --mode=jtag
 	opsis-mode-switch --verbose --mode=serial
 
-load-minispartan6:
-	openocd -f board/minispartan6.cfg -c "init; pld load 0 ./build/$(TARGET)/gateware/top.bit; exit"
-	flterm --port=/dev/ttyUSB1 --kernel=./build/$(TARGET)/software/firmware/firmware.bin
-
-load-opsis:
-	opsis-mode-switch --verbose --load-gateware build/$(TARGET)/gateware/top.bit
-	opsis-mode-switch --verbose --mode=serial
-	flterm --port=/dev/hdmi2usb/by-num/opsis0/tty --kernel=build/$(TARGET)/software/boot.bin
-
+# Helper targets
 clean:
 	rm -rf build
 
-.PHONY: load firmware load-firmware
+all:
+	for TARGET in Base Net Video HDMI2USB; do \
+		make PLATFORM=$(PLATFORM) TARGET=$$TARGET firmware; \
+	done
+
+.PHONY: gateware firmware opsis-reset load-gateware load-firmware

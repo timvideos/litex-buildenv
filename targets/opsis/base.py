@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 
-import argparse
-import os
-import struct
 from fractions import Fraction
-import importlib
 
 from litex.gen import *
 from litex.gen.fhdl.specials import Keep
@@ -13,7 +9,6 @@ from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 from litex.gen.genlib.misc import WaitTimer
 
 from litex.soc.cores.flash import spi_flash
-from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.gpio import GPIOIn, GPIOOut
@@ -27,13 +22,10 @@ from litedram.core import ControllerSettings
 
 from liteeth.core.mac import LiteEthMAC
 
-import opsis_platform
-
 from gateware import dna
 from gateware import firmware
-
-from gateware.s6rgmii import LiteEthPHYRGMII
 from gateware import shared_uart
+
 
 def csr_map_update(csr_map, csr_peripherals):
     csr_map.update(dict((n, v)
@@ -267,68 +259,3 @@ class BaseSoC(SoCSDRAM):
             tofe_lsio_sws[2].eq(~platform.request('tofe_lsio_user_sw', 2)),
             tofe_lsio_sws[3].eq(~platform.request('tofe_lsio_user_sw', 3)),
         ]
-
-
-
-class MiniSoC(BaseSoC):
-    csr_peripherals = (
-        "ethphy",
-        "ethmac"
-    )
-    csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
-
-    interrupt_map = {
-        "ethmac": 2,
-    }
-    interrupt_map.update(BaseSoC.interrupt_map)
-
-    mem_map = {
-        "ethmac": 0x30000000,  # (shadow @0xb0000000)
-    }
-    mem_map.update(BaseSoC.mem_map)
-
-    def __init__(self, *args, **kwargs):
-        BaseSoC.__init__(self, *args, **kwargs)
-
-        self.submodules.ethphy = LiteEthPHYRGMII(
-            self.platform.request("eth_clocks"),
-            self.platform.request("eth"))
-        self.platform.add_source("gateware/rgmii_if.vhd")
-        self.submodules.ethmac = LiteEthMAC(
-            self.ethphy, 32, interface="wishbone")
-        self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)
-        self.add_memory_region("ethmac",
-            self.mem_map["ethmac"] | self.shadow_base, 0x2000)
-
-        self.specials += Keep(self.ethphy.crg.cd_eth_rx.clk),
-
-        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_rx.clk, 8.0)
-
-        self.platform.add_false_path_constraints(
-            self.crg.cd_sys.clk,
-            self.ethphy.crg.cd_eth_rx.clk)
-
-
-def main():
-    parser = argparse.ArgumentParser(description="Opsis LiteX SoC")
-    builder_args(parser)
-    soc_sdram_args(parser)
-    parser.add_argument("--with-ethernet", action="store_true",
-                        help="enable Ethernet support", default=False)
-    parser.add_argument("--nocompile-gateware", action="store_true")
-    args = parser.parse_args()
-
-    platform = opsis_platform.Platform()
-    cls = MiniSoC if args.with_ethernet else BaseSoC
-    builddir = "opsis_base/" if not args.with_ethernet else "opsis_minisoc/"
-    soc = cls(platform, **soc_sdram_argdict(args))
-    builder = Builder(soc, output_dir="build/{}".format(builddir),
-                      compile_gateware=not args.nocompile_gateware,
-                      csr_csv="build/{}/test/csr.csv".format(builddir))
-    builder.add_software_package("libuip", "{}/firmware/libuip".format(os.getcwd()))
-    builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
-    os.makedirs("build/{}/test".format(builddir)) # FIXME: Remove when builder does this.
-    vns = builder.build()
-
-if __name__ == "__main__":
-    main()

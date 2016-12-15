@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-from opsis_base import *
 
 from litevideo.input import HDMIIn
 from litevideo.output import VideoOut
 
-base_cls = MiniSoC
+from targets.opsis.base import csr_map_update
+from targets.opsis.net import NetSoC as BaseSoC
 
 
-class VideoMixerSoC(base_cls):
+class VideoSoC(BaseSoC):
     csr_peripherals = (
         "hdmi_out0",
         "hdmi_out1",
@@ -16,16 +16,16 @@ class VideoMixerSoC(base_cls):
         "hdmi_in1",
         "hdmi_in1_edid_mem",
     )
-    csr_map_update(base_cls.csr_map, csr_peripherals)
+    csr_map_update(BaseSoC.csr_map, csr_peripherals)
 
     interrupt_map = {
         "hdmi_in0": 3,
         "hdmi_in1": 4,
     }
-    interrupt_map.update(base_cls.interrupt_map)
+    interrupt_map.update(BaseSoC.interrupt_map)
 
     def __init__(self, platform, **kwargs):
-        base_cls.__init__(self, platform, **kwargs)
+        BaseSoC.__init__(self, platform, **kwargs)
         # hdmi in 0
         self.submodules.hdmi_in0 = HDMIIn(platform.request("hdmi_in", 0),
                                           self.sdram.crossbar.get_port(mode="write"),
@@ -67,24 +67,3 @@ NET "{pix1_clk}" TNM_NET = "GRPpix1_clk";
             self.crg.cd_sys.clk,
             self.hdmi_out0.driver.clocking.cd_pix.clk,
             self.hdmi_out1.driver.clocking.cd_pix.clk)
-
-
-def main():
-    parser = argparse.ArgumentParser(description="Opsis LiteX SoC")
-    builder_args(parser)
-    soc_sdram_args(parser)
-    parser.add_argument("--nocompile-gateware", action="store_true")
-    args = parser.parse_args()
-
-    platform = opsis_platform.Platform()
-    soc = VideoMixerSoC(platform, **soc_sdram_argdict(args))
-    builder = Builder(soc, output_dir="build/opsis_video/",
-                      compile_gateware=not args.nocompile_gateware,
-                      csr_csv="build/opsis_video/test/csr.csv")
-    builder.add_software_package("libuip", "{}/firmware/libuip".format(os.getcwd()))
-    builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
-    os.makedirs("build/opsis_video/test") # FIXME: Remove when builder does this.
-    vns = builder.build()
-
-if __name__ == "__main__":
-    main()
