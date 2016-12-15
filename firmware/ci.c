@@ -216,9 +216,6 @@ static void status_enable(void)
 {
 	wprintf("Enabling status\r\n");
 	status_enabled = 1;
-#ifdef ENCODER_BASE
-	encoder_bandwidth_nbytes_clear_write(1);
-#endif
 }
 
 static void status_disable(void)
@@ -279,14 +276,12 @@ static void status_print(void)
 	wprintf("encoder: ");
 	if(encoder_enabled) {
 		wprintf(
-			"%dx%d @ %dfps (%dMbps) from %s (q: %d)",
+			"%dx%d @ %dfps from %s (q: %d)",
 			processor_h_active,
 			processor_v_active,
 			encoder_fps,
-			encoder_bandwidth_nbytes_read()*8/1000000,
 			processor_get_source_name(processor_encoder_source),
 			encoder_quality);
-		encoder_bandwidth_nbytes_clear_write(1);
 	} else
 		wprintf("off");
 	wprintf("\r\n");

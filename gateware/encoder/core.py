@@ -6,7 +6,6 @@ from litex.gen.genlib.cdc import MultiReg
 from litex.soc.interconnect import wishbone
 from litex.soc.interconnect import stream
 from litex.soc.interconnect.csr import *
-from litex.soc.interconnect.csr_eventmanager import *
 
 from litedram.frontend.dma import LiteDRAMDMAReader
 from litevideo.csc.ycbcr422to444 import YCbCr422to444
@@ -16,8 +15,8 @@ class EncoderDMAReader(Module, AutoCSR):
     def __init__(self, dram_port):
         self.shoot = CSR()
         self.done = CSRStatus()
-        self.base = CSRStorage(dram_port.aw)
-        self.length = CSRStorage(dram_port.aw)
+        self.base = CSRStorage(32)
+        self.length = CSRStorage(32)
 
         self.source = source = stream.Endpoint([("data", 16)])
 
@@ -28,7 +27,14 @@ class EncoderDMAReader(Module, AutoCSR):
         fsm = FSM(reset_state="IDLE")
         self.submodules += fsm
 
+        shift = log2_int(dram_port.dw//8)
+        base = Signal(dram_port.aw)
+        length = Signal(dram_port.aw)
         offset = Signal(dram_port.aw)
+        self.comb += [
+            base.eq(self.base.storage[shift:]),
+            length.eq(self.length.storage[shift:])
+        ]
 
         fsm.act("IDLE",
             self.done.status.eq(1),
@@ -41,37 +47,18 @@ class EncoderDMAReader(Module, AutoCSR):
             dma.sink.valid.eq(1),
             If(dma.sink.ready,
                 NextValue(offset, offset + 1),
-                If(offset == (self.length.storage-1),
+                If(offset == (length-1),
                     NextState("IDLE")
                 )
             )
         )
-        self.comb += dma.sink.address.eq(self.base.storage + offset)
+        self.comb += dma.sink.address.eq(base + offset)
 
         self.submodules.converter = stream.Converter(dram_port.dw, 16, reverse=True)
         self.comb += [
             self.dma.source.connect(self.converter.sink),
             self.converter.source.connect(self.source)
         ]
-
-
-class EncoderBandwidth(Module, AutoCSR):
-    def __init__(self):
-        self.nbytes_inc = Signal()
-        self.nbytes_clear = CSR()
-        self.nbytes = CSRStatus(32)
-
-        # # #
-
-        nbytes_clear = self.nbytes_clear.re & self.nbytes_clear.r
-        nbytes = self.nbytes.status
-
-        self.sync += \
-            If(nbytes_clear,
-                nbytes.eq(0)
-            ).Elif(self.nbytes_inc ,
-                nbytes.eq(nbytes + 1)
-            )
 
 
 class Encoder(Module, AutoCSR):
@@ -131,7 +118,3 @@ class Encoder(Module, AutoCSR):
                             i_outif_almost_full=output_fifo_almost_full)
         # add vhdl sources
         platform.add_source_dir(os.path.join("gateware", "encoder", "vhdl"))
-
-        # bandwidth
-        self.submodules.bandwidth = EncoderBandwidth()
-        self.comb += self.bandwidth.nbytes_inc.eq(self.source.valid & self.source.ready)

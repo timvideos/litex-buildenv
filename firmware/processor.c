@@ -540,16 +540,16 @@ void processor_update(void)
 	/*  encoder */
 #ifdef CSR_HDMI_IN0_BASE
 	if(processor_encoder_source == VIDEO_IN_HDMI_IN0) {
-		encoder_reader_base_write((hdmi_in0_framebuffer_base(hdmi_in0_fb_index))/16); // FIXME use bytes in DMA registers
+		encoder_reader_base_write(hdmi_in0_framebuffer_base(hdmi_in0_fb_index));
 	}
 #endif
 #ifdef CSR_HDMI_IN1_BASE
 	if(processor_encoder_source == VIDEO_IN_HDMI_IN1) {
-		encoder_reader_base_write((hdmi_in1_framebuffer_base(hdmi_in1_fb_index))/16); // FIXME use bytes in DMA registers
+		encoder_reader_base_write(hdmi_in1_framebuffer_base(hdmi_in1_fb_index));
 	}
 #endif
 	if(processor_encoder_source == VIDEO_IN_PATTERN)
-		encoder_reader_base_write(pattern_framebuffer_base()/16); // FIXME use bytes in DMA registers
+		encoder_reader_base_write(pattern_framebuffer_base());
 #endif
 }
 
