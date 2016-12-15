@@ -57,9 +57,6 @@ firmware.elf: $(OBJECTS)
 %.o: $(FIRMWARE_DIRECTORY)/%.S
 	$(assemble)
 
-load: firmware.bin
-	litex_term --kernel firmware.bin COM8
-
 clean:
 	$(RM) $(OBJECTS) $(OBJECTS:.o=.d) firmware.elf firmware.bin .*~ *~
 
