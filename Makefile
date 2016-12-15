@@ -2,9 +2,9 @@ export CLANG=0
 
 CPU ?= lm32
 PLATFORM ?= opsis
-TARGET ?= HDMI2USB
+TARGET ?= hdmi2usb
 
-BUILD_DIR = build/$(PLATFORM)_$(shell echo $(TARGET) | tr '[:upper:]' '[:lower:]')_$(CPU)/
+BUILD_DIR = build/$(PLATFORM)_$(TARGET)_$(CPU)/
 
 IPRANGE ?= 192.168.100
 TFTPD_DIR ?= build/tftpd/
@@ -72,10 +72,10 @@ clean:
 	rm -rf build
 
 all:
-	PLATFORM=opsis; for TARGET in Base Net Video HDMI2USB; do \
+	PLATFORM=opsis; for TARGET in base net video hdmi2usb; do \
 		make PLATFORM=$(PLATFORM) TARGET=$$TARGET firmware; \
 	done
-	PLATFORM=minispartan6; for TARGET in Base; do \
+	PLATFORM=minispartan6; for TARGET in base; do \
 		make PLATFORM=$(PLATFORM) TARGET=$$TARGET firmware; \
 	done
 

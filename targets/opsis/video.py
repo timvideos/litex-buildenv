@@ -67,3 +67,6 @@ NET "{pix1_clk}" TNM_NET = "GRPpix1_clk";
             self.crg.cd_sys.clk,
             self.hdmi_out0.driver.clocking.cd_pix.clk,
             self.hdmi_out1.driver.clocking.cd_pix.clk)
+
+
+SoC = VideoSoC

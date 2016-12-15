@@ -22,7 +22,7 @@ def main():
     exec("from platforms.{} import Platform".format(args.platform), globals())
     platform = Platform()
 
-    exec("from targets.{}.{} import {}SoC as SoC".format(args.platform, args.target.lower(), args.target), globals())
+    exec("from targets.{}.{} import SoC".format(args.platform, args.target.lower(), args.target), globals())
     soc = SoC(platform, **soc_sdram_argdict(args))
     if hasattr(soc, 'configure_iprange'):
         soc.configure_iprange(args.iprange)

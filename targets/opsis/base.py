@@ -259,3 +259,6 @@ class BaseSoC(SoCSDRAM):
             tofe_lsio_sws[2].eq(~platform.request('tofe_lsio_user_sw', 2)),
             tofe_lsio_sws[3].eq(~platform.request('tofe_lsio_user_sw', 3)),
         ]
+
+
+SoC = BaseSoC

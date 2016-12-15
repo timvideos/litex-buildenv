@@ -7,7 +7,8 @@ from liteeth.core.mac import LiteEthMAC
 
 from gateware.s6rgmii import LiteEthPHYRGMII
 
-from targets.opsis.base import BaseSoC, csr_map_update
+from targets.opsis.base import csr_map_update
+from targets.opsis.base import SoC as BaseSoC
 
 
 class NetSoC(BaseSoC):
@@ -62,3 +63,6 @@ class NetSoC(BaseSoC):
             s = ip_type + str(i + 1)
             s = s.upper()
             self.add_constant(s, e)
+
+
+SoC = NetSoC
