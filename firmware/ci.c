@@ -22,7 +22,7 @@
 #include "encoder.h"
 #include "hdmi_out0.h"
 #include "hdmi_out1.h"
-
+#include "stdio_wrap.h"
 
 int status_enabled;
 
@@ -529,6 +529,7 @@ static void debug_ddr(void)
 #endif
 
 #ifdef CSR_DNA_ID_ADDR
+void print_board_dna(void);
 void print_board_dna(void) {
 	int i;
 	wprintf("Board's DNA: ");
