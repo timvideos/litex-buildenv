@@ -28,17 +28,19 @@ CFLAGS += \
 	-I$(LIBUIP_DIRECTORY)/../uip \
 	-I$(LIBUIP_DIRECTORY)
 
-all: firmware.bin
+all: firmware.bin firmware.fbi
 
-# pull in dependency info for *existing* .o files
--include $(OBJECTS:.o=.d)
+%.fbi: %.bin
+	$(PYTHON) -m litex.soc.tools.mkmscimg -f $< -o $@
 
 %.bin: %.elf
 	$(OBJCOPY) -O binary $< $@
 	chmod -x $@
-	cp $@ $(BUILD_DIRECTORY)/software/boot.bin
+	$(PYTHON) -m litex.soc.tools.mkmscimg $<
 
-firmware.elf: $(OBJECTS)
+firmware.elf: $(FIRMWARE_DIRECTORY)/linker.ld $(OBJECTS)
+
+%.elf:
 	$(LD) $(LDFLAGS) \
 		-T $(FIRMWARE_DIRECTORY)/linker.ld \
 		-N -o $@ \
@@ -50,6 +52,9 @@ firmware.elf: $(OBJECTS)
 		-L../libuip \
 		-lbase-nofloat -luip -lcompiler_rt
 	chmod -x $@
+
+# pull in dependency info for *existing* .o files
+-include $(OBJECTS:.o=.d)
 
 %.o: $(FIRMWARE_DIRECTORY)/%.c
 	$(compile)
