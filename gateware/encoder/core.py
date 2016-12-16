@@ -140,7 +140,6 @@ class EncoderBuffer(Module):
             )
         ]
 
-
         # write path
         v_write_clr = Signal()
         v_write_inc = Signal()
@@ -247,6 +246,67 @@ class Encoder(Module, AutoCSR):
             chroma_upsampler.sink.cb_cr.eq(self.sink.data[8:])
         ]
 
+        input_fifo = stream.SyncFIFO([("data", 24)], 128)
+        self.input_fifo = input_fifo
+        self.submodules += input_fifo
+
+        self.comb += [
+            input_fifo.sink.valid.eq(chroma_upsampler.source.valid),
+            input_fifo.sink.data.eq(Cat(chroma_upsampler.source.y,
+                                        chroma_upsampler.source.cb,
+                                        chroma_upsampler.source.cr)),
+            chroma_upsampler.source.ready.eq(input_fifo.sink.ready)
+        ]
+
+        fdct_fifo_rd = Signal()
+        fdct_fifo_q = Signal(24)
+        fdct_fifo_hf_full = Signal()
+
+        self.fdct_fifo_rd = fdct_fifo_rd
+        self.fdct_fifo_q = fdct_fifo_q
+        self.fdct_fifo_hf_full = fdct_fifo_hf_full
+        self.fdct_fifo_dval_o = Signal()
+
+        fdct_data_d1 = Signal(24)
+        fdct_data_d2 = Signal(24)
+        fdct_data_d3 = Signal(24)
+        fdct_data_d4 = Signal(24)
+        fdct_data_d5 = Signal(24)
+
+        fdct_data_valid_d1 = Signal()
+        fdct_data_valid_d2 = Signal()
+        fdct_data_valid_d3 = Signal()
+        fdct_data_valid_d4 = Signal()
+        fdct_data_valid_d5 = Signal()
+
+        self.fdct_valid = Signal()
+
+        self.sync += [
+            If(fdct_fifo_rd,
+                fdct_data_d1.eq(input_fifo.source.data),
+            ),
+            fdct_data_d2.eq(fdct_data_d1),
+            fdct_data_d3.eq(fdct_data_d2),
+            fdct_data_d4.eq(fdct_data_d3),
+            fdct_data_d5.eq(fdct_data_d4)
+        ]
+        self.sync += [
+            fdct_data_valid_d1.eq(0),
+            If(fdct_fifo_rd,
+                fdct_data_valid_d1.eq(1)
+            ),
+            fdct_data_valid_d2.eq(fdct_data_valid_d1),
+            fdct_data_valid_d3.eq(fdct_data_valid_d2),
+            fdct_data_valid_d4.eq(fdct_data_valid_d3),
+            fdct_data_valid_d5.eq(fdct_data_valid_d4),
+        ]
+        self.comb += [
+            self.fdct_valid.eq(fdct_data_valid_d4),
+            fdct_fifo_q.eq(fdct_data_d4),
+            fdct_fifo_hf_full.eq((input_fifo.level >= 64)),
+            input_fifo.source.ready.eq(fdct_fifo_rd)
+        ]
+
         # output fifo
         output_fifo_almost_full = Signal()
         self.submodules.output_fifo = output_fifo = stream.SyncFIFO([("data", 8)], 1024)
@@ -257,31 +317,30 @@ class Encoder(Module, AutoCSR):
 
         # encoder
         self.specials += Instance("JpegEnc",
-                            i_CLK=ClockSignal(),
-                            i_RST=ResetSignal(),
+            i_CLK=ClockSignal(),
+            i_RST=ResetSignal(),
 
-                            i_OPB_ABus=Cat(Signal(2), self.bus.adr) & 0x3ff,
-                            i_OPB_BE=self.bus.sel,
-                            i_OPB_DBus_in=self.bus.dat_w,
-                            i_OPB_RNW=~self.bus.we,
-                            i_OPB_select=self.bus.stb & self.bus.cyc,
-                            o_OPB_DBus_out=self.bus.dat_r,
-                            o_OPB_XferAck=self.bus.ack,
-                            #o_OPB_retry=,
-                            #o_OPB_toutSup=,
-                            o_OPB_errAck=self.bus.err,
+            i_OPB_ABus=Cat(Signal(2), self.bus.adr) & 0x3ff,
+            i_OPB_BE=self.bus.sel,
+            i_OPB_DBus_in=self.bus.dat_w,
+            i_OPB_RNW=~self.bus.we,
+            i_OPB_select=self.bus.stb & self.bus.cyc,
+            o_OPB_DBus_out=self.bus.dat_r,
+            o_OPB_XferAck=self.bus.ack,
+            #o_OPB_retry=,
+            #o_OPB_toutSup=,
+            o_OPB_errAck=self.bus.err,
 
-                            i_fdct_ack=chroma_upsampler.source.ready,
-                            i_fdct_stb=chroma_upsampler.source.valid,
-                            i_fdct_data=Cat(chroma_upsampler.source.y,
-                                            chroma_upsampler.source.cb,
-                                            chroma_upsampler.source.cr),
+            o_fdct_fifo_rd=fdct_fifo_rd,
+            i_fdct_fifo_q=fdct_fifo_q,
+            i_fdct_fifo_hf_full=fdct_fifo_hf_full,
+            o_fdct_fifo_dval_o=self.fdct_fifo_dval_o,
 
-                            o_ram_byte=output_fifo.sink.data,
-                            o_ram_wren=output_fifo.sink.valid,
-                            #o_ram_wraddr=,
-                            #o_frame_size=,
-                            i_outif_almost_full=output_fifo_almost_full)
+            o_ram_byte=output_fifo.sink.data,
+            o_ram_wren=output_fifo.sink.valid,
+            #o_ram_wraddr=,
+            #o_frame_size=,
+            i_outif_almost_full=output_fifo_almost_full)
 
         # add vhdl sources
         platform.add_source_dir(os.path.join("gateware", "encoder", "vhdl"))
