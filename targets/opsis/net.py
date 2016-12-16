@@ -14,7 +14,7 @@ from targets.opsis.base import SoC as BaseSoC
 class NetSoC(BaseSoC):
     csr_peripherals = (
         "ethphy",
-        "ethmac"
+        "ethmac",
     )
     csr_map_update(BaseSoC.csr_map, csr_peripherals)
 

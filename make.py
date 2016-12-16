@@ -6,14 +6,29 @@ import os
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
+
+def make_args(parser, platform='opsis', target='hdmi2usb'):
+    parser.add_argument("--platform", action="store", default=os.environ.get('PLATFORM', platform))
+    parser.add_argument("--target", action="store", default=os.environ.get('TARGET', target))
+    parser.add_argument("--iprange", default="192.168.100")
+    parser.add_argument("--cpu-type", default=os.environ.get('CPU', 'lm32'))
+
+
+def make_builddir(args):
+    return "build/{}_{}_{}/".format(args.platform, args.target.lower(), args.cpu_type)
+
+
+def make_testdir(args):
+    builddir = make_builddir(args)
+    testdir = "{}/test".format(builddir)
+    return testdir
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Opsis LiteX SoC")
+    parser = argparse.ArgumentParser(description="Opsis LiteX SoC", conflict_handler='resolve')
+    make_args(parser)
     builder_args(parser)
     soc_sdram_args(parser)
-
-    parser.add_argument("--platform", action="store", default=os.environ.get('PLATFORM', None))
-    parser.add_argument("--target", action="store", default=os.environ.get('TARGET', None))
-    parser.add_argument("--iprange", default="192.168.100")
 
     args = parser.parse_args()
     assert args.platform is not None
@@ -27,8 +42,8 @@ def main():
     if hasattr(soc, 'configure_iprange'):
         soc.configure_iprange(args.iprange)
 
-    builddir = "build/{}_{}_{}/".format(args.platform, args.target.lower(), args.cpu_type)
-    testdir = "{}/test".format(builddir)
+    builddir = make_builddir(args)
+    testdir = make_testdir(args)
 
     buildargs = builder_argdict(args)
     if not buildargs.get('output_dir', None):
