@@ -22,38 +22,44 @@ load-firmware: firmware load-firmware-$(PLATFORM)
 	true
 
 # opsis loading
-load-gateware-opsis:
+load-gateware-opsis: tftp
 	opsis-mode-switch --verbose --load-gateware $(BUILD_DIR)/gateware/top.bit
 
 load-firmware-opsis:
 	opsis-mode-switch --verbose --mode=serial
-	flterm --port=/dev/hdmi2usb/by-num/opsis0/tty --kernel=$(BUILD_DIR)/software/boot.bin
+	flterm --port=/dev/hdmi2usb/by-num/opsis0/tty --kernel=$(BUILD_DIR)/software/firmware/firmware.bin
 
 # minispartan6 loading
 load-gateware-minispartan6:
 	openocd -f board/minispartan6.cfg -c "init; pld load 0 $(BUILD_DIR)/gateware/top.bit; exit"
 
 load-firmware-minispartan6:
-	flterm --port=/dev/ttyUSB1 --kernel=$(BUILD_DIR)/software/boot.bin
+	flterm --port=/dev/ttyUSB1 --kernel=$(BUILD_DIR)/software/firmware/firmware.bin
 
 
 # Sim targets
 sim-setup:
+	sudo true
 	sudo openvpn --mktun --dev tap0
 	sudo ifconfig tap0 $(IPRANGE).100 up
 	sudo mknod /dev/net/tap0 c 10 200
 	sudo chown $(shell whoami) /dev/net/tap0
-	make TARGET=opsis_sim tftpd_start
+	make tftpd_start
 
 sim-teardown:
-	sudo killall atftpd || true	# FIXME: This is dangerous...
+	sudo true
+	make tftpd_stop
+	sudo rm -f /dev/net/tap0
+	sudo ifconfig tap0 down
+	sudo openvpn --rmtun --dev tap0
 
 # TFTP server for minisoc to load firmware from
 tftp: firmware
 	mkdir -p $(TFTPD_DIR)
-	cp $(BUILD_DIR)/software/boot.bin $(TFTPD_DIR)/boot.bin
+	cp $(BUILD_DIR)/software/firmware/firmware.bin $(TFTPD_DIR)/boot.bin
 
 tftpd_stop:
+	sudo true
 	sudo killall atftpd || true	# FIXME: This is dangerous...
 
 tftpd_start:
