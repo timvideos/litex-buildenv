@@ -35,8 +35,11 @@ def print_memmap(wb):
 
 
 def get_dna(wb):
-    dna = wb.regs.dna_id.read()
-    return ''.join(hex(dna).split('000000'))
+    try:
+        dna = wb.regs.dna_id.read()
+        return ''.join(hex(dna).split('000000'))
+    except KeyError:
+        return 'Unknown'
 
 
 def write_and_check(reg, value):
