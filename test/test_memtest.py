@@ -54,6 +54,8 @@ def main():
     errors = wb.regs.checker_error_count.read()
     assert errors == 0, errors
 
+    print("Done!")
+
     wb.close()
 
 
