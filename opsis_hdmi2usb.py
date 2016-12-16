@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from opsis_video import *
 
-from gateware.encoder import EncoderDMAReader, Encoder
+from gateware.encoder import EncoderDMAReader, EncoderBuffer, Encoder
 from gateware.streamer import USBStreamer
 
 base_cls = VideoMixerSoC
@@ -22,12 +22,14 @@ class HDMI2USBSoC(base_cls):
         base_cls.__init__(self, platform, **kwargs)
 
         self.submodules.encoder_reader = EncoderDMAReader(self.sdram.crossbar.get_port())
+        self.submodules.encoder_buffer = EncoderBuffer()
         self.submodules.encoder = Encoder(platform)
         fx2_pads = platform.request("fx2")
         self.submodules.encoder_streamer = USBStreamer(platform, fx2_pads)
 
         self.comb += [
-            self.encoder_reader.source.connect(self.encoder.sink),
+            self.encoder_reader.source.connect(self.encoder_buffer.sink),
+            self.encoder_buffer.source.connect(self.encoder.sink),
             self.encoder.source.connect(self.encoder_streamer.sink)
         ]
         self.add_wb_slave(mem_decoder(self.mem_map["encoder"]), self.encoder.bus)

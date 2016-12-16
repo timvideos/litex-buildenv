@@ -176,14 +176,21 @@ void encoder_service(void) {
 	static int last_event;
 	static int last_fps_event;
 	static int frame_cnt;
+	static int can_start;
 
 	if(encoder_enabled) {
-		if(encoder_reader_done_read() & encoder_done()) {
+		if(elapsed(&last_event, SYSTEM_CLOCK_FREQUENCY/encoder_target_fps))
+			can_start = 1;
+		if(can_start & encoder_done()) {
 			encoder_init(encoder_quality);
 			encoder_start(processor_h_active, processor_v_active);
-			encoder_reader_length_write(processor_h_active*processor_v_active*2);
-			encoder_reader_shoot_write(1);
+			can_start = 0;
 			frame_cnt++;
+		}
+		if(encoder_reader_done_read()) {
+			encoder_reader_h_width_write(processor_h_active);
+			encoder_reader_v_width_write(processor_v_active);
+			encoder_reader_start_write(1);
 		}
 		if(elapsed(&last_fps_event, SYSTEM_CLOCK_FREQUENCY)) {
 			encoder_fps = frame_cnt;

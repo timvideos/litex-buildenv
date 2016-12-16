@@ -87,10 +87,10 @@ entity JpegEnc is
         OPB_toutSup        : out std_logic;
         OPB_errAck         : out std_logic;
         
-        -- IMAGE RAM
-        iram_wdata         : in  std_logic_vector(C_PIXEL_BITS-1 downto 0);
-        iram_wren          : in  std_logic;
-        iram_fifo_afull    : out std_logic; 
+        -- FDCT INPUT DATA
+        fdct_ack            : out std_logic;
+        fdct_data           : in std_logic_vector(C_PIXEL_BITS-1 downto 0);
+        fdct_stb            : in std_logic;
         
         -- OUT RAM
         ram_byte           : out std_logic_vector(7 downto 0);
@@ -224,31 +224,7 @@ begin
         img_size_wr        => img_size_wr,
         sof                => sof
     );
-    
-  -------------------------------------------------------------------
-  -- BUF_FIFO
-  -------------------------------------------------------------------
-  U_BUF_FIFO : entity work.BUF_FIFO
-  port map
-  (
-        CLK                => CLK,
-        RST                => RST,
-        -- HOST PROG
-        img_size_x         => img_size_x,
-        img_size_y         => img_size_y,
-        sof                => sof,
 
-        -- HOST DATA
-        iram_wren          => iram_wren,
-        iram_wdata         => iram_wdata,
-        fifo_almost_full   => iram_fifo_afull,
-
-        -- FDCT
-        fdct_fifo_rd       => fdct_fifo_rd,
-        fdct_fifo_q        => fdct_fifo_q,
-        fdct_fifo_hf_full  => fdct_fifo_hf_full
-    );
-    
   -------------------------------------------------------------------
   -- Controller
   -------------------------------------------------------------------
@@ -321,9 +297,9 @@ begin
         fdct_sm_settings   => fdct_sm_settings,
 
         -- BUF_FIFO
-        bf_fifo_rd         => fdct_fifo_rd,   
-        bf_fifo_q          => fdct_fifo_q,  
-        bf_fifo_hf_full    => fdct_fifo_hf_full,
+        bf_fifo_rd         => fdct_ack,   
+        bf_fifo_q          => fdct_data,  
+        bf_fifo_hf_full    => fdct_stb,
 
         -- ZIG ZAG
         zz_buf_sel         => zz_buf_sel,
