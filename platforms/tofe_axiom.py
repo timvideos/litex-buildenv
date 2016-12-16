@@ -34,7 +34,7 @@ _tofe_axiom = {
 
         "lvds_5p": "diff_io_b5p",
         "lvds_5n": "diff_io_b5n",
-    }
+    },
 
     # South Connector
     "south": {
@@ -70,7 +70,7 @@ _tofe_axiom = {
 
         "lvds_5p": "diff_io_a5p",
         "lvds_5n": "diff_io_a5n",
-    }
+    },
 }
 
 _axiom_hdmi = {

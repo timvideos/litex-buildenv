@@ -1,7 +1,7 @@
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxPlatform, iMPACT
 
-from tofe_lowspeedio import *
+from platforms.tofe_lowspeedio import *
 
 _tofe_io = {
     # A pairs - 2 x Diff CLK, 6 x Diff IO
