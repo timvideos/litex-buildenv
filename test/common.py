@@ -29,8 +29,7 @@ def connect(desc, *args, **kw):
 def print_memmap(wb):
     print("Memory Map")
     print("-"*20)
-    for n in wb.mems.d.keys():
-        mem = getattr(wb.mems, n)
+    for n, mem in sorted(wb.mems.d.items(), key=lambda i: i[1].base):
         print("{:20} @ 0x{:08x} -- {: 12} kbytes".format(n, mem.base, int(mem.size/1024)))
 
 

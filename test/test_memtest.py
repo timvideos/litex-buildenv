@@ -7,6 +7,8 @@ from common import *
 
 def main():
     wb = connect("LiteX Etherbone Memtest BIST", target='memtest')
+    print_memmap(wb)
+    print()
 
     main_ram = wb.mems.main_ram
     print("DDR at 0x{:x} -- {} Megabytes".format(main_ram.base, int(main_ram.size/(1024*1024))))
@@ -19,9 +21,9 @@ def main():
     wb.regs.generator_reset.write(0)
     wb.regs.checker_reset.write(0)
 
-
     base = int(256e3)
-    length = int(64) # int(64e6) # 64e6 == 64 megabytes
+    #length = int((main_ram.size-base)*8/16) # 64e6 == 64 megabytes
+    length = int(1)
 
     # write
     print("Write")
@@ -38,7 +40,7 @@ def main():
 
     # read
     print("Read")
-    assert wb.regs.checker_error_count.read() == 0
+    assert wb.regs.checker_err_count.read() == 0
 
     write_and_check(wb.regs.checker_base, base)
     write_and_check(wb.regs.checker_length, length)
@@ -47,11 +49,17 @@ def main():
     wb.regs.checker_start.write(1)
     print("Waiting", end='')
     while wb.regs.checker_done.read() == 0:
-        print("Errors:", wb.regs.checker_error_count.read())
+        print("Errors:", wb.regs.checker_err_count.read())
         time.sleep(0.1)
     print()
 
-    errors = wb.regs.checker_error_count.read()
+    errors = wb.regs.checker_err_count.read()
+    if errors != 0:
+        addr = wb.regs.checker_err_addr.read()
+        expect = wb.regs.checker_err_expect.read()
+        actual = wb.regs.checker_err_actual.read()
+        print("Error @ {} - {:x} != {:x}".format(addr, expect, actual))
+
     assert errors == 0, errors
 
     print("Done!")
