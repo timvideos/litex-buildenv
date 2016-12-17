@@ -38,7 +38,7 @@ void bist(void) {
 			timer0_load_write(0xffffffff);
 			timer0_en_write(1);
 
-			generator_shoot_write(1);
+			generator_start_write(1);
 			while(generator_done_read() == 0);
 
 			timer0_update_value_write(1);
@@ -47,7 +47,7 @@ void bist(void) {
 			speed = SYSTEM_CLOCK_FREQUENCY/ticks;
 			speed = test_size*speed/1000000;
 			speed = 8*speed;
-			printf("/ %u Mbps\n", speed);
+			printf(" / %u Mbps\n", speed);
 
 			// read
 			printf("reading %d Mbytes...", test_size/(1024*1024));
@@ -60,7 +60,7 @@ void bist(void) {
 			timer0_load_write(0xffffffff);
 			timer0_en_write(1);
 
-			checker_shoot_write(1);
+			checker_start_write(1);
 			while(checker_done_read() == 0);
 
 			timer0_update_value_write(1);
@@ -69,10 +69,10 @@ void bist(void) {
 			speed = SYSTEM_CLOCK_FREQUENCY/ticks;
 			speed = test_size*speed/1000000;
 			speed = 8*speed;
-			printf("/ %u Mbps\n", speed);
+			printf(" / %u Mbps\n", speed);
 
 			// errors
-			printf("errors: %d\n", checker_error_count_read());
+			printf("errors: %d\n", checker_err_count_read());
 
 			// delay
 			busy_wait(10);
