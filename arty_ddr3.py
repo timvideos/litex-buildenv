@@ -141,19 +141,17 @@ class BaseSoC(SoCSDRAM):
         # logic analyzer
         if False:
             analyzer_signals = [
-                generator_crossbar_port.cmd.valid,
-                generator_crossbar_port.cmd.ready,
-                generator_crossbar_port.cmd.we,
-                generator_crossbar_port.cmd.adr,
+                generator_user_port.cmd.valid,
+                generator_user_port.cmd.ready,
+                generator_user_port.cmd.we,
+                generator_user_port.cmd.adr,
 
-                generator_crossbar_port.wdata.valid,
-                generator_crossbar_port.wdata.ready,
-                generator_crossbar_port.wdata.we,
+                generator_user_port.wdata.valid,
+                generator_user_port.wdata.ready,
+                generator_user_port.wdata.we,
 
                 self.generator.shoot.re,
-                self.checker.shoot.re,
-
-                generator_crossbar_port_wdata_data,
+                self.checker.shoot.re
             ]
 
         if True:
@@ -164,13 +162,13 @@ class BaseSoC(SoCSDRAM):
                 read_data.eq(checker_user_port.rdata.data)
             ]
             analyzer_signals = [
-                checker_crossbar_port.cmd.valid,
-                checker_crossbar_port.cmd.ready,
-                checker_crossbar_port.cmd.we,
-                checker_crossbar_port.cmd.adr,
+                checker_user_port.cmd.valid,
+                checker_user_port.cmd.ready,
+                checker_user_port.cmd.we,
+                checker_user_port.cmd.adr,
 
-                checker_crossbar_port.rdata.valid,
-                checker_crossbar_port.rdata.ready,
+                checker_user_port.rdata.valid,
+                checker_user_port.rdata.ready,
 
                 self.generator.shoot.re,
                 self.checker.shoot.re,
