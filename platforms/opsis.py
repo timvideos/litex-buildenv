@@ -1,3 +1,5 @@
+# Support for the Numato Opsis - The first HDMI2USB production board
+
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxPlatform, iMPACT
 
@@ -98,8 +100,19 @@ def tofe_pin(tofe_netname):
     return _tofe_io[tofe_netname]
 
 _io = [
-    # clock / reset
+    ## FXO-HC536R - component U17
+    # 100MHz - CMOS Crystal Oscillator
+    #NET "clk"                  LOC =   "AB13"       |IOSTANDARD =            None;     #                      (/FPGA_Bank_1_2/USRCLK)
     ("clk100", 0, Pins("AB13"), IOStandard("LVCMOS33")),
+
+    ## FXO-HC536R - component U26
+    # 27MHz - CMOS Crystal Oscillator
+    #NET "clk"                  LOC =    "N19"       |IOSTANDARD =            None;     #                      (/SPI_Flash/27MHz)
+    ("clk27", 0, Pins("N19"), IOStandard("LVCMOS33")),
+
+    ## SW_PUSH - component SW1
+    # Connected to Bank 3 - 1.5V bank
+    #NET "???"                  LOC =     "Y3"       |IOSTANDARD =            None;     #                      (/FPGA_Bank_0_3/SWITCH | Net-(R54-Pad2))
     ("cpu_reset", 0, Pins("Y3"), IOStandard("LVCMOS15"), Misc("PULLUP")),
 
     ## onBoard Quad-SPI Flash
@@ -127,7 +140,42 @@ _io = [
     ("pwled", 0, Pins("H8"), IOStandard("LVCMOS15")), #pwled+ connected to 3.3V
     ("pwrsw", 0, Pins("F5"), IOStandard("LVCMOS15")),
 
-    # dram
+    ## TEMAC Ethernet MAC - FIXME
+    # 10/100/1000 Ethernet PHY
+    ## RTL8211E-VL - component U20 - RGMII
+    ("eth_clocks", 0,
+        Subsignal("tx", Pins("AB12")),
+        Subsignal("rx", Pins("AA12")),
+        IOStandard("LVCMOS33")
+    ),
+    ("eth", 0,
+        Subsignal("rst_n", Pins("U8")),
+        Subsignal("int_n", Pins("V9")),
+        Subsignal("mdio", Pins("T8")),
+        Subsignal("mdc", Pins("V7")),
+        Subsignal("rx_ctl", Pins("U9")),
+        Subsignal("rx_data", Pins("R9 R8 W6 Y6")),
+        Subsignal("tx_ctl", Pins("W8")),
+        Subsignal("tx_data", Pins("W9 Y8 AA6 AB6")),
+        IOStandard("LVCMOS33")
+    ),
+
+    ## 24AA02E48 - component U23
+    ## 2 Kbit Electrically Erasable PROM
+    ## Pre-programmed Globally Unique, 48-bit Node Address
+    ## The device is organized as two blocks of 128 x 8-bit memory with a 2-wire serial interface.
+    ##
+    ## \/ Strongly pulled (2k) to VCC3V3 via R34
+    #NET "eeprom_scl"           LOC =     "G6"       |IOSTANDARD =             I2C;     #                      (/Ethernet/MAC_SCL)
+    #NET "eeprom_sda"           LOC =     "C1"       |IOSTANDARD =             I2C;     #                      (/Ethernet/MAC_SDA)
+    ("opsis_eeprom", 0,
+        Subsignal("scl", Pins("G6"), IOStandard("I2C")),
+        Subsignal("sda", Pins("C1"), IOStandard("I2C")),
+    ),
+
+    ## DDR3
+    # MT41J128M16JT-125:K - 16 Meg x 16 x 8 Banks - DDR3-1600 11-11-11
+    # FBGA Code: D9PSL, Part Number: MT41J128M16 - http://www.micron.com/support/fbga
     ("ddram_clock", 0,
         Subsignal("p", Pins("K4")),
         Subsignal("n", Pins("K3")),
@@ -151,25 +199,9 @@ _io = [
         Misc("SLEW=FAST"),
         Misc("VCCAUX_IO=HIGH")
     ),
-    # ethernet
-    ("eth_clocks", 0,
-        Subsignal("tx", Pins("AB12")),
-        Subsignal("rx", Pins("AA12")),
-        IOStandard("LVCMOS33")
-    ),
-    ("eth", 0,
-        Subsignal("rst_n", Pins("U8")),
-        Subsignal("int_n", Pins("V9")),
-        Subsignal("mdio", Pins("T8")),
-        Subsignal("mdc", Pins("V7")),
-        Subsignal("rx_ctl", Pins("U9")),
-        Subsignal("rx_data", Pins("R9 R8 W6 Y6")),
-        Subsignal("tx_ctl", Pins("W8")),
-        Subsignal("tx_data", Pins("W9 Y8 AA6 AB6")),
-        IOStandard("LVCMOS33")
-    ),
 
-    # hdmi in
+    ## onboard HDMI IN1
+    ## HDMI - connector J5 - Direction RX
     ("hdmi_in", 0,
         Subsignal("clk_p", Pins("L20"), IOStandard("TMDS_33")),
         Subsignal("clk_n", Pins("L22"), IOStandard("TMDS_33")),
@@ -183,6 +215,9 @@ _io = [
         Subsignal("sda", Pins("R22"), IOStandard("LVCMOS33")),
         Subsignal("hpd_en", Pins("R20"), IOStandard("LVCMOS33"))
     ),
+
+    ## onboard HDMI IN2
+    ## HDMI - connector J4 - Direction RX
     ("hdmi_in", 1,
         Subsignal("clk_p", Pins("M20"), IOStandard("TMDS_33")),
         Subsignal("clk_n", Pins("M19"), IOStandard("TMDS_33")),
@@ -197,7 +232,11 @@ _io = [
         Subsignal("hpd_en", Pins("V19"), IOStandard("LVCMOS33"))
     ),
 
-    # hdmi out
+    # Debug header?
+    #("debug", 0, Pins("AA2"), IOStandard("LVCMOS15")), # (/FPGA_Bank_0_3/DEBUG_IO0)
+
+    ## onboard HDMI OUT1
+    ## HDMI - connector J3 - Direction TX
     ("hdmi_out", 0,
         Subsignal("clk_p", Pins("Y11"), IOStandard("TMDS_33")),
         Subsignal("clk_n", Pins("AB11"), IOStandard("TMDS_33")),
@@ -211,6 +250,9 @@ _io = [
         Subsignal("sda", Pins("Y10"), IOStandard("I2C")),
         Subsignal("hpd_notif", Pins("AB7"), IOStandard("LVCMOS33"))
     ),
+
+    ## onboard HDMI OUT2
+    ## HDMI - connector J2 - Direction TX
     ("hdmi_out", 1,
         Subsignal("clk_p", Pins("T12"), IOStandard("TMDS_33")),
         Subsignal("clk_n", Pins("U12"), IOStandard("TMDS_33")),
@@ -226,19 +268,99 @@ _io = [
     ),
 
     # FX2 USB Interface
+    # CY7C68013A_100AC - component U2
     ("fx2", 0,
+        #NET "fx2_ifclk"            LOC =    "P20"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY-IFCLK)
         Subsignal("ifclk", Pins("P20"), IOStandard("LVCMOS33")),
+        #NET "fx2_fd<0>"            LOC =    "C20"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_FD0)
+        #NET "fx2_fd<1>"            LOC =    "C22"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_FD1)
+        #NET "fx2_fd<2>"            LOC =    "L15"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_FD2)
+        #NET "fx2_fd<3>"            LOC =    "K16"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_FD3)
+        #NET "fx2_fd<4>"            LOC =    "D21"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_FD4)
+        #NET "fx2_fd<5>"            LOC =    "D22"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_FD5)
+        #NET "fx2_fd<6>"            LOC =    "G19"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_FD6)
+        #NET "fx2_fd<7>"            LOC =    "F20"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_FD7)
+        #NET "fx2_fd<8>"            LOC =    "H18"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_FD8)
+        #NET "fx2_fd<9>"            LOC =    "H19"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_FD9)
+        #NET "fx2_fd<10>"           LOC =    "F21"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_FD10)
+        #NET "fx2_fd<11>"           LOC =    "F22"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_FD11)
+        #NET "fx2_fd<12>"           LOC =    "E20"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_FD12)
+        #NET "fx2_fd<13>"           LOC =    "E22"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_FD13)
+        #NET "fx2_fd<14>"           LOC =    "J19"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_FD14)
+        #NET "fx2_fd<15>"           LOC =    "H20"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_FD15)
         Subsignal("data", Pins("C20 C22 L15 K16 D21 D22 G19 F20 H18 H19 F21 F22 E20 E22 J19 H20"), IOStandard("LVCMOS33")),
+        #NET "fx2_fifoadr<0>"       LOC =    "B21"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PA4)
+        #NET "fx2_fifoadr<1>"       LOC =    "B22"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PA5)
         Subsignal("addr", Pins("B21 B22"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+        #NET "fx2_flaga"            LOC =    "N16"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_CTL0)
+        #NET "fx2_flagb"            LOC =    "P16"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_CTL1)
+        #NET "fx2_flagc"            LOC =    "R15"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_CTL2)
         Subsignal("flaga", Pins("N16"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
         Subsignal("flagb", Pins("P16"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
         Subsignal("flagc", Pins("R15"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+        #NET "fx2_flagd/slcs_n"     LOC =    "J17"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PA7)
         Subsignal("cs_n", Pins("J17"), IOStandard("LVCMOS33"),  Misc("DRIVE=12")),
+        #NET "fx2_slrd"             LOC =    "P19"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_RD0)
         Subsignal("rd_n", Pins("P19"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
+        #NET "fx2_slwr"             LOC =    "R19"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_RD1)
         Subsignal("wr_n", Pins("R19"), IOStandard("LVCMOS33")),
+        #NET "fx2_sloe"             LOC =    "H16"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PA2)
         Subsignal("oe_n", Pins("H16"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
-        Subsignal("pktend_n", Pins("J16"), IOStandard("LVCMOS33"),  Misc("DRIVE=12"))
+        #NET "fx2_pktend"           LOC =    "J16"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PA6)
+        Subsignal("pktend_n", Pins("J16"), IOStandard("LVCMOS33"),  Misc("DRIVE=12")),
+
+        #NET "fx2_ctl<3>"           LOC =    "M18"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_CTL3)
+        #NET "fx2_ctl<4>"           LOC =    "M17"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_CTL4)
+        #NET "fx2_ctl<5>"           LOC =    "R16"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_CTL5)
+        #NET "fx2_init5_n"          LOC =    "T19"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_INT5)
+        #NET "fx2_int<0>"           LOC =    "F18"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PA0)
+        #NET "fx2_int<1>"           LOC =    "F19"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PA1)
+        #NET "fx2_wu<2>"            LOC =    "H17"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PA3)
+        #NET "fx2_gpifadr<0>"       LOC =    "U20"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PC0)
+        #NET "fx2_gpifadr<1>"       LOC =    "U22"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PC1)
+        #NET "fx2_gpifadr<2>"       LOC =    "V21"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PC2)
+        #NET "fx2_gpifadr<3>"       LOC =    "V22"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PC3)
+        #NET "fx2_gpifadr<4>"       LOC =    "W20"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PC4)
+        #NET "fx2_gpifadr<5>"       LOC =    "W22"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PC5)
+        #NET "fx2_gpifadr<6>"       LOC =    "Y21"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PC6)
+        #NET "fx2_gpifadr<7>"       LOC =    "Y22"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PC7)
+        #NET "fx2_gpifadr<8>"       LOC =   "AB21"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Power/DONE | Net-(R28-Pad1))
+        # Timers
+        #NET "fx2_t<0>"             LOC =    "G17"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/SPI_Flash/TDO-FPGA/TDO-JTAG | Net-(P3-Pad8) | Net-(R14-Pad1))
+        ## \/ Strongly pulled (4k) to VCC3V3 via R56
+        #NET "fx2_t<1>"             LOC =    "AB2"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Power/PROG_B | Net-(R15-Pad1))
+        #NET "fx2_t<2>"             LOC =    "E18"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/SPI_Flash/TDO-USB/TDI-FPGA | Net-(P3-Pad10) | Net-(R23-Pad1))
+        #NET "fx2_rd_n"             LOC =    "K19"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_RD)
+        #NET "fx2_rdy<2>"           LOC =    "M16"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_RD2)
+        #NET "fx2_rdy<3>"           LOC =    "N15"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_RD3)
+        #NET "fx2_rdy<4>"           LOC =    "U19"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_RD4)
+        #NET "fx2_rdy<5>"           LOC =    "T20"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_RD5)
+        ## UART0
+        #NET "fx2_rxd0"             LOC =    "P18"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_RXD1)
+        #NET "fx2_txd0"             LOC =    "T17"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_TXD1)
+        ## UART1
+        #NET "fx2_rxd1"             LOC =    "P17"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_RXD0)
+        #NET "fx2_txd1"             LOC =    "R17"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_TXD0)
+        #
+        #NET "fx2_t0"               LOC =    "G20"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_T0)
+        #NET "fx2_wr_n"             LOC =    "K18"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_WR)
+	# JTAG
+        #  - TMS?
+        #NET "fx2_rxd<0>"           LOC =    "D20"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Power/TMS | Net-(P3-Pad4) | Net-(R24-Pad1))
+        #  - TCK
+        #NET "fx2_rxd<1>"           LOC =    "A21"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Power/TCK | Net-(P3-Pad6) | Net-(R26-Pad1))
+        ## \/ Strongly pulled (4k) to VCC3V3 via R52
+        #NET "fx2_t<2>"             LOC =     "Y4"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/INIT_B | Net-(R27-Pad1))
+
+        ## Same pins as the EEPROM
+        ## \/ Strongly pulled (2k) to VCC3V3 via R34
+        #NET "fx2_scl"              LOC =     "G6"       |IOSTANDARD =             I2C;     #                      (/Ethernet/MAC_SCL)
+        #Subsignal("scl", Pins("G6"), IOStandard("I2C")),
+        #NET "fx2_sda"              LOC =     "C1"       |IOSTANDARD =             I2C;     #                      (/Ethernet/MAC_SDA)
+        #Subsignal("sda", Pins("C1"), IOStandard("I2C")),
     ),
+
+    ("fx2_reset", 0, Pins("G22"), IOStandard("LVCMOS33"), Misc("PULLUP"), Misc("DRIVE=24"), Misc("SLEW=SLOW")),
 
     # To Cypress FX2 UART0
     # WARNING: This was labelled incorrectly - https://github.com/timvideos/HDMI2USB-numato-opsis-hardware/issues/13
@@ -299,9 +421,39 @@ _io = [
     ),
 ]
 
+_connectors = [
+]
+
+_hdmi_infos = {
+    "HDMI_OUT0_MNEMONIC": "TX1",
+    "HDMI_OUT0_DESCRIPTION" : (
+      "  The *first* HDMI port from the left.\\r\\n"
+      "  Labeled J3 and HDMI Out 1.\\r\\n"
+    ),
+
+    "HDMI_OUT1_MNEMONIC": "TX2",
+    "HDMI_OUT1_DESCRIPTION" : (
+      "  The *second* HDMI port from the left.\\r\\n"
+      "  Labeled J2 and HDMI Out 2.\\r\\n"
+    ),
+
+    "HDMI_IN0_MNEMONIC": "RX1",
+    "HDMI_IN0_DESCRIPTION" : (
+      "  The *third* HDMI port from the left.\\r\\n"
+      "  Labeled J5 and HDMI In 1.\\r\\n"
+    ),
+
+    "HDMI_IN1_MNEMONIC": "RX2",
+    "HDMI_IN1_DESCRIPTION" : (
+      "  The *fourth* HDMI port from the left. (Closest to the USB.)\\r\\n"
+      "  Labeled J4 and HDMI In 2.\\r\\n"
+    ),
+}
+
 class Platform(XilinxPlatform):
     default_clk_name = "clk100"
     default_clk_period = 10.0
+    hdmi_infos = _hdmi_infos
 
     # W25Q128FVEIG - component U3
     # 128M (16M x 8) - 104MHz
@@ -321,7 +473,8 @@ class Platform(XilinxPlatform):
 
 
     def __init__(self, programmer="openocd"):
-        XilinxPlatform.__init__(self,  "xc6slx45t-fgg484-3", _io)
+        # XC6SLX45T-3FGG484C
+        XilinxPlatform.__init__(self,  "xc6slx45t-fgg484-3", _io, _connectors)
         self.programmer = programmer
 
         pins = {
@@ -335,6 +488,8 @@ class Platform(XilinxPlatform):
           }
         for pin, config in pins.items():
             self.toolchain.bitgen_opt += " -g %s:%s " % (pin, config)
+
+        # FPGA AUX is connected to the 3.3V supply
         self.add_platform_command("""CONFIG VCCAUX="3.3";""")
 
     def create_programmer(self):
@@ -360,5 +515,10 @@ class Platform(XilinxPlatform):
 
         try:
             self.add_period_constraint(self.lookup_request("eth_clocks").rx, 8.0)
+        except ConstraintError:
+            pass
+
+        try:
+            self.add_period_constraint(self.lookup_request("fx2").ifclk, 10)
         except ConstraintError:
             pass
