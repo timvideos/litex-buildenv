@@ -176,7 +176,7 @@ class BaseSoC(SoCSDRAM):
                 gen_data,
                 read_data,
 
-                self.checker.core.error_count
+                self.checker.core.err_count
             ]
 
         self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 512)

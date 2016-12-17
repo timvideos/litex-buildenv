@@ -116,7 +116,7 @@ regs.checker_start.write(1)
 while(not regs.checker_done.read()):
     pass
 
-print("errors: {:d}".format(regs.checker_error_count.read()))
+print("errors: {:d}".format(regs.checker_err_count.read()))
 
 if run_analyzer:
     while not analyzer.done():
