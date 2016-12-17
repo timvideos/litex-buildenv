@@ -1,20 +1,17 @@
-# Support for the Digilent Atlys board - digilentinc.com/atlys/
+# Support for the Pipistrello - http://pipistrello.saanlima.com/
 from fractions import Fraction
 
 from litex.gen import *
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
-from litex.gen.genlib.misc import WaitTimer
 
 from litex.soc.cores.flash import spi_flash
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
-from litedram.modules import P3R1GE4JGF
+from litedram.modules import MT46H32M16
 from litedram.phy import s6ddrphy
 from litedram.core import ControllerSettings
 
-
-from gateware import cas
 from gateware import dna
 #from gateware import git_info
 #from gateware import platform_info
@@ -35,22 +32,23 @@ class _CRG(Module):
 
         self.reset = Signal()
 
-        # Input 100MHz clock
-        f0 = 100*1000000
-        clk100 = platform.request("clk100")
-        clk100a = Signal()
-        # Input 100MHz clock (buffered)
-        self.specials += Instance("IBUFG", i_I=clk100, o_O=clk100a)
-        clk100b = Signal()
+        # Input 50MHz clock
+        f0 = 50*1000000
+        clk50 = platform.request("clk50")
+        clk50a = Signal()
+        # Input 50MHz clock (buffered)
+        self.specials += Instance("IBUFG", i_I=clk50, o_O=clk50a)
+        clk50b = Signal()
         self.specials += Instance(
             "BUFIO2", p_DIVIDE=1,
             p_DIVIDE_BYPASS="TRUE", p_I_INVERT="FALSE",
-            i_I=clk100a, o_DIVCLK=clk100b)
+            i_I=clk50a, o_DIVCLK=clk50b)
 
-        f = Fraction(int(clk_freq), int(f0))
-        n, m = f.denominator, f.numerator
-        assert f0/n*m == clk_freq
-        p = 8
+        p = 12
+        f = Fraction(clk_freq*p, f0)
+        n, d = f.numerator, f.denominator
+        assert 19e6 <= f0/d <= 500e6  # pfd
+        assert 400e6 <= f0*n/d <= 1080e6  # vco
 
         # Unbuffered output signals from the PLL. They need to be buffered
         # before feeding into the fabric.
@@ -59,7 +57,7 @@ class _CRG(Module):
         unbuf_sdram_half_b = Signal()
         unbuf_unused = Signal()
         unbuf_sys = Signal()
-        unbuf_sys2x = Signal()
+        unbuf_periph = Signal()
 
         # PLL signals
         pll_lckd = Signal()
@@ -69,9 +67,9 @@ class _CRG(Module):
             p_SIM_DEVICE="SPARTAN6", p_BANDWIDTH="OPTIMIZED", p_COMPENSATION="INTERNAL",
             p_REF_JITTER=.01,
             i_DADDR=0, i_DCLK=0, i_DEN=0, i_DI=0, i_DWE=0, i_RST=0, i_REL=0,
-            p_DIVCLK_DIVIDE=1,
-            # Input Clocks (100MHz)
-            i_CLKIN1=clk100b,
+            p_DIVCLK_DIVIDE=d,
+            # Input Clocks (50MHz)
+            i_CLKIN1=clk50b,
             p_CLKIN1_PERIOD=1e9/f0,
             i_CLKIN2=0,
             p_CLKIN2_PERIOD=0.,
@@ -79,30 +77,30 @@ class _CRG(Module):
             # Feedback
             i_CLKFBIN=pll_fb, o_CLKFBOUT=pll_fb, o_LOCKED=pll_lckd,
             p_CLK_FEEDBACK="CLKFBOUT",
-            p_CLKFBOUT_MULT=m*p//n, p_CLKFBOUT_PHASE=0.,
-            # (300MHz) sdram wr rd
+            p_CLKFBOUT_MULT=n, p_CLKFBOUT_PHASE=0.,
+            # (333MHz) sdram wr rd
             o_CLKOUT0=unbuf_sdram_full, p_CLKOUT0_DUTY_CYCLE=.5,
             p_CLKOUT0_PHASE=0., p_CLKOUT0_DIVIDE=p//4,
             # unused?
             o_CLKOUT1=unbuf_unused, p_CLKOUT1_DUTY_CYCLE=.5,
-            p_CLKOUT1_PHASE=0., p_CLKOUT1_DIVIDE=p//8,
-            # (150MHz) sdram_half - sdram dqs adr ctrl
+            p_CLKOUT1_PHASE=0., p_CLKOUT1_DIVIDE=15,
+            # (166MHz) sdram_half - sdram dqs adr ctrl
             o_CLKOUT2=unbuf_sdram_half_a, p_CLKOUT2_DUTY_CYCLE=.5,
             p_CLKOUT2_PHASE=270., p_CLKOUT2_DIVIDE=p//2,
-            # (150MHz) off-chip ddr
+            # (166MHz) off-chip ddr
             o_CLKOUT3=unbuf_sdram_half_b, p_CLKOUT3_DUTY_CYCLE=.5,
             p_CLKOUT3_PHASE=250., p_CLKOUT3_DIVIDE=p//2,
             # ( 50MHz) periph
             o_CLKOUT4=unbuf_periph, p_CLKOUT4_DUTY_CYCLE=.5,
-            p_CLKOUT4_PHASE=0., p_CLKOUT4_DIVIDE=12,
-            # ( 75MHz) sysclk
+            p_CLKOUT4_PHASE=0., p_CLKOUT4_DIVIDE=20,
+            # ( 83MHz) sysclk
             o_CLKOUT5=unbuf_sys, p_CLKOUT5_DUTY_CYCLE=.5,
             p_CLKOUT5_PHASE=0., p_CLKOUT5_DIVIDE=p//1,
         )
 
 
         # power on reset?
-        reset = ~platform.request("cpu_reset") | self.reset
+        reset = platform.request("user_btn") | self.reset
         self.clock_domains.cd_por = ClockDomain()
         por = Signal(max=1 << 11, reset=(1 << 11) - 1)
         self.sync.por += If(por != 0, por.eq(por - 1))
@@ -133,16 +131,18 @@ class _CRG(Module):
         self.specials += Instance("BUFG", i_I=unbuf_sdram_half_a, o_O=self.cd_sdram_half.clk)
         clk_sdram_half_shifted = Signal()
         self.specials += Instance("BUFG", i_I=unbuf_sdram_half_b, o_O=clk_sdram_half_shifted)
-
-        output_clk = Signal()
         clk = platform.request("ddram_clock")
         self.specials += Instance("ODDR2", p_DDR_ALIGNMENT="NONE",
                                   p_INIT=0, p_SRTYPE="SYNC",
                                   i_D0=1, i_D1=0, i_S=0, i_R=0, i_CE=1,
                                   i_C0=clk_sdram_half_shifted,
                                   i_C1=~clk_sdram_half_shifted,
-                                  o_Q=output_clk)
-        self.specials += Instance("OBUFDS", i_I=output_clk, o_O=clk.p, o_OB=clk.n)
+                                  o_Q=clk.p)
+        self.specials += Instance("ODDR2", p_DDR_ALIGNMENT="NONE",
+                                  p_INIT=0, p_SRTYPE="SYNC",
+                                  i_D0=0, i_D1=1, i_S=0, i_R=0, i_CE=1,
+                                  i_C0=clk_sdram_half_shifted, i_C1=~clk_sdram_half_shifted,
+                                  o_Q=clk.n)
 
         # Peripheral clock - 50MHz
         # ------------------------------------------------------------------------------
@@ -168,11 +168,17 @@ class _CRG(Module):
 class BaseSoC(SoCSDRAM):
     csr_peripherals = (
         "spiflash",
-#        "cas",
+        "front_panel",
         "ddrphy",
         "dna",
 #        "git_info",
 #        "platform_info",
+#        "fx2_reset",
+#        "fx2_hack",
+#        "opsis_eeprom_i2c",
+        "tofe_ctrl",
+        "tofe_lsio_leds",
+        "tofe_lsio_sws",
     )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
@@ -181,8 +187,9 @@ class BaseSoC(SoCSDRAM):
     }
     mem_map.update(SoCSDRAM.mem_map)
 
+
     def __init__(self, platform, **kwargs):
-        clk_freq = 75*1000000
+        clk_freq = (83 + Fraction(1, 3))*1000*1000
         SoCSDRAM.__init__(self, platform, clk_freq,
             integrated_rom_size=0x8000,
             integrated_sram_size=0x4000,
@@ -193,7 +200,17 @@ class BaseSoC(SoCSDRAM):
 
         self.submodules.dna = dna.DNA()
         #self.submodules.git_info = git_info.GitInfo()
-        #self.submodules.platform_info = platform_info.PlatformInfo("atlys", self.__class__.__name__[:8])
+        #self.submodules.platform_info = platform_info.PlatformInfo("pipi", self.__class__.__name__[:8])
+
+        #self.submodules.opsis_eeprom_i2c = i2c.I2C(platform.request("opsis_eeprom"))
+        #self.submodules.fx2_reset = gpio.GPIOOut(platform.request("fx2_reset"))
+        #self.submodules.fx2_hack = i2c_hack.I2CShiftReg(platform.request("opsis_eeprom"))
+
+        self.submodules.tofe_eeprom_i2c = i2c.I2C(platform.request("tofe_eeprom"))
+
+        self.submodules.suart = shared_uart.SharedUART(self.clk_freq, 115200)
+        self.suart.add_uart_pads(platform.request('fx2_serial'))
+        self.submodules.uart = self.suart.uart
 
         self.submodules.spiflash = spi_flash.SpiFlash(
             platform.request("spiflash4x"),
@@ -205,16 +222,14 @@ class BaseSoC(SoCSDRAM):
         self.register_mem("spiflash", self.mem_map["spiflash"],
             self.spiflash.bus, size=platform.gateware_size)
 
-        self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
-
         # sdram
-        sdram_module = P3R1GE4JGF(self.clk_freq, "1:2")
+        sdram_module = MT46H32M16(self.clk_freq, "1:2")
         self.submodules.ddrphy = s6ddrphy.S6HalfRateDDRPHY(
             platform.request("ddram"),
             sdram_module.memtype,
-            rd_bitslip=0,
-            wr_bitslip=4,
-            dqs_ddr_alignment="C0")
+            rd_bitslip=1,
+            wr_bitslip=3,
+            dqs_ddr_alignment="C1")
         controller_settings = ControllerSettings(with_bandwidth=True)
         self.register_sdram(self.ddrphy,
                             sdram_module.geom_settings,
