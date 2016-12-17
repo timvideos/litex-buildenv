@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-
+# Support for simulation via verilator
 from litex.gen import *
 from litex.gen.genlib.io import CRG
 
@@ -14,9 +13,7 @@ from litedram.core.controller import ControllerSettings
 
 from gateware import firmware
 
-
-def csr_map_update(csr_map, csr_peripherals):
-  csr_map.update(dict((n, v) for v, n in enumerate(csr_peripherals, start=max(csr_map.values()) + 1)))
+from targets.utils import csr_map_update
 
 
 class BaseSoC(SoCSDRAM):

@@ -19,12 +19,7 @@ from gateware import dna
 #from gateware import git_info
 #from gateware import platform_info
 
-
-def csr_map_update(csr_map, csr_peripherals):
-    csr_map.update(dict((n, v)
-        for v, n in enumerate(csr_peripherals, start=max(csr_map.values()) + 1)))
-
-
+from targets.utils import csr_map_update
 
 
 class _CRG(Module):

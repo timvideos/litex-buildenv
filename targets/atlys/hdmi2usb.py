@@ -5,7 +5,7 @@ from gateware.encoder import EncoderDMAReader, Encoder
 from gateware.streamer import USBStreamer
 
 from targets.utils import csr_map_update
-from targets.opsis.video import SoC as BaseSoC
+from targets.atlys.video import SoC as BaseSoC
 
 
 class HDMI2USBSoC(BaseSoC):

@@ -1,11 +1,9 @@
-#!/usr/bin/env python3
-
 from litex.soc.integration.soc_core import mem_decoder
 
 from liteeth.phy.model import LiteEthPHYModel
 from liteeth.core.mac import LiteEthMAC
 
-from targets.sim.base import csr_map_update
+from targets.utils import csr_map_update
 from targets.sim.base import BaseSoC
 
 

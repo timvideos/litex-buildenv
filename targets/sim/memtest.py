@@ -1,8 +1,6 @@
-#!/usr/bin/env python3
-
 from litedram.frontend.bist import LiteDRAMBISTGenerator, LiteDRAMBISTChecker
 
-from targets.sim.base import csr_map_update
+from targets.utils import csr_map_update
 from targets.sim.net import NetSoC as BaseSoC
 
 

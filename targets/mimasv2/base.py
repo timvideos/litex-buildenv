@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-
+# Support for the MimasV2
 from fractions import Fraction
 
 from litex.gen import *
@@ -15,11 +14,7 @@ from litedram.core import ControllerSettings
 
 from gateware import dna
 
-
-def csr_map_update(csr_map, csr_peripherals):
-    csr_map.update(dict((n, v)
-        for v, n in enumerate(csr_peripherals, start=max(csr_map.values()) + 1)))
-
+from targets.utils import csr_map_update
 
 
 class _CRG(Module):

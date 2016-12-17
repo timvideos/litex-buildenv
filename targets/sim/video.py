@@ -1,11 +1,9 @@
-#!/usr/bin/env python3
-
 from litex.gen import *
 
 from litevideo.output.common import *
 from litevideo.output.core import VideoOutCore
 
-from targets.sim.base import csr_map_update
+from targets.utils import csr_map_update
 from targets.sim.net import NetSoC as BaseSoC
 
 

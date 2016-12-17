@@ -29,10 +29,10 @@ class NetSoC(BaseSoC):
     def __init__(self, platform, **kwargs):
         BaseSoC.__init__(self, platform, **kwargs)
 
-        self.submodules.ethphy = LiteEthPHYRGMII(
+        self.submodules.ethphy = LiteEthPHYMII(
             platform.request("eth_clocks"),
             platform.request("eth"))
-        self.platform.add_source("gateware/rgmii_if.vhd")
+
         self.submodules.ethmac = LiteEthMAC(
             phy=self.ethphy, dw=32, interface="wishbone")
         self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)
@@ -44,6 +44,7 @@ class NetSoC(BaseSoC):
             Keep(self.ethphy.crg.cd_eth_tx.clk),
         ]
 
+        # FIXME: This is probably too tight?
         self.platform.add_period_constraint(self.ethphy.crg.cd_eth_rx.clk, 8.0)
 
         self.platform.add_false_path_constraints(
