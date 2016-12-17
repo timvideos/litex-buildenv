@@ -21,9 +21,9 @@ def connect(desc, *args, **kw):
     print("Connecting to {}".format(args.ipaddress))
     wb = RemoteClient(args.ipaddress, 1234, csr_csv="{}/csr.csv".format(make_testdir(args)))
     wb.open()
-    print("Device: {}".format(get_dna(wb)))
+    print("Device DNA: {}".format(get_dna(wb)))
 
-    return wb
+    return args, wb
 
 
 def print_memmap(wb):

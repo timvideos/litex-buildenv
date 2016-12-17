@@ -56,6 +56,9 @@ def main():
     builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
     vns = builder.build()
 
+    if hasattr(soc, 'do_exit'):
+        soc.do_exit(vns, filename="{}/analyzer.csv".format(testdir))
+
 
 if __name__ == "__main__":
     main()

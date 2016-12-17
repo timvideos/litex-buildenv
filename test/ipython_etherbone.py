@@ -2,13 +2,17 @@
 
 from IPython import embed
 
+from litescope.software.driver.analyzer import LiteScopeAnalyzerDriver
+
 from common import *
 
 
 def main():
-    wb = connect("LiteX Etherbone Interactive Console")
+    args, wb = connect("LiteX Etherbone Interactive Console")
     print_memmap(wb)
     print()
+
+    analyzer = LiteScopeAnalyzerDriver(wb.regs, "analyzer", config_csv='{}/analyzer.csv'.format(make_testdir(args)), debug=True)
 
     try:
         embed()

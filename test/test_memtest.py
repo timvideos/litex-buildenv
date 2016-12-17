@@ -2,11 +2,13 @@
 
 import time
 
+from litescope.software.driver.analyzer import LiteScopeAnalyzerDriver
+
 from common import *
 
 
 def main():
-    wb = connect("LiteX Etherbone Memtest BIST", target='memtest')
+    args, wb = connect("LiteX Etherbone Memtest BIST", target='memtest')
     print_memmap(wb)
     print()
 
@@ -21,9 +23,14 @@ def main():
     wb.regs.generator_reset.write(0)
     wb.regs.checker_reset.write(0)
 
+    analyzer = LiteScopeAnalyzerDriver(wb.regs, "analyzer", config_csv='{}/analyzer.csv'.format(make_testdir(args)), debug=True)
+    analyzer.configure_trigger(cond={'checker_litedrambistchecker_error': 1})
+    analyzer.configure_subsampler(1)
+#    analyzer.run(offset=16, length=1024)
+
     base = int(256e3)
     #length = int((main_ram.size-base)*8/16) # 64e6 == 64 megabytes
-    length = int(1)
+    length = int(2e6)
 
     # write
     print("Write")
