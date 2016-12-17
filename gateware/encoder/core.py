@@ -140,6 +140,7 @@ class EncoderBuffer(Module):
             )
         ]
 
+
         # write path
         v_write_clr = Signal()
         v_write_inc = Signal()
@@ -247,7 +248,6 @@ class Encoder(Module, AutoCSR):
         ]
 
         input_fifo = stream.SyncFIFO([("data", 24)], 128)
-        self.input_fifo = input_fifo
         self.submodules += input_fifo
 
         self.comb += [
@@ -262,24 +262,11 @@ class Encoder(Module, AutoCSR):
         fdct_fifo_q = Signal(24)
         fdct_fifo_hf_full = Signal()
 
-        self.fdct_fifo_rd = fdct_fifo_rd
-        self.fdct_fifo_q = fdct_fifo_q
-        self.fdct_fifo_hf_full = fdct_fifo_hf_full
-        self.fdct_fifo_dval_o = Signal()
-
         fdct_data_d1 = Signal(24)
         fdct_data_d2 = Signal(24)
         fdct_data_d3 = Signal(24)
         fdct_data_d4 = Signal(24)
         fdct_data_d5 = Signal(24)
-
-        fdct_data_valid_d1 = Signal()
-        fdct_data_valid_d2 = Signal()
-        fdct_data_valid_d3 = Signal()
-        fdct_data_valid_d4 = Signal()
-        fdct_data_valid_d5 = Signal()
-
-        self.fdct_valid = Signal()
 
         self.sync += [
             If(fdct_fifo_rd,
@@ -290,18 +277,7 @@ class Encoder(Module, AutoCSR):
             fdct_data_d4.eq(fdct_data_d3),
             fdct_data_d5.eq(fdct_data_d4)
         ]
-        self.sync += [
-            fdct_data_valid_d1.eq(0),
-            If(fdct_fifo_rd,
-                fdct_data_valid_d1.eq(1)
-            ),
-            fdct_data_valid_d2.eq(fdct_data_valid_d1),
-            fdct_data_valid_d3.eq(fdct_data_valid_d2),
-            fdct_data_valid_d4.eq(fdct_data_valid_d3),
-            fdct_data_valid_d5.eq(fdct_data_valid_d4),
-        ]
         self.comb += [
-            self.fdct_valid.eq(fdct_data_valid_d4),
             fdct_fifo_q.eq(fdct_data_d4),
             fdct_fifo_hf_full.eq((input_fifo.level >= 64)),
             input_fifo.source.ready.eq(fdct_fifo_rd)
@@ -334,7 +310,7 @@ class Encoder(Module, AutoCSR):
             o_fdct_fifo_rd=fdct_fifo_rd,
             i_fdct_fifo_q=fdct_fifo_q,
             i_fdct_fifo_hf_full=fdct_fifo_hf_full,
-            o_fdct_fifo_dval_o=self.fdct_fifo_dval_o,
+            #o_fdct_fifo_dval_o=,
 
             o_ram_byte=output_fifo.sink.data,
             o_ram_wren=output_fifo.sink.valid,

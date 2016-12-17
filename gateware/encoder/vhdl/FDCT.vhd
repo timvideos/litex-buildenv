@@ -326,7 +326,7 @@ begin
       ----------------------------------------------------------------
       -- stall reading from input FIFO and writing to output FIFO
       -- when output FIFO is almost full
-      if rd_en = '1' and unsigned(fifo1_count) < 512-128 then
+      if rd_en = '1' and unsigned(fifo1_count) < 512-64 then
         -- read request goes to BUF_FIFO only for component 0.
         if cur_cmp_idx < 2 then
           bf_fifo_rd_s <= '1';
