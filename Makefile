@@ -21,6 +21,13 @@ load-gateware: load-gateware-$(PLATFORM)
 load-firmware: firmware load-firmware-$(PLATFORM)
 	true
 
+# mimasv2 loading
+load-gateware-mimasv2:
+	MimasV2Config.py /dev/ttyACM0 $(BUILD_DIR)/gateware/top.bin
+
+load-firmware-mimasv2:
+	flterm --port=/dev/ttyACM0 --kernel=$(BUILD_DIR)/software/firmware/firmware.bin
+
 # opsis loading
 load-gateware-opsis: tftp
 	opsis-mode-switch --verbose --load-gateware $(BUILD_DIR)/gateware/top.bit
