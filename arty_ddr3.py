@@ -150,8 +150,8 @@ class BaseSoC(SoCSDRAM):
                 generator_user_port.wdata.ready,
                 generator_user_port.wdata.we,
 
-                self.generator.shoot.re,
-                self.checker.shoot.re
+                self.generator.start.re,
+                self.checker.start.re
             ]
 
         if True:
@@ -170,8 +170,8 @@ class BaseSoC(SoCSDRAM):
                 checker_user_port.rdata.valid,
                 checker_user_port.rdata.ready,
 
-                self.generator.shoot.re,
-                self.checker.shoot.re,
+                self.generator.start.re,
+                self.checker.start.re,
 
                 gen_data,
                 read_data,

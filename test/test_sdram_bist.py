@@ -93,8 +93,8 @@ run_analyzer = True
 
 #
 
-analyzer.configure_trigger(cond={"generator_shoot_re": 1})
-analyzer.configure_trigger(cond={"checker_shoot_re": 1})
+analyzer.configure_trigger(cond={"generator_start_re": 1})
+analyzer.configure_trigger(cond={"checker_start_re": 1})
 analyzer.configure_subsampler(1)
 analyzer.run(offset=16, length=512)
 
@@ -103,7 +103,7 @@ regs.generator_reset.write(0)
 regs.generator_base.write(0)
 regs.generator_length.write((test_size*8)//128)
 
-regs.generator_shoot.write(1)
+regs.generator_start.write(1)
 while(not regs.generator_done.read()):
     pass
 
@@ -112,7 +112,7 @@ regs.checker_reset.write(0)
 regs.checker_base.write(0)
 regs.checker_length.write((test_size*8)//128)
 
-regs.checker_shoot.write(1)
+regs.checker_start.write(1)
 while(not regs.checker_done.read()):
     pass
 
