@@ -33,7 +33,7 @@ class RGBLed:
             self.b = PWM(regs, "rgb_leds_b"+str(n))
 
 
-wb = RemoteClient(csr_data_width=8)
+wb = RemoteClient()
 wb.open()
 regs = wb.regs
 

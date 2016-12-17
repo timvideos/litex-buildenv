@@ -5,7 +5,7 @@ rom_base = 0x00000000
 dump_size = 0x8000
 words_per_packet = 128
 
-wb = RemoteClient(csr_data_width=8)
+wb = RemoteClient()
 wb.open()
 
 # # #

@@ -3,7 +3,7 @@ import time
 from litex.soc.tools.remote import RemoteClient
 from litescope.software.driver.analyzer import LiteScopeAnalyzerDriver
 
-wb = RemoteClient(csr_data_width=32, debug=False)
+wb = RemoteClient(debug=False)
 wb.open()
 regs = wb.regs
 
@@ -89,7 +89,7 @@ for k in range(2):
 #
 
 test_size = 1024*1024
-run_analyzer = False
+run_analyzer = True
 
 #
 
