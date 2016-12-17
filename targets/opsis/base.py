@@ -3,8 +3,6 @@
 from fractions import Fraction
 
 from litex.gen import *
-from litex.gen.fhdl.specials import Keep
-from litex.gen.genlib.io import CRG
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 from litex.gen.genlib.misc import WaitTimer
 
@@ -15,15 +13,11 @@ from litex.soc.cores.gpio import GPIOIn, GPIOOut
 from litex.soc.interconnect.csr import AutoCSR
 from litex.soc.cores.uart.bridge import UARTWishboneBridge
 
-
 from litedram.modules import MT41J128M16
 from litedram.phy import s6ddrphy
 from litedram.core import ControllerSettings
 
-from liteeth.core.mac import LiteEthMAC
-
 from gateware import dna
-from gateware import firmware
 from gateware import shared_uart
 
 
@@ -187,6 +181,8 @@ class BaseSoC(SoCSDRAM):
             with_uart=False,
             **kwargs)
         self.submodules.crg = _CRG(platform, clk_freq)
+        self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
+
         self.submodules.dna = dna.DNA()
 
         self.submodules.suart = shared_uart.SharedUART(self.clk_freq, 115200)
@@ -208,12 +204,12 @@ class BaseSoC(SoCSDRAM):
         self.comb += self.crg.reset.eq(self.front_panel.reset)
 
         # sdram
+        sdram_module = MT41J128M16(self.clk_freq, "1:4")
         self.submodules.ddrphy = s6ddrphy.S6QuarterRateDDRPHY(
             platform.request("ddram"),
             rd_bitslip=0,
             wr_bitslip=4,
             dqs_ddr_alignment="C0")
-        sdram_module = MT41J128M16(self.clk_freq, "1:4")
         controller_settings = ControllerSettings(with_bandwidth=True)
         self.register_sdram(self.ddrphy,
                             sdram_module.geom_settings,
@@ -223,8 +219,6 @@ class BaseSoC(SoCSDRAM):
             self.ddrphy.clk8x_wr_strb.eq(self.crg.clk8x_wr_strb),
             self.ddrphy.clk8x_rd_strb.eq(self.crg.clk8x_rd_strb),
         ]
-
-        self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
 
         # TOFE board
         tofe_ctrl = Signal(3) # rst, sda, scl
