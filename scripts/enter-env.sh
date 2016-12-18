@@ -80,7 +80,7 @@ fi
 # Xilinx ISE
 XILINX_DIR=$BUILD_DIR/Xilinx
 if [ -f "$XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/xreport" ]; then
-	export MISOC_EXTRA_CMDLINE="-Ob ise_path $XILINX_DIR/opt/Xilinx/"
+	export MISOC_EXTRA_CMDLINE="-Ob toolchain_path $XILINX_DIR/opt/Xilinx/"
 	# Reserved MAC address from documentation block, see
 	# http://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
 	export XILINXD_LICENSE_FILE=$XILINX_DIR
