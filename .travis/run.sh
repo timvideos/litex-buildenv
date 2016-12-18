@@ -12,10 +12,12 @@ fi
 set +x
 set -e
 
-if [ -z "$PLATFORM" ]; then
-	PLATFORMS=$(ls targets/ | grep -v ".py" | sed -e"s+targets/++")
-else
-	PLATFORMS="$PLATFORM"
+if [ -z "$PLATFORMS" ]; then
+	if [ -z "$PLATFORM" ]; then
+		PLATFORMS=$(ls targets/ | grep -v ".py" | sed -e"s+targets/++")
+	else
+		PLATFORMS="$PLATFORM"
+	fi
 fi
 echo "Running with PLATFORMS='$PLATFORMS'"
 
@@ -23,10 +25,12 @@ echo "Running with PLATFORMS='$PLATFORMS'"
 find | sort > /tmp/filelist.before
 
 for PLATFORM in $PLATFORMS; do
-	if [ -z "$TARGET" -a -z "$TARGETS" ]; then
-		TARGETS=$(ls targets/${PLATFORM}/*.py | grep -v "__" | sed -e"s+targets/${PLATFORM}/++" -e"s/.py//")
-	else
-		TARGETS="$TARGET"
+	if [ -z "$TARGETS" ]; then
+		if [ -z "$TARGET" -a -z "$TARGETS" ]; then
+			TARGETS=$(ls targets/${PLATFORM}/*.py | grep -v "__" | sed -e"s+targets/${PLATFORM}/++" -e"s/.py//")
+		else
+			TARGETS="$TARGET"
+		fi
 	fi
 	echo "Running with TARGETS='$TARGETS'"
 	(
