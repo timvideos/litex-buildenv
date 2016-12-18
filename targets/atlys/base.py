@@ -14,7 +14,7 @@ from litedram.phy import s6ddrphy
 from litedram.core import ControllerSettings
 
 
-from gateware import cas
+#from gateware import cas
 from gateware import dna
 from gateware import git_info
 from gateware import platform_info
@@ -57,9 +57,9 @@ class _CRG(Module):
         unbuf_sdram_full = Signal()
         unbuf_sdram_half_a = Signal()
         unbuf_sdram_half_b = Signal()
-        unbuf_unused = Signal()
+        unbuf_unused1 = Signal()
+        unbuf_unused2 = Signal()
         unbuf_sys = Signal()
-        unbuf_sys2x = Signal()
 
         # PLL signals
         pll_lckd = Signal()
@@ -83,8 +83,8 @@ class _CRG(Module):
             # (300MHz) sdram wr rd
             o_CLKOUT0=unbuf_sdram_full, p_CLKOUT0_DUTY_CYCLE=.5,
             p_CLKOUT0_PHASE=0., p_CLKOUT0_DIVIDE=p//4,
-            # unused?
-            o_CLKOUT1=unbuf_unused, p_CLKOUT1_DUTY_CYCLE=.5,
+            # ( 66MHz) unused? - Was encoder
+            o_CLKOUT1=unbuf_unused1, p_CLKOUT1_DUTY_CYCLE=.5,
             p_CLKOUT1_PHASE=0., p_CLKOUT1_DIVIDE=p//8,
             # (150MHz) sdram_half - sdram dqs adr ctrl
             o_CLKOUT2=unbuf_sdram_half_a, p_CLKOUT2_DUTY_CYCLE=.5,
@@ -92,8 +92,8 @@ class _CRG(Module):
             # (150MHz) off-chip ddr
             o_CLKOUT3=unbuf_sdram_half_b, p_CLKOUT3_DUTY_CYCLE=.5,
             p_CLKOUT3_PHASE=250., p_CLKOUT3_DIVIDE=p//2,
-            # ( 50MHz) periph
-            o_CLKOUT4=unbuf_periph, p_CLKOUT4_DUTY_CYCLE=.5,
+            # ( 50MHz) unused? - Was peripheral
+            o_CLKOUT4=unbuf_unused1, p_CLKOUT4_DUTY_CYCLE=.5,
             p_CLKOUT4_PHASE=0., p_CLKOUT4_DIVIDE=12,
             # ( 75MHz) sysclk
             o_CLKOUT5=unbuf_sys, p_CLKOUT5_DUTY_CYCLE=.5,
@@ -186,7 +186,7 @@ class BaseSoC(SoCSDRAM):
         SoCSDRAM.__init__(self, platform, clk_freq,
             integrated_rom_size=0x8000,
             integrated_sram_size=0x4000,
-            with_uart=False,
+            with_uart=True,
             **kwargs)
         self.submodules.crg = _CRG(platform, clk_freq)
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
@@ -205,7 +205,7 @@ class BaseSoC(SoCSDRAM):
         self.register_mem("spiflash", self.mem_map["spiflash"],
             self.spiflash.bus, size=platform.gateware_size)
 
-        self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
+        #self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
 
         # sdram
         sdram_module = P3R1GE4JGF(self.clk_freq, "1:2")
