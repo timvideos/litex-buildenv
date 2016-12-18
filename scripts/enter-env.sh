@@ -22,13 +22,13 @@ fi
 
 if [ ! -z $HDMI2USB_ENV ]; then
 	echo "Already sourced this file."
-	return
+	return 1
 fi
 
 if [ ! -z $SETTINGS_FILE ]; then
 	echo "You appear to have sourced the Xilinx ISE settings, these are incompatible with building."
 	echo "Please exit this terminal and run again from a clean shell."
-	return
+	return 1
 fi
 
 # Check ixo-usb-jtag *isn't* install
@@ -39,7 +39,7 @@ if [ -d /lib/firmware/ixo-usb-jtag/ ]; then
 	echo "On Debian/Ubuntu run:"
 	echo "  sudo apt-get remove ixo-usb-jtag"
 	echo
-	return
+	return 1
 fi
 
 if [ -f /etc/udev/rules.d/99-hdmi2usb-permissions.rules -o -f /lib/udev/rules.d/99-hdmi2usb-permissions.rules -o ! -z "$HDMI2USB_UDEV_IGNORE" ]; then
@@ -48,7 +48,7 @@ else
 	echo "Please install the HDMI2USB udev rules."
 	echo "These are installed by scripts/download-env-root.sh"
 	echo
-	return
+	return 1
 fi
 
 # Detect a likely lack of license early, but just warn if it's missing
@@ -74,7 +74,7 @@ fi
 # Check the build dir
 if [ ! -d $BUILD_DIR ]; then
 	echo "Build directory not found!"
-	return
+	return 1
 fi
 
 # Xilinx ISE
