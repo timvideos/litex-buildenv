@@ -12,14 +12,23 @@ BUILD_DIR = build/$(PLATFORM)_$(TARGET)_$(CPU)/
 IPRANGE ?= 192.168.100
 TFTPD_DIR ?= build/tftpd/
 
+MAKE_CMD=\
+	 ./make.py \
+		--platform=$(PLATFORM) \
+		--target=$(TARGET) \
+		--cpu-type=$(CPU) \
+		--iprange=$(IPRANGE) \
+		$(MISOC_EXTRA_CMDLINE) \
+		$(LITEX_EXTRA_CMDLINE) \
+
 help:
 	echo "Hello"
 
 gateware:
-	./make.py --platform=$(PLATFORM) --target=$(TARGET) --cpu-type=$(CPU) --iprange=$(IPRANGE)
+	$(MAKE_CMD)
 
 firmware:
-	./make.py --platform=$(PLATFORM) --target=$(TARGET) --cpu-type=$(CPU) --iprange=$(IPRANGE) --no-compile-gateware
+	$(MAKE_CMD) --no-compile-gateware
 
 load-gateware: load-gateware-$(PLATFORM)
 	true

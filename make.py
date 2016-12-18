@@ -13,6 +13,10 @@ def make_args(parser, platform='opsis', target='hdmi2usb'):
     parser.add_argument("--iprange", default="192.168.100")
     parser.add_argument("--cpu-type", default=os.environ.get('CPU', 'lm32'))
 
+    parser.add_argument("-Op", "--platform-option", default=[], nargs=2, action="append", help="set platform-specific option")
+    parser.add_argument("-Ot", "--target-option", default=[], nargs=2, action="append", help="set target-specific option")
+    parser.add_argument("-Ob", "--build-option", default=[], nargs=2, action="append", help="set build option")
+
 
 def make_builddir(args):
     return "build/{}_{}_{}/".format(args.platform, args.target.lower(), args.cpu_type)
@@ -35,10 +39,10 @@ def main():
     assert args.target is not None
 
     exec("from platforms.{} import Platform".format(args.platform), globals())
-    platform = Platform()
+    platform = Platform(**dict(args.platform_option))
 
     exec("from targets.{}.{} import SoC".format(args.platform, args.target.lower(), args.target), globals())
-    soc = SoC(platform, **soc_sdram_argdict(args))
+    soc = SoC(platform, **soc_sdram_argdict(args), **dict(args.target_option))
     if hasattr(soc, 'configure_iprange'):
         soc.configure_iprange(args.iprange)
 
@@ -54,7 +58,7 @@ def main():
     builder = Builder(soc, **buildargs)
     builder.add_software_package("libuip", "{}/firmware/libuip".format(os.getcwd()))
     builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
-    vns = builder.build()
+    vns = builder.build(**dict(args.build_option))
 
     if hasattr(soc, 'do_exit'):
         soc.do_exit(vns, filename="{}/analyzer.csv".format(testdir))
