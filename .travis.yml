@@ -19,16 +19,19 @@ addons:
     - python-yaml
     - realpath
 
-env:                     # TARGETS="base memtest net video hdmi2usb"
-#  - PLATFORM=arty          TARGETS="base memtest net"
-  - PLATFORM=atlys         TARGETS="base memtest net video hdmi2usb"
-  - PLATFORM=minispartan6  TARGETS="base memtest     video"
-  - PLATFORM=mimasv2       TARGETS="base memtest     video"
-#  - PLATFORM=netv2         TARGETS="base memtest     video"
-#  - PLATFORM=nexys_video   TARGETS="base memtest net video"
-  - PLATFORM=pipistrello   TARGETS="base memtest     video"
-  - PLATFORM=opsis         TARGETS="base memtest net video hdmi2usb"
-#  - PLATFORM=sim           TARGETS="base memtest net video"
+env:
+  global:
+   - HDMI2USB_UDEV_IGNORE=1
+  matrix:                 # TARGETS="base memtest net video hdmi2usb"
+#   - PLATFORM=arty          TARGETS="base memtest net"
+   - PLATFORM=atlys         TARGETS="base memtest net video hdmi2usb"
+   - PLATFORM=minispartan6  TARGETS="base memtest     video"
+   - PLATFORM=mimasv2       TARGETS="base memtest     video"
+#   - PLATFORM=netv2         TARGETS="base memtest     video"
+#   - PLATFORM=nexys_video   TARGETS="base memtest net video"
+   - PLATFORM=pipistrello   TARGETS="base memtest     video"
+   - PLATFORM=opsis         TARGETS="base memtest net video hdmi2usb"
+#   - PLATFORM=sim           TARGETS="base memtest net video"
 
 install:
  - $PWD/.travis/setup.sh
