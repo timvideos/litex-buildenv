@@ -212,4 +212,4 @@ done
 echo "-----------------------"
 echo ""
 echo "Completed.  To load environment:"
-echo "source $SETUP_DIR/scripts/enter-env.sh"
+echo "source $SETUP_DIR/enter-env.sh"
