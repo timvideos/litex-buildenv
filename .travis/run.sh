@@ -13,10 +13,11 @@ set +x
 set -e
 
 if [ -z "$PLATFORM" ]; then
-	PLATFORMS=$(ls targets/${PLATFORM}_* | sed -e"s+targets/${PLATFORM}_++" -e"s/.py//")
+	PLATFORMS=$(ls targets/ | grep -v ".py" | sed -e"s+targets/++")
 else
 	PLATFORMS="$PLATFORM"
 fi
+echo "Running with PLATFORMS='$PLATFORMS'"
 
 # Create "clean" file list before build
 find | sort > /tmp/filelist.before
@@ -27,6 +28,7 @@ for PLATFORM in $PLATFORMS; do
 	else
 		TARGETS="$TARGET"
 	fi
+	echo "Running with TARGETS='$TARGETS'"
 	(
 	for TARGET in $TARGETS; do
 		export LOGFILE=$PWD/build/output.$(date +%Y%m%d-%H%M%S).log
