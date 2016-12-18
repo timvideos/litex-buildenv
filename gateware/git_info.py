@@ -2,7 +2,7 @@ import binascii
 import os
 import subprocess
 
-from litex.gen.fhdl.std import *
+from litex.gen.fhdl import *
 from litex.soc.interconnect.csr import *
 
 def git_root():

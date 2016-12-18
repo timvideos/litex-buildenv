@@ -16,8 +16,8 @@ from litedram.core import ControllerSettings
 
 from gateware import cas
 from gateware import dna
-#from gateware import git_info
-#from gateware import platform_info
+from gateware import git_info
+from gateware import platform_info
 
 from targets.utils import csr_map_update
 
@@ -171,8 +171,8 @@ class BaseSoC(SoCSDRAM):
 #        "cas",
         "ddrphy",
         "dna",
-#        "git_info",
-#        "platform_info",
+        "git_info",
+        "platform_info",
     )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
@@ -192,8 +192,8 @@ class BaseSoC(SoCSDRAM):
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
 
         self.submodules.dna = dna.DNA()
-        #self.submodules.git_info = git_info.GitInfo()
-        #self.submodules.platform_info = platform_info.PlatformInfo("atlys", self.__class__.__name__[:8])
+        self.submodules.git_info = git_info.GitInfo()
+        self.submodules.platform_info = platform_info.PlatformInfo("atlys", self.__class__.__name__[:8])
 
         self.submodules.spiflash = spi_flash.SpiFlash(
             platform.request("spiflash4x"),

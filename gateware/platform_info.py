@@ -1,4 +1,4 @@
-from litex.gen.fhdl.std import *
+from litex.gen.fhdl import *
 from litex.soc.interconnect.csr import *
 
 

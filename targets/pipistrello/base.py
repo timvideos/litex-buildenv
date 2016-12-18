@@ -13,8 +13,8 @@ from litedram.phy import s6ddrphy
 from litedram.core import ControllerSettings
 
 from gateware import dna
-#from gateware import git_info
-#from gateware import platform_info
+from gateware import git_info
+from gateware import platform_info
 
 from targets.utils import csr_map_update
 
@@ -171,8 +171,8 @@ class BaseSoC(SoCSDRAM):
         "front_panel",
         "ddrphy",
         "dna",
-#        "git_info",
-#        "platform_info",
+        "git_info",
+        "platform_info",
 #        "fx2_reset",
 #        "fx2_hack",
 #        "opsis_eeprom_i2c",
@@ -199,8 +199,8 @@ class BaseSoC(SoCSDRAM):
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
 
         self.submodules.dna = dna.DNA()
-        #self.submodules.git_info = git_info.GitInfo()
-        #self.submodules.platform_info = platform_info.PlatformInfo("pipi", self.__class__.__name__[:8])
+        self.submodules.git_info = git_info.GitInfo()
+        self.submodules.platform_info = platform_info.PlatformInfo("pipi", self.__class__.__name__[:8])
 
         #self.submodules.opsis_eeprom_i2c = i2c.I2C(platform.request("opsis_eeprom"))
         #self.submodules.fx2_reset = gpio.GPIOOut(platform.request("fx2_reset"))
