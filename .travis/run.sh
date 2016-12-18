@@ -66,12 +66,12 @@ for PLATFORM in $PLATFORMS; do
 
 		if grep -q -- "??" $(find -name version_data.c); then
 			echo "Repository had unknown files, failing to build!"
-			exit 1
+#			exit 1
 		fi
 
 		if grep -q -- "-dirty" $(find -name version_data.c); then
 			echo "Repository was dirty, failing to build!"
-			exit 1
+#			exit 1
 		fi
 
 		# https://github.com/timvideos/HDMI2USB-misoc-firmware/issues/83
