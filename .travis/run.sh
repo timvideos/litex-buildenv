@@ -22,8 +22,8 @@ fi
 find | sort > /tmp/filelist.before
 
 for PLATFORM in $PLATFORMS; do
-	if [ -z "$TARGET" ]; then
-		TARGETS=$(ls targets/${PLATFORM}_* | sed -e"s+targets/${PLATFORM}_++" -e"s/.py//")
+	if [ -z "$TARGET" -a -z "$TARGETS" ]; then
+		TARGETS=$(ls targets/${PLATFORM}/*.py | grep -v "__" | sed -e"s+targets/${PLATFORM}/++" -e"s/.py//")
 	else
 		TARGETS="$TARGET"
 	fi
@@ -87,7 +87,7 @@ for PLATFORM in $PLATFORMS; do
 		if [ $HAVE_XILINX_ISE -eq 0 ]; then
 			echo "Skipping gateware"
 		else
-			FILTER=$PWD/.travis/run-make-gateware-filter.py PLATFORM=$PLATFORM TARGET=$TARGET make gateware
+			PLATFORM=$PLATFORM TARGET=$TARGET make gateware
 		fi
 
 		if [ ! -z "$PROGS" ]; then
