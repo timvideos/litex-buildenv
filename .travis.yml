@@ -1,0 +1,46 @@
+sudo: required
+
+language:
+ - c
+
+compiler:
+  - gcc
+
+sudo: false
+addons:
+  apt:
+    packages:
+    - build-essential
+    - fxload
+    - gnupg
+    - libftdi-dev
+    - libreadline-dev
+    - libusb-1.0-0-dev
+    - python-yaml
+    - realpath
+
+env:                     # TARGETS="base memtest net video hdmi2usb"
+#  - PLATFORM=arty          TARGETS="base memtest net"
+  - PLATFORM=atlys         TARGETS="base memtest net video hdmi2usb"
+  - PLATFORM=minispartan6  TARGETS="base memtest     video"
+  - PLATFORM=mimasv2       TARGETS="base memtest     video"
+#  - PLATFORM=netv2         TARGETS="base memtest     video"
+#  - PLATFORM=nexys_video   TARGETS="base memtest net video"
+  - PLATFORM=pipistrello   TARGETS="base memtest     video"
+  - PLATFORM=opsis         TARGETS="base memtest net video hdmi2usb"
+#  - PLATFORM=sim           TARGETS="base memtest net video"
+
+install:
+ - $PWD/.travis/setup.sh
+
+script:
+ - $PWD/.travis/run.sh
+
+notifications:
+ email:
+  - hdmi2usb-spam@googlegroups.com
+ irc:
+  channels:
+   - "chat.freenode.net#hdmi2usb"
+  template:
+   - "[%{repository_slug}/%{branch}#%{build_number}] (%{commit}): %{message} (%{build_url})"

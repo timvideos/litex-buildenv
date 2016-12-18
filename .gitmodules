@@ -1,0 +1,27 @@
+[submodule "third_party/litex"]
+	path = third_party/litex
+	url = https://github.com/enjoy-digital/litex.git
+[submodule "third_party/litedram"]
+	path = third_party/litedram
+	url = https://github.com/enjoy-digital/litedram.git
+[submodule "third_party/liteeth"]
+	path = third_party/liteeth
+	url = https://github.com/enjoy-digital/liteeth.git
+[submodule "third_party/litejpeg"]
+	path = third_party/litejpeg
+	url = https://github.com/enjoy-digital/litejpeg.git
+[submodule "third_party/litepcie"]
+	path = third_party/litepcie
+	url = https://github.com/enjoy-digital/litepcie.git
+[submodule "third_party/litesata"]
+	path = third_party/litesata
+	url = https://github.com/enjoy-digital/litesata.git
+[submodule "third_party/litescope"]
+	path = third_party/litescope
+	url = https://github.com/enjoy-digital/litescope.git
+[submodule "third_party/liteusb"]
+	path = third_party/liteusb
+	url = https://github.com/enjoy-digital/liteusb.git
+[submodule "third_party/litevideo"]
+	path = third_party/litevideo
+	url = https://github.com/enjoy-digital/litevideo.git
