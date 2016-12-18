@@ -528,19 +528,6 @@ static void debug_ddr(void)
 }
 #endif
 
-#ifdef CSR_DNA_ID_ADDR
-void print_board_dna(void);
-void print_board_dna(void) {
-	int i;
-	wprintf("Board's DNA: ");
-	for(i=0; i<CSR_DNA_ID_SIZE; i++) {
-		wprintf("%02x", MMPTR(CSR_DNA_ID_ADDR+4*i));
-	}
-	wprintf("\n");
-}
-
-#endif
-
 void ci_prompt(void)
 {
 	wprintf("RUNTIME>");

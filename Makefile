@@ -1,13 +1,19 @@
 export CLANG=0
 
 CPU ?= lm32
+export CPU
 PLATFORM ?= opsis
+export PLATFORM
 TARGET ?= hdmi2usb
+export TARGET
 
 BUILD_DIR = build/$(PLATFORM)_$(TARGET)_$(CPU)/
 
 IPRANGE ?= 192.168.100
 TFTPD_DIR ?= build/tftpd/
+
+help:
+	echo "Hello"
 
 gateware:
 	./make.py --platform=$(PLATFORM) --target=$(TARGET) --cpu-type=$(CPU) --iprange=$(IPRANGE)

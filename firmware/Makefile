@@ -1,27 +1,43 @@
 include ../include/generated/variables.mak
 include $(SOC_DIRECTORY)/software/common.mak
 
+ifeq ($(PLATFORM),)
+$(error PLATFORM not defined.)
+endif
+UPLATFORM = $(shell echo $(PLATFORM) | tr a-z A-Z)
+
+ifeq ($(TARGET),)
+$(error TARGET not defined.)
+endif
+UTARGET = $(shell echo $(TARGET) | tr a-z A-Z)
+
+CFLAGS += -DPLATFORM_$(UPLATFORM) -DTARGET_$(UTARGET)
+
 BUILD_DIRECTORY=$(BUILDINC_DIRECTORY)/../../
 
-OBJECTS=isr.o \
-		ethernet.o \
-		etherbone.o \
-		telnet.o \
-		mdio.o \
-		config.o \
-		processor.o \
-		hdmi_in0.o \
-		hdmi_in1.o \
-		hdmi_out0.o \
-		hdmi_out1.o \
-		pattern.o \
-		edid.o \
-		pll.o \
-		ci.o \
-		encoder.o \
-		i2c.o \
-		main.o \
-		stdio_wrap.o \
+OBJECTS=\
+	ci.o \
+	config.o \
+	edid.o \
+	encoder.o \
+	etherbone.o \
+	ethernet.o \
+	hdmi_in0.o \
+	hdmi_in1.o \
+	hdmi_out0.o \
+	hdmi_out1.o \
+	i2c.o \
+	isr.o \
+	main.o \
+	mdio.o \
+	pattern.o \
+	pll.o \
+	processor.o \
+	stdio_wrap.o \
+	telnet.o \
+	version.o \
+	version_data.o \
+
 
 CFLAGS += \
 	-I. \
@@ -65,4 +81,11 @@ firmware.elf: $(FIRMWARE_DIRECTORY)/linker.ld $(OBJECTS)
 clean:
 	$(RM) $(OBJECTS) $(OBJECTS:.o=.d) firmware.elf firmware.bin .*~ *~
 
-.PHONY: all clean libs load
+version.o: version_data.h version_data.c
+
+version_data.h: version_data
+version_data.c: version_data
+version_data:
+	bash $(FIRMWARE_DIRECTORY)/version_data.sh
+
+.PHONY: all clean libs version_data

@@ -72,12 +72,12 @@ for PLATFORM in $PLATFORMS; do
 		# We have to clean after doing this otherwise if the gateware
 		# has a dependency on the firmware that isn't correctly working
 		# the travis build will still pass.
-		echo ""
-		echo ""
-		echo ""
-		echo "- make clean ($PLATFORM $TARGET) (prerun)"
-		echo "---------------------------------------------"
-		PLATFORM=$PLATFORM TARGET=$TARGET make clean
+		#echo ""
+		#echo ""
+		#echo ""
+		#echo "- make clean ($PLATFORM $TARGET) (prerun)"
+		#echo "---------------------------------------------"
+		#PLATFORM=$PLATFORM TARGET=$TARGET make clean
 
 		echo ""
 		echo ""
