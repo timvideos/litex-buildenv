@@ -21,7 +21,7 @@ class NetSoC(BaseSoC):
     interrupt_map.update(BaseSoC.interrupt_map)
 
     mem_map = {
-        "ethmac": 0x40000000,  # (shadow @0xc0000000)
+        "ethmac": 0x30000000,  # (shadow @0xb0000000)
     }
     mem_map.update(BaseSoC.mem_map)
 
