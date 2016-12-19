@@ -202,7 +202,7 @@ function build() {
 		else
 			echo "- make clean left these files behind"
 			echo "============================================="
-			cat /tmp/filelist.diff | grep "^+"
+			cat /tmp/filelist.diff
 			echo "============================================="
 			return 1
 		fi
