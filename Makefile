@@ -24,9 +24,6 @@ TFTPD_DIR ?= build/tftpd/
 # Turn off Python's hash randomization
 PYTHONHASHSEED := 0
 export PYTHONHASHSEED
-# Disable writing __pycache__ directories
-PYTHONDONTWRITEBYTECODE := 1
-export PYTHONDONTWRITEBYTECODE
 # ---------------------------------
 
 MAKE_CMD=\
@@ -98,6 +95,7 @@ help:
 
 clean:
 	rm -rf $(TARGET_BUILD_DIR)
+	py3clean .
 
 dist-clean:
 	rm -rf build
