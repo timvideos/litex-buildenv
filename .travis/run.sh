@@ -49,7 +49,7 @@ function build() {
 	echo ""
 	echo "- make help ($PLATFORM $TARGET)"
 	echo "---------------------------------------------"
-	PLATFORM=$PLATFORM TARGET=$TARGET make help
+	make help
 
 	# We build the firmware first as it is very quick to build and
 	# will let us find a whole classes of errors quickly.
@@ -59,7 +59,7 @@ function build() {
 	echo ""
 	echo "- make firmware ($PLATFORM $TARGET) (prerun)"
 	echo "---------------------------------------------"
-	PLATFORM=$PLATFORM TARGET=$TARGET make firmware
+	make firmware || return 1
 	echo "- Firmware version data"
 	echo "---------------------------------------------"
 	cat $(find -name version_data.c)
@@ -94,7 +94,7 @@ function build() {
 	if [ $HAVE_XILINX_ISE -eq 0 ]; then
 		echo "Skipping gateware"
 	else
-		PLATFORM=$PLATFORM TARGET=$TARGET make gateware || return 1
+		make gateware || return 1
 	fi
 
 	if [ ! -z "$PROGS" ]; then
@@ -105,7 +105,7 @@ function build() {
 			echo "- make load ($PROG $PLATFORM $TARGET)"
 			echo "---------------------------------------------"
 			# Allow the programming to fail.
-			PROG=$PROG PLATFORM=$PLATFORM TARGET=$TARGET make load || true
+			PROG=$PROG make load || true
 		done
 	fi
 
@@ -217,7 +217,7 @@ for PLATFORM in $PLATFORMS; do
 	fi
 	echo "Running with TARGETS='$TARGETS'"
 	for TARGET in $TARGETS; do
-		build $PLATFORM $TARGET lm32
+		build $PLATFORM $TARGET lm32 && :
 		RETURN=$?
 		if [ "$RETURN" -ne 0 ]; then
 			FAILURES+=("$PLATFORM+$TARGET")
@@ -232,7 +232,7 @@ if [ ${#FAILURES[@]} -ne 0 ]; then
 	echo "The following builds failed!"
 	echo "============================================="
 
-	for F in $FAILURES; do
-		echo $F
+	for F in ${FAILURES[@]}; do
+		echo $F | sed -e's/+/ /'
 	done
 fi
