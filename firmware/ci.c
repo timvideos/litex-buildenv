@@ -762,10 +762,11 @@ void ci_service(void)
 				printf("%X\r\n", (int)cas_switches_in_read());
 			}
 #endif
-		} else if(strcmp(token, "version") == 0) {
-			print_version();
 		} else
 			help_debug();
+
+	} else if(strcmp(token, "version") == 0) {
+		print_version();
 	} else {
 		if(status_enabled)
 			status_disable();

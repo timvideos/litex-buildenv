@@ -44,9 +44,9 @@ const char* git_commit = "$COMMIT";
 const char* git_branch = "$BRANCH";
 const char* git_describe = "$DESCRIBE";
 const char* git_status =
-    "    --\n"
-$(git status --short | sed -e's-^-   "    -' -e's-$-\\n"-')
-    "    --\n";
+    "    --\r\n"
+$(git status --short | sed -e's-^-   "    -' -e's-$-\\r\\n"-')
+    "    --\r\n";
 
 EOF
 

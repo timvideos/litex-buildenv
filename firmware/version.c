@@ -72,12 +72,12 @@ void print_version(void) {
 	wprintf("\r\n");
 	wprintf("firmware version info\r\n");
 	wprintf("===============================================\r\n");
-	wprintf("      platform: %s\n", board);
-	wprintf("        target: %s\n", target);
-	wprintf("    git commit: %s\n", git_commit);
-	wprintf("    git branch: %s\n", git_branch);
-	wprintf("  git describe: %s\n", git_describe);
-	wprintf("    git status:\n%s\n", git_status);
+	wprintf("      platform: %s\r\n", board);
+	wprintf("        target: %s\r\n", target);
+	wprintf("    git commit: %s\r\n", git_commit);
+	wprintf("    git branch: %s\r\n", git_branch);
+	wprintf("  git describe: %s\r\n", git_describe);
+	wprintf("    git status:\r\n%s\r\n", git_status);
 	wprintf("         built: "__DATE__" "__TIME__"\r\n");
 	wprintf("-----------------------------------------------\r\n");
 }
