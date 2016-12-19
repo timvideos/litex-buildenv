@@ -240,14 +240,14 @@ class Encoder(Module, AutoCSR):
         # # #
 
         # chroma upsampler
-        self.submodules.chroma_upsampler = chroma_upsampler = YCbCr422to444()
+        self.submodules.chroma_upsampler = chroma_upsampler = ClockDomainsRenamer("encoder")(YCbCr422to444())
         self.comb += [
             Record.connect(self.sink, chroma_upsampler.sink, omit=["data"]),
             chroma_upsampler.sink.y.eq(self.sink.data[:8]),
             chroma_upsampler.sink.cb_cr.eq(self.sink.data[8:])
         ]
 
-        input_fifo = stream.SyncFIFO([("data", 24)], 128)
+        input_fifo = ClockDomainsRenamer("encoder")(stream.SyncFIFO([("data", 24)], 128))
         self.submodules += input_fifo
 
         self.comb += [
@@ -268,7 +268,7 @@ class Encoder(Module, AutoCSR):
         fdct_data_d4 = Signal(24)
         fdct_data_d5 = Signal(24)
 
-        self.sync += [
+        self.sync.encoder += [
             If(fdct_fifo_rd,
                 fdct_data_d1.eq(input_fifo.source.data),
             ),
@@ -285,27 +285,57 @@ class Encoder(Module, AutoCSR):
 
         # output fifo
         output_fifo_almost_full = Signal()
-        self.submodules.output_fifo = output_fifo = stream.SyncFIFO([("data", 8)], 1024)
+        self.submodules.output_fifo = output_fifo = ClockDomainsRenamer("encoder")(stream.SyncFIFO([("data", 8)], 1024))
         self.comb += [
             output_fifo_almost_full.eq(output_fifo.fifo.level > 1024-128),
             Record.connect(output_fifo.source, self.source)
         ]
 
+        # Wishbone cross domain crossing
+        jpeg_bus = wishbone.Interface()
+        self.specials += Instance("wb_async_reg",
+                            i_wbm_clk=ClockSignal(),
+                            i_wbm_rst=ResetSignal(),
+                            i_wbm_adr_i=self.bus.adr,
+                            i_wbm_dat_i=self.bus.dat_w,
+                            o_wbm_dat_o=self.bus.dat_r,
+                            i_wbm_we_i=self.bus.we,
+                            i_wbm_sel_i=self.bus.sel,
+                            i_wbm_stb_i=self.bus.stb,
+                            o_wbm_ack_o=self.bus.ack,
+                            o_wbm_err_o=self.bus.err,
+                            #o_wbm_rty_o=,
+                            i_wbm_cyc_i=self.bus.cyc,
+
+                            i_wbs_clk=ClockSignal("encoder"),
+                            i_wbs_rst=ResetSignal("encoder"),
+                            o_wbs_adr_o=jpeg_bus.adr,
+                            i_wbs_dat_i=jpeg_bus.dat_r,
+                            o_wbs_dat_o=jpeg_bus.dat_w,
+                            o_wbs_we_o=jpeg_bus.we,
+                            o_wbs_sel_o=jpeg_bus.sel,
+                            o_wbs_stb_o=jpeg_bus.stb,
+                            i_wbs_ack_i=jpeg_bus.ack,
+                            i_wbs_err_i=jpeg_bus.err,
+                            i_wbs_rty_i=0,
+                            o_wbs_cyc_o=jpeg_bus.cyc)
+
+
         # encoder
         self.specials += Instance("JpegEnc",
-            i_CLK=ClockSignal(),
-            i_RST=ResetSignal(),
+                            i_CLK=ClockSignal("encoder"),
+                            i_RST=ResetSignal("encoder"),
 
-            i_OPB_ABus=Cat(Signal(2), self.bus.adr) & 0x3ff,
-            i_OPB_BE=self.bus.sel,
-            i_OPB_DBus_in=self.bus.dat_w,
-            i_OPB_RNW=~self.bus.we,
-            i_OPB_select=self.bus.stb & self.bus.cyc,
-            o_OPB_DBus_out=self.bus.dat_r,
-            o_OPB_XferAck=self.bus.ack,
+            i_OPB_ABus=Cat(Signal(2), jpeg_bus.adr) & 0x3ff,
+            i_OPB_BE=jpeg_bus.sel,
+            i_OPB_DBus_in=jpeg_bus.dat_w,
+            i_OPB_RNW=~jpeg_bus.we,
+            i_OPB_select=jpeg_bus.stb & jpeg_bus.cyc,
+            o_OPB_DBus_out=jpeg_bus.dat_r,
+            o_OPB_XferAck=jpeg_bus.ack,
             #o_OPB_retry=,
             #o_OPB_toutSup=,
-            o_OPB_errAck=self.bus.err,
+            o_OPB_errAck=jpeg_bus.err,
 
             o_fdct_fifo_rd=fdct_fifo_rd,
             i_fdct_fifo_q=fdct_fifo_q,
@@ -320,3 +350,5 @@ class Encoder(Module, AutoCSR):
 
         # add vhdl sources
         platform.add_source_dir(os.path.join("gateware", "encoder", "vhdl"))
+        # add verilog sources
+        platform.add_source(os.path.join("gateware", "encoder", "verilog", "wb_async_reg.v"))

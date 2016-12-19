@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 from opsis_video import *
 
+from litex.soc.interconnect import stream
+
 from gateware.encoder import EncoderDMAReader, EncoderBuffer, Encoder
 from gateware.streamer import USBStreamer
+
 
 base_cls = VideoMixerSoC
 
@@ -22,13 +25,15 @@ class HDMI2USBSoC(base_cls):
         base_cls.__init__(self, platform, **kwargs)
 
         self.submodules.encoder_reader = EncoderDMAReader(self.sdram.crossbar.get_port())
-        self.submodules.encoder_buffer = EncoderBuffer()
+        self.submodules.encoder_cdc = ClockDomainsRenamer({"write": "sys", "read": "encoder"})(stream.AsyncFIFO([("data", 128)], 4))
+        self.submodules.encoder_buffer = ClockDomainsRenamer("encoder")(EncoderBuffer())
         self.submodules.encoder = Encoder(platform)
         fx2_pads = platform.request("fx2")
         self.submodules.encoder_streamer = USBStreamer(platform, fx2_pads)
 
         self.comb += [
-            self.encoder_reader.source.connect(self.encoder_buffer.sink),
+            self.encoder_reader.source.connect(self.encoder_cdc.sink),
+            self.encoder_cdc.source.connect(self.encoder_buffer.sink),
             self.encoder_buffer.source.connect(self.encoder.sink),
             self.encoder.source.connect(self.encoder_streamer.sink)
         ]
@@ -38,8 +43,10 @@ class HDMI2USBSoC(base_cls):
         self.platform.add_period_constraint(self.encoder_streamer.cd_usb.clk, 10.0)
 
         self.specials += Keep(self.encoder_streamer.cd_usb.clk)
+        self.specials += Keep(self.crg.cd_encoder.clk)
         self.platform.add_false_path_constraints(
             self.crg.cd_sys.clk,
+            self.crg.cd_encoder.clk,
             self.encoder_streamer.cd_usb.clk)
 
 def main():
