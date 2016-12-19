@@ -1,5 +1,14 @@
 #!/bin/bash
 
+if [ -z "$PLATFORMS" ]; then
+	if [ -z "$PLATFORM" ]; then
+		PLATFORMS=$(ls targets/ | grep -v ".py" | sed -e"s+targets/++")
+	else
+		PLATFORMS="$PLATFORM"
+	fi
+fi
+echo "Running with PLATFORMS='$PLATFORMS'"
+
 source scripts/enter-env.sh || exit 1
 
 ls -l $XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/xreport
@@ -11,15 +20,6 @@ fi
 
 set +x
 set -e
-
-if [ -z "$PLATFORMS" ]; then
-	if [ -z "$PLATFORM" ]; then
-		PLATFORMS=$(ls targets/ | grep -v ".py" | sed -e"s+targets/++")
-	else
-		PLATFORMS="$PLATFORM"
-	fi
-fi
-echo "Running with PLATFORMS='$PLATFORMS'"
 
 function build() {
 	export PLATFORM=$1
