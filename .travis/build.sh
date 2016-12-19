@@ -205,6 +205,7 @@ function build() {
 	return 0
 }
 
+declare -a SUCCESSES
 declare -a FAILURES
 
 for PLATFORM in $PLATFORMS; do
@@ -219,21 +220,41 @@ for PLATFORM in $PLATFORMS; do
 	for TARGET in $TARGETS; do
 		build $PLATFORM $TARGET lm32 && :
 		RETURN=$?
-		if [ "$RETURN" -ne 0 ]; then
+		if [ "$RETURN" -eq 0 ]; then
+			SUCCESSES+=("$PLATFORM+$TARGET")
+		else
 			FAILURES+=("$PLATFORM+$TARGET")
 		fi
 	done
 done
 
-if [ ${#FAILURES[@]} -ne 0 ]; then
-	echo ""
-	echo ""
-	echo ""
-	echo "The following builds failed!"
-	echo "============================================="
+echo ""
+echo ""
+echo ""
+echo "The following builds succeeded"
+echo "============================================="
 
-	for F in ${FAILURES[@]}; do
-		echo $F | sed -e's/+/ /'
-	done
+for S in ${SUCCESSES[@]}; do
+	echo $S | sed -e's/+/ /'
+done
+echo ""
+echo ""
+echo ""
+echo "The following builds failed!"
+echo "============================================="
+
+for F in ${FAILURES[@]}; do
+	echo $F | sed -e's/+/ /'
+done
+
+echo ""
+echo ""
+echo ""
+echo "============================================="
+
+if [ ${#FAILURES[@]} -ne 0 ]; then
+	echo "One or more builds failed :("
 	exit 1
+else
+	echo "All builds succeeded! \\o/"
 fi
