@@ -9,7 +9,6 @@ from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.gpio import GPIOIn, GPIOOut
 from litex.soc.interconnect.csr import AutoCSR
-from litex.soc.cores.uart.bridge import UARTWishboneBridge
 
 from litedram.modules import MT41J128M16
 from litedram.phy import s6ddrphy
