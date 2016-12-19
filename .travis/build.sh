@@ -235,4 +235,5 @@ if [ ${#FAILURES[@]} -ne 0 ]; then
 	for F in ${FAILURES[@]}; do
 		echo $F | sed -e's/+/ /'
 	done
+	exit 1
 fi
