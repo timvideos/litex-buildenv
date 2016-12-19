@@ -40,6 +40,7 @@ LOGFILE ?= $(PWD)/$(TARGET_BUILD_DIR)/output.$(shell date +%Y%m%d-%H%M%S).log
 
 
 gateware:
+	mkdir -p $(TARGET_BUILD_DIR)
 ifneq ($(OS),Windows_NT)
 	$(MAKE_CMD) \
 	| $(FILTER) $(LOGFILE); (exit $${PIPESTATUS[0]})
@@ -48,6 +49,7 @@ else
 endif
 
 firmware:
+	mkdir -p $(TARGET_BUILD_DIR)
 ifneq ($(OS),Windows_NT)
 	$(MAKE_CMD) --no-compile-gateware \
 	| $(FILTER) $(LOGFILE); (exit $${PIPESTATUS[0]})
