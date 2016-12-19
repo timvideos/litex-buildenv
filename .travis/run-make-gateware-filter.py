@@ -191,7 +191,7 @@ for lineno, rawline in enumerate(sys.stdin.xreadlines()):
 	if line == DELIM_MAJOR:
 		summary_start = None
 		for bufferno, bufline in enumerate(linesbuffer):
-			if bufferno == 0:
+			if bufferno == 0 or bufferno+1 == len(linesbuffer):
 				continue
 			sbufline = bufline.strip()
 			if sbufline != DELIM_MAJOR:
