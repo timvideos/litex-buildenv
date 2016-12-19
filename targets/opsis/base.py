@@ -251,7 +251,7 @@ class BaseSoC(SoCSDRAM):
         self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
         self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size
         self.register_mem("spiflash", self.mem_map["spiflash"],
-            self.spiflash.bus, size=platform.gateware_size)
+            self.spiflash.bus, size=platform.spiflash_total_size)
 
         # front panel (ATX)
         self.submodules.front_panel = FrontPanelGPIO(platform, clk_freq)
