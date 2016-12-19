@@ -33,7 +33,7 @@ function build() {
 	fi
 
 	# Create "clean" file list before build
-	find | sort > /tmp/filelist.before
+	find | sort | grep -v "__pycache__" > /tmp/filelist.before
 
 	export TARGET_BUILD_DIR=$PWD/build/${PLATFORM}_${TARGET}_${CPU}
 	export LOGFILE=$TARGET_BUILD_DIR/output.$(date +%Y%m%d-%H%M%S).log
@@ -192,7 +192,7 @@ function build() {
 		echo "============================================="
 
 		# Check that make clean didn't leave anything behind
-		find | sort > /tmp/filelist.after
+		find | sort | grep -v "__pycache__" > /tmp/filelist.after
 		echo ""
 		echo ""
 		echo ""
