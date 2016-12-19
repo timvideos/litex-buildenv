@@ -247,17 +247,6 @@ class Encoder(Module, AutoCSR):
             chroma_upsampler.sink.cb_cr.eq(self.sink.data[8:])
         ]
 
-        input_fifo = ClockDomainsRenamer("encoder")(stream.SyncFIFO([("data", 24)], 128))
-        self.submodules += input_fifo
-
-        self.comb += [
-            input_fifo.sink.valid.eq(chroma_upsampler.source.valid),
-            input_fifo.sink.data.eq(Cat(chroma_upsampler.source.y,
-                                        chroma_upsampler.source.cb,
-                                        chroma_upsampler.source.cr)),
-            chroma_upsampler.source.ready.eq(input_fifo.sink.ready)
-        ]
-
         fdct_fifo_rd = Signal()
         fdct_fifo_q = Signal(24)
         fdct_fifo_hf_full = Signal()
@@ -270,7 +259,9 @@ class Encoder(Module, AutoCSR):
 
         self.sync.encoder += [
             If(fdct_fifo_rd,
-                fdct_data_d1.eq(input_fifo.source.data),
+                fdct_data_d1.eq(Cat(chroma_upsampler.source.y,
+                                    chroma_upsampler.source.cb,
+                                    chroma_upsampler.source.cr)),
             ),
             fdct_data_d2.eq(fdct_data_d1),
             fdct_data_d3.eq(fdct_data_d2),
@@ -279,8 +270,8 @@ class Encoder(Module, AutoCSR):
         ]
         self.comb += [
             fdct_fifo_q.eq(fdct_data_d4),
-            fdct_fifo_hf_full.eq((input_fifo.level >= 64)),
-            input_fifo.source.ready.eq(fdct_fifo_rd)
+            fdct_fifo_hf_full.eq(chroma_upsampler.source.valid),
+            chroma_upsampler.source.ready.eq(fdct_fifo_rd)
         ]
 
         # output fifo
