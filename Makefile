@@ -95,7 +95,7 @@ help:
 
 clean:
 	rm -rf $(TARGET_BUILD_DIR)
-	py3clean .
+	py3clean . || rm -rf $$(find -name __pycache__)
 
 dist-clean:
 	rm -rf build
