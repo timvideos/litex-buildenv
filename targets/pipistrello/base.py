@@ -151,12 +151,12 @@ class _CRG(Module):
         dcm_base50_locked = Signal()
         self.specials += [
             Instance("DCM_CLKGEN",
-                     p_CLKFXDV_DIVIDE=2, p_CLKFX_DIVIDE=4,
+                     p_CLKFXDV_DIVIDE=2, p_CLKFX_DIVIDE=2,
                      p_CLKFX_MD_MAX=1.0, p_CLKFX_MULTIPLY=2,
-                     p_CLKIN_PERIOD=10.0, p_SPREAD_SPECTRUM="NONE",
+                     p_CLKIN_PERIOD=20.0, p_SPREAD_SPECTRUM="NONE",
                      p_STARTUP_WAIT="FALSE",
 
-                     i_CLKIN=clk100a, o_CLKFX=self.cd_base50.clk,
+                     i_CLKIN=clk50a, o_CLKFX=self.cd_base50.clk,
                      o_LOCKED=dcm_base50_locked,
                      i_FREEZEDCM=0, i_RST=ResetSignal()),
             AsyncResetSynchronizer(self.cd_base50,
