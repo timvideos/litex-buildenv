@@ -41,7 +41,7 @@ class NetSoC(BaseSoC):
 
         self.specials += [
             Keep(self.ethphy.crg.cd_eth_rx.clk),
-            Keep(self.ethphy.crg.cd_eth_tx.clk),
+#            Keep(self.ethphy.crg.cd_eth_tx.clk),
         ]
 
         # FIXME: This is probably too tight?
