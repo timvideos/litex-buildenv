@@ -37,7 +37,7 @@ install:
  - $PWD/.travis/setup.sh
 
 script:
- - $PWD/.travis/run.sh
+ - $PWD/.travis/build.sh
 
 notifications:
  email:
