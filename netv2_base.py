@@ -119,7 +119,7 @@ class BaseSoC(SoCSDRAM):
         SoCSDRAM.__init__(self, platform, clk_freq,
             integrated_rom_size=0x8000,
             integrated_sram_size=0x8000,
-            ident="NeTV2 LiteX SoC",
+            ident="NeTV2 LiteX Base SoC",
             **kwargs)
 
         self.submodules.crg = _CRG(platform)
@@ -169,7 +169,7 @@ class BaseSoC(SoCSDRAM):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="NeTV2 LiteX SoC")
+    parser = argparse.ArgumentParser(description="NeTV2 LiteX Base SoC")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
