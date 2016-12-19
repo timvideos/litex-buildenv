@@ -62,15 +62,16 @@ function build() {
 	make firmware || return 1
 	echo "- Firmware version data"
 	echo "---------------------------------------------"
-	cat $(find -name version_data.c)
+	VERSION_DATA="$(find $TARGET_BUILD_DIR -name version_data.c)"
+	cat $VERSION_DATA
 	echo "---------------------------------------------"
 
-	if grep -q -- "??" $(find -name version_data.c); then
+	if grep -q -- "??" $VERSION_DATA; then
 		echo "Repository had unknown files, failing to build!"
 #		return 1
 	fi
 
-	if grep -q -- "-dirty" $(find -name version_data.c); then
+	if grep -q -- "-dirty" $VERSION_DATA; then
 		echo "Repository was dirty, failing to build!"
 #		return 1
 	fi
