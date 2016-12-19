@@ -178,9 +178,15 @@ check_version openocd 0.10.0-dev
 
 # pyserial for communicating via uarts
 (
-	pip install --upgrade pyserial
+	conda install pyserial
 )
 check_import pyserial
+
+# ipython for interactive debugging
+(
+	conda install ipython
+)
+check_import ipython
 
 # hexfile for embedding the Cypress FX2 firmware.
 (

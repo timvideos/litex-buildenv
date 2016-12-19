@@ -174,6 +174,12 @@ check_version openocd 0.10.0-dev || return 1
 
 check_import pyserial
 
+# ipython for interactive debugging
+
+
+
+check_import ipython
+
 # hexfile for embedding the Cypress FX2 firmware.
 
 
