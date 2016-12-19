@@ -1,16 +1,27 @@
 export CLANG=0
 
-CPU ?= lm32
-export CPU
 PLATFORM ?= opsis
 export PLATFORM
+# Default board
+ifeq ($(PLATFORM),)
+    $(error "PLATFORM not set, please set it.")
+endif
+
 TARGET ?= hdmi2usb
 export TARGET
 
-BUILD_DIR = build/$(PLATFORM)_$(TARGET)_$(CPU)/
+CPU ?= lm32
+export CPU
+
+
+TARGET_BUILD_DIR = build/$(PLATFORM)_$(TARGET)_$(CPU)/
 
 IPRANGE ?= 192.168.100
 TFTPD_DIR ?= build/tftpd/
+
+# Turn off Python's hash randomization
+PYTHONHASHSEED := 0
+export PYTHONHASHSEED
 
 MAKE_CMD=\
 	 ./make.py \
@@ -21,14 +32,28 @@ MAKE_CMD=\
 		$(MISOC_EXTRA_CMDLINE) \
 		$(LITEX_EXTRA_CMDLINE) \
 
-help:
-	echo "Hello"
+# We use the special PIPESTATUS which is bash only below.
+SHELL := /bin/bash
+
+FILTER ?= tee -a
+LOGFILE ?= $(PWD)/$(TARGET_BUILD_DIR)/output.$(shell date +%Y%m%d-%H%M%S).log
+
 
 gateware:
+ifneq ($(OS),Windows_NT)
+	$(MAKE_CMD) \
+	| $(FILTER) $(LOGFILE); (exit $${PIPESTATUS[0]})
+else
 	$(MAKE_CMD)
+endif
 
 firmware:
+ifneq ($(OS),Windows_NT)
+	$(MAKE_CMD) --no-compile-gateware \
+	| $(FILTER) $(LOGFILE); (exit $${PIPESTATUS[0]})
+else
 	$(MAKE_CMD) --no-compile-gateware
+endif
 
 load-gateware: load-gateware-$(PLATFORM)
 	true
@@ -36,49 +61,13 @@ load-gateware: load-gateware-$(PLATFORM)
 load-firmware: firmware load-firmware-$(PLATFORM)
 	true
 
-# mimasv2 loading
-load-gateware-mimasv2:
-	MimasV2Config.py /dev/ttyACM0 $(BUILD_DIR)/gateware/top.bin
-
-load-firmware-mimasv2:
-	flterm --port=/dev/ttyACM0 --kernel=$(BUILD_DIR)/software/firmware/firmware.bin
-
-# opsis loading
-load-gateware-opsis: tftp
-	opsis-mode-switch --verbose --load-gateware $(BUILD_DIR)/gateware/top.bit
-
-load-firmware-opsis:
-	opsis-mode-switch --verbose --mode=serial
-	flterm --port=/dev/hdmi2usb/by-num/opsis0/tty --kernel=$(BUILD_DIR)/software/firmware/firmware.bin
-
-# minispartan6 loading
-load-gateware-minispartan6:
-	openocd -f board/minispartan6.cfg -c "init; pld load 0 $(BUILD_DIR)/gateware/top.bit; exit"
-
-load-firmware-minispartan6:
-	flterm --port=/dev/ttyUSB1 --kernel=$(BUILD_DIR)/software/firmware/firmware.bin
-
-
-# Sim targets
-sim-setup:
-	sudo true
-	sudo openvpn --mktun --dev tap0
-	sudo ifconfig tap0 $(IPRANGE).100 up
-	sudo mknod /dev/net/tap0 c 10 200
-	sudo chown $(shell whoami) /dev/net/tap0
-	make tftpd_start
-
-sim-teardown:
-	sudo true
-	make tftpd_stop
-	sudo rm -f /dev/net/tap0
-	sudo ifconfig tap0 down
-	sudo openvpn --rmtun --dev tap0
+# Include platform specific targets
+include targets/$(PLATFORM)/Makefile.mk
 
 # TFTP server for minisoc to load firmware from
 tftp: firmware
 	mkdir -p $(TFTPD_DIR)
-	cp $(BUILD_DIR)/software/firmware/firmware.bin $(TFTPD_DIR)/boot.bin
+	cp $(TARGET_BUILD_DIR)/software/firmware/firmware.bin $(TFTPD_DIR)/boot.bin
 
 tftpd_stop:
 	sudo true
@@ -89,22 +78,14 @@ tftpd_start:
 	sudo true
 	sudo atftpd --verbose --bind-address $(IPRANGE).100 --daemon --logfile /dev/stdout --no-fork --user $(shell whoami) $(TFTPD_DIR) &
 
-# Opsis specific targets
-opsis-reset:
-	opsis-mode-switch --verbose --mode=serial
-	opsis-mode-switch --verbose --mode=jtag
-	opsis-mode-switch --verbose --mode=serial
-
 # Helper targets
+help:
+	echo "Hello"
+
 clean:
+	rm -rf $(TARGET_BUILD_DIR)
+
+dist-clean:
 	rm -rf build
 
-all:
-	PLATFORM=opsis; for TARGET in base net video hdmi2usb; do \
-		make PLATFORM=$(PLATFORM) TARGET=$$TARGET firmware; \
-	done
-	PLATFORM=minispartan6; for TARGET in base; do \
-		make PLATFORM=$(PLATFORM) TARGET=$$TARGET firmware; \
-	done
-
-.PHONY: gateware firmware opsis-reset load-gateware load-firmware
+.PHONY: gateware firmware help clean dist-clean
