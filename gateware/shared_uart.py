@@ -26,16 +26,18 @@ class SharedUART(Module):
         self.rx_signals.append(new_pads.rx)
 
     def do_finalize(self):
-        for tx_sig in self.tx_signals:
-            self.comb += [
-                # TX
-                tx_sig.eq(self.tx),
-            ]
+        if self.tx_signals:
+            for tx_sig in self.tx_signals:
+                self.comb += [
+                    # TX
+                    tx_sig.eq(self.tx),
+                ]
 
-        self.comb += [
-            # RX
-            self.rx.eq(reduce(operator.__and__, self.rx_signals))
-        ]
+        if self.rx_signals:
+            self.comb += [
+                # RX
+                self.rx.eq(reduce(operator.__and__, self.rx_signals))
+            ]
 
 
 # FIXME: Add a test for the shared UART
