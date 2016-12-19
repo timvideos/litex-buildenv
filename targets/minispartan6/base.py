@@ -108,3 +108,5 @@ class BaseSoC(SoCSDRAM):
                             sdram_module.geom_settings,
                             sdram_module.timing_settings)
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1/clk_freq*1e9)
+
+SoC=BaseSoC
