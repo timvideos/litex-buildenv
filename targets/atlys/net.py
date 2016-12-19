@@ -2,11 +2,10 @@ from litex.gen.fhdl.specials import Keep
 from litex.soc.integration.soc_core import mem_decoder
 
 from liteeth.core.mac import LiteEthMAC
-
-from gateware.s6rgmii import LiteEthPHYRGMII
+from liteeth.phy import LiteEthPHY
 
 from targets.utils import csr_map_update
-from targets.opsis.base import SoC as BaseSoC
+from targets.atlys.base import SoC as BaseSoC
 
 
 class NetSoC(BaseSoC):
@@ -29,9 +28,10 @@ class NetSoC(BaseSoC):
     def __init__(self, platform, **kwargs):
         BaseSoC.__init__(self, platform, **kwargs)
 
-        self.submodules.ethphy = LiteEthPHYMII(
+        self.submodules.ethphy = LiteEthPHY(
             platform.request("eth_clocks"),
-            platform.request("eth"))
+            platform.request("eth"),
+            self.clk_freq)
 
         self.submodules.ethmac = LiteEthMAC(
             phy=self.ethphy, dw=32, interface="wishbone")
