@@ -176,6 +176,12 @@ check_version sdcc $SDCC_VERSION
 )
 check_version openocd 0.10.0-dev
 
+# pyserial for communicating via uarts
+(
+	pip install --upgrade pyserial
+)
+check_import pyserial
+
 # hexfile for embedding the Cypress FX2 firmware.
 (
 	pip install --upgrade git+https://github.com/mithro/hexfile.git

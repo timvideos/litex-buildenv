@@ -168,6 +168,12 @@ check_version sdcc $SDCC_VERSION || return 1
 
 check_version openocd 0.10.0-dev || return 1
 
+# pyserial for communicating via uarts
+
+
+
+check_import pyserial
+
 # hexfile for embedding the Cypress FX2 firmware.
 
 
