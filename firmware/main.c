@@ -53,6 +53,7 @@ int main(void)
 #endif
 
 	puts("\nOpsis CPU testing software built "__DATE__" "__TIME__);
+	print_version();
 
 	config_init();
 	time_init();
