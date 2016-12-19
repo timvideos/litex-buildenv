@@ -22,8 +22,8 @@ class VideoSoC(BaseSoC):
     }
     interrupt_map.update(BaseSoC.interrupt_map)
 
-    def __init__(self, platform, **kwargs):
-        BaseSoC.__init__(self, platform, **kwargs)
+    def __init__(self, platform, *args, **kwargs):
+        BaseSoC.__init__(self, platform, *args, **kwargs)
         # hdmi in 0
         self.submodules.hdmi_in0 = HDMIIn(
             platform.request("hdmi_in", 0),

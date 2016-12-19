@@ -1,5 +1,6 @@
 from litex.gen.fhdl.specials import Keep
 from litex.soc.integration.soc_core import mem_decoder
+from litex.soc.integration.soc_sdram import *
 
 from liteeth.core.mac import LiteEthMAC
 
@@ -26,8 +27,8 @@ class NetSoC(BaseSoC):
     }
     mem_map.update(BaseSoC.mem_map)
 
-    def __init__(self, platform, **kwargs):
-        BaseSoC.__init__(self, platform, **kwargs)
+    def __init__(self, platform, *args, **kwargs):
+        BaseSoC.__init__(self, platform, *args, **kwargs)
 
         self.submodules.ethphy = LiteEthPHYRGMII(
             platform.request("eth_clocks"),
@@ -41,7 +42,7 @@ class NetSoC(BaseSoC):
 
         self.specials += [
             Keep(self.ethphy.crg.cd_eth_rx.clk),
-            Keep(self.ethphy.crg.cd_eth_tx.clk),
+#            Keep(self.ethphy.crg.cd_eth_tx.clk),
         ]
 
         self.platform.add_period_constraint(self.ethphy.crg.cd_eth_rx.clk, 8.0)

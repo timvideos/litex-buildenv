@@ -19,8 +19,8 @@ class HDMI2USBSoC(BaseSoC):
     }
     mem_map.update(BaseSoC.mem_map)
 
-    def __init__(self, platform, **kwargs):
-        BaseSoC.__init__(self, platform, **kwargs)
+    def __init__(self, platform, *args, **kwargs):
+        BaseSoC.__init__(self, platform, *args, **kwargs)
 
         self.submodules.encoder_reader = EncoderDMAReader(self.sdram.crossbar.get_port())
         self.submodules.encoder = Encoder(platform)

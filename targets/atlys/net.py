@@ -25,8 +25,8 @@ class NetSoC(BaseSoC):
     }
     mem_map.update(BaseSoC.mem_map)
 
-    def __init__(self, platform, **kwargs):
-        BaseSoC.__init__(self, platform, **kwargs)
+    def __init__(self, platform, *args, **kwargs):
+        BaseSoC.__init__(self, platform, *args, **kwargs)
 
         self.submodules.ethphy = LiteEthPHY(
             platform.request("eth_clocks"),

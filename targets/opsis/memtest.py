@@ -14,8 +14,8 @@ class MemTestSoC(BaseSoC):
     )
     csr_map_update(BaseSoC.csr_map, csr_peripherals)
 
-    def __init__(self, platform, **kwargs):
-        BaseSoC.__init__(self, platform, **kwargs)
+    def __init__(self, platform, *args, **kwargs):
+        BaseSoC.__init__(self, platform, *args, **kwargs)
 
         self.submodules.generator = LiteDRAMBISTGenerator(self.sdram.crossbar.get_port(mode="write"))
         #self.submodules.checker = LiteDRAMBISTChecker(self.sdram.crossbar.get_port(mode="read", dw=16)) #, cd="hdmi_out1_pix"))
