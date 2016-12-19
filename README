@@ -22,7 +22,13 @@
   python3 setup.py develop
   cd ..
 
-4. Build the gateware and software:
+4. Obtain LitePCIe and install it:
+  git clone https://github.com/enjoy-digital/litepcie
+  cd litepcie
+  python3 setup.py develop
+  cd ..
+
+5. Build the gateware and software:
   python3 netv2_base.py
 
 [> Status:
