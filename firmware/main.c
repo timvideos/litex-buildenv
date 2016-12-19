@@ -20,6 +20,7 @@
 #include "processor.h"
 #include "pattern.h"
 #include "mdio.h"
+#include "version.h"
 
 #define HDD_LED   0x01
 #define POWER_LED 0x02
