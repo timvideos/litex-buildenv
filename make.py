@@ -28,6 +28,11 @@ def make_testdir(args):
     return testdir
 
 
+def make_platform(args):
+    exec("from platforms.{} import Platform".format(args.platform), globals())
+    return Platform(**dict(args.platform_option))
+
+
 def main():
     parser = argparse.ArgumentParser(description="Opsis LiteX SoC", conflict_handler='resolve')
     make_args(parser)
@@ -38,8 +43,7 @@ def main():
     assert args.platform is not None
     assert args.target is not None
 
-    exec("from platforms.{} import Platform".format(args.platform), globals())
-    platform = Platform(**dict(args.platform_option))
+    platform = make_platform(args)
 
     exec("from targets.{}.{} import SoC".format(args.platform, args.target.lower(), args.target), globals())
     soc = SoC(platform, **soc_sdram_argdict(args), **dict(args.target_option))

@@ -15,7 +15,8 @@ _io = [
     ("spiflash", 0,
         Subsignal("cs_n", Pins("V3")),
         Subsignal("clk", Pins("R15")),
-        Subsignal("mosi", Pins("T13")),
+#        Subsignal("mosi", Pins("T13")),
+        Subsignal("dq", Pins("T13")),
         Subsignal("miso", Pins("R13"), Misc("PULLUP")),
         IOStandard("LVCMOS33"), Misc("SLEW=FAST")),
 
@@ -116,6 +117,22 @@ _connectors = [
 class Platform(XilinxPlatform):
     default_clk_name = "clk100"
     default_clk_period = 10
+
+    # M25P16 - component U1
+    # 16Mb - 75 MHz clock frequency
+    # FIXME: Create a "spi flash module" object in the same way we have SDRAM
+    # module objects.
+    #	/*             name,  erase_cmd, chip_erase_cmd, device_id, pagesize, sectorsize, size_in_bytes */
+    #	FLASH_ID("st m25p16",      0xd8,           0xc7, 0x00152020,   0x100,    0x10000,      0x200000),
+    spiflash_read_dummy_bits = 10
+    spiflash_clock_div = 4
+    spiflash_total_size = int((16/8)*1024*1024) # 16Mbit
+    spiflash_page_size = 256
+    spiflash_sector_size = 0x10000
+
+    # The MimasV2 has a XC6SLX9 which bitstream takes up ~2.6Mbit (1484472 bytes)
+    # 0x80000 offset (4Mbit) gives plenty of space
+    gateware_size = 0x80000
 
     def __init__(self):
         XilinxPlatform.__init__(self, "xc6slx9-csg324-2", _io, _connectors)

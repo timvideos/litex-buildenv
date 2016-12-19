@@ -167,7 +167,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCSDRAM):
     csr_peripherals = (
-#        "spiflash",
+        "spiflash",
         "ddrphy",
         "dna",
         "git_info",
@@ -184,9 +184,10 @@ class BaseSoC(SoCSDRAM):
     def __init__(self, platform, **kwargs):
         clk_freq = (83 + Fraction(1, 3))*1000*1000
         SoCSDRAM.__init__(self, platform, clk_freq,
-            integrated_rom_size=0x8000,
-            integrated_sram_size=0x4000,
+#            integrated_rom_size=0x5000,
+            integrated_sram_size=0x2400,
             uart_baudrate=19200,
+            cpu_reset_address=platform.gateware_size,
             **kwargs)
         self.submodules.crg = _CRG(platform, clk_freq)
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
@@ -194,6 +195,20 @@ class BaseSoC(SoCSDRAM):
         self.submodules.dna = dna.DNA()
         self.submodules.git_info = git_info.GitInfo()
         self.submodules.platform_info = platform_info.PlatformInfo("mmv2", self.__class__.__name__[:8])
+
+        self.submodules.spiflash = spi_flash.SpiFlash(
+            platform.request("spiflash"),
+            dummy=platform.spiflash_read_dummy_bits,
+            div=platform.spiflash_clock_div,
+            with_bitbang=False)
+        self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
+        self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
+
+        bios_size = 0x8000
+        self.flash_boot_address = self.mem_map["rom"]+platform.gateware_size+bios_size
+        #self.register_mem("spiflash", self.mem_map["spiflash"],
+        #    self.spiflash.bus, size=platform.spiflash_total_size)
+        self.register_rom(self.spiflash.bus, platform.spiflash_total_size)
 
         # sdram
         sdram_module = MT46H32M16(self.clk_freq, "1:2")
