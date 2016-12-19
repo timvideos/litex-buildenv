@@ -195,7 +195,8 @@ function build() {
         echo ""
 	echo ""
 	echo ""
-	if ! diff -u /tmp/filelist.before /tmp/filelist.after > /tmp/filelist.diff; then
+	diff -u /tmp/filelist.before /tmp/filelist.after > /tmp/filelist.diff
+	if [ $(wc -l < /tmp/filelist.diff) -eq 0 ] ; then
 		echo "- make clean did not leave any generated files behind"
 	else
 		echo "- make clean left these files behind"
