@@ -22,16 +22,16 @@ addons:
 env:
   global:
    - HDMI2USB_UDEV_IGNORE=1
-  matrix:                 # TARGETS="base memtest net video hdmi2usb"
-#   - PLATFORM=arty          TARGETS="base memtest net"
-   - PLATFORM=atlys         TARGETS="base memtest net video hdmi2usb"
-   - PLATFORM=minispartan6  TARGETS="base memtest     video"
-   - PLATFORM=mimasv2       TARGETS="base memtest     video"
-#   - PLATFORM=netv2         TARGETS="base memtest     video"
-#   - PLATFORM=nexys_video   TARGETS="base memtest net video"
-   - PLATFORM=pipistrello   TARGETS="base memtest     video"
-   - PLATFORM=opsis         TARGETS="base memtest net video hdmi2usb"
-#   - PLATFORM=sim           TARGETS="base memtest net video"
+  matrix:
+#   - PLATFORM=arty
+#   - PLATFORM=atlys
+   - PLATFORM=minispartan6
+   - PLATFORM=mimasv2
+#   - PLATFORM=netv2
+#   - PLATFORM=nexys_video
+   - PLATFORM=pipistrello
+   - PLATFORM=opsis
+#   - PLATFORM=sim
 
 install:
  - $PWD/.travis/setup.sh
