@@ -2,7 +2,7 @@
 
 if [ -z "$PLATFORMS" ]; then
 	if [ -z "$PLATFORM" ]; then
-		PLATFORMS=$(ls targets/ | grep -v ".py" | sed -e"s+targets/++")
+		PLATFORMS=$(ls targets/ | grep -v ".py" | grep -v "common" | sed -e"s+targets/++")
 	else
 		PLATFORMS="$PLATFORM"
 	fi
