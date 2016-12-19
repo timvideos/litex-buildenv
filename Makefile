@@ -19,9 +19,15 @@ TARGET_BUILD_DIR = build/$(PLATFORM)_$(TARGET)_$(CPU)/
 IPRANGE ?= 192.168.100
 TFTPD_DIR ?= build/tftpd/
 
+# Couple of Python settings.
+# ---------------------------------
 # Turn off Python's hash randomization
 PYTHONHASHSEED := 0
 export PYTHONHASHSEED
+# Disable writing __pycache__ directories
+PYTHONDONTWRITEBYTECODE := 1
+export PYTHONDONTWRITEBYTECODE
+# ---------------------------------
 
 MAKE_CMD=\
 	 ./make.py \
