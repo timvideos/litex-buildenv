@@ -179,28 +179,28 @@ for PLATFORM in $PLATFORMS; do
 ##			echo "============================================="
 ##		fi
 
-		echo ""
-		echo ""
-		echo ""
-		echo "- make clean ($PLATFORM $TARGET)"
-		echo "---------------------------------------------"
-		PLATFORM=$PLATFORM TARGET=$TARGET make clean
-		echo "============================================="
-
-		# Check that make clean didn't leave anything behind
-		find | sort > /tmp/filelist.after
-                echo ""
-		echo ""
-		echo ""
-		if ! diff -u /tmp/filelist.before /tmp/filelist.after > /tmp/filelist.diff; then
-			echo "- make clean did not leave any generated files behind"
-		else
-			echo "- make clean left these files behind"
-			echo "============================================="
-			cat /tmp/filelist.diff | grep "^+"
-			echo "============================================="
-			exit 1
-		fi
+##		echo ""
+##		echo ""
+##		echo ""
+##		echo "- make clean ($PLATFORM $TARGET)"
+##		echo "---------------------------------------------"
+##		PLATFORM=$PLATFORM TARGET=$TARGET make clean
+##		echo "============================================="
+##
+##		# Check that make clean didn't leave anything behind
+##		find | sort > /tmp/filelist.after
+##                echo ""
+##		echo ""
+##		echo ""
+##		if ! diff -u /tmp/filelist.before /tmp/filelist.after > /tmp/filelist.diff; then
+##			echo "- make clean did not leave any generated files behind"
+##		else
+##			echo "- make clean left these files behind"
+##			echo "============================================="
+##			cat /tmp/filelist.diff | grep "^+"
+##			echo "============================================="
+##			exit 1
+##		fi
 
 	done
 	)
