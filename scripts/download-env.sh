@@ -180,13 +180,13 @@ check_version openocd 0.10.0-dev
 (
 	conda install pyserial
 )
-check_import pyserial
+check_import serial
 
 # ipython for interactive debugging
 (
 	conda install ipython
 )
-check_import ipython
+check_import IPython
 
 # hexfile for embedding the Cypress FX2 firmware.
 (

@@ -172,25 +172,25 @@ check_version openocd 0.10.0-dev || return 1
 
 
 
-check_import pyserial
+check_import serial || return 1
 
 # ipython for interactive debugging
 
 
 
-check_import ipython
+check_import IPython || return 1
 
 # hexfile for embedding the Cypress FX2 firmware.
 
 
 
-check_import_version hexfile $HEXFILE_VERSION
+check_import_version hexfile $HEXFILE_VERSION || return 1
 
 # Tool for changing the mode (JTAG/Serial/etc) of HDMI2USB boards
 
 
 
-check_import_version hdmi2usb.modeswitch $HDMI2USB_MODESWITCH_VERSION
+check_import_version hdmi2usb.modeswitch $HDMI2USB_MODESWITCH_VERSION || return 1
 
 # git submodules
 echo ""
