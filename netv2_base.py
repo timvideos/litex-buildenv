@@ -11,9 +11,12 @@ import netv2_platform as netv2
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
+from litex.build.tools import write_to_file
 
 from litedram.modules import MT41J128M16
 from litedram.phy import a7ddrphy
+from litedram.frontend.bist import LiteDRAMBISTGenerator
+from litedram.frontend.bist import LiteDRAMBISTChecker
 
 from litepcie.phy.s7pciephy import S7PCIEPHY
 from litepcie.core import LitePCIeEndpoint, LitePCIeMSI
@@ -93,12 +96,14 @@ class _CRG(Module):
 
 class BaseSoC(SoCSDRAM):
     csr_map = {
-        "ddrphy":   17,
-        "dna":      18,
-        "xadc":     19,
-        "pcie_phy": 20,
-        "dma":      21,
-        "msi":      22
+        "ddr_phy":       17,
+        "ddr_generator": 18,
+        "ddr_checker":   19,
+        "dna":           20,
+        "xadc":          21,
+        "pcie_phy":      22,
+        "dma":           23,
+        "msi":           24,
     }
     csr_map.update(SoCSDRAM.csr_map)
     interrupt_map = {
@@ -142,13 +147,20 @@ class BaseSoC(SoCSDRAM):
             self.comb += self.msi.irqs[self.interrupt_map[k]].eq(v)
 
         # sdram
-        self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
+        self.submodules.ddr_phy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
         self.add_constant("A7DDRPHY_BITSLIP", 2)
         self.add_constant("A7DDRPHY_DELAY", 8)
         sdram_module = MT41J128M16(self.clk_freq, "1:4")
-        self.register_sdram(self.ddrphy,
+        self.register_sdram(self.ddr_phy,
                             sdram_module.geom_settings,
                             sdram_module.timing_settings)
+
+        # sdram bist
+        ddr_generator_port = self.sdram.crossbar.get_port(mode="write")
+        self.submodules.ddr_generator = LiteDRAMBISTGenerator(ddr_generator_port)
+
+        ddr_checker_port = self.sdram.crossbar.get_port(mode="read")
+        self.submodules.ddr_checker = LiteDRAMBISTChecker(ddr_checker_port)
 
         # led blink
         counter = Signal(32)
