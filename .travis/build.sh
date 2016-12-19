@@ -80,12 +80,12 @@ function build() {
 	# We have to clean after doing this otherwise if the gateware
 	# has a dependency on the firmware that isn't correctly working
 	# the travis build will still pass.
-	#echo ""
-	#echo ""
-	#echo ""
-	#echo "- make clean ($PLATFORM $TARGET) (prerun)"
-	#echo "---------------------------------------------"
-	#PLATFORM=$PLATFORM TARGET=$TARGET make clean
+	echo ""
+	echo ""
+	echo ""
+	echo "- make clean ($PLATFORM $TARGET) (prerun)"
+	echo "---------------------------------------------"
+	make clean
 
 	echo ""
 	echo ""
@@ -182,28 +182,28 @@ function build() {
 ##		echo "============================================="
 ##	fi
 
-##	echo ""
-##	echo ""
-##	echo ""
-##	echo "- make clean ($PLATFORM $TARGET)"
-##	echo "---------------------------------------------"
-##	PLATFORM=$PLATFORM TARGET=$TARGET make clean
-##	echo "============================================="
-##
-##	# Check that make clean didn't leave anything behind
-##	find | sort > /tmp/filelist.after
-##        echo ""
-##	echo ""
-##	echo ""
-##	if ! diff -u /tmp/filelist.before /tmp/filelist.after > /tmp/filelist.diff; then
-##		echo "- make clean did not leave any generated files behind"
-##	else
-##		echo "- make clean left these files behind"
-##		echo "============================================="
-##		cat /tmp/filelist.diff | grep "^+"
-##		echo "============================================="
-##		return 1
-##	fi
+	echo ""
+	echo ""
+	echo ""
+	echo "- make clean ($PLATFORM $TARGET)"
+	echo "---------------------------------------------"
+	PLATFORM=$PLATFORM TARGET=$TARGET make clean
+	echo "============================================="
+
+	# Check that make clean didn't leave anything behind
+	find | sort > /tmp/filelist.after
+        echo ""
+	echo ""
+	echo ""
+	if ! diff -u /tmp/filelist.before /tmp/filelist.after > /tmp/filelist.diff; then
+		echo "- make clean did not leave any generated files behind"
+	else
+		echo "- make clean left these files behind"
+		echo "============================================="
+		cat /tmp/filelist.diff | grep "^+"
+		echo "============================================="
+		return 1
+	fi
 	return 0
 }
 
