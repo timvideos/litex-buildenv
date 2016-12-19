@@ -22,11 +22,11 @@ class MemTestSoC(BaseSoC):
         self.submodules.checker = LiteDRAMBISTChecker(self.sdram.crossbar.get_port(mode="read")) #, cd="hdmi_out1_pix"))
 
         analyzer_signals = [
-#            self.checker.core.cmd_counter,
-            self.checker.core._data_counter,
-            self.checker.core.error,
-            self.checker.core.expect,
-            self.checker.core.actual,
+            self.checker.core.cmd_counter,
+            self.checker.core.data_counter,
+            self.checker.core.data_error,
+            self.checker.core.dma.source.data,  # expected
+            self.checker.core.gen.o,            # actual
         ]
         self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 2048)
 

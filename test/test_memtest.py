@@ -24,7 +24,7 @@ def main():
     wb.regs.checker_reset.write(0)
 
     analyzer = LiteScopeAnalyzerDriver(wb.regs, "analyzer", config_csv='{}/analyzer.csv'.format(make_testdir(args)), debug=True)
-    analyzer.configure_trigger(cond={'checker_litedrambistchecker_error': 1})
+    analyzer.configure_trigger(cond={'checker_litedrambistchecker_data_error': 1})
     analyzer.configure_subsampler(1)
 #    analyzer.run(offset=16, length=1024)
 
