@@ -48,6 +48,9 @@ else
 	$(MAKE_CMD)
 endif
 
+gateware-clean:
+	rm -rf $(TARGET_BUILD_DIR)/gateware
+
 firmware:
 	mkdir -p $(TARGET_BUILD_DIR)
 ifneq ($(OS),Windows_NT)
@@ -56,6 +59,9 @@ ifneq ($(OS),Windows_NT)
 else
 	$(MAKE_CMD) --no-compile-gateware
 endif
+
+firmware-clean:
+	rm -rf $(TARGET_BUILD_DIR)/software
 
 load-gateware: load-gateware-$(PLATFORM)
 	true

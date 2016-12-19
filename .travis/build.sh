@@ -83,9 +83,9 @@ function build() {
 	echo ""
 	echo ""
 	echo ""
-	echo "- make clean ($PLATFORM $TARGET) (prerun)"
+	echo "- make firmware-clean ($PLATFORM $TARGET) (prerun)"
 	echo "---------------------------------------------"
-	make clean
+	make firmware-clean
 
 	echo ""
 	echo ""
@@ -182,28 +182,30 @@ function build() {
 ##		echo "============================================="
 ##	fi
 
-	echo ""
-	echo ""
-	echo ""
-	echo "- make clean ($PLATFORM $TARGET)"
-	echo "---------------------------------------------"
-	PLATFORM=$PLATFORM TARGET=$TARGET make clean
-	echo "============================================="
+	if [ ! -z "$CLEAN_CHECK" ]; then
+		echo ""
+		echo ""
+		echo ""
+		echo "- make clean ($PLATFORM $TARGET)"
+		echo "---------------------------------------------"
+		PLATFORM=$PLATFORM TARGET=$TARGET make clean
+		echo "============================================="
 
-	# Check that make clean didn't leave anything behind
-	find | sort > /tmp/filelist.after
-        echo ""
-	echo ""
-	echo ""
-	diff -u /tmp/filelist.before /tmp/filelist.after > /tmp/filelist.diff
-	if [ $(wc -l < /tmp/filelist.diff) -eq 0 ] ; then
-		echo "- make clean did not leave any generated files behind"
-	else
-		echo "- make clean left these files behind"
-		echo "============================================="
-		cat /tmp/filelist.diff | grep "^+"
-		echo "============================================="
-		return 1
+		# Check that make clean didn't leave anything behind
+		find | sort > /tmp/filelist.after
+		echo ""
+		echo ""
+		echo ""
+		diff -u /tmp/filelist.before /tmp/filelist.after > /tmp/filelist.diff
+		if [ $(wc -l < /tmp/filelist.diff) -eq 0 ] ; then
+			echo "- make clean did not leave any generated files behind"
+		else
+			echo "- make clean left these files behind"
+			echo "============================================="
+			cat /tmp/filelist.diff | grep "^+"
+			echo "============================================="
+			return 1
+		fi
 	fi
 	return 0
 }
