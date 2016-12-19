@@ -78,17 +78,20 @@ if [ ! -d $BUILD_DIR ]; then
 fi
 
 # Xilinx ISE
-XILINX_DIR=$BUILD_DIR/Xilinx
-if [ -f "$XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/xreport" ]; then
-	export MISOC_EXTRA_CMDLINE="-Ob toolchain_path $XILINX_DIR/opt/Xilinx/"
-	# Reserved MAC address from documentation block, see
-	# http://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
-	export XILINXD_LICENSE_FILE=$XILINX_DIR
-	export MACADDR=90:10:00:00:00:01
-	#export LD_PRELOAD=$XILINX_DIR/impersonate_macaddress/impersonate_macaddress.so
-	#ls -l $LD_PRELOAD
-else
-	XILINX_DIR=/
+if [ -z "$XILINX_DIR" ]; then
+	LOCAL_XILINX_DIR=$BUILD_DIR/Xilinx
+	if [ -f "$LOCAL_XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/xreport" ]; then
+		export MISOC_EXTRA_CMDLINE="-Ob toolchain_path $LOCAL_XILINX_DIR/opt/Xilinx/"
+		# Reserved MAC address from documentation block, see
+		# http://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
+		export XILINXD_LICENSE_FILE=$LOCAL_XILINX_DIR
+		export MACADDR=90:10:00:00:00:01
+		#export LD_PRELOAD=$XILINX_DIR/impersonate_macaddress/impersonate_macaddress.so
+		#ls -l $LD_PRELOAD
+		export XILINX_DIR=$LOCAL_XILINX_DIR
+	else
+		XILINX_DIR=/
+	fi
 fi
 echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
 # FIXME: Remove this when build/migen/mibuild/xilinx/programmer.py:_create_xsvf
