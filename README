@@ -1,0 +1,32 @@
+      _  __  _______   _____     ____     _____
+     / |/ /_/_  __/ | / /_  |___/ __/__  / ___/
+    /    / -_) /  | |/ / __/___/\ \/ _ \/ /__
+   /_/|_/\__/_/   |___/____/  /___/\___/\___/
+
+           Copyright 2016 / EnjoyDigital
+
+           NeTV2 SoC based on LiteX
+
+[> Getting started
+1. Install Python3 and your vendor's software
+
+2. Obtain LiteX and install it:
+  git clone https://github.com/enjoy-digital/litex --recursive
+  cd litex
+  python3 setup.py develop
+  cd ..
+
+3. Obtain LiteDRAM and install it:
+  git clone https://github.com/enjoy-digital/litedram
+  cd litedram
+  python3 setup.py develop
+  cd ..
+
+4. Build the gateware and software:
+  python3 netv2_base.py
+
+[> Status:
+Waiting hardware for testing...
+
+[> Contact
+E-mail: florent@enjoy-digital.fr
