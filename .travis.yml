@@ -25,7 +25,7 @@ env:
    - CLEAN_CHECK=1
   matrix:
 #   - PLATFORM=arty
-#   - PLATFORM=atlys
+   - PLATFORM=atlys
    - PLATFORM=minispartan6
    - PLATFORM=mimasv2
 #   - PLATFORM=netv2
