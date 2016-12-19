@@ -20,6 +20,7 @@ from litepcie.core import LitePCIeEndpoint, LitePCIeMSI
 from litepcie.frontend.dma import LitePCIeDMA
 from litepcie.frontend.wishbone import LitePCIeWishboneBridge
 
+import cpu_interface
 
 class _CRG(Module):
     def __init__(self, platform):
@@ -166,5 +167,7 @@ def main():
     builder = Builder(soc, output_dir="build")
     vns = builder.build()
 
+    csr_header = cpu_interface.get_csr_header(soc.get_csr_regions(), soc.get_constants())
+    write_to_file(os.path.join("software", "pcie", "kernel", "csr.h"), csr_header)
 if __name__ == "__main__":
     main()
