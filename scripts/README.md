@@ -1,6 +1,6 @@
 For project description and information see the project [README.md](/) file.
 
-# Building HDMI2USB-misoc-firmware on Ubuntu 14.04 LTS
+# Building HDMI2USB-litex-firmware on Ubuntu 14.04 LTS
 
 These scripts are designed to bootstrap a firmware build environment on Ubuntu
 14.04 LTS and also works on 16.04 though with less testing.  This is only
@@ -13,7 +13,7 @@ repository.
 # Table of Contents
 
   * Prerequisite (Xilinx)
-  * Bootstrap HDMI2USB-misoc-firmware and dependencies
+  * Bootstrap HDMI2USB-litex-firmware and dependencies
   * Working with the firmware
     * 1) Enter the environment
     * 2) Build the gateware
@@ -66,13 +66,13 @@ existing licenses.
   ```
   Go to About > Licence, ensure under "information" you can see your ISE WebPACK licence.
 
-# Bootstrap HDMI2USB-misoc-firmware and dependencies
+# Bootstrap HDMI2USB-litex-firmware and dependencies
  
 Run the bootstrap script to build an environment required for flashing
 firmware:
 
 ```
-curl -fsS https://raw.githubusercontent.com/timvideos/HDMI2USB-misoc-firmware/master/scripts/bootstrap.sh | bash
+curl -fsS https://raw.githubusercontent.com/timvideos/HDMI2USB-litex-firmware/master/scripts/bootstrap.sh | bash
 ```
 
 Check that the final line of output is:
@@ -80,13 +80,13 @@ Check that the final line of output is:
 Bootstrap: Set up complete, you're good to go!
 ```
 
-This clones the HDMI2USB-misoc-firmware repository, adds the timvideos
-fpga-support PPA, installs packages required then downloads misoc and its
+This clones the HDMI2USB-litex-firmware repository, adds the timvideos
+fpga-support PPA, installs packages required then downloads litex and its
 dependencies. Depending on your connection speed this could take a while to
 download.
 
 This script will object if you alredy have cloned the
-HDMI2USB-misoc-firmware repo in the same directory so rename it if required.
+HDMI2USB-litex-firmware repo in the same directory so rename it if required.
 
 **NOTE: This script requires sudo access (and will ask for your sudo password) to install required software and dependencies. See [scripts/download-env-root.sh](scripts/) to see what is installed.**
 
@@ -99,19 +99,19 @@ development environment.
 
 Set the type of board you want to use.
 ```
-export BOARD=opsis
+export PLATFORM=opsis
 ```
 
 Set-up the environment:
 ```
-cd HDMI2USB-misoc-firmware
+cd HDMI2USB-litex-firmware
 source scripts/enter-env.sh
 ```
 
 If your environment is set up correctly your prompt should change to look
 something like:
 ```
-(H2U BOARD=opsis) #
+(H2U P=opsis) #
 ```
 
 If your prompt does not change, then check the output to see whether there are
@@ -121,7 +121,7 @@ script recommended for use to set up your environment in the previous step.)
 Fix any errors reported (including install failures from apt) before
 continuing.
 ```
-cd HDMI2USB-misoc-firmware
+cd HDMI2USB-litex-firmware
 sudo scripts/download-env-root.sh
 sudo scripts/download-env.sh
 ```
@@ -130,7 +130,7 @@ sudo scripts/download-env.sh
 
 Once you have entered the environment, you can build things.
 
-Building the full HDMI2USB gateware takes roughly between 15 minutes and 30
+Building the full HDMI2USB gateware takes roughly between 5 minutes and 15
 minutes on a modern fast machine.
 
 ```
@@ -140,13 +140,13 @@ make gateware
 At the end of running the build command, you should end up with;
 ```
 Creating bit map...
-Saving bit stream in "opsis_hdmi2usb-hdmi2usbsoc-opsis.bit".
-Saving bit stream in "opsis_hdmi2usb-hdmi2usbsoc-opsis.bin".
+Saving bit stream in "top.bit".
+Saving bit stream in "top.bin".
 Bitstream generation is complete.
 Firmware 56008 bytes (9528 bytes left)
 ```
 
-The built gateware will be in build/misoc/build/.
+The built gateware will be in build/opsis_hdmi2usb_lm32/gateware/
 
 ## 3) Configure your board
 
