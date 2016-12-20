@@ -51,6 +51,13 @@ class NetSoC(BaseSoC):
             self.crg.cd_sys.clk,
             self.ethphy.crg.cd_eth_rx.clk)
 
+        self.platform.add_platform_command("""
+# FIXME: ERROR:Place:1108 - A clock IOB / BUFGMUX clock component pair have
+# been found that are not placed at an optimal clock IOB / BUFGMUX site pair.
+# The clock IOB component <eth_clocks_rx> is placed at site <K15>.
+NET "{eth_clocks_rx}" CLOCK_DEDICATED_ROUTE = FALSE;
+""", eth_clocks_rx=platform.lookup_request("eth_clocks").rx)
+
     def configure_iprange(self, iprange):
         iprange = [int(x) for x in iprange.split(".")]
         while len(iprange) < 4:
