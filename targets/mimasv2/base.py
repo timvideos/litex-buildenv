@@ -194,7 +194,7 @@ class BaseSoC(SoCSDRAM):
 
         self.submodules.dna = dna.DNA()
         self.submodules.git_info = git_info.GitInfo()
-        self.submodules.platform_info = platform_info.PlatformInfo("mmv2", self.__class__.__name__[:8])
+        self.submodules.platform_info = platform_info.PlatformInfo("mimasv2", self.__class__.__name__[:8])
 
         self.submodules.spiflash = spi_flash.SpiFlash(
             platform.request("spiflash"),

@@ -124,7 +124,7 @@ class Platform(XilinxPlatform):
     # module objects.
     #	/*             name,  erase_cmd, chip_erase_cmd, device_id, pagesize, sectorsize, size_in_bytes */
     #	FLASH_ID("st m25p16",      0xd8,           0xc7, 0x00152020,   0x100,    0x10000,      0x200000),
-    spiflash_read_dummy_bits = 10
+    spiflash_read_dummy_bits = 8
     spiflash_clock_div = 4
     spiflash_total_size = int((16/8)*1024*1024) # 16Mbit
     spiflash_page_size = 256
