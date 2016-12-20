@@ -41,7 +41,7 @@ class NetSoC(BaseSoC):
 
         self.specials += [
             Keep(self.ethphy.crg.cd_eth_rx.clk),
-#            Keep(self.ethphy.crg.cd_eth_tx.clk),
+            Keep(self.ethphy.crg.cd_eth_tx.clk),
         ]
 
         # FIXME: This is probably too tight?
@@ -56,7 +56,12 @@ class NetSoC(BaseSoC):
 # been found that are not placed at an optimal clock IOB / BUFGMUX site pair.
 # The clock IOB component <eth_clocks_rx> is placed at site <K15>.
 NET "{eth_clocks_rx}" CLOCK_DEDICATED_ROUTE = FALSE;
-""", eth_clocks_rx=platform.lookup_request("eth_clocks").rx)
+# The IOB component <eth_clocks_tx> is placed at site <K16>.
+NET "{eth_clocks_tx}" CLOCK_DEDICATED_ROUTE = FALSE;
+""",
+            eth_clocks_rx=platform.lookup_request("eth_clocks").rx,
+            eth_clocks_tx=platform.lookup_request("eth_clocks").tx,
+            )
 
     def configure_iprange(self, iprange):
         iprange = [int(x) for x in iprange.split(".")]
