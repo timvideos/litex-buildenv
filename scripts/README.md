@@ -69,11 +69,13 @@ existing licenses.
 # Bootstrap HDMI2USB-litex-firmware and dependencies
  
 Run the bootstrap script to build an environment required for flashing
-firmware (change first two variables if running this from a different branch/repo):
+firmware:
 
 ```
-GITHUB_USER=timvideos GIT_BRANCH=master curl -fsS https://raw.githubusercontent.com/$GITHUB_USER/HDMI2USB-litex-firmware/$GIT_BRANCH/scripts/bootstrap.sh | bash
+curl -fsS https://raw.githubusercontent.com/$GITHUB_USER/HDMI2USB-litex-firmware/$GIT_BRANCH/scripts/bootstrap.sh | bash
 ```
+NOTE: If you are not building from timvideos or the master branch, optionally export GITHUB_USER and
+GIT_BRANCH before running the above (i.e. `export GIT_BRANCH=nextgen; export GITHUB_USER=mithro`).
 
 Check that the final line of output is:
 ```
