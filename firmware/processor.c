@@ -354,10 +354,16 @@ static void fb_get_clock_md(unsigned int pixel_clock, unsigned int *best_m, unsi
 static void fb_set_mode(const struct video_timing *mode)
 {
 	unsigned int clock_m, clock_d;
+	unsigned int hdmi_out0_enabled;
+	unsigned int hdmi_out1_enabled;
 
 	fb_get_clock_md(mode->pixel_clock, &clock_m, &clock_d);
 
 #ifdef CSR_HDMI_OUT0_BASE
+	if (hdmi_out0_core_initiator_enable_read()) {
+		hdmi_out0_enabled = 1;
+		hdmi_out0_core_initiator_enable_write(0);
+	}
 	hdmi_out0_core_initiator_hres_write(mode->h_active);
 	hdmi_out0_core_initiator_hsync_start_write(mode->h_active + mode->h_sync_offset);
 	hdmi_out0_core_initiator_hsync_end_write(mode->h_active + mode->h_sync_offset + mode->h_sync_width);
@@ -368,9 +374,15 @@ static void fb_set_mode(const struct video_timing *mode)
 	hdmi_out0_core_initiator_vscan_write(mode->v_active + mode->v_blanking);
 
 	hdmi_out0_core_initiator_length_write(mode->h_active*mode->v_active*2);
+
+	hdmi_out0_core_initiator_enable_write(hdmi_out0_enabled);
 #endif
 
 #ifdef CSR_HDMI_OUT1_BASE
+	if (hdmi_out1_core_initiator_enable_read()) {
+		hdmi_out1_enabled = 1;
+		hdmi_out1_core_initiator_enable_write(0);
+	}
 	hdmi_out1_core_initiator_hres_write(mode->h_active);
 	hdmi_out1_core_initiator_hsync_start_write(mode->h_active + mode->h_sync_offset);
 	hdmi_out1_core_initiator_hsync_end_write(mode->h_active + mode->h_sync_offset + mode->h_sync_width);
@@ -381,6 +393,8 @@ static void fb_set_mode(const struct video_timing *mode)
 	hdmi_out1_core_initiator_vscan_write(mode->v_active + mode->v_blanking);
 
 	hdmi_out1_core_initiator_length_write(mode->h_active*mode->v_active*2);
+
+	hdmi_out1_core_initiator_enable_write(hdmi_out1_enabled);
 #endif
 
 	fb_clkgen_write(0x1, clock_d-1);
@@ -538,22 +552,18 @@ void processor_update(void)
 
 #ifdef ENCODER_BASE
 	/*  encoder */
-// FIXME
-/*
 #ifdef CSR_HDMI_IN0_BASE
 	if(processor_encoder_source == VIDEO_IN_HDMI_IN0) {
-		encoder_reader_base_write((hdmi_in0_framebuffer_base(hdmi_in0_fb_index)));
+		encoder_reader_base_write(hdmi_in0_framebuffer_base(hdmi_in0_fb_index));
 	}
 #endif
 #ifdef CSR_HDMI_IN1_BASE
 	if(processor_encoder_source == VIDEO_IN_HDMI_IN1) {
-		encoder_reader_base_write((hdmi_in1_framebuffer_base(hdmi_in1_fb_index)));
+		encoder_reader_base_write(hdmi_in1_framebuffer_base(hdmi_in1_fb_index));
 	}
 #endif
 	if(processor_encoder_source == VIDEO_IN_PATTERN)
 		encoder_reader_base_write(pattern_framebuffer_base());
-*/
-// FIXME
 #endif
 }
 

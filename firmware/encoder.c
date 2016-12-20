@@ -187,15 +187,11 @@ void encoder_service(void) {
 			can_start = 0;
 			frame_cnt++;
 		}
-// FIXME
-/*
 		if(encoder_reader_done_read()) {
 			encoder_reader_h_width_write(processor_h_active);
 			encoder_reader_v_width_write(processor_v_active);
 			encoder_reader_start_write(1);
 		}
-*/
-// FIXME	
 		if(elapsed(&last_fps_event, SYSTEM_CLOCK_FREQUENCY)) {
 			encoder_fps = frame_cnt;
 			frame_cnt = 0;

@@ -7,9 +7,9 @@
 --
 -- Content   : JPEG Encoder Top Level
 --
--- Description : 
+-- Description :
 --
--- Spec.     : 
+-- Spec.     :
 --
 -- Author    : Michal Krepa
 --
@@ -21,24 +21,24 @@
 -- /// Copyright (c) 2013, Jahanzeb Ahmad
 -- /// All rights reserved.
 -- ///
--- /// Redistribution and use in source and binary forms, with or without modification, 
+-- /// Redistribution and use in source and binary forms, with or without modification,
 -- /// are permitted provided that the following conditions are met:
 -- ///
--- ///  * Redistributions of source code must retain the above copyright notice, 
+-- ///  * Redistributions of source code must retain the above copyright notice,
 -- ///    this list of conditions and the following disclaimer.
--- ///  * Redistributions in binary form must reproduce the above copyright notice, 
--- ///    this list of conditions and the following disclaimer in the documentation and/or 
+-- ///  * Redistributions in binary form must reproduce the above copyright notice,
+-- ///    this list of conditions and the following disclaimer in the documentation and/or
 -- ///    other materials provided with the distribution.
 -- ///
--- ///    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
--- ///    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
--- ///    OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
--- ///    SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
--- ///    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
--- ///    LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
--- ///    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
--- ///    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
--- ///    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+-- ///    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+-- ///    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+-- ///    OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+-- ///    SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+-- ///    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+-- ///    LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+-- ///    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+-- ///    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+-- ///    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 -- ///   POSSIBILITY OF SUCH DAMAGE.
 -- ///
 -- ///
@@ -70,7 +70,7 @@ library work;
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 entity JpegEnc is
-  port 
+  port
   (
         CLK                : in  std_logic;
         RST                : in  std_logic;
@@ -86,12 +86,13 @@ entity JpegEnc is
         OPB_retry          : out std_logic;
         OPB_toutSup        : out std_logic;
         OPB_errAck         : out std_logic;
-        
-        -- IMAGE RAM
-        iram_wdata         : in  std_logic_vector(C_PIXEL_BITS-1 downto 0);
-        iram_wren          : in  std_logic;
-        iram_fifo_afull    : out std_logic; 
-        
+
+        -- FDCT INPUT DATA
+        fdct_fifo_rd          : out std_logic;
+        fdct_fifo_q           : in std_logic_vector(23 downto 0);
+        fdct_fifo_hf_full     : in std_logic;
+        fdct_fifo_dval_o      : out std_logic;
+
         -- OUT RAM
         ram_byte           : out std_logic_vector(7 downto 0);
         ram_wren           : out std_logic;
@@ -118,7 +119,7 @@ architecture RTL of JpegEnc is
   signal jpeg_busy          : std_logic;
   signal outram_base_addr   : std_logic_vector(9 downto 0);
   signal num_enc_bytes      : std_logic_vector(23 downto 0);
-  signal img_size_x         : std_logic_vector(15 downto 0); 
+  signal img_size_x         : std_logic_vector(15 downto 0);
   signal img_size_y         : std_logic_vector(15 downto 0);
   signal sof                : std_logic;
   signal jpg_iram_rden      : std_logic;
@@ -139,10 +140,10 @@ architecture RTL of JpegEnc is
   signal zz_buf_sel         : std_logic;
   signal zz_rd_addr         : std_logic_vector(5 downto 0);
   signal zz_data            : std_logic_vector(11 downto 0);
-  signal rle_buf_sel        : std_logic;                     
+  signal rle_buf_sel        : std_logic;
   signal rle_rdaddr         : std_logic_vector(5 downto 0);
   signal rle_data           : std_logic_vector(11 downto 0);
-  signal qua_buf_sel        : std_logic;                     
+  signal qua_buf_sel        : std_logic;
   signal qua_rdaddr         : std_logic_vector(5 downto 0);
   signal qua_data           : std_logic_vector(11 downto 0);
   signal huf_buf_sel        : std_logic;
@@ -176,10 +177,7 @@ architecture RTL of JpegEnc is
   signal bs_ram_wren        : std_logic;
   signal bs_ram_wraddr      : std_logic_vector(23 downto 0);
   signal jfif_eoi           : std_logic;
-  signal fdct_fifo_rd       : std_logic;
-  signal fdct_fifo_q        : std_logic_vector(23 downto 0);
-  signal fdct_fifo_hf_full  : std_logic;
-  
+
 -------------------------------------------------------------------------------
 -- Architecture: begin
 -------------------------------------------------------------------------------
@@ -204,51 +202,27 @@ begin
         OPB_retry          => OPB_retry,
         OPB_toutSup        => OPB_toutSup,
         OPB_errAck         => OPB_errAck,
-                           
+
         -- Quantizer RAM
         qdata              => qdata,
         qaddr              => qaddr,
         qwren              => qwren,
-        
+
         -- CTRL
         jpeg_ready         => jpeg_ready,
         jpeg_busy          => jpeg_busy,
-        
+
         -- ByteStuffer
         outram_base_addr   => outram_base_addr,
         num_enc_bytes      => num_enc_bytes,
-        
+
         -- global
         img_size_x         => img_size_x,
         img_size_y         => img_size_y,
         img_size_wr        => img_size_wr,
         sof                => sof
     );
-    
-  -------------------------------------------------------------------
-  -- BUF_FIFO
-  -------------------------------------------------------------------
-  U_BUF_FIFO : entity work.BUF_FIFO
-  port map
-  (
-        CLK                => CLK,
-        RST                => RST,
-        -- HOST PROG
-        img_size_x         => img_size_x,
-        img_size_y         => img_size_y,
-        sof                => sof,
 
-        -- HOST DATA
-        iram_wren          => iram_wren,
-        iram_wdata         => iram_wdata,
-        fifo_almost_full   => iram_fifo_afull,
-
-        -- FDCT
-        fdct_fifo_rd       => fdct_fifo_rd,
-        fdct_fifo_q        => fdct_fifo_q,
-        fdct_fifo_hf_full  => fdct_fifo_hf_full
-    );
-    
   -------------------------------------------------------------------
   -- Controller
   -------------------------------------------------------------------
@@ -257,7 +231,7 @@ begin
   (
         CLK                => CLK,
         RST                => RST,
-        
+
         -- output IF
         outif_almost_full  => outif_almost_full,
 
@@ -277,7 +251,7 @@ begin
         zig_start          => zig_start,
         zig_ready          => zig_ready,
         zig_sm_settings    => zig_sm_settings,
-        
+
         -- Quantizer
         qua_start          => qua_start,
         qua_ready          => qua_ready,
@@ -297,13 +271,13 @@ begin
         bs_start           => bs_start,
         bs_ready           => bs_ready,
         bs_sm_settings     => bs_sm_settings,
-        
+
         -- JFIF GEN
         jfif_start         => jfif_start,
         jfif_ready         => jfif_ready,
         jfif_eoi           => jfif_eoi,
-                           
-        -- OUT MUX         
+
+        -- OUT MUX
         out_mux_ctrl       => out_mux_ctrl
     );
 
@@ -321,9 +295,10 @@ begin
         fdct_sm_settings   => fdct_sm_settings,
 
         -- BUF_FIFO
-        bf_fifo_rd         => fdct_fifo_rd,   
-        bf_fifo_q          => fdct_fifo_q,  
+        bf_fifo_rd         => fdct_fifo_rd,
+        bf_fifo_q          => fdct_fifo_q,
         bf_fifo_hf_full    => fdct_fifo_hf_full,
+        bf_fifo_dval_o     => fdct_fifo_dval_o,
 
         -- ZIG ZAG
         zz_buf_sel         => zz_buf_sel,
@@ -334,9 +309,9 @@ begin
         -- HOST
         img_size_x         => img_size_x,
         img_size_y         => img_size_y,
-        sof                => sof        
+        sof                => sof
     );
-    
+
   -------------------------------------------------------------------
   -- ZigZag top level
   -------------------------------------------------------------------
@@ -361,7 +336,7 @@ begin
         fdct_data          => zz_data,
         fdct_rden          => zz_rden
     );
-   
+
   -------------------------------------------------------------------
   -- Quantizer top level
   -------------------------------------------------------------------
@@ -389,8 +364,8 @@ begin
         qdata              => qdata,
         qaddr              => qaddr,
         qwren              => qwren
-    );  
-    
+    );
+
   -------------------------------------------------------------------
   -- RLE TOP
   -------------------------------------------------------------------
@@ -417,11 +392,11 @@ begin
         qua_buf_sel        => rle_buf_sel,
         qua_rd_addr        => rle_rdaddr,
         qua_data           => rle_data,
-        
+
         -- HostIF
         sof                => sof
     );
-    
+
   -------------------------------------------------------------------
   -- Huffman Encoder
   -------------------------------------------------------------------
@@ -448,15 +423,15 @@ begin
         VLI                => huf_amplitude,
         d_val              => huf_dval,
         rle_fifo_empty     => huf_fifo_empty,
-        
+
         -- Byte Stuffer
         bs_buf_sel         => bs_buf_sel,
         bs_fifo_empty      => bs_fifo_empty,
         bs_rd_req          => bs_rd_req,
-        bs_packed_byte     => bs_packed_byte      
+        bs_packed_byte     => bs_packed_byte
     );
-    
-  
+
+
   -------------------------------------------------------------------
   -- Byte Stuffer
   -------------------------------------------------------------------
@@ -504,7 +479,7 @@ begin
         start              => jfif_start,
         ready              => jfif_ready,
         eoi                => jfif_eoi,
-        
+
         -- ByteStuffer
         num_enc_bytes         => num_enc_bytes,
 
@@ -520,9 +495,9 @@ begin
         ram_wren           => jfif_ram_wren,
         ram_wraddr         => jfif_ram_wraddr
     );
-    
+
   image_size_reg <= img_size_x & img_size_y;
-  
+
   -------------------------------------------------------------------
   -- OutMux
   -------------------------------------------------------------------
@@ -548,8 +523,8 @@ begin
         ram_wren           => ram_wren,
         ram_wraddr         => ram_wraddr
     );
-    
-    
+
+
 end architecture RTL;
 -------------------------------------------------------------------------------
 -- Architecture: end

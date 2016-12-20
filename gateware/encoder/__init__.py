@@ -1,1 +1,1 @@
-from gateware.encoder.core import EncoderDMAReader, Encoder
+from gateware.encoder.core import EncoderDMAReader, EncoderBuffer, Encoder

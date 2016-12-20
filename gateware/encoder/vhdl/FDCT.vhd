@@ -83,6 +83,7 @@ entity FDCT is
         bf_fifo_rd         : out std_logic;
         bf_fifo_q          : in  std_logic_vector(23 downto 0);
         bf_fifo_hf_full    : in  std_logic;
+        bf_fifo_dval_o     : out std_logic;
 
         -- ZIG ZAG
         zz_buf_sel         : in  std_logic;
@@ -206,6 +207,7 @@ begin
         q           => fram1_q
   );
 
+  bf_fifo_dval_o   <= bf_dval;
   fram1_we    <= bf_dval;         -- moving a new block
   fram1_data  <= bf_fifo_q;       -- data from BUF_FIFO
   fram1_q_vld <= fram1_rd_d(5);   -- onto the next ...
@@ -324,8 +326,7 @@ begin
       ----------------------------------------------------------------
       -- stall reading from input FIFO and writing to output FIFO
       -- when output FIFO is almost full
-      if rd_en = '1' and unsigned(fifo1_count) < 512-64 and
-         (bf_fifo_hf_full = '1' or cur_cmp_idx > 1) then
+      if rd_en = '1' and unsigned(fifo1_count) < 512-64 then
         -- read request goes to BUF_FIFO only for component 0.
         if cur_cmp_idx < 2 then
           bf_fifo_rd_s <= '1';
