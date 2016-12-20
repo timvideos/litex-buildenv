@@ -2,16 +2,21 @@ from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 
 _io = [
+    # U11F
     ("clk50", 0, Pins("R2"), IOStandard("LVCMOS33")),
 
     ("user_led", 0, Pins("U2"), IOStandard("LVCMOS33")),
 
+
     ("serial", 0,
+        #set_property PACKAGE_PIN M5 [get_ports {MCU_RX}]
         Subsignal("tx", Pins("M5")),
+        #set_property PACKAGE_PIN N6 [get_ports {MCU_TX}]
         Subsignal("rx", Pins("N6")),
         IOStandard("LVCMOS33"),
     ),
 
+    # ./basic_overlay.srcs/sources_1/bd/overlay1/ip/overlay1_mig_7series_0_0/overlay1_mig_7series_0_0/user_design/constraints/overlay1_mig_7series_0_0.xdc
     ("ddram", 0,
         Subsignal("a", Pins(
             "U15 M17 N18 U16 R18 P18 T18 T17",
@@ -37,6 +42,7 @@ _io = [
         Misc("SLEW=FAST"),
     ),
 
+    # ./basic_overlay.srcs/constrs_1/imports/netvcr/netvcr-evt1.xdc
     ("pcie_x1", 0,
         Subsignal("rst_n", Pins("N1"), IOStandard("LVCMOS33")),
         Subsignal("clk_p", Pins("D6")),
@@ -45,6 +51,66 @@ _io = [
         Subsignal("rx_n", Pins("E3")),
         Subsignal("tx_p", Pins("H2")),
         Subsignal("tx_n", Pins("H1"))
+    ),
+
+    ("hdmi_in", 0,
+        #set_property PACKAGE_PIN P4 [get_ports HDMI_RX_CLK_P]
+        #set_property PACKAGE_PIN P3 [get_ports HDMI_RX_CLK_N]
+        Subsignal("clk_p", Pins("P4"), IOStandard("TDMS_33")),
+        Subsignal("clk_n", Pins("P3"), IOStandard("TDMS_33")),
+        #set_property PACKAGE_PIN U4 [get_ports HDMI_RX_0_P]
+        #set_property PACKAGE_PIN V4 [get_ports HDMI_RX_0_N]
+        Subsignal("data0_p", Pins("U4"), IOStandard("TDMS_33")),
+        Subsignal("data0_n", Pins("V4"), IOStandard("TDMS_33")),
+        #set_property PACKAGE_PIN P6 [get_ports HDMI_RX_1_P]
+        #set_property PACKAGE_PIN P5 [get_ports HDMI_RX_1_N]
+        Subsignal("data1_p", Pins("P6"), IOStandard("TDMS_33")),
+        Subsignal("data1_n", Pins("P5"), IOStandard("TDMS_33")),
+        #set_property PACKAGE_PIN R7 [get_ports HDMI_RX_2_P]
+        #set_property PACKAGE_PIN T7 [get_ports HDMI_RX_2_N]
+        Subsignal("data2_p", Pins("R7"), IOStandard("TDMS_33")),
+        Subsignal("data2_n", Pins("T7"), IOStandard("TDMS_33")),
+        # --
+        #Subsignal("scl", Pins("Y4"), IOStandard("LVCMOS33")),
+        #Subsignal("sda", Pins("AB5"), IOStandard("LVCMOS33")),
+        #Subsignal("cec", Pins("AA5"), IOStandard("LVCMOS33")),  # FIXME
+        #Subsignal("txen", Pins("R3"), IOStandard("LVCMOS33")),  # FIXME
+        #Subsignal("hpa", Pins("AB12"), IOStandard("LVCMOS33")), # FIXME
+    ),
+
+    ("hdmi_out", 0,
+        # set_property PACKAGE_PIN R3 [get_ports {HDMI_TX_CLK_P[0]}]
+        # set_property PACKAGE_PIN T2 [get_ports {HDMI_TX_CLK_N[0]}]
+        Subsignal("clk_p", Pins("R3"), IOStandard("TMDS_33")),
+        Subsignal("clk_n", Pins("T2"), IOStandard("TMDS_33")),
+        # set_property PACKAGE_PIN T4 [get_ports {HDMI_TX_0_P[0]}]
+        # set_property PACKAGE_PIN T3 [get_ports {HDMI_TX_0_N[0]}]
+        Subsignal("data0_p", Pins("T4"), IOStandard("TMDS_33")),
+        Subsignal("data0_n", Pins("T3"), IOStandard("TMDS_33")),
+        # set_property PACKAGE_PIN U6 [get_ports {HDMI_TX_1_P[0]}]
+        # set_property PACKAGE_PIN U5 [get_ports {HDMI_TX_1_N[0]}]
+        Subsignal("data1_p", Pins("U6"), IOStandard("TMDS_33")),
+        Subsignal("data1_n", Pins("U5"), IOStandard("TMDS_33")),
+        # set_property PACKAGE_PIN U7 [get_ports {HDMI_TX_2_P[0]}]
+        # set_property PACKAGE_PIN V6 [get_ports {HDMI_TX_2_N[0]}]
+        Subsignal("data2_p", Pins("V7"), IOStandard("TMDS_33")),
+        Subsignal("data2_n", Pins("V6"), IOStandard("TMDS_33")),
+        # --
+
+        # LV_CEC - R5
+        # LV_HPD - T5
+
+        # LV_SCL - V3 - # Don't drive LV_SCL
+        # LV_SDA - V2 - # Don't drive LV_SDA
+
+        # HPD_OVER      - V8
+        # SDA_OVER_UP   - V7
+        # SDA_OVER_DN   - R6
+
+        #Subsignal("scl", Pins("U3"), IOStandard("LVCMOS33")),
+        #Subsignal("sda", Pins("V3"), IOStandard("LVCMOS33")),
+        #Subsignal("cec", Pins("AA4"), IOStandard("LVCMOS33")),  # FIXME
+        #Subsignal("hdp", Pins("AB13"), IOStandard("LVCMOS25")), # FIXME
     ),
 ]
 
