@@ -73,6 +73,71 @@ _tofe_axiom = {
     },
 }
 
+_axiom_3pmod = {
+    ('nled', 0): ("north", 'io0'),
+    ('nled', 1): ("north", 'io1'),
+    ('nled', 2): ("north", 'io2'),
+    ('nled', 3): ("north", 'io3'),
+    ('nled', 4): ("north", 'io4'),
+    ('nled', 5): ("north", 'io5'),
+    ('nled', 6): ("north", 'io6'),
+    ('nled', 7): ("north", 'io7'),
+
+    ('sled', 0): ("south", 'io0'),
+    ('sled', 1): ("south", 'io1'),
+    ('sled', 2): ("south", 'io2'),
+    ('sled', 3): ("south", 'io3'),
+    ('sled', 4): ("south", 'io4'),
+    ('sled', 5): ("south", 'io5'),
+    ('sled', 6): ("south", 'io6'),
+    ('sled', 7): ("south", 'io7'),
+
+    # pmod south
+    'psouth': {
+        "01": ("south", "lvds_2n"),
+        "02": ("south", "lvds_3n"),
+        "03": ("south", "lvds_4n"),
+        "04": ("south", "lvds_5n"),
+
+        "07": ("south", "lvds_2p"),
+        "08": ("south", "lvds_3p"),
+        "09": ("south", "lvds_4p"),
+        "10": ("south", "lvds_5p"),
+    },
+
+    # pmod middle
+    'pmiddle': {
+        # LVDS Pairs
+        "01": ("north", "lvds_5p"),
+        "02": ("north", "lvds_4p"),
+        "03": ("south", "lvds_0p"),
+        "04": ("south", "lvds_1p"),
+
+        "07": ("north", "lvds_5n"),
+        "08": ("north", "lvds_4n"),
+        "09": ("south", "lvds_0n"),
+        "10": ("south", "lvds_1n"),
+    },
+
+    # pmod north
+    'pnorth': {
+        # LVDS Pairs
+        "01": ("north", "lvds_0n"),
+        "02": ("north", "lvds_1n"),
+        "03": ("north", "lvds_2n"),
+        "04": ("north", "lvds_3n"),
+        # 05 : GND
+        # 06 : VCC
+        "07": ("north", "lvds_0p"),
+        "08": ("north", "lvds_1p"),
+        "09": ("north", "lvds_2p"),
+        "10": ("north", "lvds_3p"),
+        # 11 : GND
+        # 12 : VCC
+    }
+}
+
+
 _axiom_hdmi = {
     # Control Signals
     #"io0": None,
