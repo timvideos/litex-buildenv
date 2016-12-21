@@ -293,26 +293,26 @@ class BaseSoC(SoCSDRAM):
         # TOFE LowSpeedIO board
         # ---------------------------------
         # UARTs
-        self.suart.add_uart_pads(platform.request('tofe_lsio_serial'))
-        self.suart.add_uart_pads(platform.request('tofe_lsio_pmod_serial'))
+##        self.suart.add_uart_pads(platform.request('tofe_lsio_serial'))
+##        self.suart.add_uart_pads(platform.request('tofe_lsio_pmod_serial'))
         # LEDs
-        tofe_lsio_leds = Signal(4)
-        self.submodules.tofe_lsio_leds = GPIOOut(tofe_lsio_leds)
-        self.comb += [
-            platform.request('tofe_lsio_user_led', 0).eq(tofe_lsio_leds[0]),
-            platform.request('tofe_lsio_user_led', 1).eq(tofe_lsio_leds[1]),
-            platform.request('tofe_lsio_user_led', 2).eq(tofe_lsio_leds[2]),
-            platform.request('tofe_lsio_user_led', 3).eq(tofe_lsio_leds[3]),
-        ]
+##        tofe_lsio_leds = Signal(4)
+##        self.submodules.tofe_lsio_leds = GPIOOut(tofe_lsio_leds)
+##        self.comb += [
+##            platform.request('tofe_lsio_user_led', 0).eq(tofe_lsio_leds[0]),
+##            platform.request('tofe_lsio_user_led', 1).eq(tofe_lsio_leds[1]),
+##            platform.request('tofe_lsio_user_led', 2).eq(tofe_lsio_leds[2]),
+##            platform.request('tofe_lsio_user_led', 3).eq(tofe_lsio_leds[3]),
+##        ]
         # Switches
-        tofe_lsio_sws = Signal(4)
-        self.submodules.tofe_lsio_sws = GPIOIn(tofe_lsio_sws)
-        self.comb += [
-            tofe_lsio_sws[0].eq(~platform.request('tofe_lsio_user_sw', 0)),
-            tofe_lsio_sws[1].eq(~platform.request('tofe_lsio_user_sw', 1)),
-            tofe_lsio_sws[2].eq(~platform.request('tofe_lsio_user_sw', 2)),
-            tofe_lsio_sws[3].eq(~platform.request('tofe_lsio_user_sw', 3)),
-        ]
+##        tofe_lsio_sws = Signal(4)
+##        self.submodules.tofe_lsio_sws = GPIOIn(tofe_lsio_sws)
+##        self.comb += [
+##            tofe_lsio_sws[0].eq(~platform.request('tofe_lsio_user_sw', 0)),
+##            tofe_lsio_sws[1].eq(~platform.request('tofe_lsio_user_sw', 1)),
+##            tofe_lsio_sws[2].eq(~platform.request('tofe_lsio_user_sw', 2)),
+##            tofe_lsio_sws[3].eq(~platform.request('tofe_lsio_user_sw', 3)),
+##        ]
 
 
 SoC = BaseSoC
