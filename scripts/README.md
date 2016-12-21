@@ -72,8 +72,10 @@ Run the bootstrap script to build an environment required for flashing
 firmware:
 
 ```
-curl -fsS https://raw.githubusercontent.com/timvideos/HDMI2USB-litex-firmware/master/scripts/bootstrap.sh | bash
+curl -fsS https://raw.githubusercontent.com/$GITHUB_USER/HDMI2USB-litex-firmware/$GIT_BRANCH/scripts/bootstrap.sh | bash
 ```
+NOTE: If you are not building from timvideos or the master branch, optionally export GITHUB_USER and
+GIT_BRANCH before running the above (i.e. `export GIT_BRANCH=nextgen; export GITHUB_USER=mithro`).
 
 Check that the final line of output is:
 ```
