@@ -57,7 +57,7 @@ class _CRG(Module):
         unbuf_sdram_full = Signal()
         unbuf_sdram_half_a = Signal()
         unbuf_sdram_half_b = Signal()
-        unbuf_unused1 = Signal()
+        unbuf_encoder = Signal()
         unbuf_unused2 = Signal()
         unbuf_sys = Signal()
 
@@ -83,9 +83,9 @@ class _CRG(Module):
             # (300MHz) sdram wr rd
             o_CLKOUT0=unbuf_sdram_full, p_CLKOUT0_DUTY_CYCLE=.5,
             p_CLKOUT0_PHASE=0., p_CLKOUT0_DIVIDE=p//4,
-            # ( 66MHz) unused? - Was encoder
-            o_CLKOUT1=unbuf_unused1, p_CLKOUT1_DUTY_CYCLE=.5,
-            p_CLKOUT1_PHASE=0., p_CLKOUT1_DIVIDE=p//8,
+            # ( 66MHz) encoder
+            o_CLKOUT1=unbuf_encoder, p_CLKOUT1_DUTY_CYCLE=.5,
+            p_CLKOUT1_PHASE=0., p_CLKOUT1_DIVIDE=9,
             # (150MHz) sdram_half - sdram dqs adr ctrl
             o_CLKOUT2=unbuf_sdram_half_a, p_CLKOUT2_DUTY_CYCLE=.5,
             p_CLKOUT2_PHASE=270., p_CLKOUT2_DIVIDE=p//2,
@@ -163,6 +163,11 @@ class _CRG(Module):
                 self.cd_sys.rst | ~dcm_base50_locked)
         ]
         platform.add_period_constraint(self.cd_base50.clk, 20)
+
+        # Encoder clock - 66 MHz
+        # ------------------------------------------------------------------------------
+        self.specials += Instance("BUFG", i_I=unbuf_encoder, o_O=self.cd_encoder.clk) 
+        self.specials += AsyncResetSynchronizer(self.cd_encoder, self.cd_sys.rst)
 
 
 class BaseSoC(SoCSDRAM):
