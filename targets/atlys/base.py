@@ -32,6 +32,7 @@ class _CRG(Module):
         self.clock_domains.cd_sdram_full_rd = ClockDomain()
         # Clock domain for peripherals (such as HDMI output).
         self.clock_domains.cd_base50 = ClockDomain()
+        self.clock_domains.cd_encoder = ClockDomain()
 
         self.reset = Signal()
 
@@ -93,7 +94,7 @@ class _CRG(Module):
             o_CLKOUT3=unbuf_sdram_half_b, p_CLKOUT3_DUTY_CYCLE=.5,
             p_CLKOUT3_PHASE=250., p_CLKOUT3_DIVIDE=p//2,
             # ( 50MHz) unused? - Was peripheral
-            o_CLKOUT4=unbuf_unused1, p_CLKOUT4_DUTY_CYCLE=.5,
+            o_CLKOUT4=unbuf_unused2, p_CLKOUT4_DUTY_CYCLE=.5,
             p_CLKOUT4_PHASE=0., p_CLKOUT4_DIVIDE=12,
             # ( 75MHz) sysclk
             o_CLKOUT5=unbuf_sys, p_CLKOUT5_DUTY_CYCLE=.5,
