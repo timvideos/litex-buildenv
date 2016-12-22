@@ -182,7 +182,7 @@ class BaseSoC(SoCSDRAM):
 
 
     def __init__(self, platform, **kwargs):
-        clk_freq = (83 + Fraction(1, 3))*1000*1000
+        clk_freq = 50*1000*1000
         SoCSDRAM.__init__(self, platform, clk_freq,
 #            integrated_rom_size=0x5000,
             integrated_sram_size=0x2400,
