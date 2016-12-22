@@ -1,16 +1,30 @@
 import binascii
 import os
 import subprocess
+import sys
 
 from litex.gen.fhdl import *
 from litex.soc.interconnect.csr import *
 
 def git_root():
-    return subprocess.check_output(
-        "git rev-parse --show-toplevel",
-        shell=True,
-        cwd=os.path.dirname(__file__),
-    ).decode('ascii').strip() 
+    if sys.platform == "win32":
+        git = subprocess.Popen(
+            "git rev-parse --show-toplevel",
+            cwd=os.path.dirname(__file__),
+            stdout=subprocess.PIPE,
+        )
+        path = subprocess.check_output(
+            "cygpath -wf -",
+            stdin=git.stdout,
+        )
+        git.wait()
+        return path.decode('ascii').strip()
+    else:
+        return subprocess.check_output(
+            "git rev-parse --show-toplevel",
+            shell=True,
+            cwd=os.path.dirname(__file__),
+        ).decode('ascii').strip()
 
 def git_commit():
     data = subprocess.check_output(

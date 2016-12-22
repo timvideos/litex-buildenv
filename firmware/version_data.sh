@@ -7,8 +7,8 @@ COMMIT="$(git log --format="%H" -n 1)"
 BRANCH="$(git symbolic-ref --short HEAD)"
 DESCRIBE="$(git describe --dirty)"
 
-TMPFILE_H=$(tempfile -s .h)
-TMPFILE_C=$(tempfile -s .c)
+TMPFILE_H=$(tempfile -s .h | mktemp --suffix=.h)
+TMPFILE_C=$(tempfile -s .c | mktemp --suffix=.c)
 
 UPLATFORM="$(echo $PLATFORM | tr '[:lower:]' '[:upper:]')"
 UTARGET="$(echo $TARGET | tr '[:lower:]' '[:upper:]')"
