@@ -114,7 +114,7 @@ class _CRG(Module):
             p_CLKOUT0_PHASE=0., p_CLKOUT0_DIVIDE=p//8,
             # ( 66MHz) encoder
             o_CLKOUT1=unbuf_encoder, p_CLKOUT1_DUTY_CYCLE=.5,
-            p_CLKOUT1_PHASE=0., p_CLKOUT1_DIVIDE=p//8,
+            p_CLKOUT1_PHASE=0., p_CLKOUT1_DIVIDE=6,
             # (200MHz) sdram_half - ddr3 dqs adr ctrl off-chip
             o_CLKOUT2=unbuf_sdram_half_a, p_CLKOUT2_DUTY_CYCLE=.5,
             p_CLKOUT2_PHASE=230., p_CLKOUT2_DIVIDE=p//4,
