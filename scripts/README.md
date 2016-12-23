@@ -64,7 +64,10 @@ existing licenses.
   source /opt/Xilinx/14.7/ISE_DS/settings64.sh
   ise
   ```
-  Go to About > Licence, ensure under "information" you can see your ISE WebPACK licence.
+  Go to `Help` > `Manage Licence...`, ensure on the `Manage License` tab you
+  can see your WebPACK licence and it is green. The WebPACK license will be
+  named something like `WebPACK`, `V_WebPack` or `Web_Package` (depending on
+  when you got your license you might have all of them!).
 
 # Bootstrap HDMI2USB-litex-firmware and dependencies
  
