@@ -36,6 +36,12 @@ apt-get install -y python-yaml
 # fxload is needed for controlling the FX2 found on the Atlys and Opsis boards
 apt-get install -y fxload
 
+# aftpd is needed for tftp booting firmware
+apt-get install -y atftpd
+
+# These libraries are needed for working with the sim target
+apt-get install -y openvpn libsdl1.2-dev
+
 # FIXME: Work out if this stuff below is needed.
 #apt-get install -y software-properties-common
 #add-apt-repository -y ppa:timvideos/fpga-support
