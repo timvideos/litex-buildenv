@@ -33,21 +33,15 @@ if [ ! -d $BUILD_DIR ]; then
 	mkdir -p $BUILD_DIR
 fi
 
-# Xilinx ISE
-
+# FIXME: Move this to a separate script!
+# Cutback Xilinx ISE for CI
 # --------
 # Save the passphrase to a file so we don't echo it in the logs
-XILINX_PASSPHRASE_FILE=$(tempfile -s .passphrase | mktemp --suffix=.passphrase)
-trap "rm -f -- '$XILINX_PASSPHRASE_FILE'" EXIT
 if [ ! -z "$XILINX_PASSPHRASE" ]; then
+	XILINX_PASSPHRASE_FILE=$(tempfile -s .passphrase | mktemp --suffix=.passphrase)
+	trap "rm -f -- '$XILINX_PASSPHRASE_FILE'" EXIT
 	echo $XILINX_PASSPHRASE >> $XILINX_PASSPHRASE_FILE
-else
-	rm $XILINX_PASSPHRASE_FILE
-	trap - EXIT
-fi
-# --------
 
-if [ -f $XILINX_PASSPHRASE_FILE ]; then
 	# Need gpg to do the unencryption
 	XILINX_DIR=$BUILD_DIR/Xilinx
 	if [ ! -d "$XILINX_DIR" ]; then
@@ -90,7 +84,7 @@ if [ -f $XILINX_PASSPHRASE_FILE ]; then
 
 	rm $XILINX_PASSPHRASE_FILE
 	trap - EXIT
-else
+elif [ -z "$XILINX_DIR" ]; then
 	XILINX_DIR=/
 fi
 echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
