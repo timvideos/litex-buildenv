@@ -37,7 +37,7 @@ fi
 
 # --------
 # Save the passphrase to a file so we don't echo it in the logs
-XILINX_PASSPHRASE_FILE=$(tempfile)
+XILINX_PASSPHRASE_FILE=$(tempfile -s .passphrase | mktemp --suffix=.passphrase)
 trap "rm -f -- '$XILINX_PASSPHRASE_FILE'" EXIT
 if [ ! -z "$XILINX_PASSPHRASE" ]; then
 	echo $XILINX_PASSPHRASE >> $XILINX_PASSPHRASE_FILE
