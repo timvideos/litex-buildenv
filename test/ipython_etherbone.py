@@ -12,7 +12,11 @@ def main():
     print_memmap(wb)
     print()
 
-    analyzer = LiteScopeAnalyzerDriver(wb.regs, "analyzer", config_csv='{}/analyzer.csv'.format(make_testdir(args)), debug=True)
+    analyzer_csv = '{}/analyzer.csv'.format(make_testdir(args))
+    if os.path.exists(analyzer_csv):
+        analyzer = LiteScopeAnalyzerDriver(wb.regs, "analyzer", config_csv=analyzer_csv, debug=True)
+    else:
+        print("WARNING: No litescope csv found at {},\nAssuming litescope not included in design!".format(analyzer_csv))
 
     try:
         embed()
