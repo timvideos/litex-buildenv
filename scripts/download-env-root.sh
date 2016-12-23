@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Need realpath for finding where we are running from.
 apt-get install -y realpath
 
 if [ "`whoami`" != "root" ]
@@ -14,33 +15,34 @@ SETUP_DIR=$(dirname $SETUP_SRC)
 set -x
 set -e
 
+# Need wget to download conda in download-env.sh
 apt-get install -y wget
+# We are building C code, so need build-essential
 apt-get install -y build-essential
-# Need gpg to do the unencryption of Xilinx tools
-apt-get install -y gnupg
-# migen
-# iverilog and gtkwave are needed for migen
-apt-get install -y iverilog gtkwave
-# FIXME: Also need to install the vpi module....
-# cd vpi
-# make all
-# sudo make install
 
-# misoc
-# Nothing needed
-# FIXME: Also need to install toools....
-# cd tools
-# make
-# sudo make install
+# Need gpg to create the encrypted package of Xilinx tools for CI, not needed
+# by normal developers.
+#apt-get install -y gnupg
 
-# liteeth
-# Nothing needed
+# gtkwave is needed for viewing the output of traces
+apt-get install -y gtkwave
 
-apt-get install -y libreadline-dev libusb-1.0-0-dev libftdi-dev python-yaml fxload
+# readline, libusb, libftdi are all needed by openocd which is installed via conda
+apt-get install -y libreadline-dev libusb-1.0-0-dev libftdi-dev
 
-# Get the vizzini module needed for the Atlys board
-apt-get install -y software-properties-common
-add-apt-repository -y ppa:timvideos/fpga-support
-apt-get update
-apt-get install -y vizzini-dkms
-apt-get install -y hdmi2usb-mode-switch-udev
+# FIXME: What needs python-yaml!?
+apt-get install -y python-yaml
+
+# fxload is needed for controlling the FX2 found on the Atlys and Opsis boards
+apt-get install -y fxload
+
+# FIXME: Work out if this stuff below is needed.
+#apt-get install -y software-properties-common
+#add-apt-repository -y ppa:timvideos/fpga-support
+#apt-get update
+# Only need the udev rules (the full mode-switch tool is installed locally as
+# part of the download-env.sh).
+#apt-get install -y hdmi2usb-mode-switch-udev
+
+# Get the vizzini module, only needed for the Atlys board
+#apt-get install -y vizzini-dkms
