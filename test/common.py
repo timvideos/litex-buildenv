@@ -54,6 +54,7 @@ def connect(desc, *args, **kw):
     print("Device DNA: {}".format(get_dna(wb)))
     print("   Git Rev: {}".format(get_git(wb)))
     print("  Platform: {}".format(get_platform(wb)))
+    print("  Analyzer: {}".format(["Yes", "No"][hasattr(wb.regs, "analyzer")]))
     print()
 
     return args, wb
