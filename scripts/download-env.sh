@@ -89,6 +89,18 @@ elif [ -z "$XILINX_DIR" ]; then
 fi
 echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
 
+function check_exists {
+	TOOL=$1
+	if which $TOOL 2>&1; then
+		echo "$TOOL found at $(which $TOOL)"
+		return 0
+	else
+		echo "$TOOL *NOT* found"
+		echo "Please try running the $SETUP_DIR/download-env.sh script again."
+		return 1
+	fi
+}
+
 function check_version {
 	TOOL=$1
 	VERSION=$2
@@ -124,7 +136,7 @@ function check_import_version {
 		return 0
 	else
 		echo "$MODULE (version $EXPECT_VERSION) *NOT* found!"
-		echo "Please try running the $SETUP_DIR/get-env.sh script again."
+		echo "Please try running the $SETUP_DIR/download-env.sh script again."
 		return 1
 	fi
 }
@@ -145,6 +157,18 @@ export PATH=$CONDA_DIR/bin:$PATH
 	fi
 	conda config --add channels timvideos
 )
+
+# fxload
+#(
+#	conda install fxload
+#)
+check_exists fxload || return 1
+
+# flterm
+(
+	conda install flterm
+)
+check_exists flterm
 
 # binutils for the target
 (

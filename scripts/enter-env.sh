@@ -98,6 +98,18 @@ echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
 # understands the $MISOC_EXTRA_CMDLINE option.
 export PATH=$PATH:$XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64
 
+function check_exists {
+	TOOL=$1
+	if which $TOOL 2>&1; then
+		echo "$TOOL found at $(which $TOOL)"
+		return 0
+	else
+		echo "$TOOL *NOT* found"
+		echo "Please try running the $SETUP_DIR/download-env.sh script again."
+		return 1
+	fi
+}
+
 function check_version {
 	TOOL=$1
 	VERSION=$2
@@ -143,6 +155,18 @@ echo ""
 echo "Checking modules from conda"
 echo "---------------------------"
 export PATH=$CONDA_DIR/bin:$PATH
+
+# fxload
+
+
+
+check_exists fxload || return 1
+
+# flterm
+
+
+
+check_exists flterm || return 1
 
 # binutils for the target
 
