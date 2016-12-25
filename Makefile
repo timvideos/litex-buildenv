@@ -101,7 +101,23 @@ tftpd_start:
 
 # Helper targets
 help:
-	echo "Hello"
+	@echo "Environment:"
+	@echo " PLATFORM=$(shell ls targets/ | grep -v ".py" | grep -v "common" | sed -e"s+targets/++" -e's/$$/ OR/')" | sed -e's/ OR$$//'
+	@echo "                        (current: $(PLATFORM))"
+	@echo " TARGET=$(shell ls targets/$(PLATFORM)/ | grep ".py" | grep -v "__" | sed -e"s+targets/$(PLATFORM)/++" -e's/.py/ OR/')" | sed -e's/ OR$$//'
+	@echo "                        (current: $(TARGET))"
+	@echo ""
+	@if [ ! -z "$(TARGETS)" ]; then echo " Extra firmware needed for: $(TARGETS)"; echo ""; fi
+	@echo "Targets avaliable:"
+	@echo " make help"
+	@echo " make all"
+	@echo " make gateware"
+	@echo " make firmware"
+	@echo " make load"
+	@echo " make flash"
+	@for T in $(TARGETS); do make -s help-$$T; done
+	@echo " make clean"
+
 
 clean:
 	rm -rf $(TARGET_BUILD_DIR)
