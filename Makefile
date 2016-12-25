@@ -41,8 +41,18 @@ SHELL := /bin/bash
 FILTER ?= tee -a
 LOGFILE ?= $(PWD)/$(TARGET_BUILD_DIR)/output.$(shell date +%Y%m%d-%H%M%S).log
 
+# Initialize submodules automatically
+third_party/%/.git: .gitmodules
+	git submodule sync --recursive -- $$(dirname $@)
+	git submodule update --recursive --init $$(dirname $@)
+	touch $@ -r .gitmodules
 
-gateware:
+# Gateware
+MODULES=litex litedram liteeth litejpeg litepcie litesata litescope liteusb litevideo litex
+gateware-submodules: $(addsuffix /.git,$(addprefix third_party/,$(MODULES)))
+	@true
+
+gateware: gateware-submodules
 	mkdir -p $(TARGET_BUILD_DIR)
 ifneq ($(OS),Windows_NT)
 	$(MAKE_CMD) \
