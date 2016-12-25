@@ -1,23 +1,22 @@
 #!/usr/bin/env python3
-from opsis_base import *
-
 from litevideo.input import HDMIIn
 from litevideo.output import VideoOut
 
 from litescope import LiteScopeAnalyzer
 
-base_cls = MiniSoC
+from targets.opsis.net import csr_map_update
+from targets.opsis.net import NetSoC
 
 
-class VideoMixerSoC(base_cls):
+class VideoMixerSoC(NetSoC):
     csr_peripherals = (
         "hdmi_out0",
         "analyzer"
     )
-    csr_map_update(base_cls.csr_map, csr_peripherals)
+    csr_map_update(NetSoC.csr_map, csr_peripherals)
 
     def __init__(self, platform, **kwargs):
-        base_cls.__init__(self, platform, **kwargs)
+        NetSoC.__init__(self, platform, **kwargs)
         # hdmi out 0
         dram_port = self.sdram.crossbar.get_port(mode="read", dw=16, cd="pix", reverse=True)
         self.submodules.hdmi_out0 = VideoOut(platform.device,
@@ -58,20 +57,21 @@ NET "{pix0_clk}" TNM_NET = "GRPpix0_clk";
             self.hdmi_out0.core.dma.source.valid,
             self.hdmi_out0.core.dma.source.ready,
 
-            dram_port.counter,
-            dram_port.rdata_chunk,
-            dram_port.cmd_buffer.sink.valid,
-            dram_port.cmd_buffer.sink.ready,
-            dram_port.cmd_buffer.source.valid,
-            dram_port.cmd_buffer.source.ready,
-            dram_port.rdata_buffer.sink.valid,
-            dram_port.rdata_buffer.sink.ready,
-            dram_port.rdata_buffer.source.valid,
-            dram_port.rdata_buffer.source.ready,
-            dram_port.rdata_converter.sink.valid,
-            dram_port.rdata_converter.sink.ready,
-            dram_port.rdata_converter.source.valid,
-            dram_port.rdata_converter.source.ready,
+            # FIXME: These don't seem to be valid anymore?
+            #dram_port.counter,
+            #dram_port.rdata_chunk,
+            #dram_port.cmd_buffer.sink.valid,
+            #dram_port.cmd_buffer.sink.ready,
+            #dram_port.cmd_buffer.source.valid,
+            #dram_port.cmd_buffer.source.ready,
+            #dram_port.rdata_buffer.sink.valid,
+            #dram_port.rdata_buffer.sink.ready,
+            #dram_port.rdata_buffer.source.valid,
+            #dram_port.rdata_buffer.source.ready,
+            #dram_port.rdata_converter.sink.valid,
+            #dram_port.rdata_converter.sink.ready,
+            #dram_port.rdata_converter.source.valid,
+            #dram_port.rdata_converter.source.ready,
 
         ]
         self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 1024)
@@ -80,20 +80,4 @@ NET "{pix0_clk}" TNM_NET = "GRPpix0_clk";
         self.analyzer.export_csv(vns, "test/analyzer.csv")
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Opsis LiteX SoC")
-    builder_args(parser)
-    soc_sdram_args(parser)
-    parser.add_argument("--nocompile-gateware", action="store_true")
-    args = parser.parse_args()
-
-    platform = opsis_platform.Platform()
-    soc = VideoMixerSoC(platform, **soc_sdram_argdict(args))
-    builder = Builder(soc, output_dir="build",
-                      compile_gateware=not args.nocompile_gateware,
-                      csr_csv="test/csr.csv")
-    vns = builder.build()
-    soc.do_exit(vns)
-
-if __name__ == "__main__":
-    main()
+SoC = VideoMixerSoC
