@@ -45,11 +45,12 @@ class MemTestSoC(BaseSoC):
                 pass
 
         analyzer_signals = [
-            self.spiflash.cs_n,
-            self.spiflash.clk,
-            self.spiflash.dq_oe,
-            self.spiflash.dqi,
-            self.spiflash.sr,
+            self.spiflash.bus,
+        #    self.spiflash.cs_n,
+        #    self.spiflash.clk,
+        #    self.spiflash.dq_oe,
+        #    self.spiflash.dqi,
+        #    self.spiflash.sr,
         ]
         self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 1024)
 
