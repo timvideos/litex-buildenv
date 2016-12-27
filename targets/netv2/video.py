@@ -1,21 +1,6 @@
-#!/usr/bin/env python3
-import argparse
-import os
-
-from litex.gen import *
-from litex.build.tools import write_to_file
-
-import netv2_platform as netv2
-
-from litex.soc.integration.builder import *
-from litex.soc.integration.soc_core import *
-from litex.soc.interconnect.csr import *
-
 from litevideo.output import VideoOut
 
-from netv2_base import BaseSoC
-
-import cpu_interface
+from targets.netv2.base import BaseSoC
 
 
 class VideoSoC(BaseSoC):
@@ -46,19 +31,4 @@ class VideoSoC(BaseSoC):
 #            self.hdmi_out0.driver.clocking.cd_pix.clk)
 
 
-def main():
-    parser = argparse.ArgumentParser(description="NeTV2 LiteX PCIe SoC")
-    builder_args(parser)
-    soc_core_args(parser)
-    args = parser.parse_args()
-
-    platform = netv2.Platform()
-    soc = VideoSoC(platform, **soc_core_argdict(args))
-    builder = Builder(soc, output_dir="build")
-    vns = builder.build()
-
-    csr_header = cpu_interface.get_csr_header(soc.get_csr_regions(), soc.get_constants())
-    write_to_file(os.path.join("software", "pcie", "kernel", "csr.h"), csr_header)
-
-if __name__ == "__main__":
-    main()
+SoC = VideoSoC

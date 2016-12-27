@@ -3,6 +3,7 @@
 import argparse
 import os
 
+from litex.build.tools import write_to_file
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
@@ -63,6 +64,11 @@ def main():
     builder.add_software_package("libuip", "{}/firmware/libuip".format(os.getcwd()))
     builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
     vns = builder.build(**dict(args.build_option))
+
+    if hasattr(soc, 'pcie_phy'):
+        from targets.common import cpu_interface
+        csr_header = cpu_interface.get_csr_header(soc.get_csr_regions(), soc.get_constants())
+        write_to_file(os.path.join(builddir, "software", "pcie", "kernel", "csr.h"), csr_header)
 
     if hasattr(soc, 'do_exit'):
         soc.do_exit(vns, filename="{}/analyzer.csv".format(testdir))

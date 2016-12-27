@@ -1,17 +1,10 @@
-#!/usr/bin/env python3
-import argparse
-import os
-
 from litex.gen import *
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 from litex.gen.fhdl.specials import Keep
 
-import netv2_platform as netv2
-
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
-from litex.build.tools import write_to_file
 
 from litedram.modules import MT41J128M16
 from litedram.phy import a7ddrphy
@@ -23,7 +16,6 @@ from litepcie.core import LitePCIeEndpoint, LitePCIeMSI
 from litepcie.frontend.dma import LitePCIeDMA
 from litepcie.frontend.wishbone import LitePCIeWishboneBridge
 
-import cpu_interface
 
 class _CRG(Module):
     def __init__(self, platform):
@@ -150,18 +142,4 @@ class BaseSoC(SoCSDRAM):
         #self.comb += self.uart_phy.pads.tx.eq(counter[26])
 
 
-def main():
-    parser = argparse.ArgumentParser(description="NeTV2 LiteX Base SoC")
-    builder_args(parser)
-    soc_sdram_args(parser)
-    args = parser.parse_args()
-
-    platform = netv2.Platform()
-    soc = BaseSoC(platform, **soc_sdram_argdict(args))
-    builder = Builder(soc, output_dir="build")
-    vns = builder.build()
-
-    csr_header = cpu_interface.get_csr_header(soc.get_csr_regions(), soc.get_constants())
-    write_to_file(os.path.join("software", "pcie", "kernel", "csr.h"), csr_header)
-if __name__ == "__main__":
-    main()
+SoC = BaseSoC

@@ -1,14 +1,7 @@
-#!/usr/bin/env python3
-import argparse
-import os
-
 from litex.gen import *
 from litex.gen.genlib.io import CRG
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 from litex.gen.genlib.misc import timeline
-from litex.build.tools import write_to_file
-
-import netv2_platform as netv2
 
 from litex.soc.interconnect.csr import *
 from litex.soc.interconnect import wishbone
@@ -21,8 +14,6 @@ from litepcie.phy.s7pciephy import S7PCIEPHY
 from litepcie.core import LitePCIeEndpoint, LitePCIeMSI
 from litepcie.frontend.dma import LitePCIeDMA
 from litepcie.frontend.wishbone import LitePCIeWishboneBridge
-
-import cpu_interface
 
 
 class _CRG(Module, AutoCSR):
@@ -104,19 +95,4 @@ class PCIeDMASoC(SoCCore):
         self.comb += platform.request("user_led", 0).eq(counter[26])
 
 
-def main():
-    parser = argparse.ArgumentParser(description="NeTV2 LiteX PCIe SoC")
-    builder_args(parser)
-    soc_core_args(parser)
-    args = parser.parse_args()
-
-    platform = netv2.Platform()
-    soc = PCIeDMASoC(platform, **soc_core_argdict(args))
-    builder = Builder(soc, output_dir="build")
-    vns = builder.build()
-
-    csr_header = cpu_interface.get_csr_header(soc.get_csr_regions(), soc.get_constants())
-    write_to_file(os.path.join("software", "pcie", "kernel", "csr.h"), csr_header)
-
-if __name__ == "__main__":
-    main()
+SoC = PCIeDMASoC
