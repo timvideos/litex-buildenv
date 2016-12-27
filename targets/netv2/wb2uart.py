@@ -31,8 +31,8 @@ class _CRG(Module):
         self.clock_domains.cd_clk125 = ClockDomain("clk125") # PCIe
 
         clk50 = platform.request("clk50")
-        #rst = Signal(reset=1) # FIXME
-        rst = Signal(reset=0) # FIXME
+        rst = Signal(reset=1) # FIXME
+        #rst = Signal(reset=0) # FIXME
 
         pll_locked = Signal()
         pll_fb = Signal()

@@ -11,10 +11,7 @@ from litedram.phy import a7ddrphy
 from litedram.frontend.bist import LiteDRAMBISTGenerator
 from litedram.frontend.bist import LiteDRAMBISTChecker
 
-from litepcie.phy.s7pciephy import S7PCIEPHY
-from litepcie.core import LitePCIeEndpoint, LitePCIeMSI
-from litepcie.frontend.dma import LitePCIeDMA
-from litepcie.frontend.wishbone import LitePCIeWishboneBridge
+from gateware import dna, xadc
 
 
 class _CRG(Module):
@@ -91,7 +88,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCSDRAM):
     csr_map = {
-        "ddr_phy":       17,
+        "ddrphy":        17,
         "ddr_generator": 18,
         "ddr_checker":   19,
         "dna":           20,
@@ -101,13 +98,17 @@ class BaseSoC(SoCSDRAM):
         "msi":           24,
     }
     csr_map.update(SoCSDRAM.csr_map)
+
+    #mem_map = {
+    #    "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
+    #}
+    #mem_map.update(SoCSDRAM.mem_map)
+
     interrupt_map = {
         "dma_writer": 0,
         "dma_reader": 1
     }
     interrupt_map.update(SoCSDRAM.interrupt_map)
-    mem_map = SoCSDRAM.mem_map
-    mem_map["csr"] = 0x00000000
 
     def __init__(self, platform, **kwargs):
         clk_freq = 100*1000000
@@ -115,18 +116,24 @@ class BaseSoC(SoCSDRAM):
             integrated_rom_size=0x8000,
             integrated_sram_size=0x8000,
             ident="NeTV2 LiteX Base SoC",
+            uart_baudrate=9600,
             **kwargs)
 
         self.submodules.crg = _CRG(platform)
+        self.submodules.dna = dna.DNA()
+        self.submodules.xadc = xadc.XADC()
 
         # sdram
-        self.submodules.ddr_phy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
+        self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
         self.add_constant("A7DDRPHY_BITSLIP", 2)
         self.add_constant("A7DDRPHY_DELAY", 8)
         sdram_module = MT41J128M16(self.clk_freq, "1:4")
-        self.register_sdram(self.ddr_phy,
+        self.register_sdram(self.ddrphy,
                             sdram_module.geom_settings,
-                            sdram_module.timing_settings)
+                            sdram_module.timing_settings,
+                            controller_settings=ControllerSettings(with_bandwidth=True,
+                                                                   cmd_buffer_depth=8,
+                                                                   with_refresh=True))
 
         # sdram bist
         ddr_generator_port = self.sdram.crossbar.get_port(mode="write")
@@ -139,7 +146,6 @@ class BaseSoC(SoCSDRAM):
         counter = Signal(32)
         self.sync += counter.eq(counter + 1)
         self.comb += platform.request("user_led", 0).eq(counter[26])
-        #self.comb += self.uart_phy.pads.tx.eq(counter[26])
 
 
 SoC = BaseSoC

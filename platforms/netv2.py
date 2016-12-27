@@ -122,21 +122,27 @@ class Platform(XilinxPlatform):
     def __init__(self, toolchain="vivado", programmer="vivado"):
         XilinxPlatform.__init__(self, "xc7a50t-csg325-2", _io,
                                 toolchain=toolchain)
-#        self.toolchain.bitstream_commands = \
-#            ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 1 [current_design]"]
+
+        self.add_platform_command(
+            "set_property CONFIG_VOLTAGE 1.5 [current_design]")
+        self.add_platform_command(
+            "set_property CFGBVS GND [current_design]")
         self.add_platform_command(
             "set_property BITSTREAM.CONFIG.CONFIGRATE 22 [current_design]")
         self.add_platform_command(
             "set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 1 [current_design]")
-            
+        self.toolchain.bitstream_commands = [
+            "set_property CONFIG_VOLTAGE 1.5 [current_design]",
+            "set_property CFGBVS GND [current_design]",
+            "set_property BITSTREAM.CONFIG.CONFIGRATE 22 [current_design]",
+            "set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 1 [current_design]",
+        ]
+
 #        self.toolchain.additional_commands = \
 #            ["write_cfgmem -force -format bin -interface spix1 -size 16 "
 #             "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
-#        self.toolchain.additional_commands = \
-#            ["write_cfgmem -force -format bin -interface spix1 -size 32 "
-#             "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
         self.toolchain.additional_commands = \
-            ["write_cfgmem -verbose -force -format bin -interface spi1 -size 64 "
+            ["write_cfgmem -verbose -force -format bin -interface spix1 -size 64 "
              "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
         self.programmer = programmer
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 35]")

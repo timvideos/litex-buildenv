@@ -22,7 +22,7 @@ class ServerProxy(threading.Thread):
 
     def run(self):
         print("Starting proxy to {}".format(self.port))
-        self.comm = CommUART(self.port, 19200)
+        self.comm = CommUART(self.port, 115200)
         self.server = RemoteServer(self.comm)
         self.server.open()
         self.server.start()
@@ -76,7 +76,7 @@ def get_dna(wb):
     try:
         dna = wb.regs.dna_id.read()
         return hex(dna)
-    except KeyError:
+    except (KeyError, AttributeError) as e:
         return 'Unknown'
 
 
@@ -84,7 +84,7 @@ def get_git(wb):
     try:
         commit = wb.regs.git_info_commit.read()
         return hex(commit)[2:]
-    except KeyError:
+    except (KeyError, AttributeError) as e:
         return 'Unknown'
 
 
@@ -104,7 +104,7 @@ def get_platform(wb):
         target = stringify(wb.regs.platform_info_target)
         platform = stringify(wb.regs.platform_info_platform)
         return "{} on {}".format(target, platform)
-    except KeyError:
+    except (KeyError, AttributeError) as e:
         return 'Unknown on Unknown'
 
 
