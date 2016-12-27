@@ -117,7 +117,6 @@ class BaseSoC(SoCSDRAM):
             integrated_rom_size=0x8000,
             integrated_sram_size=0x8000,
             ident="NeTV2 LiteX Base SoC",
-            uart_baudrate=9600,
             **kwargs)
 
         self.submodules.crg = _CRG(platform)
