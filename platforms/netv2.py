@@ -126,12 +126,17 @@ class Platform(XilinxPlatform):
 #            ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 1 [current_design]"]
         self.add_platform_command(
             "set_property BITSTREAM.CONFIG.CONFIGRATE 22 [current_design]")
+        self.add_platform_command(
+            "set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 1 [current_design]")
             
 #        self.toolchain.additional_commands = \
 #            ["write_cfgmem -force -format bin -interface spix1 -size 16 "
 #             "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
+#        self.toolchain.additional_commands = \
+#            ["write_cfgmem -force -format bin -interface spix1 -size 32 "
+#             "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
         self.toolchain.additional_commands = \
-            ["write_cfgmem -force -format bin -interface spix1 -size 16 "
+            ["write_cfgmem -verbose -force -format bin -interface spi1 -size 64 "
              "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
         self.programmer = programmer
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 35]")
@@ -139,7 +144,7 @@ class Platform(XilinxPlatform):
 
     def create_programmer(self):
         if self.programmer == "vivado":
-            return VivadoProgrammer(flash_part="n25q128-3.3v-spi-x1_x2_x4")
+            return VivadoProgrammer(flash_part="n25q64-1.8v-spi-x1_x2_x4")
         else:
             raise ValueError("{} programmer is not supported"
                              .format(self.programmer))
