@@ -7,15 +7,15 @@ from liteeth.core.mac import LiteEthMAC
 from gateware.s6rgmii import LiteEthPHYRGMII
 
 from targets.utils import csr_map_update
-from targets.opsis.base import SoC as BaseSoC
+from targets.nexys_video.base import SoC as BaseSoC
 
 
 class NetSoC(BaseSoC):
-    csr_peripherals = (
-        "ethphy",
-        "ethmac",
-    )
-    csr_map_update(BaseSoC.csr_map, csr_peripherals)
+    csr_map = {
+        "ethphy": 30,
+        "ethmac": 31
+    }
+    csr_map.update(BaseSoC.csr_map)
 
     interrupt_map = {
         "ethmac": 2,

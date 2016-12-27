@@ -8,6 +8,7 @@ from litex.soc.integration.builder import *
 
 from litedram.modules import MT41J128M16
 from litedram.phy import a7ddrphy
+from litedram.core import ControllerSettings
 from litedram.frontend.bist import LiteDRAMBISTGenerator
 from litedram.frontend.bist import LiteDRAMBISTChecker
 
