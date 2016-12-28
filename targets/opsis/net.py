@@ -42,16 +42,14 @@ class NetSoC(BaseSoC):
 
         self.specials += [
             Keep(self.ethphy.crg.cd_eth_rx.clk),
-            Keep(self.ethphy.crg.cd_eth_tx.clk),
+#            Keep(self.ethphy.crg.cd_eth_tx.clk),
         ]
 
         self.platform.add_period_constraint(self.ethphy.crg.cd_eth_rx.clk, 8.0)
-        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_tx.clk, 8.0)
 
         self.platform.add_false_path_constraints(
             self.crg.cd_sys.clk,
-            self.ethphy.crg.cd_eth_rx.clk,
-            self.ethphy.crg.cd_eth_tx.clk)
+            self.ethphy.crg.cd_eth_rx.clk)
 
     def configure_iprange(self, iprange):
         iprange = [int(x) for x in iprange.split(".")]
