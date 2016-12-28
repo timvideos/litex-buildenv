@@ -55,6 +55,7 @@ def connect(desc, *args, **kw):
     print("   Git Rev: {}".format(get_git(wb)))
     print("  Platform: {}".format(get_platform(wb)))
     print("  Analyzer: {}".format(["Yes", "No"][hasattr(wb.regs, "analyzer")]))
+    print("      XADC: {}".format(get_xadc(wb)))
     print()
 
     return args, wb
@@ -84,6 +85,25 @@ def get_git(wb):
     try:
         commit = wb.regs.git_info_commit.read()
         return hex(commit)[2:]
+    except (KeyError, AttributeError) as e:
+        return 'Unknown'
+
+
+# xadc stuff
+def xadc2volts(v):
+    return (v/4096.0*3)
+
+def xadc2c(v):
+    return (v*503.975/4096 - 273.15)
+
+def get_xadc(wb):
+    try:
+        temp = xadc2c(wb.regs.xadc_temperature.read())
+        vccaux = xadc2volts(wb.regs.xadc_vccaux.read())
+        vccbram = xadc2volts(wb.regs.xadc_vccbram.read())
+        vccint = xadc2volts(wb.regs.xadc_vccint.read())
+        return "{:.1f}°C -- vccint: {:.2f}V  vccaux: {:.2f}V  vccbram: {:.2f}V".format(
+            temp, vccaux, vccbram, vccint)
     except (KeyError, AttributeError) as e:
         return 'Unknown'
 
