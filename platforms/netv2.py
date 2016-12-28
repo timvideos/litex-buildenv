@@ -17,6 +17,9 @@ _io = [
     ),
 
     # ./basic_overlay.srcs/sources_1/bd/overlay1/ip/overlay1_mig_7series_0_0/overlay1_mig_7series_0_0/user_design/constraints/overlay1_mig_7series_0_0.xdc
+    #   <emrOutputDriveStrength name="Output Driver Impedance Control" >RZQ/6</emrOutputDriveStrength>
+    #   <emrRTT name="RTT (nominal) - On Die Termination (ODT)" >RZQ/4</emrRTT>
+    #   <mr2RTTWR name="RTT_WR - Dynamic On Die Termination (ODT)" >Dynamic ODT off</mr2RTTWR>
     ("ddram", 0,
         Subsignal("a", Pins(
             "U15 M17 N18 U16 R18 P18 T18 T17",
@@ -26,19 +29,26 @@ _io = [
         Subsignal("ras_n", Pins("L18"), IOStandard("SSTL15")),
         Subsignal("cas_n", Pins("K17"), IOStandard("SSTL15")),
         Subsignal("we_n", Pins("P16"), IOStandard("SSTL15")),
-        Subsignal("dm", Pins("D9 B14"), IOStandard("SSTL15")),
+        Subsignal("dm", Pins("D9 B14"), IOStandard("SSTL15")), # F14 C18
+        # SLEW=FAST
+        # IN_TERM UNTUNED_SLIT_50
+        # SSTL15
         Subsignal("dq", Pins(
             "D11 B11 D8 C11 C8 B10 C9 A10",
-            "A15 A14 E13 B12 C13 A12 D13 A13"),
+            "A15 A14 E13 B12 C13 A12 D13 A13",
+            # "H18 G17 G16 F17 G14 E18 H16 H17"
+            # "C17 D16 B17 E16 C16 E17 D15 D18"
+            ),
             IOStandard("SSTL15"),
             Misc("IN_TERM=UNTUNED_SPLIT_50")),
-        Subsignal("dqs_p", Pins("B9 C14"), IOStandard("DIFF_SSTL15")),
-        Subsignal("dqs_n", Pins("A9 B15"), IOStandard("DIFF_SSTL15")),
+        Subsignal("dqs_p", Pins("B9 C14"), IOStandard("DIFF_SSTL15")), # Misc("IN_TERM=UNTUNED_SPLIT_50")), # G15 B16 UNTUNED_SPLIT_50
+        Subsignal("dqs_n", Pins("A9 B15"), IOStandard("DIFF_SSTL15")), # Misc("IN_TERM=UNTUNED_SPLIT_50")), # F15 A17
         Subsignal("clk_p", Pins("P14"), IOStandard("DIFF_SSTL15")),
         Subsignal("clk_n", Pins("R15"), IOStandard("DIFF_SSTL15")),
         Subsignal("cke", Pins("K15"), IOStandard("SSTL15")),
         Subsignal("odt", Pins("K18"), IOStandard("SSTL15")),
-        Subsignal("reset_n", Pins("V16"), IOStandard("SSTL15")),
+        Subsignal("reset_n", Pins("V16"), IOStandard("LVCMOS15")),
+        Subsignal("cs_n", Pins("J16"), IOStandard("SSTL15")),
         Misc("SLEW=FAST"),
     ),
 
