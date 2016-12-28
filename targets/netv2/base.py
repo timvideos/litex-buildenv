@@ -99,12 +99,6 @@ class BaseSoC(SoCSDRAM):
         "msi":           24,
     }
     csr_map.update(SoCSDRAM.csr_map)
-
-    #mem_map = {
-    #    "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
-    #}
-    #mem_map.update(SoCSDRAM.mem_map)
-
     interrupt_map = {
         "dma_writer": 0,
         "dma_reader": 1

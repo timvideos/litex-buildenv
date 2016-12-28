@@ -5,18 +5,15 @@ from litex.gen.fhdl.specials import Keep
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
-from litex.build.tools import write_to_file
 from litex.soc.cores.uart.bridge import UARTWishboneBridge
 
 from litedram.modules import MT41J128M16
 from litedram.phy import a7ddrphy
+from litedram.core import ControllerSettings
 from litedram.frontend.bist import LiteDRAMBISTGenerator
 from litedram.frontend.bist import LiteDRAMBISTChecker
 
-from litepcie.phy.s7pciephy import S7PCIEPHY
-from litepcie.core import LitePCIeEndpoint, LitePCIeMSI
-from litepcie.frontend.dma import LitePCIeDMA
-from litepcie.frontend.wishbone import LitePCIeWishboneBridge
+from gateware import dna, xadc
 
 
 class _CRG(Module):
@@ -32,7 +29,6 @@ class _CRG(Module):
 
         clk50 = platform.request("clk50")
         rst = Signal(reset=1) # FIXME
-        #rst = Signal(reset=0) # FIXME
 
         pll_locked = Signal()
         pll_fb = Signal()
@@ -94,7 +90,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCSDRAM):
     csr_map = {
-        "ddr_phy":       17,
+        "ddrphy":        17,
         "ddr_generator": 18,
         "ddr_checker":   19,
         "dna":           20,
@@ -109,8 +105,6 @@ class BaseSoC(SoCSDRAM):
         "dma_reader": 1
     }
     interrupt_map.update(SoCSDRAM.interrupt_map)
-    mem_map = SoCSDRAM.mem_map
-    mem_map["csr"] = 0x00000000
 
     def __init__(self, platform, **kwargs):
 
@@ -127,15 +121,20 @@ class BaseSoC(SoCSDRAM):
         self.add_wb_master(self.cpu_or_bridge.wishbone)
 
         self.submodules.crg = _CRG(platform)
+        self.submodules.dna = dna.DNA()
+        self.submodules.xadc = xadc.XADC()
 
         # sdram
-        self.submodules.ddr_phy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
+        self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
         self.add_constant("A7DDRPHY_BITSLIP", 2)
         self.add_constant("A7DDRPHY_DELAY", 8)
         sdram_module = MT41J128M16(self.clk_freq, "1:4")
-        self.register_sdram(self.ddr_phy,
+        self.register_sdram(self.ddrphy,
                             sdram_module.geom_settings,
-                            sdram_module.timing_settings)
+                            sdram_module.timing_settings,
+                            controller_settings=ControllerSettings(with_bandwidth=True,
+                                                                   cmd_buffer_depth=8,
+                                                                   with_refresh=True))
 
         # sdram bist
         ddr_generator_port = self.sdram.crossbar.get_port(mode="write")
@@ -148,7 +147,6 @@ class BaseSoC(SoCSDRAM):
         counter = Signal(32)
         self.sync += counter.eq(counter + 1)
         self.comb += platform.request("user_led", 0).eq(counter[26])
-        #self.comb += self.uart_phy.pads.tx.eq(counter[26])
 
 
 SoC = BaseSoC
