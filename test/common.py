@@ -48,7 +48,7 @@ def connect(desc, *args, **kw):
         args.ipaddress = "{}.50".format(args.iprange)
 
     print("Connecting to {}".format(args.ipaddress))
-    wb = RemoteClient(args.ipaddress, 1234, csr_csv="{}/csr.csv".format(make_testdir(args)))
+    wb = RemoteClient(args.ipaddress, 1234, csr_csv="{}/csr.csv".format(make_testdir(args)), csr_data_width=32)
     wb.open()
     print()
     print("Device DNA: {}".format(get_dna(wb)))

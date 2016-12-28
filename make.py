@@ -68,7 +68,9 @@ def main():
     if hasattr(soc, 'pcie_phy'):
         from targets.common import cpu_interface
         csr_header = cpu_interface.get_csr_header(soc.get_csr_regions(), soc.get_constants())
-        write_to_file(os.path.join(builddir, "software", "pcie", "kernel", "csr.h"), csr_header)
+        kerneldir = os.path.join(builddir, "software", "pcie", "kernel")
+        os.makedirs(kerneldir, exist_ok=True)
+        write_to_file(os.path.join(kerneldir, "csr.h"), csr_header)
 
     if hasattr(soc, 'do_exit'):
         soc.do_exit(vns, filename="{}/analyzer.csv".format(testdir))

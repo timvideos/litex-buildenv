@@ -159,9 +159,10 @@ class Platform(XilinxPlatform):
 
 
     def create_programmer(self):
-        if self.programmer == "vivado":
-            return VivadoProgrammer(flash_part="n25q64-1.8v-spi-x1_x2_x4")
-        else:
+# mx25l25635f-spi-x1_x2_x4
+#        if self.programmer == "vivado":
+#            return VivadoProgrammer(flash_part="n25q64-1.8v-spi-x1_x2_x4")
+#        else:
             raise ValueError("{} programmer is not supported"
                              .format(self.programmer))
 

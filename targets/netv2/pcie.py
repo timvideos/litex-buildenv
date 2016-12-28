@@ -15,6 +15,8 @@ from litepcie.core import LitePCIeEndpoint, LitePCIeMSI
 from litepcie.frontend.dma import LitePCIeDMA
 from litepcie.frontend.wishbone import LitePCIeWishboneBridge
 
+from gateware import dna, xadc
+
 
 class _CRG(Module, AutoCSR):
     def __init__(self, platform):
@@ -40,7 +42,9 @@ class PCIeDMASoC(SoCCore):
         "crg":      16,
         "pcie_phy": 17,
         "dma":      18,
-        "msi":      19
+        "msi":      19,
+        "dna":      20,
+        "xadc":     21,
     }
     csr_map.update(SoCCore.csr_map)
     interrupt_map = {
@@ -51,17 +55,19 @@ class PCIeDMASoC(SoCCore):
     mem_map = SoCCore.mem_map
     mem_map["csr"] = 0x00000000
 
-    def __init__(self, platform, with_uart_bridge=True):
+    def __init__(self, platform, with_uart_bridge=True, **kwargs):
         clk_freq = 125*1000000
+        kwargs['cpu_type'] = None
         SoCCore.__init__(self, platform, clk_freq,
-            cpu_type=None,
             shadow_base=0x00000000,
             csr_data_width=32,
             with_uart=False,
             ident="NeTV2 LiteX PCIe SoC",
-            with_timer=False
-        )
+            with_timer=False,
+            **kwargs)
         self.submodules.crg = _CRG(platform)
+        self.submodules.dna = dna.DNA()
+        self.submodules.xadc = xadc.XADC()
 
         # PCIe endpoint
         self.submodules.pcie_phy = S7PCIEPHY(platform, link_width=1)
