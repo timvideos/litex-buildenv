@@ -3,7 +3,7 @@
 from litex.soc.tools.remote import RemoteClient
 from litescope.software.driver.analyzer import LiteScopeAnalyzerDriver
 
-wb = RemoteClient("192.168.1.50", 1234, csr_data_width=8, debug=False)
+wb = RemoteClient("192.168.1.50", 1234, debug=False)
 wb.open()
 
 # # #

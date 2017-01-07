@@ -2,7 +2,7 @@ import time
 
 from litex.soc.tools.remote import RemoteClient
 
-wb = RemoteClient(debug=True, csr_data_width=8)
+wb = RemoteClient(debug=True)
 wb.open()
 regs = wb.regs
 
