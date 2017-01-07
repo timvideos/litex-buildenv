@@ -1,6 +1,7 @@
 import os
 
 from litex.gen import *
+from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 from litex.soc.interconnect import stream
 
 class USBStreamer(Module):
@@ -10,10 +11,8 @@ class USBStreamer(Module):
         # # #
 
         self.clock_domains.cd_usb = ClockDomain()
-        self.comb += [
-            self.cd_usb.clk.eq(pads.ifclk),
-            self.cd_usb.rst.eq(ResetSignal()) # XXX FIXME
-        ]
+        self.comb += self.cd_usb.clk.eq(pads.ifclk)
+        self.specials += AsyncResetSynchronizer(self.cd_usb, ResetSignal())
 
         fifo = stream.AsyncFIFO([("data", 8)], 4)
         fifo = ClockDomainsRenamer({"write": "encoder", "read": "usb"})(fifo)
