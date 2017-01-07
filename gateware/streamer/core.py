@@ -11,8 +11,8 @@ class USBStreamer(Module):
 
         self.clock_domains.cd_usb = ClockDomain()
         self.comb += [
-          self.cd_usb.clk.eq(pads.ifclk),
-          self.cd_usb.rst.eq(ResetSignal()) # XXX FIXME
+            self.cd_usb.clk.eq(pads.ifclk),
+            self.cd_usb.rst.eq(ResetSignal()) # XXX FIXME
         ]
 
         fifo = stream.AsyncFIFO([("data", 8)], 4)
@@ -21,26 +21,26 @@ class USBStreamer(Module):
         self.comb += Record.connect(sink, fifo.sink)
 
         self.specials += Instance("fx2_jpeg_streamer",
-                                  # clk, rst
-                                  i_rst=ResetSignal("usb"),
-                                  i_clk=ClockSignal("usb"),
+            # clk, rst
+            i_rst=ResetSignal("usb"),
+            i_clk=ClockSignal("usb"),
 
-                                  # jpeg encoder interface
-                                  i_sink_stb=fifo.source.valid,
-                                  i_sink_data=fifo.source.data,
-                                  o_sink_ack=fifo.source.ready,
+            # jpeg encoder interface
+            i_sink_stb=fifo.source.valid,
+            i_sink_data=fifo.source.data,
+            o_sink_ack=fifo.source.ready,
 
-                                  # cypress fx2 slave fifo interface
-                                  io_fx2_data=pads.data,
-                                  i_fx2_full_n=pads.flagb,
-                                  i_fx2_empty_n=pads.flagc,
-                                  o_fx2_addr=pads.addr,
-                                  o_fx2_cs_n=pads.cs_n,
-                                  o_fx2_wr_n=pads.wr_n,
-                                  o_fx2_rd_n=pads.rd_n,
-                                  o_fx2_oe_n=pads.oe_n,
-                                  o_fx2_pktend_n=pads.pktend_n
+            # cypress fx2 slave fifo interface
+            io_fx2_data=pads.data,
+            i_fx2_full_n=pads.flagb,
+            i_fx2_empty_n=pads.flagc,
+            o_fx2_addr=pads.addr,
+            o_fx2_cs_n=pads.cs_n,
+            o_fx2_wr_n=pads.wr_n,
+            o_fx2_rd_n=pads.rd_n,
+            o_fx2_oe_n=pads.oe_n,
+            o_fx2_pktend_n=pads.pktend_n
         )
 
-        # add VHDL sources
+        # add vhdl sources
         platform.add_source_dir(os.path.join("gateware", "streamer", "vhdl"))
