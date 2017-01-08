@@ -19,6 +19,17 @@ if [ $SOURCED = 1 ]; then
 	return
 fi
 
+if [ ! -z "$HDMI2USB_ENV" ]; then
+	echo "Already sourced this file."
+	exit 1
+fi
+
+if [ ! -z "$SETTINGS_FILE" -o ! -z "$XILINX" ]; then
+	echo "You appear to have sourced the Xilinx ISE settings, these are incompatible with building."
+	echo "Please exit this terminal and run again from a clean shell."
+	exit 1
+fi
+
 set -e
 
 . $SETUP_DIR/settings.sh
