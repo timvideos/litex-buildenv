@@ -20,7 +20,8 @@ if [ $SOURCED = 1 ]; then
 fi
 
 if [ ! -z "$HDMI2USB_ENV" ]; then
-	echo "Already sourced this file."
+	echo "You appear to have sourced the HDMI2USB settings, these are incompatible with building."
+	echo "Please exit this terminal and run again from a clean shell."
 	exit 1
 fi
 
