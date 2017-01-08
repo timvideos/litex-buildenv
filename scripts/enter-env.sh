@@ -94,9 +94,6 @@ if [ -z "$XILINX_DIR" ]; then
 	fi
 fi
 echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
-# FIXME: Remove this when build/migen/mibuild/xilinx/programmer.py:_create_xsvf
-# understands the $MISOC_EXTRA_CMDLINE option.
-export PATH=$PATH:$XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64
 
 function check_exists {
 	TOOL=$1
