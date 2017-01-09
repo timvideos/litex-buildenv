@@ -406,9 +406,11 @@ _io = [
     ("tofe_lsio_user_sw", 2, Pins(tofe_pin(tofe_low_speed_io("sw3"))), IOStandard("LVCMOS33"), Misc("PULLUP")),
     ("tofe_lsio_user_sw", 3, Pins(tofe_pin(tofe_low_speed_io("sw4"))), IOStandard("LVCMOS33"), Misc("PULLUP")),
 
-    # PmodUSBUART or similar device connected to the "p3" Pmod connector.
+    # PmodUSBUART or similar device connected to the *top* row (Outside Row) of
+    # the "p3" Pmod connector.
     ("tofe_lsio_pmod_serial", 0,
         # PmodUSBUART - Pmod Type4 - UART
+        # JP1 should be set to VCC<->SYS
         # Pin 1 - CTS - In  - Peripheral can transmit
         # Pin 2 - TXD - Out - Data - Host to peripheral
         # Pin 3 - RXD - In  - Data - Peripheral to host
