@@ -1,3 +1,18 @@
+/*
+ * Copyright 2015 / TimVideo.us
+ * Copyright 2015 / EnjoyDigital
+ * Copyright 2016 Joel Stanley <joel@jms.id.au>
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ */
+
 #include <stdint.h>
 #include <string.h>
 
@@ -133,6 +148,45 @@ void get_monitor_name(const void *buf, char *name)
 		*c = 0;
 }
 
+static void generate_monitor_range_descriptor(uint8_t *data_block,
+		const struct video_timing *timing)
+{
+	struct monitor_range_descriptor {
+		uint8_t header[5];
+		uint8_t min_vertical_field_rate;
+		uint8_t max_vertical_field_rate;
+		uint8_t min_horizontal_line_rate;
+		uint8_t max_horizontal_line_rate;
+		uint8_t max_pixel_clock_rate;
+		uint8_t extended_timing_type;
+		uint8_t reserved;
+		union {
+			struct {
+				uint8_t start_frequency;
+				uint8_t gtf_c[2];
+				uint8_t gtf_m;
+				uint8_t gtf_k;
+				uint8_t gtf_j;
+			};
+			uint8_t padding[7];
+		};
+	};
+
+	struct monitor_range_descriptor *d = (struct monitor_range_descriptor *)data_block;
+
+	const uint8_t no_info[7] = {0xA0, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20};
+
+	d->header[3] = 0xFD;
+	d->min_vertical_field_rate = 1;
+	d->max_vertical_field_rate = 2;
+	d->min_horizontal_line_rate = 3;
+	d->max_horizontal_line_rate = 4;
+	d->max_pixel_clock_rate = 10;
+	d->extended_timing_type = 0x00;
+	d->reserved = 0;
+	memcpy(d->padding, no_info, sizeof(no_info));
+}
+
 static void generate_edid_timing(uint8_t *data_block, const struct video_timing *timing)
 {
 	struct edid_timing *t = (struct edid_timing *)data_block;
@@ -239,7 +293,7 @@ void generate_edid(void *out,
 
 	generate_edid_timing(e->data_blocks[0], timing);
 	generate_monitor_name(e->data_blocks[1], name);
-	generate_unused(e->data_blocks[2]);
+	generate_monitor_range_descriptor(e->data_blocks[2], timing);
 	generate_unused(e->data_blocks[3]);
 
 	e->ext_block_count = 0;
