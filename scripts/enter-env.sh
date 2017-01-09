@@ -20,12 +20,12 @@ if [ $SOURCED = 0 ]; then
 	exit 1
 fi
 
-if [ ! -z $HDMI2USB_ENV ]; then
+if [ ! -z "$HDMI2USB_ENV" ]; then
 	echo "Already sourced this file."
 	return 1
 fi
 
-if [ ! -z $SETTINGS_FILE ]; then
+if [ ! -z "$SETTINGS_FILE" -o ! -z "$XILINX" ]; then
 	echo "You appear to have sourced the Xilinx ISE settings, these are incompatible with building."
 	echo "Please exit this terminal and run again from a clean shell."
 	return 1
@@ -94,9 +94,6 @@ if [ -z "$XILINX_DIR" ]; then
 	fi
 fi
 echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
-# FIXME: Remove this when build/migen/mibuild/xilinx/programmer.py:_create_xsvf
-# understands the $MISOC_EXTRA_CMDLINE option.
-export PATH=$PATH:$XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64
 
 function check_exists {
 	TOOL=$1
