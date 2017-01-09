@@ -92,27 +92,26 @@ struct edid_descriptor {
 	uint8_t flag2;
 	uint8_t data_type;
 	uint8_t flag3;
-	uint8_t data[13];
+	uint8_t data[MAX_DESCRIPTOR_DATA_LEN];
 } __attribute__((packed));
 
-struct edid_monitor_range_descriptor {
-	uint8_t header[5];
+struct monitor_range_data {
 	uint8_t min_vertical_field_rate;
 	uint8_t max_vertical_field_rate;
 	uint8_t min_horizontal_line_rate;
 	uint8_t max_horizontal_line_rate;
 	uint8_t max_pixel_clock_rate;
 	uint8_t extended_timing_type;
-	uint8_t reserved;
 	union {
 		struct {
+			uint8_t reserved;
 			uint8_t start_frequency;
 			uint8_t gtf_c[2];
 			uint8_t gtf_m;
 			uint8_t gtf_k;
 			uint8_t gtf_j;
 		};
-		uint8_t padding[6];
+		uint8_t padding[7];
 	};
 } __attribute__((packed));
 
@@ -139,53 +138,6 @@ int validate_edid(const void *buf)
 	if(compute_checksum(e) != e->checksum)
 		return 0;
 	return 1;
-}
-
-void get_monitor_name(const void *buf, char *name)
-{
-	struct edid *e = (struct edid *)buf;
-	int i;
-	uint8_t *data_block;
-	char *c;
-
-	name[0] = 0;
-
-	data_block = NULL;
-	for(i=0;i<4;i++)
-		if((e->data_blocks[i][0] == 0x00)
-		  && (e->data_blocks[i][1] == 0x00)
-		  && (e->data_blocks[i][2] == 0x00)
-		  && (e->data_blocks[i][3] == 0xfc)) {
-			data_block = e->data_blocks[i];
-			break;
-		}
-	if(!data_block)
-		return;
-
-	name[MAX_MONITOR_NAME_LEN] = 0;
-	memcpy(name, &data_block[5], MAX_MONITOR_NAME_LEN);
-	c = strchr(name, '\n');
-	if(c)
-		*c = 0;
-}
-
-static void generate_monitor_range_descriptor(uint8_t *data_block,
-		const struct video_timing *timing)
-{
-	struct edid_monitor_range_descriptor *d = (struct edid_monitor_range_descriptor *)data_block;
-
-	const uint8_t header[5] = {0x00, 0x00, 0x00, 0xFD, 0x00};
-	const uint8_t no_info[6] = {0xA0, 0x20, 0x20, 0x20, 0x20, 0x20};
-
-	memcpy(d->header, header, sizeof(header));
-	d->min_vertical_field_rate = 1;
-	d->max_vertical_field_rate = 2;
-	d->min_horizontal_line_rate = 3;
-	d->max_horizontal_line_rate = 4;
-	d->max_pixel_clock_rate = 10;
-	d->extended_timing_type = 0x00;
-	d->reserved = 0;
-	memcpy(d->padding, no_info, sizeof(no_info));
 }
 
 static void generate_edid_timing(uint8_t *data_block, const struct video_timing *timing)
@@ -222,21 +174,53 @@ static void generate_edid_timing(uint8_t *data_block, const struct video_timing 
 	t->flags = 0x1e;
 }
 
+static void set_descriptor_header(struct edid_descriptor *d, uint8_t data_type)
+{
+	d->flag0 = d->flag1 = d->flag2 = d->flag3 = 0;
+	d->data_type = data_type;
+}
+
+static void generate_descriptor_padding(struct edid_descriptor *d, uint8_t start_pos)
+{
+	if (start_pos >= MAX_DESCRIPTOR_DATA_LEN) return;
+
+	d->data[start_pos++] = 0x0a;
+	for(;start_pos<MAX_DESCRIPTOR_DATA_LEN;start_pos++)
+		d->data[start_pos] = 0x20;
+}
+
 static void generate_monitor_name(uint8_t *data_block, const char *name)
 {
 	struct edid_descriptor *d = (struct edid_descriptor *)data_block;
 	int i;
 
-	d->flag0 = d->flag1 = d->flag2 = d->flag3 = 0;
-	d->data_type = 0xfc;
-	for(i=0;i<12;i++) {
+	set_descriptor_header(d, DESCRIPTOR_MONITOR_NAME);
+
+	for(i=0;i<MAX_DESCRIPTOR_DATA_LEN;i++) {
 		if(!name[i])
 			break;
 		d->data[i] = name[i];
 	}
-	d->data[i++] = 0x0a;
-	for(;i<13;i++)
-		d->data[i] = 0x20;
+
+	generate_descriptor_padding(d, i);
+}
+
+static void generate_monitor_range_descriptor(uint8_t *data_block,
+		const struct video_timing *timing)
+{
+	struct edid_descriptor *d = (struct edid_descriptor *)data_block;
+	struct monitor_range_data *data = (struct monitor_range_data *)d->data;
+
+	set_descriptor_header(d, DESCRIPTOR_MONITOR_RANGE);
+
+	data->min_vertical_field_rate = 1;
+	data->max_vertical_field_rate = 2;
+	data->min_horizontal_line_rate = 3;
+	data->max_horizontal_line_rate = 4;
+	data->max_pixel_clock_rate = 10;
+	data->extended_timing_type = 0x00;
+
+	generate_descriptor_padding(d, 6);
 }
 
 static void generate_unused(uint8_t *data_block)
@@ -244,7 +228,7 @@ static void generate_unused(uint8_t *data_block)
 	struct edid_descriptor *d = (struct edid_descriptor *)data_block;
 
 	memset(d, 0, sizeof(struct edid_descriptor));
-	d->data_type = 0x10;
+	d->data_type = DESCRIPTOR_DUMMY;
 }
 
 void generate_edid(void *out,
