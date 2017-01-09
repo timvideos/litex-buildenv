@@ -1,23 +1,10 @@
-CFLAGS	:= -Wall -g
+TESTDIR	:= test/edid
 
-OBJ	:= edid.o edid_test.o
-EXE	:= edid_test
+all:
+	$(MAKE) -C $(TESTDIR)
 
-DECODE	:= $(CURDIR)/edid-decode/edid-decode
+check:
+	$(MAKE) -C $(TESTDIR) check
 
-all: $(EXE)
-
-$(EXE): $(OBJ) | edid.h
-
-$(DECODE):
-	$(MAKE) -C edid-decode
-
-check: $(EXE) $(DECODE)
-	./$(EXE)  | $(DECODE)  | less
-
-
-.PHONY: clean
 clean:
-	$(RM) $(EXE) $(OBJ)
-
-
+	$(MAKE) -C $(TESTDIR) clean
