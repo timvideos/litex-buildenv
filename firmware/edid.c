@@ -95,6 +95,27 @@ struct edid_descriptor {
 	uint8_t data[13];
 } __attribute__((packed));
 
+struct edid_monitor_range_descriptor {
+	uint8_t header[5];
+	uint8_t min_vertical_field_rate;
+	uint8_t max_vertical_field_rate;
+	uint8_t min_horizontal_line_rate;
+	uint8_t max_horizontal_line_rate;
+	uint8_t max_pixel_clock_rate;
+	uint8_t extended_timing_type;
+	uint8_t reserved;
+	union {
+		struct {
+			uint8_t start_frequency;
+			uint8_t gtf_c[2];
+			uint8_t gtf_m;
+			uint8_t gtf_k;
+			uint8_t gtf_j;
+		};
+		uint8_t padding[6];
+	};
+} __attribute__((packed));
+
 static const char correct_header[8] = {0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00};
 
 static uint8_t compute_checksum(struct edid *e)
@@ -151,32 +172,12 @@ void get_monitor_name(const void *buf, char *name)
 static void generate_monitor_range_descriptor(uint8_t *data_block,
 		const struct video_timing *timing)
 {
-	struct monitor_range_descriptor {
-		uint8_t header[5];
-		uint8_t min_vertical_field_rate;
-		uint8_t max_vertical_field_rate;
-		uint8_t min_horizontal_line_rate;
-		uint8_t max_horizontal_line_rate;
-		uint8_t max_pixel_clock_rate;
-		uint8_t extended_timing_type;
-		uint8_t reserved;
-		union {
-			struct {
-				uint8_t start_frequency;
-				uint8_t gtf_c[2];
-				uint8_t gtf_m;
-				uint8_t gtf_k;
-				uint8_t gtf_j;
-			};
-			uint8_t padding[7];
-		};
-	};
+	struct edid_monitor_range_descriptor *d = (struct edid_monitor_range_descriptor *)data_block;
 
-	struct monitor_range_descriptor *d = (struct monitor_range_descriptor *)data_block;
+	const uint8_t header[5] = {0x00, 0x00, 0x00, 0xFD, 0x00};
+	const uint8_t no_info[6] = {0xA0, 0x20, 0x20, 0x20, 0x20, 0x20};
 
-	const uint8_t no_info[7] = {0xA0, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20};
-
-	d->header[3] = 0xFD;
+	memcpy(d->header, header, sizeof(header));
 	d->min_vertical_field_rate = 1;
 	d->max_vertical_field_rate = 2;
 	d->min_horizontal_line_rate = 3;
