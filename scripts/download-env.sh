@@ -218,6 +218,12 @@ check_import serial
 )
 check_import IPython
 
+# progressbar2 for progress bars
+(
+	conda install progressbar2
+)
+check_import progressbar2
+
 # hexfile for embedding the Cypress FX2 firmware.
 (
 	pip install --upgrade git+https://github.com/mithro/hexfile.git

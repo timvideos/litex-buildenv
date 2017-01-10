@@ -201,6 +201,12 @@ check_import serial || return 1
 
 check_import IPython || return 1
 
+# progressbar2 for progress bars
+
+
+
+check_import progressbar2 || return 1
+
 # hexfile for embedding the Cypress FX2 firmware.
 
 
