@@ -4,6 +4,13 @@ def rgb2ycbcr(r, g, b):
     cr = int(0.5*r - 0.4187*g - 0.0813*b + 128)
     return y, cb, cr
 
+def ycbcr_pack(y, cb, cr):
+    value  = y
+    value |= cr << 8
+    value |= y  << 16
+    value |= cb << 24
+    return value
+
 color_bars_rgb = [
     [255, 255, 255],
     [255, 255,   0],
@@ -22,9 +29,5 @@ for color_bar_rgb in color_bars_rgb:
     color_bars_ycbcr.append([y, cb, cr])
 
 for color_bar_ycbcr in color_bars_ycbcr:
-    y, cb, cr = color_bar_ycbcr
-    value  = y
-    value |= cr << 8
-    value |= y  << 16
-    value |= cb << 24
+    value = ycbcr_pack(*color_bar_ycbcr)
     print("%08x" %value)
