@@ -27,7 +27,7 @@ export PYTHONHASHSEED
 # ---------------------------------
 
 MAKE_CMD=\
-	 ./make.py \
+	time ./make.py \
 		--platform=$(PLATFORM) \
 		--target=$(TARGET) \
 		--cpu-type=$(CPU) \
