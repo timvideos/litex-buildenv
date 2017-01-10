@@ -251,5 +251,13 @@ hdmi2usb_prompt() {
 	fi
 
 	PS1="$P) $ORIG_PS1"
+
+	case "$TERM" in
+	xterm*|rxvt*)
+		PS1="$PS1\[\033]0;$P) \w\007\]"
+		;;
+	*)
+		;;
+	esac
 }
 PROMPT_COMMAND=hdmi2usb_prompt
