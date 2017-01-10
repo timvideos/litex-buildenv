@@ -1,7 +1,11 @@
 #ifndef __EDID_H
 #define __EDID_H
 
-#define MAX_MONITOR_NAME_LEN 13
+#define DESCRIPTOR_DUMMY 0x10
+#define DESCRIPTOR_MONITOR_NAME 0xFC
+#define DESCRIPTOR_MONITOR_RANGE 0xFD
+
+#define MAX_DESCRIPTOR_DATA_LEN 13
 
 struct video_timing {
 	unsigned int pixel_clock; /* in tens of kHz */
@@ -21,7 +25,6 @@ struct video_timing {
 };
 
 int validate_edid(const void *buf);
-void get_monitor_name(const void *buf, char *name);
 void generate_edid(void *out,
 	const char mfg_name[3], const char product_code[2], int year,
 	const char *name,
