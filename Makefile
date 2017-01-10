@@ -41,6 +41,8 @@ SHELL := /bin/bash
 FILTER ?= tee -a
 LOGFILE ?= $(PWD)/$(TARGET_BUILD_DIR)/output.$(shell date +%Y%m%d-%H%M%S).log
 
+EDID_TEST_DIR := test/edid
+
 # Initialize submodules automatically
 third_party/%/.git: .gitmodules
 	git submodule sync --recursive -- $$(dirname $@)
@@ -126,4 +128,13 @@ clean:
 dist-clean:
 	rm -rf build
 
-.PHONY: gateware firmware help clean dist-clean
+# Tests
+
+TEST_MODULES=edid-decode
+test-submodules: $(addsuffix /.git,$(addprefix third_party/,$(TEST_MODULES)))
+	@true
+
+test-edid: test-submodules
+	$(MAKE) -C $(EDID_TEST_DIR) check
+
+.PHONY: gateware firmware help clean dist-clean test-edid
