@@ -29,11 +29,13 @@ class ServerProxy(threading.Thread):
         self.ready = True
 
 
-def connect(desc, *args, **kw):
+def connect(desc, *args, add_args=None, **kw):
     parser = argparse.ArgumentParser(description=desc)
     make_args(parser, *args, **kw)
     parser.add_argument("--ipaddress")
     parser.add_argument("--port") #, desc="Serial port")
+    if add_args is not None:
+        add_args(parser)
     args = parser.parse_args()
 
     if args.port:
