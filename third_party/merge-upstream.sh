@@ -7,6 +7,11 @@ TARGETS=${@-$(find * -maxdepth 0 -type d)}
 COMMIT_MSG=$(tempfile) || exit
 trap "rm -f -- '$COMMIT_MSG'" EXIT
 
+for TARGET in $TARGETS; do
+	git submodule sync --recursive -- $TARGET
+	git submodule update --recursive --init $TARGET
+done
+
 cat > $COMMIT_MSG <<EOF
 Updating submodules.
 
