@@ -46,11 +46,6 @@ def add_args(parser):
         help="Number of seconds between sending each frame of the input."
         )
 
-    parser.add_argument(
-        "--format",
-        default="UYVY",
-        help="Number of seconds between sending each frame of the input."
-        )
 
 def main():
     args, wb = connect(__doc__, add_args=add_args)
@@ -100,10 +95,9 @@ gst-launch-1.0 -v \
     decodebin ! \
     videoscale ! \
     videoconvert ! \
-    video/x-raw,format={format},height={height},width={width} ! \
+    video/x-raw,format=UYVY,height={height},width={width},colorimetry=bt709,chroma-site=dv ! \
     multifilesink location="{tempdir}/%05d.yuv422.raw" max-files={max}
-""".format(format=args.format,
-           infile=infile,
+""".format(infile=infile,
            width=width,
            height=height,
            tempdir=tempdir,
