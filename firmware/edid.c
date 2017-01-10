@@ -218,7 +218,7 @@ void generate_edid(void *out,
 	e->video_input = 0x80; /* digital */
 	e->h_image_size = timing->h_active/64;
 	e->v_image_size = timing->v_active/64;
-	e->gamma = 0x78;
+	e->gamma = 0x50; // 1.8 => (gamma * 100) - 100
 	e->feature_support = 0x06;
 
 	e->cc_rg_l = 0;
