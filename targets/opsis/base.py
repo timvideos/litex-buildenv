@@ -189,7 +189,7 @@ class _CRG(Module):
                      p_CLKIN_PERIOD=10.0,
                      p_CLKFX_MULTIPLY=2,
                      p_CLKFX_DIVIDE=4,
-                     p_CLKFX_MD_MAX=2.0,
+                     p_CLKFX_MD_MAX=0.5, # CLKFX_MULTIPLY/CLKFX_DIVIDE
                      p_CLKFXDV_DIVIDE=2,
                      p_SPREAD_SPECTRUM="NONE",
                      p_STARTUP_WAIT="FALSE",
