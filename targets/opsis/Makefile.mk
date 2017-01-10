@@ -11,4 +11,8 @@ reset-opsis:
 	opsis-mode-switch --verbose --mode=jtag
 	opsis-mode-switch --verbose --mode=serial
 
-.PHONY: load-gateware-opsis load-firmware-opsis reset-opsis
+flash-opsis:
+	opsis-mode-switch --verbose --flash-gateware=$(TARGET_BUILD_DIR)/gateware/top.bit
+	opsis-mode-switch --verbose --flash-lm32-firmware=$(TARGET_BUILD_DIR)/software/firmware/firmware.fbi
+
+.PHONY: load-gateware-opsis load-firmware-opsis reset-opsis flash-opsis
