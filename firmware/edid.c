@@ -213,11 +213,11 @@ static void generate_monitor_range_descriptor(uint8_t *data_block,
 
 	set_descriptor_header(d, DESCRIPTOR_MONITOR_RANGE);
 
-	data->min_vertical_field_rate = 1;
-	data->max_vertical_field_rate = 2;
-	data->min_horizontal_line_rate = 3;
-	data->max_horizontal_line_rate = 4;
-	data->max_pixel_clock_rate = 10;
+	data->min_vertical_field_rate = 50;
+	data->max_vertical_field_rate = 60;
+	data->min_horizontal_line_rate = 30; // 720p50 is 37.05kHz
+	data->max_horizontal_line_rate = 68; // 1080p60 is 67.08kHz
+	data->max_pixel_clock_rate = 0x0E; // 140 Hz => 140 / 10 = 14
 	data->extended_timing_type = 0x00;
 
 	generate_descriptor_padding(d, 6);
