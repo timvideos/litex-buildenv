@@ -509,17 +509,32 @@ class Platform(XilinxPlatform):
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
+
+        # The oscillator clock sources.
+        try:
+            self.add_period_constraint(self.lookup_request("clk100"), 10.0)
+        except ConstraintError:
+            pass
+
+        try:
+            self.add_period_constraint(self.lookup_request("clk27"), 37.0)
+        except ConstraintError:
+            pass
+
+        # HDMI input clock pins.
         for i in range(2):
             try:
                 self.add_period_constraint(self.lookup_request("hdmi_in", i).clk_p, 12)
             except ConstraintError:
                 pass
 
+        # Ethernet input clock pins.
         try:
             self.add_period_constraint(self.lookup_request("eth_clocks").rx, 8.0)
         except ConstraintError:
             pass
 
+        # USB input clock pins.
 #        try:
 #            self.add_period_constraint(self.lookup_request("fx2").ifclk, 10)
 #        except ConstraintError:

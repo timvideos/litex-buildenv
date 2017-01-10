@@ -67,6 +67,7 @@ class _CRG(Module):
         # Input 100MHz clock
         f0 = 100*1000000
         clk100 = platform.request("clk100")
+        platform.add_period_constraint(clk100, 10)
         clk100a = Signal()
         # Input 100MHz clock (buffered)
         self.specials += Instance("IBUFG", i_I=clk100, o_O=clk100a)
