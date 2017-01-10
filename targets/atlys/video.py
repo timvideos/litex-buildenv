@@ -51,7 +51,7 @@ class VideoSoC(BaseSoC):
             external_clocking=self.hdmi_out0.driver.clocking)
 
         # all PLL_ADV are used: router needs help...
-        platform.add_platform_command("""INST PLL_ADV LOC=PLL_ADV_X0Y0;""")
+        platform.add_platform_command("""INST crg_pll_adv LOC=PLL_ADV_X0Y0;""")
         # FIXME: Fix the HDMI out so this can be removed.
         platform.add_platform_command(
             """PIN "hdmi_out_pix_bufg.O" CLOCK_DEDICATED_ROUTE = FALSE;""")

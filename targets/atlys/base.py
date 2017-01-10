@@ -59,15 +59,15 @@ class _CRG(Module):
         unbuf_sdram_half_a = Signal()
         unbuf_sdram_half_b = Signal()
         unbuf_encoder = Signal()
-        unbuf_unused2 = Signal()
         unbuf_sys = Signal()
+        unbuf_unused = Signal()
 
         # PLL signals
         pll_lckd = Signal()
         pll_fb = Signal()
         self.specials.pll = Instance(
             "PLL_ADV",
-            name="PLL_CRG",
+            name="crg_pll_adv",
             p_SIM_DEVICE="SPARTAN6", p_BANDWIDTH="OPTIMIZED", p_COMPENSATION="INTERNAL",
             p_REF_JITTER=.01,
             i_DADDR=0, i_DCLK=0, i_DEN=0, i_DI=0, i_DWE=0, i_RST=0, i_REL=0,
@@ -95,7 +95,7 @@ class _CRG(Module):
             o_CLKOUT3=unbuf_sdram_half_b, p_CLKOUT3_DUTY_CYCLE=.5,
             p_CLKOUT3_PHASE=250., p_CLKOUT3_DIVIDE=p//2,
             # ( 50MHz) unused? - Was peripheral
-            o_CLKOUT4=unbuf_unused2, p_CLKOUT4_DUTY_CYCLE=.5,
+            o_CLKOUT4=unbuf_unused, p_CLKOUT4_DUTY_CYCLE=.5,
             p_CLKOUT4_PHASE=0., p_CLKOUT4_DIVIDE=12,
             # ( 75MHz) sysclk
             o_CLKOUT5=unbuf_sys, p_CLKOUT5_DUTY_CYCLE=.5,
@@ -111,7 +111,7 @@ class _CRG(Module):
         self.specials += AsyncResetSynchronizer(self.cd_por, reset)
 
         # System clock - 75MHz
-        self.specials += Instance("BUFG", name="BUFG_SYS", i_I=unbuf_sys, o_O=self.cd_sys.clk)
+        self.specials += Instance("BUFG", name="sys_bufg", i_I=unbuf_sys, o_O=self.cd_sys.clk)
         self.comb += self.cd_por.clk.eq(self.cd_sys.clk)
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~pll_lckd | (por > 0))
 
@@ -122,7 +122,7 @@ class _CRG(Module):
         self.clk4x_rd_strb = Signal()
 
         # sdram_full
-        self.specials += Instance("BUFPLL", name="BUFPLL_SDRAM_FULL",
+        self.specials += Instance("BUFPLL", name="sdram_full_bufpll",
                                   p_DIVIDE=4,
                                   i_PLLIN=unbuf_sdram_full, i_GCLK=self.cd_sys.clk,
                                   i_LOCKED=pll_lckd,
@@ -133,9 +133,9 @@ class _CRG(Module):
             self.clk4x_rd_strb.eq(self.clk4x_wr_strb),
         ]
         # sdram_half
-        self.specials += Instance("BUFG", name="BUFG_SDRAM_HALF_A", i_I=unbuf_sdram_half_a, o_O=self.cd_sdram_half.clk)
+        self.specials += Instance("BUFG", name="sdram_half_a_bufpll", i_I=unbuf_sdram_half_a, o_O=self.cd_sdram_half.clk)
         clk_sdram_half_shifted = Signal()
-        self.specials += Instance("BUFG", name="BUFG_SDRAM_HALF_B", i_I=unbuf_sdram_half_b, o_O=clk_sdram_half_shifted)
+        self.specials += Instance("BUFG", name="sdram_half_b_bufpll", i_I=unbuf_sdram_half_b, o_O=clk_sdram_half_shifted)
 
         output_clk = Signal()
         clk = platform.request("ddram_clock")
@@ -153,7 +153,7 @@ class _CRG(Module):
         # the system clock to be increased in the future.
         dcm_base50_locked = Signal()
         self.specials += [
-            Instance("DCM_CLKGEN", name="DCM_CRG_PERIPH",
+            Instance("DCM_CLKGEN", name="crg_periph_dcm_clkgen",
                      p_CLKIN_PERIOD=10.0,
                      p_CLKFX_MULTIPLY=2,
                      p_CLKFX_DIVIDE=4,
@@ -175,7 +175,7 @@ class _CRG(Module):
 
         # Encoder clock - 66 MHz
         # ------------------------------------------------------------------------------
-        self.specials += Instance("BUFG", name="BUFG_ENCODER", i_I=unbuf_encoder, o_O=self.cd_encoder.clk)
+        self.specials += Instance("BUFG", name="encoder_bufg", i_I=unbuf_encoder, o_O=self.cd_encoder.clk)
         self.specials += AsyncResetSynchronizer(self.cd_encoder, self.cd_sys.rst)
 
 
