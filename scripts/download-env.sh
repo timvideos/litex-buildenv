@@ -220,7 +220,7 @@ check_import IPython
 
 # progressbar2 for progress bars
 (
-	conda install progressbar2
+	pip install --upgrade progressbar2
 )
 check_import progressbar
 
