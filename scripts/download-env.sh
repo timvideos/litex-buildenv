@@ -222,7 +222,7 @@ check_import IPython
 (
 	conda install progressbar2
 )
-check_import progressbar2
+check_import progressbar
 
 # hexfile for embedding the Cypress FX2 firmware.
 (
