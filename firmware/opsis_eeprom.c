@@ -1,5 +1,5 @@
 #include <generated/csr.h>
-#ifdef CSR_OPSIS_EEPROM_I2C_BASE
+#ifdef CSR_INFO_OPSIS_EEPROM_W_ADDR
 #include <stdio.h>
 #include "i2c.h"
 #include "opsis_eeprom.h"
@@ -9,9 +9,9 @@ int opsis_eeprom_debug_enabled = 0;
 
 void opsis_eeprom_i2c_init(void) {
     printf("opsis_eeprom: Init...");
-    opsis_eeprom_i2c.w_read = opsis_eeprom_i2c_w_read;
-    opsis_eeprom_i2c.w_write = opsis_eeprom_i2c_w_write;
-    opsis_eeprom_i2c.r_read = opsis_eeprom_i2c_r_read;
+    opsis_eeprom_i2c.w_read = info_opsis_eeprom_w_read;
+    opsis_eeprom_i2c.w_write = info_opsis_eeprom_w_write;
+    opsis_eeprom_i2c.r_read = info_opsis_eeprom_r_read;
     i2c_init(&opsis_eeprom_i2c);
     printf("finished.\r\n");
 }

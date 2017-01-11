@@ -701,16 +701,16 @@ void ci_service(void)
 		else if(strcmp(token, "ddr") == 0)
 			debug_ddr();
 #endif
-#ifdef CSR_DNA_ID_ADDR
+#ifdef CSR_INFO_DNA_ID_ADDR
 		else if(strcmp(token, "dna") == 0)
 			print_board_dna();
 #endif
-#ifdef CSR_OPSIS_EEPROM_I2C_W_ADDR
+#ifdef CSR_INFO_OPSIS_EEPROM_W_ADDR
 		else if(strcmp(token, "opsis_eeprom") == 0) {
 			opsis_eeprom_dump();
                 }
 #endif
-#ifdef CSR_TOFE_CTRL_W_ADDR
+#ifdef CSR_TOFE_I2C_W_ADDR
 		else if(strcmp(token, "tofe_eeprom") == 0) {
 			tofe_eeprom_dump();
                 }

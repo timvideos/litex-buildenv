@@ -1,5 +1,5 @@
 #include <generated/csr.h>
-#ifdef CSR_TOFE_CTRL_BASE
+#ifdef CSR_TOFE_I2C_W_ADDR
 #include <stdio.h>
 #include "i2c.h"
 #include "tofe_eeprom.h"
@@ -9,9 +9,9 @@ int tofe_eeprom_debug_enabled = 0;
 
 void tofe_eeprom_i2c_init(void) {
     printf("tofe_eeprom: Init...");
-    tofe_eeprom_i2c.w_read = tofe_ctrl_w_read;
-    tofe_eeprom_i2c.w_write = tofe_ctrl_w_write;
-    tofe_eeprom_i2c.r_read = tofe_ctrl_r_read;
+    tofe_eeprom_i2c.w_read = tofe_i2c_w_read;
+    tofe_eeprom_i2c.w_write = tofe_i2c_w_write;
+    tofe_eeprom_i2c.r_read = tofe_i2c_r_read;
     i2c_init(&tofe_eeprom_i2c);
     printf("finished.\r\n");
 }

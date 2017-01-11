@@ -54,10 +54,10 @@ int main(void)
 	puts("\nOpsis CPU testing software built "__DATE__" "__TIME__);
 	print_version();
 
-#ifdef CSR_OPSIS_EEPROM_I2C_W_ADDR
+#ifdef CSR_INFO_OPSIS_EEPROM_W_ADDR
 	opsis_eeprom_i2c_init();
 #endif
-#ifdef CSR_TOFE_CTRL_W_ADDR
+#ifdef CSR_TOFE_I2C_W_ADDR
 	tofe_eeprom_i2c_init();
 #endif
 
