@@ -57,7 +57,7 @@ class VideoSoC(BaseSoC):
         self.hdmi_out1.submodules.i2c = i2c.I2C(hdmi_out1_pads)
 
         # all PLL_ADV are used: router needs help...
-        #platform.add_platform_command("""INST crg_pll_adv LOC=PLL_ADV_X0Y0;""")
+        platform.add_platform_command("""INST crg_pll_adv LOC=PLL_ADV_X0Y0;""")
         # FIXME: Fix the HDMI out so this can be removed.
         platform.add_platform_command(
             """PIN "hdmi_out_pix_bufg.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
