@@ -1,32 +1,32 @@
-#!/usr/bin/env python3
 from litevideo.input import HDMIIn
 from litevideo.output import VideoOut
 
 from litescope import LiteScopeAnalyzer
 
-from targets.opsis.net import csr_map_update
-from targets.opsis.net import NetSoC
+from targets.utils import csr_map_update
+from targets.opsis.net import NetSoC as BaseSoC
 
 
-class VideoMixerSoC(NetSoC):
+class VideoDebugSoC(BaseSoC):
     csr_peripherals = (
         "hdmi_out0",
         "analyzer"
     )
-    csr_map_update(NetSoC.csr_map, csr_peripherals)
+    csr_map_update(BaseSoC.csr_map, csr_peripherals)
 
-    def __init__(self, platform, **kwargs):
-        NetSoC.__init__(self, platform, **kwargs)
+    def __init__(self, platform, *args, **kwargs):
+        BaseSoC.__init__(self, platform, *args, **kwargs)
         # hdmi out 0
         dram_port = self.sdram.crossbar.get_port(mode="read", dw=16, cd="pix", reverse=True)
-        self.submodules.hdmi_out0 = VideoOut(platform.device,
-                                            platform.request("hdmi_out", 0),
-                                            dram_port,
-                                            mode="ycbcr422",
-                                            fifo_depth=4096)
+        self.submodules.hdmi_out0 = VideoOut(
+            platform.device,
+            platform.request("hdmi_out", 0),
+            dram_port,
+            mode="ycbcr422",
+            fifo_depth=4096)
 
         # all PLL_ADV are used: router needs help...
-        platform.add_platform_command("""INST PLL_ADV LOC=PLL_ADV_X0Y0;""")
+        platform.add_platform_command("""INST crg_pll_adv LOC=PLL_ADV_X0Y0;""")
         # FIXME: Fix the HDMI out so this can be removed.
         platform.add_platform_command(
             """PIN "hdmi_out_pix_bufg.O" CLOCK_DEDICATED_ROUTE = FALSE;""")
@@ -80,4 +80,4 @@ NET "{pix0_clk}" TNM_NET = "GRPpix0_clk";
         self.analyzer.export_csv(vns, filename)
 
 
-SoC = VideoMixerSoC
+SoC = VideoDebugSoC
