@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "stdio_wrap.h"
+
 
 #include <generated/csr.h>
 #include <generated/mem.h>
@@ -613,6 +615,40 @@ void processor_update(void)
 #endif
 }
 
+#ifdef CSR_HDMI_OUT0_BASE
+static void hdmi_out0_service(void) {
+	unsigned int underflows;
+	if (hdmi_out0_core_initiator_enable_read()) {
+		hdmi_out0_core_underflow_enable_write(1);
+		hdmi_out0_core_underflow_update_write(1);
+		underflows = hdmi_out0_core_underflow_counter_read();
+		if (underflows) {
+			wprintf("Output 0 underflow (%d)\n", underflows);
+			hdmi_out0_core_underflow_enable_write(0);
+			hdmi_out0_core_underflow_enable_write(1);
+		}
+	} else 
+		hdmi_out0_core_underflow_enable_write(0);
+}
+#endif
+
+#ifdef CSR_HDMI_OUT1_BASE
+static void hdmi_out1_service(void) {
+	unsigned int underflows;
+	if (hdmi_out1_core_initiator_enable_read()) {
+		hdmi_out1_core_underflow_enable_write(1);
+		hdmi_out1_core_underflow_update_write(1);
+		underflows = hdmi_out1_core_underflow_counter_read();
+		if (underflows) {
+			wprintf("Output 1 underflow (%d)\n", underflows);
+			hdmi_out1_core_underflow_enable_write(0);
+			hdmi_out1_core_underflow_enable_write(1);
+		}
+	} else 
+		hdmi_out1_core_underflow_enable_write(0);
+}
+#endif
+
 void processor_service(void)
 {
 #ifdef CSR_HDMI_IN0_BASE
@@ -625,6 +661,13 @@ void processor_service(void)
 #ifdef ENCODER_BASE
 	encoder_service();
 #endif
+#ifdef CSR_HDMI_OUT0_BASE
+	hdmi_out0_service();
+#endif
+#ifdef CSR_HDMI_OUT1_BASE
+	hdmi_out1_service();
+#endif	
+
 }
 
 struct video_timing* processor_get_custom_mode(void)
