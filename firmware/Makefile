@@ -30,11 +30,13 @@ OBJECTS=\
 	isr.o \
 	main.o \
 	mdio.o \
+	opsis_eeprom.o \
 	pattern.o \
 	pll.o \
 	processor.o \
 	stdio_wrap.o \
 	telnet.o \
+	tofe_eeprom.o \
 	version.o \
 	version_data.o \
 

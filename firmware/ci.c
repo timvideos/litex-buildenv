@@ -6,23 +6,25 @@
 #include <generated/csr.h>
 #include <generated/mem.h>
 #include <generated/sdram_phy.h>
+#include <hw/flags.h>
 #include <time.h>
 #include <console.h>
-#include <hw/flags.h>
 
 #include "asm.h"
+#include "ci.h"
 #include "config.h"
+#include "encoder.h"
 #include "hdmi_in0.h"
 #include "hdmi_in1.h"
-#include "processor.h"
-#include "pll.h"
-#include "ci.h"
-#include "telnet.h"
-#include "mdio.h"
-#include "encoder.h"
 #include "hdmi_out0.h"
 #include "hdmi_out1.h"
+#include "mdio.h"
+#include "opsis_eeprom.h"
+#include "pll.h"
+#include "processor.h"
 #include "stdio_wrap.h"
+#include "telnet.h"
+#include "tofe_eeprom.h"
 #include "version.h"
 
 int status_enabled;
@@ -708,7 +710,7 @@ void ci_service(void)
 			opsis_eeprom_dump();
                 }
 #endif
-#ifdef CSR_TOFE_EEPROM_I2C_W_ADDR
+#ifdef CSR_TOFE_CTRL_W_ADDR
 		else if(strcmp(token, "tofe_eeprom") == 0) {
 			tofe_eeprom_dump();
                 }

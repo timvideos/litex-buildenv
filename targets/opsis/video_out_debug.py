@@ -3,6 +3,8 @@ from litevideo.output import VideoOut
 
 from litescope import LiteScopeAnalyzer
 
+from gateware import i2c
+
 from targets.utils import csr_map_update
 from targets.opsis.net import NetSoC as BaseSoC
 
@@ -17,16 +19,16 @@ class VideoDebugSoC(BaseSoC):
     def __init__(self, platform, *args, **kwargs):
         BaseSoC.__init__(self, platform, *args, **kwargs)
         # hdmi out 0
+        hdmi_out0_pads = platform.request("hdmi_out", 0)
         dram_port = self.sdram.crossbar.get_port(mode="read", dw=16, cd="pix", reverse=True)
         self.submodules.hdmi_out0 = VideoOut(
             platform.device,
-            platform.request("hdmi_out", 0),
+            hdmi_out0_pads,
             dram_port,
             mode="ycbcr422",
             fifo_depth=4096)
+        self.hdmi_out0.submodules.i2c = i2c.I2C(hdmi_out0_pads)
 
-        # all PLL_ADV are used: router needs help...
-        platform.add_platform_command("""INST crg_pll_adv LOC=PLL_ADV_X0Y0;""")
         # FIXME: Fix the HDMI out so this can be removed.
         platform.add_platform_command(
             """PIN "hdmi_out_pix_bufg.O" CLOCK_DEDICATED_ROUTE = FALSE;""")

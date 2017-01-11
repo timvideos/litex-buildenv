@@ -11,15 +11,19 @@
 #include <console.h>
 #include <system.h>
 
-#include "config.h"
 #include "ci.h"
+#include "config.h"
 #include "encoder.h"
-#include "ethernet.h"
 #include "etherbone.h"
-#include "telnet.h"
-#include "processor.h"
-#include "pattern.h"
+#include "ethernet.h"
+#include "hdmi_out0.h"
+#include "hdmi_out1.h"
 #include "mdio.h"
+#include "opsis_eeprom.h"
+#include "pattern.h"
+#include "processor.h"
+#include "telnet.h"
+#include "tofe_eeprom.h"
 #include "version.h"
 
 #define HDD_LED   0x01
@@ -46,15 +50,16 @@ int main(void)
 	irq_setmask(0);
 	irq_setie(1);
 	uart_init();
-#ifdef CSR_HDMI_OUT0_I2C_W_ADDR
-	hdmi_out0_i2c_init();
-#endif
-#ifdef CSR_HDMI_OUT1_I2C_W_ADDR
-	hdmi_out1_i2c_init();
-#endif
 
 	puts("\nOpsis CPU testing software built "__DATE__" "__TIME__);
 	print_version();
+
+#ifdef CSR_OPSIS_EEPROM_I2C_W_ADDR
+	opsis_eeprom_i2c_init();
+#endif
+#ifdef CSR_TOFE_CTRL_W_ADDR
+	tofe_eeprom_i2c_init();
+#endif
 
 	config_init();
 	time_init();
@@ -70,8 +75,16 @@ int main(void)
 #endif
 
 	processor_init();
+
+#ifdef CSR_HDMI_OUT0_I2C_W_ADDR
+//	hdmi_out0_i2c_init();
+#endif
 #ifdef CSR_HDMI_OUT0_BASE
 	processor_set_hdmi_out0_source(VIDEO_IN_PATTERN);
+#endif
+
+#ifdef CSR_HDMI_OUT1_I2C_W_ADDR
+	hdmi_out1_i2c_init();
 #endif
 #ifdef CSR_HDMI_OUT1_BASE
 	processor_set_hdmi_out1_source(VIDEO_IN_PATTERN);
@@ -82,6 +95,7 @@ int main(void)
 
 #ifdef ENCODER_BASE
 	processor_set_encoder_source(VIDEO_IN_PATTERN);
+//	encoder_enable(1);
 #endif
 
 	ci_prompt();

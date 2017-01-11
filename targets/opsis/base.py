@@ -16,7 +16,7 @@ from litedram.core import ControllerSettings
 
 from gateware import dna
 from gateware import git_info
-#from gateware import i2c
+from gateware import i2c
 #from gateware import i2c_hack
 from gateware import platform_info
 from gateware import shared_uart
@@ -248,10 +248,10 @@ class BaseSoC(SoCSDRAM):
         self.submodules.platform_info = platform_info.PlatformInfo("opsis", self.__class__.__name__[:8])
 
 #        self.submodules.opsis_eeprom_i2c = i2c.I2C(platform.request("opsis_eeprom"))
+
 #        self.submodules.fx2_reset = gpio.GPIOOut(platform.request("fx2_reset"))
 #        self.submodules.fx2_hack = i2c_hack.I2CShiftReg(platform.request("opsis_eeprom"))
 
-#        self.submodules.tofe_eeprom_i2c = i2c.I2C(platform.request("tofe_eeprom"))
 
         self.submodules.suart = shared_uart.SharedUART(self.clk_freq, 115200)
         self.suart.add_uart_pads(platform.request('fx2_serial'))
@@ -289,14 +289,15 @@ class BaseSoC(SoCSDRAM):
         ]
 
         # TOFE board
-        tofe_ctrl = Signal(3) # rst, sda, scl
-        ptofe_ctrl = platform.request('tofe')
-        self.submodules.tofe_ctrl = GPIOOut(tofe_ctrl)
-        self.comb += [
-            ptofe_ctrl.rst.eq(~tofe_ctrl[0]),
-            ptofe_ctrl.sda.eq(~tofe_ctrl[1]),
-            ptofe_ctrl.scl.eq(~tofe_ctrl[2]),
-        ]
+        self.submodules.tofe_ctrl = i2c.I2C(platform.request("tofe"))
+        #tofe_ctrl = Signal(3) # rst, sda, scl
+        #ptofe_ctrl = platform.request('tofe')
+        #self.submodules.tofe_ctrl = GPIOOut(tofe_ctrl)
+        #self.comb += [
+        #    ptofe_ctrl.rst.eq(~tofe_ctrl[0]),
+        #    ptofe_ctrl.sda.eq(~tofe_ctrl[1]),
+        #    ptofe_ctrl.scl.eq(~tofe_ctrl[2]),
+        #]
 
         # TOFE LowSpeedIO board
         # ---------------------------------
