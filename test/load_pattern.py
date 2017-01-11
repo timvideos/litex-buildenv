@@ -43,8 +43,14 @@ def add_args(parser):
     parser.add_argument(
         "--delay",
         default=30,
+        type=float,
         help="Number of seconds between sending each frame of the input."
         )
+
+    parser.add_argument(
+        "--pattern",
+        default=None,
+        help="Send a gstreamer pattern, use 'gst-inspect-1.0 videotestsrc' to see possible options.")
 
 
 def main():
@@ -78,8 +84,12 @@ def main():
     print("-"*75)
     print()
 
-    infile = os.path.realpath(os.path.expanduser(args.file))
-    assert os.path.exists(infile), "{} ({}) does not exist!".format(infile, args.file)
+    if args.pattern:
+        src = "videotestsrc pattern={} num-buffers=5".format(args.pattern)
+    else:
+        infile = os.path.realpath(os.path.expanduser(args.file))
+        assert os.path.exists(infile), "{} ({}) does not exist!".format(infile, args.file)
+        src = "filesrc location={} ! decodebin ! videoscale".format(infile)
 
     # Use gstreamer to convert input
     tempdir = None
@@ -89,15 +99,14 @@ def main():
         assert os.listdir(tempdir) == []
         print("Generating raw frames in {}".format(tempdir))
         print("-"*75)
+
         pipeline = """
 gst-launch-1.0 -v \
-    filesrc location={infile} ! \
-    decodebin ! \
-    videoscale ! \
+    {src} ! \
     videoconvert ! \
-    video/x-raw,format=UYVY,height={height},width={width},colorimetry=bt709,chroma-site=dv ! \
+    video/x-raw,format=UYVY,height={height},width={width},colorimetry=1:4:0:0 ! \
     multifilesink location="{tempdir}/%05d.yuv422.raw" max-files={max}
-""".format(infile=infile,
+""".format(src=src,
            width=width,
            height=height,
            tempdir=tempdir,
@@ -110,9 +119,9 @@ gst-launch-1.0 -v \
         assert len(files) > 0, "gstreamer generated no files!"
 
         print()
-        print("Input File Information")
+        print("Input Information")
         print("-"*75)
-        print("   File: {}".format(infile))
+        print(" Source: {}".format(src))
         print(" Frames: {}".format(len(files)))
         print("-"*75)
         print()
@@ -124,6 +133,7 @@ gst-launch-1.0 -v \
             send_int32_data(wb, pattern_mem, data.flat)
 
             if i != len(files)-1:
+                print("Sleeping for {} seconds".format(args.delay))
                 time.sleep(args.delay)
 
     finally:
