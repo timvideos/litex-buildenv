@@ -278,7 +278,7 @@ class Encoder(Module, AutoCSR):
 
         # output fifo
         output_fifo_almost_full = Signal()
-        output_fifo = stream.SyncFIFO([("data", 8)], 1024)
+        output_fifo = stream.SyncFIFO([("data", 8)], 1024, buffered=True)
         output_fifo = ClockDomainsRenamer("encoder")(output_fifo)
         self.submodules += output_fifo
         self.comb += [
