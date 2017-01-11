@@ -12,9 +12,8 @@ from litedram.modules import MT46H32M16
 from litedram.phy import s6ddrphy
 from litedram.core import ControllerSettings
 
-from gateware import dna
-from gateware import git_info
-from gateware import platform_info
+from gateware import info
+#from gateware import i2c_hack
 
 from targets.utils import csr_map_update
 
@@ -64,6 +63,7 @@ class _CRG(Module):
         pll_fb = Signal()
         self.specials.pll = Instance(
             "PLL_ADV",
+            name="crg_pll_adv",
             p_SIM_DEVICE="SPARTAN6", p_BANDWIDTH="OPTIMIZED", p_COMPENSATION="INTERNAL",
             p_REF_JITTER=.01,
             i_DADDR=0, i_DCLK=0, i_DEN=0, i_DI=0, i_DWE=0, i_RST=0, i_REL=0,
@@ -118,7 +118,8 @@ class _CRG(Module):
         self.clk4x_rd_strb = Signal()
 
         # sdram_full
-        self.specials += Instance("BUFPLL", p_DIVIDE=4,
+        self.specials += Instance("BUFPLL", name="sdram_full_bufpll",
+                                  p_DIVIDE=4,
                                   i_PLLIN=unbuf_sdram_full, i_GCLK=self.cd_sys.clk,
                                   i_LOCKED=pll_lckd,
                                   o_IOCLK=self.cd_sdram_full_wr.clk,
@@ -128,9 +129,9 @@ class _CRG(Module):
             self.clk4x_rd_strb.eq(self.clk4x_wr_strb),
         ]
         # sdram_half
-        self.specials += Instance("BUFG", i_I=unbuf_sdram_half_a, o_O=self.cd_sdram_half.clk)
+        self.specials += Instance("BUFG", name="sdram_half_a_bufpll", i_I=unbuf_sdram_half_a, o_O=self.cd_sdram_half.clk)
         clk_sdram_half_shifted = Signal()
-        self.specials += Instance("BUFG", i_I=unbuf_sdram_half_b, o_O=clk_sdram_half_shifted)
+        self.specials += Instance("BUFG", name="sdram_half_b_bufpll", i_I=unbuf_sdram_half_b, o_O=clk_sdram_half_shifted)
         clk = platform.request("ddram_clock")
         self.specials += Instance("ODDR2", p_DDR_ALIGNMENT="NONE",
                                   p_INIT=0, p_SRTYPE="SYNC",
@@ -150,15 +151,21 @@ class _CRG(Module):
         # the system clock to be increased in the future.
         dcm_base50_locked = Signal()
         self.specials += [
-            Instance("DCM_CLKGEN",
-                     p_CLKFXDV_DIVIDE=2, p_CLKFX_DIVIDE=2,
-                     p_CLKFX_MD_MAX=1.0, p_CLKFX_MULTIPLY=2,
-                     p_CLKIN_PERIOD=20.0, p_SPREAD_SPECTRUM="NONE",
+            Instance("DCM_CLKGEN", name="crg_periph_dcm_clkgen",
+                     p_CLKIN_PERIOD=20.0,
+                     p_CLKFX_MULTIPLY=2,
+                     p_CLKFX_DIVIDE=2,
+                     p_CLKFX_MD_MAX=1.0, # CLKFX_MULTIPLY/CLKFX_DIVIDE
+                     p_CLKFXDV_DIVIDE=2,
+                     p_SPREAD_SPECTRUM="NONE",
                      p_STARTUP_WAIT="FALSE",
 
-                     i_CLKIN=clk50a, o_CLKFX=self.cd_base50.clk,
+                     i_CLKIN=clk50a,
+                     o_CLKFX=self.cd_base50.clk,
                      o_LOCKED=dcm_base50_locked,
-                     i_FREEZEDCM=0, i_RST=ResetSignal()),
+                     i_FREEZEDCM=0,
+                     i_RST=ResetSignal(),
+                     ),
             AsyncResetSynchronizer(self.cd_base50,
                 self.cd_sys.rst | ~dcm_base50_locked)
         ]
@@ -170,15 +177,9 @@ class BaseSoC(SoCSDRAM):
         "spiflash",
         "front_panel",
         "ddrphy",
-        "dna",
-        "git_info",
-        "platform_info",
+        "info",
 #        "fx2_reset",
 #        "fx2_hack",
-#        "opsis_eeprom_i2c",
-        "tofe_ctrl",
-        "tofe_lsio_leds",
-        "tofe_lsio_sws",
     )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
@@ -198,15 +199,10 @@ class BaseSoC(SoCSDRAM):
         self.submodules.crg = _CRG(platform, clk_freq)
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
 
-        self.submodules.dna = dna.DNA()
-        self.submodules.git_info = git_info.GitInfo()
-        self.submodules.platform_info = platform_info.PlatformInfo("pipi", self.__class__.__name__[:8])
+        self.submodules.info = info.Info(platform, "pipi", self.__class__.__name__[:8])
 
-        #self.submodules.opsis_eeprom_i2c = i2c.I2C(platform.request("opsis_eeprom"))
-        #self.submodules.fx2_reset = gpio.GPIOOut(platform.request("fx2_reset"))
-        #self.submodules.fx2_hack = i2c_hack.I2CShiftReg(platform.request("opsis_eeprom"))
-
-        self.submodules.tofe_eeprom_i2c = i2c.I2C(platform.request("tofe_eeprom"))
+#        self.submodules.fx2_reset = gpio.GPIOOut(platform.request("fx2_reset"))
+#        self.submodules.fx2_hack = i2c_hack.I2CShiftReg(platform.request("opsis_eeprom"))
 
         self.submodules.suart = shared_uart.SharedUART(self.clk_freq, 115200)
         self.suart.add_uart_pads(platform.request('fx2_serial'))
@@ -220,7 +216,7 @@ class BaseSoC(SoCSDRAM):
         self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
         self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size
         self.register_mem("spiflash", self.mem_map["spiflash"],
-            self.spiflash.bus, size=platform.gateware_size)
+            self.spiflash.bus, size=platform.spiflash_total_size)
 
         # sdram
         sdram_module = MT46H32M16(self.clk_freq, "1:2")

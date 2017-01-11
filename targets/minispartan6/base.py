@@ -13,8 +13,7 @@ from litedram.modules import AS4C16M16
 from litedram.phy import gensdrphy
 from litedram.core import ControllerSettings
 
-from gateware import dna
-from gateware import firmware
+from gateware import info
 from gateware import cas
 
 from targets.utils import csr_map_update
@@ -73,9 +72,9 @@ class _CRG(Module):
 class BaseSoC(SoCSDRAM):
     csr_peripherals = (
         "spiflash",
-        "ddrphy",
-        "dna",
         "cas",
+        "ddrphy",
+        "info",
     )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
@@ -91,22 +90,28 @@ class BaseSoC(SoCSDRAM):
             integrated_sram_size=0x8000,
             **kwargs)
         self.submodules.crg = _CRG(platform, clk_freq)
-        self.submodules.dna = dna.DNA()
+        self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
+
         self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
 
+        self.submodules.info = info.Info(platform, "opsis", self.__class__.__name__[:8])
+
+
         self.submodules.spiflash = spi_flash.SpiFlash(
-            platform.request("spiflash2x"), dummy=platform.spiflash_read_dummy_bits, div=platform.spiflash_clock_div)
+            platform.request("spiflash2x"),
+            dummy=platform.spiflash_read_dummy_bits,
+            div=platform.spiflash_clock_div)
         self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
         self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
         self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size
-        self.register_mem("spiflash", self.mem_map["spiflash"], self.spiflash.bus, size=platform.gateware_size)
+        self.register_mem("spiflash", self.mem_map["spiflash"],
+            self.spiflash.bus, size=platform.spiflash_total_size)
 
         # sdram
-        self.submodules.ddrphy = gensdrphy.GENSDRPHY(platform.request("sdram"))
         sdram_module = AS4C16M16(self.clk_freq, "1:1")
+        self.submodules.ddrphy = gensdrphy.GENSDRPHY(platform.request("sdram"))
         self.register_sdram(self.ddrphy,
                             sdram_module.geom_settings,
                             sdram_module.timing_settings)
-        self.platform.add_period_constraint(self.crg.cd_sys.clk, 1/clk_freq*1e9)
 
-SoC=BaseSoC
+SoC = BaseSoC

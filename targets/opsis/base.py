@@ -1,3 +1,4 @@
+# Support for Numato Opsis - https://opsis.hdmi2usb.tv
 from fractions import Fraction
 
 from litex.gen import *
@@ -261,7 +262,6 @@ class BaseSoC(SoCSDRAM):
         "spiflash":     0x20000000,  # (default shadow @0xa0000000)
     }
     mem_map.update(SoCSDRAM.mem_map)
-
 
     def __init__(self, platform, **kwargs):
         clk_freq = 50*1000000
