@@ -255,6 +255,7 @@ static void debug_ddr(void);
 
 static void status_print(void)
 {
+	unsigned int underflows;
 #ifdef CSR_HDMI_IN0_BASE
 	wprintf(
 		"input0:  %dx%d",
@@ -273,28 +274,40 @@ static void status_print(void)
 
 #ifdef CSR_HDMI_OUT0_BASE
 	wprintf("output0: ");
-	if(hdmi_out0_core_initiator_enable_read())
+	if(hdmi_out0_core_initiator_enable_read()) {
+		hdmi_out0_core_underflow_enable_write(1);
+		hdmi_out0_core_underflow_update_write(1);
+		underflows = hdmi_out0_core_underflow_counter_read();
 		wprintf(
-			"%dx%d@" REFRESH_RATE_PRINTF "Hz from %s",
+			"%dx%d@" REFRESH_RATE_PRINTF "Hz from %s (underflows: %d)",
 			processor_h_active,
 			processor_v_active,
 			REFRESH_RATE_PRINTF_ARGS(processor_refresh),
-			processor_get_source_name(processor_hdmi_out0_source));
-	else
+			processor_get_source_name(processor_hdmi_out0_source),
+			underflows);
+		hdmi_out0_core_underflow_enable_write(0);
+		hdmi_out0_core_underflow_enable_write(1);
+	} else
 		wprintf("off");
 	wprintf("\r\n");
 #endif
 
 #ifdef CSR_HDMI_OUT1_BASE
 	wprintf("output1: ");
-	if(hdmi_out1_core_initiator_enable_read())
+	if(hdmi_out1_core_initiator_enable_read()) {
+		hdmi_out1_core_underflow_enable_write(1);
+		hdmi_out1_core_underflow_update_write(1);
+		underflows = hdmi_out1_core_underflow_counter_read();
 		wprintf(
-			"%dx%d@" REFRESH_RATE_PRINTF "Hz from %s",
+			"%dx%d@" REFRESH_RATE_PRINTF "Hz from %s (underflows: %d)",
 			processor_h_active,
 			processor_v_active,
 			REFRESH_RATE_PRINTF_ARGS(processor_refresh),
-			processor_get_source_name(processor_hdmi_out1_source));
-	else
+			processor_get_source_name(processor_hdmi_out1_source),
+			underflows);
+		hdmi_out1_core_underflow_enable_write(0);
+		hdmi_out1_core_underflow_enable_write(1);
+	} else
 		wprintf("off");
 	wprintf("\r\n");
 #endif
