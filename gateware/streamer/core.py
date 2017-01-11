@@ -11,7 +11,10 @@ class USBStreamer(Module):
         # # #
 
         self.clock_domains.cd_usb = ClockDomain()
-        self.comb += self.cd_usb.clk.eq(pads.ifclk)
+        self.specials += [
+            Instance("IBUFG", i_I=pads.ifclk, o_O=self.cd_usb.clk),
+        ]
+
         self.specials += AsyncResetSynchronizer(self.cd_usb, ResetSignal())
 
         fifo = stream.AsyncFIFO([("data", 8)], 4)
