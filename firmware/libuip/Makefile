@@ -64,7 +64,7 @@ all: $(UIPLIB)
 .PHONY: all compile clean
 
 # pull in dependency info for *existing* .o files
--include $(OBJECTS:.o=.d)
+-include $(UIPOBJS:.o=.d)
 
 %.o: %.c
 	@mkdir -p $(@D)
