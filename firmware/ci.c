@@ -142,7 +142,7 @@ static void ci_help(void)
 static char *readstr(void)
 {
 	char c[2];
-	static char s[128]; // Needs to fit video mode string.
+	static char s[128]; // Needs to fit a full mode line ~100 chars.
 	static int ptr = 0;
 
 	if(telnet_active) {
