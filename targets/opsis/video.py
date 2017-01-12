@@ -1,8 +1,8 @@
 from litevideo.input import HDMIIn
 from litevideo.output import VideoOut
 
+from gateware import freq_measurement
 from gateware import i2c
-from gateware import freq_count
 
 from targets.utils import csr_map_update
 from targets.opsis.net import NetSoC as BaseSoC
@@ -34,24 +34,16 @@ class VideoSoC(BaseSoC):
             platform.request("hdmi_in", 0),
             self.sdram.crossbar.get_port(mode="write"),
             fifo_depth=512)
-        self.submodules.hdmi_in0_freq = hdmi_in0_freq = freq_count.FrequencyCounter(self.clk_freq, 6, 32)
-        self.comb += [
-            hdmi_in0_freq.core.cd_src.clk.eq(self.hdmi_in0.clocking._cd_pix.clk),
-            hdmi_in0_freq.core.cd_dest.clk.eq(ClockSignal()),
-            hdmi_in0_freq.core.cd_dest.rst.eq(ResetSignal())
-        ]
+        self.submodules.hdmi_in0_freq = freq_measurement.FrequencyMeasurement(
+            self.hdmi_in0.clocking._cd_pix.clk, self.clk_freq)
 
         # hdmi in 1
         self.submodules.hdmi_in1 = HDMIIn(
             platform.request("hdmi_in", 1),
             self.sdram.crossbar.get_port(mode="write"),
             fifo_depth=512)
-        self.submodules.hdmi_in1_freq = hdmi_in1_freq = freq_count.FrequencyCounter(self.clk_freq, 6, 32)
-        self.comb += [
-            hdmi_in1_freq.core.cd_src.clk.eq(self.hdmi_in1.clocking._cd_pix.clk),
-            hdmi_in1_freq.core.cd_dest.clk.eq(ClockSignal()),
-            hdmi_in1_freq.core.cd_dest.rst.eq(ResetSignal())
-        ]
+        self.submodules.hdmi_in1_freq = freq_measurement.FrequencyMeasurement(
+            self.hdmi_in1.clocking._cd_pix.clk, self.clk_freq)
 
         # hdmi out 0
         hdmi_out0_pads = platform.request("hdmi_out", 0)
