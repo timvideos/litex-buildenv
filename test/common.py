@@ -56,7 +56,7 @@ def connect(desc, *args, add_args=None, **kw):
     print("Device DNA: {}".format(get_dna(wb)))
     print("   Git Rev: {}".format(get_git(wb)))
     print("  Platform: {}".format(get_platform(wb)))
-    print("  Analyzer: {}".format(["Yes", "No"][hasattr(wb.regs, "analyzer")]))
+    print("  Analyzer: {}".format(["No", "Yes"][hasattr(wb.regs, "analyzer")]))
     print()
 
     return args, wb
@@ -76,7 +76,7 @@ def print_memmap(wb):
 
 def get_dna(wb):
     try:
-        dna = wb.regs.dna_id.read()
+        dna = wb.regs.info_dna_id.read()
         return hex(dna)
     except KeyError:
         return 'Unknown'
@@ -84,7 +84,7 @@ def get_dna(wb):
 
 def get_git(wb):
     try:
-        commit = wb.regs.git_info_commit.read()
+        commit = wb.regs.info_git_commit.read()
         return hex(commit)[2:]
     except KeyError:
         return 'Unknown'
@@ -103,8 +103,8 @@ def stringify(reg):
 
 def get_platform(wb):
     try:
-        target = stringify(wb.regs.platform_info_target)
-        platform = stringify(wb.regs.platform_info_platform)
+        target = stringify(wb.regs.info_platform_target)
+        platform = stringify(wb.regs.info_platform_platform)
         return "{} on {}".format(target, platform)
     except KeyError:
         return 'Unknown on Unknown'
