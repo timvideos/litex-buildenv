@@ -31,7 +31,7 @@ for _, name, loc, size, rw in regs:
                 regs_in_base[bname] = []
             regs_in_base[bname].append((int(loc, 16), name[len(bname)+1:], int(size), rw))
 
-for name, regs in regs_in_base.items():
+for name, regs in sorted(regs_in_base.items()):
     num_regs = sum(size for loc, name, size, rw in regs)
     assert num_regs < 200
     print(name, num_regs)
