@@ -27,7 +27,7 @@ export PYTHONHASHSEED
 # ---------------------------------
 
 MAKE_CMD=\
-	time ./make.py \
+	time python -u ./make.py \
 		--platform=$(PLATFORM) \
 		--target=$(TARGET) \
 		--cpu-type=$(CPU) \
@@ -60,7 +60,7 @@ gateware: gateware-submodules
 	mkdir -p $(TARGET_BUILD_DIR)
 ifneq ($(OS),Windows_NT)
 	$(MAKE_CMD) \
-	| $(FILTER) $(LOGFILE); (exit $${PIPESTATUS[0]})
+	2>&1 | $(FILTER) $(LOGFILE); (exit $${PIPESTATUS[0]})
 else
 	$(MAKE_CMD)
 endif
@@ -77,7 +77,7 @@ firmware:
 	mkdir -p $(TARGET_BUILD_DIR)
 ifneq ($(OS),Windows_NT)
 	$(MAKE_CMD) --no-compile-gateware \
-	| $(FILTER) $(LOGFILE); (exit $${PIPESTATUS[0]})
+	2>&1 | $(FILTER) $(LOGFILE); (exit $${PIPESTATUS[0]})
 else
 	$(MAKE_CMD) --no-compile-gateware
 endif
