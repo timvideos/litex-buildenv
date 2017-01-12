@@ -77,7 +77,7 @@ int main(void)
 	processor_init();
 
 #ifdef CSR_HDMI_OUT0_I2C_W_ADDR
-//	hdmi_out0_i2c_init();
+	hdmi_out0_i2c_init();
 #endif
 #ifdef CSR_HDMI_OUT0_BASE
 	processor_set_hdmi_out0_source(VIDEO_IN_PATTERN);
