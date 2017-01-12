@@ -1,3 +1,18 @@
+/*
+ * Copyright 2015 / TimVideo.us
+ * Copyright 2015 / EnjoyDigital
+ * Copyright 2017 Joel Addison <joel@addison.net.au>
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ */
+
 #ifndef __PROCESSOR_H
 #define __PROCESSOR_H
 
@@ -21,6 +36,7 @@ enum {
 };
 
 extern int processor_mode;
+extern int processor_secondary_mode;
 int processor_h_active;
 int processor_v_active;
 int processor_refresh;
@@ -31,7 +47,7 @@ char processor_buffer[16];
 
 void processor_list_modes(char *mode_descriptors);
 void processor_describe_mode(char *mode_descriptor, int mode);
-void processor_init(void);
+void processor_init(int sec_mode);
 void processor_start(int mode);
 void processor_set_hdmi_out0_source(int source);
 void processor_set_hdmi_out1_source(int source);
@@ -41,5 +57,6 @@ void processor_update(void);
 void processor_service(void);
 struct video_timing* processor_get_custom_mode(void);
 void processor_set_custom_mode(void);
+void processor_set_secondary_mode(int mode);
 
 #endif /* __PROCESSOR_H */

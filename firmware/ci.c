@@ -1,3 +1,18 @@
+/*
+ * Copyright 2015 / TimVideo.us
+ * Copyright 2015 / EnjoyDigital
+ * Copyright 2017 Joel Addison <joel@addison.net.au>
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ */
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -49,6 +64,9 @@ static void help_video_mode(void)
 	wputs("  m l                            - list available video modes");
 	wputs("  video_mode <mode>              - select video mode");
 	wputs("  video_mode custom <modeline>   - set custom video mode");
+	wputs("  video_mode secondary <mode>    - select secondary video mode");
+	wputs("  video_mode s <mode>            - select secondary video mode");
+	wputs("  video_mode secondary off       - turn off secondary video mode");
 }
 
 static void help_hdp_toggle(void)
@@ -299,6 +317,24 @@ static void status_print(void)
 	wprintf("\r\n");
 #endif
 
+	wprintf("EDID primary mode:   ");
+	wprintf("%dx%d@" REFRESH_RATE_PRINTF "Hz",
+		processor_h_active,
+		processor_v_active,
+		REFRESH_RATE_PRINTF_ARGS(processor_refresh));
+	wprintf("\r\n");
+
+	wprintf("EDID secondary mode: ");
+	if (processor_secondary_mode == EDID_SECONDARY_MODE_OFF) {
+		wprintf("off");
+	}
+	else {
+		char mode_descriptor[PROCESSOR_MODE_DESCLEN];
+		processor_describe_mode(mode_descriptor, processor_secondary_mode);
+		wprintf("%s", mode_descriptor);
+	}
+	wprintf("\r\n");
+
 #ifdef ENCODER_BASE
 	wprintf("encoder: ");
 	if(encoder_enabled) {
@@ -423,6 +459,27 @@ static void video_mode_set(int mode)
 		wprintf("Setting video mode to %s\r\n", mode_descriptor);
 		config_set(CONFIG_KEY_RESOLUTION, mode);
 		processor_start(mode);
+	}
+}
+
+static void video_mode_secondary(char *str)
+{
+	char *token;
+	if((token = get_token(&str)) == '\0') return;
+
+	if(strcmp(token, "off") == 0) {
+		wprintf("Turning off secondary video mode\r\n");
+		processor_set_secondary_mode(EDID_SECONDARY_MODE_OFF);
+	}
+	else {
+		int mode = atoi(token);
+		char mode_descriptor[PROCESSOR_MODE_DESCLEN];
+		if (mode < PROCESSOR_MODE_COUNT) {
+			processor_describe_mode(mode_descriptor, mode);
+			wprintf("Setting secondary video mode to %s\r\n", mode_descriptor);
+			config_set(CONFIG_KEY_RESOLUTION_SEC, mode);
+			processor_set_secondary_mode(mode);
+		}
 	}
 }
 
@@ -774,6 +831,8 @@ void ci_service(void)
 			video_mode_list();
 		else if(strcmp(token, "custom") == 0)
 			video_mode_custom(str);
+		else if((strcmp(token, "secondary") == 0) || (strcmp(token, "s") == 0))
+			video_mode_secondary(str);
 		else
 			video_mode_set(atoi(token));
 	}

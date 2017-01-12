@@ -3,6 +3,7 @@
 
 enum {
 	CONFIG_KEY_RESOLUTION = 0,
+	CONFIG_KEY_RESOLUTION_SEC,
 	CONFIG_KEY_BLEND_USER1,
 	CONFIG_KEY_BLEND_USER2,
 	CONFIG_KEY_BLEND_USER3,
@@ -11,7 +12,7 @@ enum {
 	CONFIG_KEY_COUNT
 };
 
-#define CONFIG_DEFAULTS { 9, 1, 2, 3, 4 }
+#define CONFIG_DEFAULTS { 9, 10, 1, 2, 3, 4 }
 
 void config_init(void);
 void config_write_all(void);
