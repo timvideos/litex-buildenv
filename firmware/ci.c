@@ -17,6 +17,7 @@
 #include "processor.h"
 #include "pll.h"
 #include "ci.h"
+#include "edid.h"
 #include "telnet.h"
 #include "mdio.h"
 #include "encoder.h"
@@ -26,18 +27,6 @@
 #include "version.h"
 
 int status_enabled;
-
-static const struct {
-	const char* string;
-	unsigned long flag;
-} mode_flags[] = {
-	{ "+HSync", TIMING_H_SYNC_POS },
-	{ "-HSync", TIMING_H_SYNC_NEG },
-	{ "+VSync", TIMING_V_SYNC_POS },
-	{ "-VSync", TIMING_V_SYNC_NEG },
-	{ "Interlace", TIMING_INTERLACED },
-	{ NULL, 0 }
-};
 
 static void help_video_matrix(void)
 {
@@ -149,7 +138,7 @@ static void ci_help(void)
 static char *readstr(void)
 {
 	char c[2];
-	static char s[128];
+	static char s[128]; // Needs to fit video mode string.
 	static int ptr = 0;
 
 	if(telnet_active) {
@@ -231,7 +220,14 @@ static char *get_token_generic(char **str, char delimiter)
 
 static char *get_token(char **str)
 {
-	return get_token_generic(str, ' ');
+	char *t;
+	do {
+		t = get_token_generic(str, ' ');
+		if (*t == '\0' && **str == '\0') {
+			break;
+		}
+	} while (*t == '\0');
+	return t;
 }
 
 static void reboot(void)
@@ -275,11 +271,10 @@ static void status_print(void)
 	wprintf("output0: ");
 	if(hdmi_out0_core_initiator_enable_read())
 		wprintf(
-			"%dx%d@%u.%02uHz from %s",
+			"%dx%d@" REFRESH_RATE_PRINTF "Hz from %s",
 			processor_h_active,
 			processor_v_active,
-			processor_refresh/100,
-			processor_refresh%100,
+			REFRESH_RATE_PRINTF_ARGS(processor_refresh),
 			processor_get_source_name(processor_hdmi_out0_source));
 	else
 		wprintf("off");
@@ -290,11 +285,10 @@ static void status_print(void)
 	wprintf("output1: ");
 	if(hdmi_out1_core_initiator_enable_read())
 		wprintf(
-			"%dx%d@%u.%02uHz from %s",
+			"%dx%d@" REFRESH_RATE_PRINTF "Hz from %s",
 			processor_h_active,
 			processor_v_active,
-			processor_refresh/100,
-			processor_refresh%100,
+			REFRESH_RATE_PRINTF_ARGS(processor_refresh),
 			processor_get_source_name(processor_hdmi_out1_source));
 	else
 		wprintf("off");
@@ -428,14 +422,11 @@ static void video_mode_set(int mode)
 	}
 }
 
-#define NEXT_TOKEN_OR_RETURN(s, t)					\
-	do {								\
-		t = get_token(&s);					\
-		if (*t == '\0' && *s == '\0') {				\
-			wprintf("Parse failed - invalid mode.\r\n");	\
-			return;						\
-		}							\
-	} while (*t == '\0')
+#define NEXT_TOKEN_OR_RETURN(s, t)				\
+	if(!(t = get_token(&s))) {				\
+		wprintf("Parse failed - invalid mode.\r\n");	\
+		return;						\
+	}
 
 static void video_mode_custom(char* str)
 {
@@ -477,20 +468,18 @@ static void video_mode_custom(char* str)
 	NEXT_TOKEN_OR_RETURN(str, token);
 	unsigned int vTotal = atoi(token);
 
-	unsigned int modeFlags = TIMING_DIG_SEP; // Always Digital Separate
+	unsigned int modeFlags = EDID_DIGITAL; // Always Digital Separate
 	while (*str != '\0') {
-		do {
-			token = get_token(&str);
-		} while (*token == '\0' && *str != '\0');
+		token = get_token(&str);
 		if (*token == '\0' && *str == '\0') break;
 
 		int f;
 
-		for (f = 0; mode_flags[f].string; f++)
-			if (strcasecmp(mode_flags[f].string, token) == 0)
+		for (f = 0; timing_mode_flags[f].string; f++)
+			if (strcasecmp(timing_mode_flags[f].string, token) == 0)
 				break;
 
-		if (!mode_flags[f].string) {
+		if (!timing_mode_flags[f].string) {
 			if (*token != '\0') {
 				wprintf("Skipping flag: %s\r\n", token);
 				continue;
@@ -498,7 +487,7 @@ static void video_mode_custom(char* str)
 			break;
 		}
 
-		modeFlags |= mode_flags[f].flag;
+		modeFlags |= timing_mode_flags[f].flag;
 	}
 
 	/*

@@ -79,7 +79,7 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 		.v_sync_offset = 9,
 		.v_sync_width = 3,
 
-		.flags = 0x1e,
+		.flags = EDID_DIGITAL,
 
 		.established_timing = 0x0800
 	},
@@ -99,7 +99,7 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 		.v_sync_offset = 1,
 		.v_sync_width = 3,
 
-		.flags = 0x1e,
+		.flags = EDID_DIGITAL,
 
 		.established_timing = 0x0400
 	},
@@ -118,7 +118,7 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 		.v_sync_offset = 1,
 		.v_sync_width = 2,
 
-		.flags = 0x1e,
+		.flags = EDID_DIGITAL,
 
 		.established_timing = 0x0200
 	},
@@ -137,7 +137,7 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 		.v_sync_offset = 1,
 		.v_sync_width = 4,
 
-		.flags = 0x1e,
+		.flags = EDID_DIGITAL,
 
 		.established_timing = 0x0100
 	},
@@ -156,7 +156,7 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 		.v_sync_offset = 37,
 		.v_sync_width = 6,
 
-		.flags = 0x1e,
+		.flags = EDID_DIGITAL,
 
 		.established_timing = 0x0080
 	},
@@ -175,7 +175,7 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 		.v_sync_offset = 1,
 		.v_sync_width = 3,
 
-		.flags = 0x1e,
+		.flags = EDID_DIGITAL,
 
 		.established_timing = 0x0040
 	},
@@ -194,7 +194,7 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 		.v_sync_offset = 3,
 		.v_sync_width = 6,
 
-		.flags = 0x1e,
+		.flags = EDID_DIGITAL,
 
 		.established_timing = 0x0008
 	},
@@ -213,7 +213,7 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 		.v_sync_offset = 3,
 		.v_sync_width = 6,
 
-		.flags = 0x1e,
+		.flags = EDID_DIGITAL,
 
 		.established_timing = 0x0004
 	},
@@ -232,7 +232,7 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 		.v_sync_offset = 1,
 		.v_sync_width = 3,
 
-		.flags = 0x1e,
+		.flags = EDID_DIGITAL,
 
 		.established_timing = 0x0002
 	},
@@ -251,7 +251,7 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 		.v_sync_offset = 20,
 		.v_sync_width = 5,
 
-		.flags = 0x1e
+		.flags = EDID_DIGITAL | EDID_HSYNC_POS | EDID_VSYNC_POS
 	},
 	// Other 720p60 modes not enabled...
 	//1280	720	60 Hz	44.9576 kHz	ModeLine "1280x720"		74.18  1280 1390 1430 1650 720 725 730 750 +HSync +VSync
@@ -275,7 +275,7 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 		.v_sync_offset = 5,
 		.v_sync_width = 5,
 
-		.flags = 0x1e
+		.flags = EDID_DIGITAL | EDID_HSYNC_POS | EDID_VSYNC_POS
 	},
 	// 1920x1080 @ 30.00 Hz    ModeLine "1920x1080" 89.01 1920 2448 2492 2640 1080 1084 1089 1125 +HSync +VSync
 	{
@@ -291,7 +291,7 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 		.v_sync_offset = 4,
 		.v_sync_width = 5,
 
-		.flags = 0x1e
+		.flags = EDID_DIGITAL | EDID_HSYNC_POS | EDID_VSYNC_POS
 	},
 	// 720x480 @ 60.00 Hz    Modeline "720x480" 26.72 720 736 808 896 480 481 484 497 -HSync +Vsync
 	{
@@ -307,11 +307,11 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 		.v_sync_offset = 1,
 		.v_sync_width = 3,
 
-		.flags = 0x1e,
+		.flags = EDID_DIGITAL | EDID_HSYNC_POS | EDID_VSYNC_POS,
 
 		.comment = "(HV20/HV30 in NTSC mode)"
 	},
-	// 720x576 @ 50.00 Hz    Modeline "720x576" 32.67 720 744 816 912 576 577 580 597 -HSync +Vsyncc
+	// 720x576 @ 50.00 Hz    Modeline "720x576" 32.67 720 744 816 912 576 577 580 597 -HSync +Vsync
 	{
 		.pixel_clock = 3267,
 
@@ -325,7 +325,7 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 		.v_sync_offset = 1,
 		.v_sync_width = 3,
 
-		.flags = 0x1e,
+		.flags = EDID_DIGITAL | EDID_HSYNC_POS | EDID_VSYNC_POS,
 
 		.comment = "(HV20/HV30 in PAL mode)"
 	},
@@ -344,11 +344,10 @@ void processor_describe_mode(char *mode_descriptor, int mode)
 	if (mode >= PROCESSOR_MODE_COUNT) return;
 	unsigned refresh_rate = calculate_refresh_rate(&(video_modes[mode]));
 	sprintf(mode_descriptor,
-		"%ux%u@%u.%02uHz %s",
+		"%ux%u@" REFRESH_RATE_PRINTF "Hz %s",
 		video_modes[mode].h_active,
 		video_modes[mode].v_active,
-		refresh_rate/100,
-		refresh_rate%100,
+		REFRESH_RATE_PRINTF_ARGS(refresh_rate),
 		video_modes[mode].comment ? video_modes[mode].comment : "");
 }
 
@@ -482,7 +481,7 @@ void processor_start(int mode)
 {
 	const struct video_timing *m;
 
-	if (mode == PROCESSOR_CUSTOM_MODE) {
+	if (mode == PROCESSOR_MODE_CUSTOM) {
 		m = &custom_modes[0];
 	} else {
 		m = &video_modes[mode];
@@ -635,5 +634,5 @@ struct video_timing* processor_get_custom_mode(void)
 
 void processor_set_custom_mode(void)
 {
-	processor_start(PROCESSOR_CUSTOM_MODE);
+	processor_start(PROCESSOR_MODE_CUSTOM);
 }

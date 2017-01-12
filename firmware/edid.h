@@ -7,13 +7,29 @@
 
 #define MAX_DESCRIPTOR_DATA_LEN 13
 
+#define REFRESH_RATE_PRINTF "%u.%02u"
+#define REFRESH_RATE_PRINTF_ARGS(x) \
+	x/100, x%100
+
 /* Timing flags */
-#define TIMING_H_SYNC_POS	0b00000010
-#define TIMING_H_SYNC_NEG	0b00000000
-#define TIMING_V_SYNC_POS	0b00000100
-#define TIMING_V_SYNC_NEG	0b00000000
-#define TIMING_INTERLACED	0b10000000
-#define TIMING_DIG_SEP		0b00011000
+#define EDID_HSYNC_POS		0b00000010
+#define EDID_HSYNC_NEG		0b00000000
+#define EDID_VSYNC_POS		0b00000100
+#define EDID_VSYNC_NEG		0b00000000
+#define EDID_INTERLACE		0b10000000
+#define EDID_DIGITAL		0b00011000
+
+static const struct {
+        const char* string;
+        unsigned long flag;
+} timing_mode_flags[] = {
+        { "+HSync", EDID_HSYNC_POS },
+        { "-HSync", EDID_HSYNC_NEG },
+        { "+VSync", EDID_VSYNC_POS },
+        { "-VSync", EDID_VSYNC_NEG },
+        { "Interlace", EDID_INTERLACE },
+        { NULL, 0 }
+};
 
 struct video_timing {
 	unsigned int pixel_clock; /* in tens of kHz */

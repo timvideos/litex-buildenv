@@ -288,6 +288,10 @@ void generate_edid(void *out,
 	e->checksum = compute_checksum(e);
 }
 
+/**
+ * Calculate refresh rate for a video timing mode.
+ * Rate is in Hz * 100, which allows for two decimal places of precision.
+ */
 unsigned calculate_refresh_rate(const struct video_timing* mode)
 {
 	unsigned refresh_span = (mode->h_active + mode->h_blanking)*(mode->v_active + mode->v_blanking);
