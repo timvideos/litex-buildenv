@@ -1,8 +1,12 @@
 #ifndef __PROCESSOR_H
 #define __PROCESSOR_H
 
+#include "edid.h"
+
 #define PROCESSOR_MODE_COUNT 14
 #define PROCESSOR_MODE_DESCLEN 64
+
+#define PROCESSOR_CUSTOM_MODE -1
 
 enum {
 	VIDEO_IN_HDMI_IN0=0,
@@ -26,13 +30,16 @@ int processor_encoder_source;
 char processor_buffer[16];
 
 void processor_list_modes(char *mode_descriptors);
+void processor_describe_mode(char *mode_descriptor, int mode);
 void processor_init(void);
 void processor_start(int mode);
 void processor_set_hdmi_out0_source(int source);
 void processor_set_hdmi_out1_source(int source);
 void processor_set_encoder_source(int source);
-char * processor_get_source_name(int source);
+char* processor_get_source_name(int source);
 void processor_update(void);
 void processor_service(void);
+struct video_timing* processor_get_custom_mode(void);
+void processor_set_custom_mode(void);
 
 #endif /* __PROCESSOR_H */

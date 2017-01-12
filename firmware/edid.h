@@ -7,6 +7,14 @@
 
 #define MAX_DESCRIPTOR_DATA_LEN 13
 
+/* Timing flags */
+#define TIMING_H_SYNC_POS	0b00000010
+#define TIMING_H_SYNC_NEG	0b00000000
+#define TIMING_V_SYNC_POS	0b00000100
+#define TIMING_V_SYNC_NEG	0b00000000
+#define TIMING_INTERLACED	0b10000000
+#define TIMING_DIG_SEP		0b00011000
+
 struct video_timing {
 	unsigned int pixel_clock; /* in tens of kHz */
 
@@ -19,6 +27,8 @@ struct video_timing {
 	unsigned int v_blanking;
 	unsigned int v_sync_offset;
 	unsigned int v_sync_width;
+
+	unsigned int flags;
 
 	unsigned int established_timing;
 	const char* comment;

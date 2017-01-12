@@ -62,7 +62,7 @@ struct edid {
 
 struct edid_timing {
 	uint8_t pixel_clock[2];
-	
+
 	uint8_t h_active_l;
 	uint8_t h_blanking_l;
 	uint8_t h_active_blanking_h;
@@ -70,7 +70,7 @@ struct edid_timing {
 	uint8_t v_active_l;
 	uint8_t v_blanking_l;
 	uint8_t v_active_blanking_h;
-	
+
 	uint8_t h_sync_offset_l;
 	uint8_t h_sync_width_l;
 	uint8_t v_sync_offset_width_l;
@@ -147,7 +147,7 @@ static void generate_edid_timing(uint8_t *data_block, const struct video_timing 
 
 	t->pixel_clock[0] = timing->pixel_clock & 0xff;
 	t->pixel_clock[1] = timing->pixel_clock >> 8;
-	
+
 	t->h_active_l = timing->h_active & 0xff;
 	t->h_blanking_l = timing->h_blanking & 0xff;
 	t->h_active_blanking_h = ((timing->h_active >> 8) << 4) | (timing->h_blanking >> 8);
@@ -155,7 +155,7 @@ static void generate_edid_timing(uint8_t *data_block, const struct video_timing 
 	t->v_active_l = timing->v_active & 0xff;
 	t->v_blanking_l = timing->v_blanking & 0xff;
 	t->v_active_blanking_h = ((timing->v_active >> 8) << 4) | (timing->v_blanking >> 8);
-	
+
 	t->h_sync_offset_l = timing->h_sync_offset & 0xff;
 	t->h_sync_width_l = timing->h_sync_width & 0xff;
 	t->v_sync_offset_width_l = timing->v_sync_offset & 0xff;
@@ -171,7 +171,7 @@ static void generate_edid_timing(uint8_t *data_block, const struct video_timing 
 	t->h_border = 0;
 	t->v_border = 0;
 
-	t->flags = 0x1e;
+	t->flags = timing->flags;
 }
 
 static void set_descriptor_header(struct edid_descriptor *d, uint8_t data_type)
@@ -213,11 +213,13 @@ static void generate_monitor_range_descriptor(uint8_t *data_block,
 
 	set_descriptor_header(d, DESCRIPTOR_MONITOR_RANGE);
 
-	data->min_vertical_field_rate = 50;
-	data->max_vertical_field_rate = 60;
-	data->min_horizontal_line_rate = 30; // 720p50 is 37.05kHz
+	// Fixme: set from mode?
+	data->min_vertical_field_rate = 50;  // 50Hz
+	data->max_vertical_field_rate = 60;  // 60Hz
+	data->min_horizontal_line_rate = 31; // 720p50 is 37.05kHz
 	data->max_horizontal_line_rate = 68; // 1080p60 is 67.08kHz
-	data->max_pixel_clock_rate = 0x0E; // 140 Hz => 140 / 10 = 14
+	//TODO: Set this to be ~5Mhz above current dotclock
+	data->max_pixel_clock_rate = 8; // 80 MHz => 80 / 10 = 8
 	data->extended_timing_type = 0x00;
 
 	generate_descriptor_padding(d, 6);
@@ -288,7 +290,9 @@ void generate_edid(void *out,
 
 unsigned calculate_refresh_rate(const struct video_timing* mode)
 {
-	unsigned int refresh_span;
-	refresh_span = (mode->h_active + mode->h_blanking)*(mode->v_active + mode->v_blanking);
-	return mode->pixel_clock*10000/refresh_span;
+	unsigned refresh_span = (mode->h_active + mode->h_blanking)*(mode->v_active + mode->v_blanking);
+	uint64_t clock = mode->pixel_clock;
+	clock *= 10000 * 100; // Multiply by 100 to get 2 decimal places
+	unsigned refresh_rate = clock / refresh_span;
+	return refresh_rate;
 }

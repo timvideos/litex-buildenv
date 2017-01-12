@@ -27,6 +27,18 @@
 
 int status_enabled;
 
+static const struct {
+	const char* string;
+	unsigned long flag;
+} mode_flags[] = {
+	{ "+HSync", TIMING_H_SYNC_POS },
+	{ "-HSync", TIMING_H_SYNC_NEG },
+	{ "+VSync", TIMING_V_SYNC_POS },
+	{ "-VSync", TIMING_V_SYNC_NEG },
+	{ "Interlace", TIMING_INTERLACED },
+	{ NULL, 0 }
+};
+
 static void help_video_matrix(void)
 {
 	wputs("video_matrix commands (alias: 'x')");
@@ -43,6 +55,7 @@ static void help_video_mode(void)
 	wputs("  video_mode list                - list available video modes");
 	wputs("  m l                            - list available video modes");
 	wputs("  video_mode <mode>              - select video mode");
+	wputs("  video_mode custom <modeline>   - set custom video mode");
 }
 
 static void help_hdp_toggle(void)
@@ -136,7 +149,7 @@ static void ci_help(void)
 static char *readstr(void)
 {
 	char c[2];
-	static char s[64];
+	static char s[128];
 	static int ptr = 0;
 
 	if(telnet_active) {
@@ -262,10 +275,11 @@ static void status_print(void)
 	wprintf("output0: ");
 	if(hdmi_out0_core_initiator_enable_read())
 		wprintf(
-			"%dx%d@%dHz from %s",
+			"%dx%d@%u.%02uHz from %s",
 			processor_h_active,
 			processor_v_active,
-			processor_refresh,
+			processor_refresh/100,
+			processor_refresh%100,
 			processor_get_source_name(processor_hdmi_out0_source));
 	else
 		wprintf("off");
@@ -276,10 +290,11 @@ static void status_print(void)
 	wprintf("output1: ");
 	if(hdmi_out1_core_initiator_enable_read())
 		wprintf(
-			"%dx%d@%uHz from %s",
+			"%dx%d@%u.%02uHz from %s",
 			processor_h_active,
 			processor_v_active,
-			processor_refresh,
+			processor_refresh/100,
+			processor_refresh%100,
 			processor_get_source_name(processor_hdmi_out1_source));
 	else
 		wprintf("off");
@@ -404,13 +419,151 @@ static void video_mode_list(void)
 
 static void video_mode_set(int mode)
 {
-	char mode_descriptors[PROCESSOR_MODE_COUNT*PROCESSOR_MODE_DESCLEN];
+	char mode_descriptor[PROCESSOR_MODE_DESCLEN];
 	if(mode < PROCESSOR_MODE_COUNT) {
-		processor_list_modes(mode_descriptors);
-		wprintf("Setting video mode to %s\r\n", &mode_descriptors[mode*PROCESSOR_MODE_DESCLEN]);
+		processor_describe_mode(mode_descriptor, mode);
+		wprintf("Setting video mode to %s\r\n", mode_descriptor);
 		config_set(CONFIG_KEY_RESOLUTION, mode);
 		processor_start(mode);
 	}
+}
+
+#define NEXT_TOKEN_OR_RETURN(s, t)					\
+	do {								\
+		t = get_token(&s);					\
+		if (*t == '\0' && *s == '\0') {				\
+			wprintf("Parse failed - invalid mode.\r\n");	\
+			return;						\
+		}							\
+	} while (*t == '\0')
+
+static void video_mode_custom(char* str)
+{
+	wprintf("Parsing custom mode...\r\n");
+
+	char* token;
+	// Modeline "String description" Dot-Clock HDisp HSyncStart HSyncEnd HTotal VDisp VSyncStart VSyncEnd VTotal [options]
+	// $ xrandr --newmode "1280x1024_60.00"  109.00  1280 1368 1496 1712  1024 1027 1034 1063 -hsync +vsync
+
+	// Based on code from http://cgit.freedesktop.org/xorg/app/xrandr/tree/xrandr.c#n3101
+
+	NEXT_TOKEN_OR_RETURN(str, token);
+	char* dotClockInt = get_token_generic(&token, '.');
+	char* dotClockDec = get_token(&token);
+	if (!dotClockInt || !dotClockDec) return;
+	unsigned int dotClock = (atoi(dotClockInt) * 100) + atoi(dotClockDec);
+
+	NEXT_TOKEN_OR_RETURN(str, token);
+	unsigned int width = atoi(token);
+
+	NEXT_TOKEN_OR_RETURN(str, token);
+	unsigned int hSyncStart = atoi(token);
+
+	NEXT_TOKEN_OR_RETURN(str, token);
+	unsigned int hSyncEnd = atoi(token);
+
+	NEXT_TOKEN_OR_RETURN(str, token);
+	unsigned int hTotal = atoi(token);
+
+	NEXT_TOKEN_OR_RETURN(str, token);
+	unsigned int height = atoi(token);
+
+	NEXT_TOKEN_OR_RETURN(str, token);
+	unsigned int vSyncStart = atoi(token);
+
+	NEXT_TOKEN_OR_RETURN(str, token);
+	unsigned int vSyncEnd = atoi(token);
+
+	NEXT_TOKEN_OR_RETURN(str, token);
+	unsigned int vTotal = atoi(token);
+
+	unsigned int modeFlags = TIMING_DIG_SEP; // Always Digital Separate
+	while (*str != '\0') {
+		do {
+			token = get_token(&str);
+		} while (*token == '\0' && *str != '\0');
+		if (*token == '\0' && *str == '\0') break;
+
+		int f;
+
+		for (f = 0; mode_flags[f].string; f++)
+			if (strcasecmp(mode_flags[f].string, token) == 0)
+				break;
+
+		if (!mode_flags[f].string) {
+			if (*token != '\0') {
+				wprintf("Skipping flag: %s\r\n", token);
+				continue;
+			}
+			break;
+		}
+
+		modeFlags |= mode_flags[f].flag;
+	}
+
+	/*
+	 -------------------> Time ------------->
+
+	                  +-------------------+
+	   Video          |  Blanking         |  Video
+                      |                   |
+	 ----(a)--------->|<-------(b)------->|
+	                  |                   |
+	                  |       +-------+   |
+	                  |       | Sync  |   |
+	                  |       |       |   |
+	                  |<-(c)->|<-(d)->|   |
+	                  |       |       |   |
+	 ----(1)--------->|       |       |   |
+	 ----(2)----------------->|       |   |
+	 ----(3)------------------------->|   |
+	 ----(4)----------------------------->|
+	                  |       |       |   |
+	 -----------------\                   /--------
+	                  |                   |
+	                  \-------\       /---/
+	                          |       |
+	                          \-------/
+
+	 (a) - h_active
+	 (b) - h_blanking
+	 (c) - h_sync_offset
+	 (d) - h_sync_width
+	 (1) - HDisp / width
+	 (2) - HSyncStart
+	 (3) - HSyncEnd
+	 (4) - HTotal
+	*/
+
+	if (hTotal <= hSyncEnd || hSyncEnd <= hSyncStart ||
+			hSyncStart <= width || vTotal <= vSyncEnd ||
+			vSyncEnd <= vSyncStart || vSyncStart <= height) {
+		wprintf("Failed to set custom mode - values out of range.\r\n");
+	}
+
+	struct video_timing* mode = processor_get_custom_mode();
+
+	// 640x480 @ 75Hz (VESA) hsync: 37.5kHz
+	// Modeline "String des" Dot-Clock HDisp HSyncStart HSyncEnd HTotal VDisp VSyncStart VSyncEnd VTotal [options]
+	// ModeLine "640x480"    31.5  640  656  720  840    480  481  484  500
+	//                                16   64  <200         1    3   <20
+
+	mode->pixel_clock = dotClock;
+
+	mode->h_active = width;
+	mode->h_blanking = hTotal - width;
+	mode->h_sync_offset = hSyncStart - hTotal;
+	mode->h_sync_width = hSyncEnd - hSyncStart;
+
+	mode->v_active = height;
+	mode->v_blanking = vTotal - height;
+	mode->v_sync_offset = vSyncStart - height;
+	mode->v_sync_width = vSyncEnd - vSyncStart;
+
+	mode->flags = modeFlags;
+
+	processor_set_custom_mode();
+	wprintf("Custom video mode set.\r\n");
 }
 
 static void hdp_toggle(int source)
@@ -420,7 +573,7 @@ static void hdp_toggle(int source)
 #endif
 	wprintf("Toggling HDP on output%d\r\n", source);
 #ifdef CSR_HDMI_IN0_BASE
-	if(source ==  VIDEO_IN_HDMI_IN0) {
+	if(source == VIDEO_IN_HDMI_IN0) {
 		hdmi_in0_edid_hpd_en_write(0);
 		for(i=0; i<65536; i++);
 		hdmi_in0_edid_hpd_en_write(1);
@@ -541,7 +694,7 @@ void ci_service(void)
 
 	token = get_token(&str);
 
-    if(strcmp(token, "help") == 0) {
+	if(strcmp(token, "help") == 0) {
 		wputs("Available commands:");
 		token = get_token(&str);
 		if(strcmp(token, "video_matrix") == 0)
@@ -626,6 +779,8 @@ void ci_service(void)
 		token = get_token(&str);
 		if((strcmp(token, "list") == 0) || (strcmp(token, "l") == 0))
 			video_mode_list();
+		else if(strcmp(token, "custom") == 0)
+			video_mode_custom(str);
 		else
 			video_mode_set(atoi(token));
 	}
