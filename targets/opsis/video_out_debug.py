@@ -5,7 +5,7 @@ from litescope import LiteScopeAnalyzer
 
 from gateware import i2c
 
-from targets.utils import csr_map_update
+from targets.utils import csr_map_update_print
 from targets.opsis.net import NetSoC as BaseSoC
 
 
@@ -14,7 +14,7 @@ class VideoDebugSoC(BaseSoC):
         "hdmi_out0",
 #        "analyzer"
     )
-    csr_map_update(BaseSoC.csr_map, csr_peripherals)
+    csr_map_update_print(BaseSoC.csr_map, csr_peripherals)
 
     def __init__(self, platform, *args, **kwargs):
         BaseSoC.__init__(self, platform, *args, **kwargs)
