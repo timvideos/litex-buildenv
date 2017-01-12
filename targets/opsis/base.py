@@ -1,3 +1,4 @@
+# Support for Numato Opsis - https://opsis.hdmi2usb.tv
 from fractions import Fraction
 
 from litex.gen import *
@@ -14,11 +15,9 @@ from litedram.modules import MT41J128M16
 from litedram.phy import s6ddrphy
 from litedram.core import ControllerSettings
 
-from gateware import dna
-from gateware import git_info
-#from gateware import i2c
+from gateware import info
+from gateware import i2c
 #from gateware import i2c_hack
-from gateware import platform_info
 from gateware import shared_uart
 
 from targets.utils import csr_map_update
@@ -210,20 +209,54 @@ class _CRG(Module):
         self.specials += AsyncResetSynchronizer(self.cd_encoder, self.cd_sys.rst)
 
 
+class TOFE(Module, AutoCSR):
+    def __init__(self, platform, shared_uart):
+        # TOFE board
+#        tofe_pads = platform.request('tofe')
+#        self.submodules.i2c = i2c.I2C(tofe_pads)
+#        tofe_rst = Signal(1) # rst
+#        self.submodules.rst = GPIOOut(tofe_rst)
+#        self.comb += [
+#            tofe_pads.rst.eq(~tofe_rst[0]),
+#        ]
+
+        # TOFE LowSpeedIO board
+        # ---------------------------------
+        # UARTs
+#        shared_uart.add_uart_pads(platform.request('tofe_lsio_serial'))
+#        shared_uart.add_uart_pads(platform.request('tofe_lsio_pmod_serial'))
+
+        # LEDs
+#        lsio_leds = Signal(4)
+#        self.submodules.lsio_leds = GPIOOut(lsio_leds)
+#        self.comb += [
+#            platform.request('tofe_lsio_user_led', 0).eq(lsio_leds[0]),
+#            platform.request('tofe_lsio_user_led', 1).eq(lsio_leds[1]),
+#            platform.request('tofe_lsio_user_led', 2).eq(lsio_leds[2]),
+#            platform.request('tofe_lsio_user_led', 3).eq(lsio_leds[3]),
+#        ]
+        # Switches
+#        lsio_sws = Signal(4)
+#        self.submodules.lsio_sws = GPIOIn(lsio_sws)
+#        self.comb += [
+#            lsio_sws[0].eq(~platform.request('tofe_lsio_user_sw', 0)),
+#            lsio_sws[1].eq(~platform.request('tofe_lsio_user_sw', 1)),
+#            lsio_sws[2].eq(~platform.request('tofe_lsio_user_sw', 2)),
+#            lsio_sws[3].eq(~platform.request('tofe_lsio_user_sw', 3)),
+#        ]
+        pass
+
+
 class BaseSoC(SoCSDRAM):
     csr_peripherals = (
         "spiflash",
         "front_panel",
         "ddrphy",
-        "dna",
-        "git_info",
-        "platform_info",
+        "info",
 #        "fx2_reset",
 #        "fx2_hack",
-#        "opsis_eeprom_i2c",
-        "tofe_ctrl",
-        "tofe_lsio_leds",
-        "tofe_lsio_sws",
+        "tofe",
+#        "gpio",
     )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
@@ -231,7 +264,6 @@ class BaseSoC(SoCSDRAM):
         "spiflash":     0x20000000,  # (default shadow @0xa0000000)
     }
     mem_map.update(SoCSDRAM.mem_map)
-
 
     def __init__(self, platform, **kwargs):
         clk_freq = 50*1000000
@@ -243,15 +275,10 @@ class BaseSoC(SoCSDRAM):
         self.submodules.crg = _CRG(platform, clk_freq)
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
 
-        self.submodules.dna = dna.DNA()
-        self.submodules.git_info = git_info.GitInfo()
-        self.submodules.platform_info = platform_info.PlatformInfo("opsis", self.__class__.__name__[:8])
+        self.submodules.info = info.Info(platform, "opsis", self.__class__.__name__[:8])
 
-#        self.submodules.opsis_eeprom_i2c = i2c.I2C(platform.request("opsis_eeprom"))
 #        self.submodules.fx2_reset = gpio.GPIOOut(platform.request("fx2_reset"))
 #        self.submodules.fx2_hack = i2c_hack.I2CShiftReg(platform.request("opsis_eeprom"))
-
-#        self.submodules.tofe_eeprom_i2c = i2c.I2C(platform.request("tofe_eeprom"))
 
         self.submodules.suart = shared_uart.SharedUART(self.clk_freq, 115200)
         self.suart.add_uart_pads(platform.request('fx2_serial'))
@@ -288,39 +315,15 @@ class BaseSoC(SoCSDRAM):
             self.ddrphy.clk8x_rd_strb.eq(self.crg.clk8x_rd_strb),
         ]
 
-        # TOFE board
-        tofe_ctrl = Signal(3) # rst, sda, scl
-        ptofe_ctrl = platform.request('tofe')
-        self.submodules.tofe_ctrl = GPIOOut(tofe_ctrl)
-        self.comb += [
-            ptofe_ctrl.rst.eq(~tofe_ctrl[0]),
-            ptofe_ctrl.sda.eq(~tofe_ctrl[1]),
-            ptofe_ctrl.scl.eq(~tofe_ctrl[2]),
-        ]
-
-        # TOFE LowSpeedIO board
-        # ---------------------------------
-        # UARTs
-        self.suart.add_uart_pads(platform.request('tofe_lsio_serial'))
-        self.suart.add_uart_pads(platform.request('tofe_lsio_pmod_serial'))
-        # LEDs
-        tofe_lsio_leds = Signal(4)
-        self.submodules.tofe_lsio_leds = GPIOOut(tofe_lsio_leds)
-        self.comb += [
-            platform.request('tofe_lsio_user_led', 0).eq(tofe_lsio_leds[0]),
-            platform.request('tofe_lsio_user_led', 1).eq(tofe_lsio_leds[1]),
-            platform.request('tofe_lsio_user_led', 2).eq(tofe_lsio_leds[2]),
-            platform.request('tofe_lsio_user_led', 3).eq(tofe_lsio_leds[3]),
-        ]
-        # Switches
-        tofe_lsio_sws = Signal(4)
-        self.submodules.tofe_lsio_sws = GPIOIn(tofe_lsio_sws)
-        self.comb += [
-            tofe_lsio_sws[0].eq(~platform.request('tofe_lsio_user_sw', 0)),
-            tofe_lsio_sws[1].eq(~platform.request('tofe_lsio_user_sw', 1)),
-            tofe_lsio_sws[2].eq(~platform.request('tofe_lsio_user_sw', 2)),
-            tofe_lsio_sws[3].eq(~platform.request('tofe_lsio_user_sw', 3)),
-        ]
+        self.submodules.tofe = TOFE(platform, self.suart)
+#        lsio_leds = Signal(4)
+#        self.submodules.gpio = GPIOOut(lsio_leds)
+#        self.comb += [
+#            platform.request('tofe_lsio_user_led', 0).eq(lsio_leds[0]),
+#            platform.request('tofe_lsio_user_led', 1).eq(lsio_leds[1]),
+#            platform.request('tofe_lsio_user_led', 2).eq(lsio_leds[2]),
+#            platform.request('tofe_lsio_user_led', 3).eq(lsio_leds[3]),
+#        ]
 
 
 SoC = BaseSoC

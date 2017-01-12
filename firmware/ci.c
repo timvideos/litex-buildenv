@@ -6,25 +6,31 @@
 #include <generated/csr.h>
 #include <generated/mem.h>
 #include <generated/sdram_phy.h>
+#include <hw/flags.h>
 #include <time.h>
 #include <console.h>
-#include <hw/flags.h>
 
 #include "asm.h"
+#include "ci.h"
 #include "config.h"
+#include "edid.h"
+#include "encoder.h"
 #include "hdmi_in0.h"
 #include "hdmi_in1.h"
-#include "processor.h"
-#include "pll.h"
-#include "ci.h"
-#include "edid.h"
-#include "telnet.h"
-#include "mdio.h"
-#include "encoder.h"
 #include "hdmi_out0.h"
 #include "hdmi_out1.h"
+#include "mdio.h"
+#include "mdio.h"
+#include "opsis_eeprom.h"
+#include "pll.h"
+#include "pll.h"
+#include "processor.h"
 #include "stdio_wrap.h"
+#include "telnet.h"
+#include "tofe_eeprom.h"
 #include "version.h"
+
+#include "ci.h"
 
 int status_enabled;
 
@@ -843,16 +849,16 @@ void ci_service(void)
 		else if(strcmp(token, "ddr") == 0)
 			debug_ddr();
 #endif
-#ifdef CSR_DNA_ID_ADDR
+#ifdef CSR_INFO_DNA_ID_ADDR
 		else if(strcmp(token, "dna") == 0)
 			print_board_dna();
 #endif
-#ifdef CSR_OPSIS_EEPROM_I2C_W_ADDR
+#ifdef CSR_INFO_OPSIS_EEPROM_W_ADDR
 		else if(strcmp(token, "opsis_eeprom") == 0) {
 			opsis_eeprom_dump();
                 }
 #endif
-#ifdef CSR_TOFE_EEPROM_I2C_W_ADDR
+#ifdef CSR_TOFE_I2C_W_ADDR
 		else if(strcmp(token, "tofe_eeprom") == 0) {
 			tofe_eeprom_dump();
                 }
