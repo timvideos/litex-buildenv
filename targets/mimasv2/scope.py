@@ -9,9 +9,6 @@ from litescope import LiteScopeIO
 from targets.utils import csr_map_update
 from targets.mimasv2.base import BaseSoC
 
-from gateware import shared_uart
-from gateware import dna
-
 
 class MemTestSoC(BaseSoC):
     csr_peripherals = (
