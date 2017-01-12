@@ -1,31 +1,7 @@
 from litex.gen import *
 from litex.gen.genlib.cdc import MultiReg, GrayCounter
+from litex.gen.genlib.cdc import GrayDecoder
 from litex.soc.interconnect.csr import *
-
-
-class GrayToBinary(Module):
-    def __init__(self, width):
-        self.gray_in = Signal(width)
-        self.binary_out = Signal(width)
-
-        # # #
-
-        self.comb += self.binary_out[-1].eq(self.gray_in[-1])
-
-        for n in range(width - 2, -1, -1):
-            self.comb += [self.binary_out[n].eq(self.binary_out[n + 1]
-                          ^ self.gray_in[n])]
-
-
-@ResetInserter()
-class FlipFlop(Module):
-    def __init__(self, width):
-        self.inp = Signal(width)
-        self.out = Signal(width)
-
-        # # #
-
-        self.sync += self.out.eq(self.inp)
 
 
 class Sampler(Module):
@@ -33,37 +9,41 @@ class Sampler(Module):
         self.sample_in = Signal(measure_width)
         self.inc = Signal(measure_width)
         self.last_total = Signal(counter_width)
-        self.end_period = Signal(1)
+        self.end_period = Signal()
 
-        self.submodules.last_sample = FlipFlop(measure_width)
-        self.submodules.curr_total = FlipFlop(counter_width)
+        last_sample = Signal(measure_width)
+        curr_total = Signal(counter_width)
 
         # # #
 
-        self.comb += self.last_sample.inp.eq(self.sample_in)
+        self.sync += last_sample.eq(self.sample_in)
         # Resetting souce clock domain is unreliable, so just use wrapping
         # property of unsigned arithmetic to reset the count each sample.
-        self.comb += self.inc.eq(self.sample_in - self.last_sample.out)
-        self.comb += self.curr_total.inp.eq(self.curr_total.out + self.inc)
-        self.comb += self.curr_total.reset.eq(self.end_period)
+        self.comb += self.inc.eq(self.sample_in - last_sample)
+        self.sync += \
+            If(self.end_period,
+                curr_total.eq(0)
+            ).Else(
+                curr_total.eq(curr_total + self.inc)
+            )
 
         # During period reset, curr_total won't latch the final value, so
         # store it in separate location.
         self.sync += \
             If(self.end_period,
-                self.last_total.eq(self.curr_total.inp)
+                self.last_total.eq(curr_total)
             )
 
 
-class FrequencyMeasurementCore(Module):
+class Measurement(Module):
     def __init__(self, measure_clock, measure_width, counter_width):
         self.value = Signal(counter_width)
         self.latch = Signal()
 
         ev_count = ClockDomainsRenamer("measure")(GrayCounter(measure_width))
-        gray2bin = GrayToBinary(measure_width)
+        gray_decoder = GrayDecoder(measure_width)
         sampler = Sampler(measure_width, counter_width)
-        self.submodules += ev_count, gray2bin, sampler
+        self.submodules += ev_count, gray_decoder, sampler
 
         self.clock_domains.cd_measure = ClockDomain(reset_less=True)
         if isinstance(measure_clock, str):
@@ -72,14 +52,14 @@ class FrequencyMeasurementCore(Module):
             self.comb += self.cd_measure.clk.eq(measure_clock)
 
         self.comb += ev_count.ce.eq(1)
-        self.specials += MultiReg(ev_count.q, gray2bin.gray_in)
+        self.specials += MultiReg(ev_count.q, gray_decoder.i)
 
         # # #
 
         self.comb += [
             sampler.end_period.eq(self.latch),
-            sampler.sample_in.eq(gray2bin.binary_out),
-            self.value.eq(sampler.last_total),
+            sampler.sample_in.eq(gray_decoder.o),
+            self.value.eq(sampler.last_total)
         ]
 
 
@@ -90,9 +70,7 @@ class FrequencyMeasurement(Module, AutoCSR):
 
         # # #
 
-        core = FrequencyMeasurementCore(measure_clock, 
-                                        measure_width,
-                                        counter_width)
+        core = Measurement(measure_clock, measure_width, counter_width)
         self.submodules += core
 
         self.comb += self.value.status.eq(core.value)
