@@ -17,7 +17,7 @@ from litedram.core import ControllerSettings
 
 from gateware import info
 from gateware import i2c
-#from gateware import i2c_hack
+from gateware import i2c_hack
 from gateware import shared_uart
 
 from targets.utils import csr_map_update
@@ -252,8 +252,8 @@ class BaseSoC(SoCSDRAM):
         "front_panel",
         "ddrphy",
         "info",
-#        "fx2_reset",
-#        "fx2_hack",
+        "fx2_reset",
+        "fx2_hack",
         "tofe",
 #        "gpio",
     )
@@ -274,10 +274,10 @@ class BaseSoC(SoCSDRAM):
         self.submodules.crg = _CRG(platform, clk_freq)
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
 
-        self.submodules.info = info.Info(platform, "opsis", self.__class__.__name__[:8])
+        self.submodules.fx2_reset = GPIOOut(platform.request("fx2_reset"))
+        self.submodules.fx2_hack = i2c_hack.I2CShiftReg(platform.request("opsis_eeprom"))
 
-#        self.submodules.fx2_reset = gpio.GPIOOut(platform.request("fx2_reset"))
-#        self.submodules.fx2_hack = i2c_hack.I2CShiftReg(platform.request("opsis_eeprom"))
+        self.submodules.info = info.Info(platform, "opsis", self.__class__.__name__[:8])
 
         self.submodules.suart = shared_uart.SharedUART(self.clk_freq, 115200)
         self.suart.add_uart_pads(platform.request('fx2_serial'))

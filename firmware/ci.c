@@ -15,6 +15,7 @@
 #include "config.h"
 #include "edid.h"
 #include "encoder.h"
+#include "fx2.h"
 #include "hdmi_in0.h"
 #include "hdmi_in1.h"
 #include "hdmi_out0.h"

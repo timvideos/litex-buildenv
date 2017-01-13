@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,6 +17,7 @@
 #include "encoder.h"
 #include "etherbone.h"
 #include "ethernet.h"
+#include "fx2.h"
 #include "hdmi_out0.h"
 #include "hdmi_out1.h"
 #include "mdio.h"
@@ -102,12 +104,17 @@ int main(void)
 	while(1) {
 		processor_service();
 		ci_service();
+
+#ifdef CSR_FX2_RESET_OUT_ADDR
+		fx2_service(true);
+#endif
 #ifdef ETHMAC_BASE
 		ethernet_service();
 #endif
 #ifdef CSR_FRONT_PANEL_BASE
 		front_panel_service();
 #endif
+
 		pattern_service();
 	}
 
