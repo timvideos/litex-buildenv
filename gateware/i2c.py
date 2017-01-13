@@ -1,11 +1,34 @@
 from litex.gen import *
 from litex.gen.fhdl import *
-from litex.gen.fhdl.specials import Tristate
+from litex.gen.fhdl.specials import TSTriple
 from litex.soc.interconnect.csr import *
 
 
-_TristateLayout = [("w", 1), ("oe", 1), ("r", 1)]
-_I2CLayout = [("sda", _TristateLayout), ("scl", _TristateLayout)]
+class I2CPads:
+    def __init__(self):
+        self.sda = TSTriple(1)
+        self.sda.w = self.sda.o
+        self.sda.r = self.sda.i
+        self.scl = TSTriple(1)
+        self.scl.w = self.scl.o
+        self.scl.r = self.scl.i
+
+    def get_tristate(self, pads):
+        return [
+            self.scl.get_tristate(pads.scl),
+            self.sda.get_tristate(pads.sda),
+        ]
+
+    def connect(self, other_pads):
+        return [
+            self.scl.oe.eq(other_pads.scl.oe),
+            self.scl.w.eq(other_pads.scl.w),
+            other_pads.scl.r.eq(self.scl.r),
+
+            self.sda.oe.eq(other_pads.sda.oe),
+            self.sda.w.eq(other_pads.sda.w),
+            other_pads.sda.r.eq(self.sda.r),
+        ]
 
 
 class I2C(Module, AutoCSR):
@@ -13,69 +36,42 @@ class I2C(Module, AutoCSR):
         self._w = CSRStorage(8, name="w", reset=1)
         self._r = CSRStatus(1, name="r")
 
-        if isinstance(pads.sda, Signal):
-            _sda_w = Signal()
-            _sda_oe = Signal()
-            _sda_r = Signal()
-            self.comb +=[
-                pads.scl.eq(self._w.storage[0]),
-                _sda_oe.eq(self._w.storage[1]),
-                _sda_w.eq(self._w.storage[2]),
-                self._r.status[0].eq(_sda_r)
-            ]
-            self.specials += Tristate(pads.sda, _sda_w, _sda_oe, _sda_r)
-        else:  
-            self.comb += [
-                pads.scl.oe.eq(1),
-                pads.scl.w.eq(self._w.storage[0]),
-            ]
+        if not isinstance(pads, I2CPads):
+            out_pads = pads
+            pads = I2CPads()
+            self.specials += pads.get_tristate(out_pads)
 
-            self.comb += [
-                pads.sda.oe.eq(self._w.storage[1]),
-                pads.sda.w.eq(self._w.storage[2]),
-                self._r.status[0].eq(pads.sda.r)
-            ]
+        self.comb += [
+            pads.scl.oe.eq(1),
+            pads.scl.w.eq(self._w.storage[0]),
+        ]
+
+        self.comb += [
+            pads.sda.oe.eq(self._w.storage[1]),
+            pads.sda.w.eq(self._w.storage[2]),
+            self._r.status[0].eq(pads.sda.r)
+        ]
 
 
 class I2CMux(Module, AutoCSR):
     def __init__(self, pads):
         self.out_pads = pads
-        self.i2c_pads = []
+        self.in_pads = []
 
     def get_i2c_pads(self):
-        i2c_pads = Record(_I2CLayout)
-        self.i2c_pads.append(i2c_pads)
-        return i2c_pads
+        self.in_pads.append(I2CPads())
+        return self.in_pads[-1]
 
     def finalize(self):
-        t = Signal(max=len(self.i2c_pads))
+        t = Signal(max=len(self.in_pads))
 
         self.sel = CSRStorage(t.nbits)
 
-        # internal signals
-        scl_oe = Signal()
-        scl_w = Signal()
-        scl_r = Signal()
+        out_pads = I2CPads()
+        self.specials += out_pads.get_tristate(self.out_pads)
 
-        sda_oe = Signal()
-        sda_w = Signal()
-        sda_r = Signal()
-
-        # tristate
-        self.specials += [
-            Tristate(self.out_pads.scl, scl_w, scl_oe, scl_r),
-            Tristate(self.out_pads.sda, sda_w, sda_oe, sda_r)
-        ]
-
+        # Mux the signals
         cases = {}
-        for i, pads in enumerate(self.i2c_pads):
-            cases[i] = [
-                scl_oe.eq(pads.scl.oe),
-                scl_w.eq(pads.scl.w),
-                pads.scl.r.eq(scl_r),
-                
-                sda_oe.eq(pads.sda.oe),
-                sda_w.eq(pads.sda.w),
-                pads.sda.r.eq(sda_r)
-            ]
+        for i, pads in enumerate(self.in_pads):
+            cases[i] = out_pads.connect(pads)
         self.comb += Case(self.sel.storage, cases)
