@@ -281,8 +281,8 @@ static void status_print(void)
 		hdmi_in0_resdetection_hres_read(),
 		hdmi_in0_resdetection_vres_read());
 #ifdef CSR_HDMI_IN0_FREQ_BASE
-	wprintf(" (@ %3d.%2d MHz)", hdmi_in0_freq_value_read() / 1000000,
-		                        (hdmi_in0_freq_value_read() / 10000) % 100);
+	wprintf(" (@" REFRESH_RATE_PRINTF " MHz)",
+		REFRESH_RATE_PRINTF_ARGS(hdmi_in0_freq_value_read() / 10000));
 #endif
 	wprintf("\r\n");
 #endif
@@ -293,8 +293,8 @@ static void status_print(void)
 		hdmi_in1_resdetection_hres_read(),
 		hdmi_in1_resdetection_vres_read());
 #ifdef CSR_HDMI_IN1_FREQ_BASE
-	wprintf(" (@ %3d.%2d MHz)", hdmi_in1_freq_value_read() / 1000000,
-		                        (hdmi_in1_freq_value_read() / 10000) % 100);
+	wprintf(" (@" REFRESH_RATE_PRINTF " MHz)",
+		REFRESH_RATE_PRINTF_ARGS(hdmi_in1_freq_value_read() / 10000));
 #endif
 	wprintf("\r\n");
 #endif
