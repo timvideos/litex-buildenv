@@ -14,7 +14,7 @@ arty_minisoc:
 
 arty_etherbone:
 	rm -rf build
-	./arty_etherbone.py --cpu-type $(CPU)
+	./arty_etherbone.py
 
 arty_ddr3:
 	rm -rf build
