@@ -4,7 +4,6 @@ import os
 
 from litex.gen import *
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
-from litex.gen.fhdl.specials import Keep
 
 import netv2_platform as netv2
 
