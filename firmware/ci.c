@@ -457,7 +457,7 @@ static void video_mode_set(int mode)
 	if(mode < PROCESSOR_MODE_COUNT) {
 		processor_describe_mode(mode_descriptor, mode);
 		wprintf("Setting video mode to %s\r\n", mode_descriptor);
-		config_set(CONFIG_KEY_RESOLUTION, mode);
+		config_set(CONFIG_KEY_RES_PRIMARY, mode);
 		processor_start(mode);
 	}
 }
@@ -477,7 +477,7 @@ static void video_mode_secondary(char *str)
 		if (mode < PROCESSOR_MODE_COUNT) {
 			processor_describe_mode(mode_descriptor, mode);
 			wprintf("Setting secondary video mode to %s\r\n", mode_descriptor);
-			config_set(CONFIG_KEY_RESOLUTION_SEC, mode);
+			config_set(CONFIG_KEY_RES_SECONDARY, mode);
 			processor_set_secondary_mode(mode);
 		}
 	}
