@@ -94,6 +94,10 @@ int main(void)
 	processor_update();
 	processor_start(config_get(CONFIG_KEY_RESOLUTION));
 
+	// Reboot the FX2 chip into HDMI2USB mode
+#ifdef CSR_FX2_RESET_OUT_ADDR
+	fx2_init();
+#endif
 
 #ifdef ENCODER_BASE
 	processor_set_encoder_source(VIDEO_IN_PATTERN);
