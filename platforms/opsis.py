@@ -160,15 +160,17 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    ## Opsis I2C Bus
+    # Connected to both the EEPROM and the FX2.
+    #
     ## 24AA02E48 - component U23
-    ## 2 Kbit Electrically Erasable PROM
-    ## Pre-programmed Globally Unique, 48-bit Node Address
-    ## The device is organized as two blocks of 128 x 8-bit memory with a 2-wire serial interface.
-    ##
+    # 2 Kbit Electrically Erasable PROM
+    # Pre-programmed Globally Unique, 48-bit Node Address
+    # The device is organized as two blocks of 128 x 8-bit memory with a 2-wire serial interface.
     ## \/ Strongly pulled (2k) to VCC3V3 via R34
     #NET "eeprom_scl"           LOC =     "G6"       |IOSTANDARD =             I2C;     #                      (/Ethernet/MAC_SCL)
     #NET "eeprom_sda"           LOC =     "C1"       |IOSTANDARD =             I2C;     #                      (/Ethernet/MAC_SDA)
-    ("opsis_eeprom", 0,
+    ("opsis_i2c", 0,
         Subsignal("scl", Pins("G6"), IOStandard("I2C")),
         Subsignal("sda", Pins("C1"), IOStandard("I2C")),
     ),

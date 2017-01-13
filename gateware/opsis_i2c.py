@@ -1,3 +1,8 @@
+"""Modules for I2C bus on the Opsis.
+
+FIXME: Refactor this properly...
+"""
+
 from litex.gen.fhdl import *
 from litex.gen.fhdl.specials import Tristate
 
@@ -6,7 +11,10 @@ from litex.gen.genlib.fsm import FSM, NextState
 from litex.gen.genlib.misc import chooser
 from litex.gen.genlib.misc import split, displacer, chooser
 
+from litex.soc.cores.gpio import GPIOIn, GPIOOut
 from litex.soc.interconnect.csr import *
+
+from gateware import i2c
 
 
 class I2CShiftReg(Module, AutoCSR):
@@ -18,7 +26,6 @@ class I2CShiftReg(Module, AutoCSR):
         self.shift_reg = shift_reg = CSRStorage(8, write_from_dev=True)
         self.status = status = CSRStorage(2, reset=STATUS_EMPTY, write_from_dev=True)
         self.slave_addr = slave_addr = CSRStorage(7)
-        self.pads = pads
 
         ###
 
@@ -33,9 +40,16 @@ class I2CShiftReg(Module, AutoCSR):
         _scl_drv_reg = Signal()
         self.sync += _sda_drv_reg.eq(sda_drv)
         self.sync += _scl_drv_reg.eq(scl_drv)
+        self.comb += [
+            pads.scl.w.eq(0),
+            pads.scl.oe.eq(_scl_drv_reg),
+            _scl_i_async.eq(pads.scl.r),
+
+            pads.sda.w.eq(0),
+            pads.sda.oe.eq(_sda_drv_reg),
+            _sda_i_async.eq(pads.sda.r),
+        ]
         self.specials += [
-            Tristate(pads.sda, 0, _sda_drv_reg, _sda_i_async),
-            Tristate(pads.scl, 0, _scl_drv_reg, _scl_i_async),
             MultiReg(_scl_i_async, scl_raw),
             MultiReg(_sda_i_async, sda_raw),
         ]
@@ -221,3 +235,18 @@ class I2CShiftReg(Module, AutoCSR):
         for state in fsm.actions.keys():
             fsm.act(state, If(self.slave_addr.re, NextState("WAIT_START")))
 
+
+
+class OpsisI2C(Module, AutoCSR):
+    """I2C bus on the Opsis.
+
+    Used for;
+     * Small EEPROM which contains FX2 firmware + MAC address.
+     * Loading firmware onto the FX2.
+    """
+
+    def __init__(self, platform):
+        self.submodules.mux = i2c.I2CMux(platform.request("opsis_i2c"))
+        self.submodules.master = i2c.I2C(self.mux.get_i2c_pads())
+        self.submodules.fx2_reset = GPIOOut(platform.request("fx2_reset"))
+        self.submodules.fx2_hack = I2CShiftReg(self.mux.get_i2c_pads())

@@ -43,8 +43,8 @@ static void front_panel_service(void) {
 #endif
 
 #ifdef ETHMAC_BASE
-static const unsigned char mac_addr[6] = {0x10, 0xe2, 0xd5, 0x00, 0x00, 0x00};
-static const unsigned char ip_addr[4] = {LOCALIP1, LOCALIP2, LOCALIP3, LOCALIP4};
+static unsigned char mac_addr[6] = {0x10, 0xe2, 0xd5, 0x00, 0x00, 0x00};
+static unsigned char ip_addr[4] = {LOCALIP1, LOCALIP2, LOCALIP3, LOCALIP4};
 #endif
 
 int main(void)
@@ -53,18 +53,21 @@ int main(void)
 	irq_setie(1);
 	uart_init();
 
-	puts("\nOpsis CPU testing software built "__DATE__" "__TIME__);
-	print_version();
+	puts("HDMI2USB firmware booting...\r\n");
 
-#ifdef CSR_INFO_OPSIS_EEPROM_W_ADDR
+#ifdef CSR_OPSIS_I2C_MASTER_W_ADDR
 	opsis_eeprom_i2c_init();
-#endif
-#ifdef CSR_TOFE_I2C_W_ADDR
-	tofe_eeprom_i2c_init();
+	opsis_eeprom_mac(mac_addr);
 #endif
 
 	config_init();
 	time_init();
+
+	print_version();
+
+#ifdef CSR_TOFE_I2C_W_ADDR
+	tofe_eeprom_i2c_init();
+#endif
 
 #ifdef CSR_ETHPHY_MDIO_W_ADDR
 	mdio_status();
@@ -95,7 +98,7 @@ int main(void)
 	processor_start(config_get(CONFIG_KEY_RES_PRIMARY));
 
 	// Reboot the FX2 chip into HDMI2USB mode
-#ifdef CSR_FX2_RESET_OUT_ADDR
+#ifdef CSR_OPSIS_I2C_FX2_RESET_OUT_ADDR
 	fx2_init();
 #endif
 #ifdef ENCODER_BASE

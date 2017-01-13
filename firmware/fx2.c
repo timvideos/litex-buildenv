@@ -1,6 +1,6 @@
 #include "fx2.h"
 
-#ifdef CSR_FX2_RESET_OUT_ADDR
+#ifdef CSR_OPSIS_I2C_FX2_RESET_OUT_ADDR
 #include <stdio.h>
 
 #define FX2_HACK_SLAVE_ADDRESS 0x40
@@ -58,9 +58,9 @@ static void fx2_load_init(void)
 #endif
 	}
 
-	fx2_hack_slave_addr_write(FX2_HACK_SLAVE_ADDRESS);
-	fx2_hack_shift_reg_write(fx2_fw_get_value(0));
-	fx2_hack_status_write(FX2_HACK_STATUS_READY);
+	opsis_i2c_fx2_hack_slave_addr_write(FX2_HACK_SLAVE_ADDRESS);
+	opsis_i2c_fx2_hack_shift_reg_write(fx2_fw_get_value(0));
+	opsis_i2c_fx2_hack_status_write(FX2_HACK_STATUS_READY);
 }
 
 static void fx2_load(void)
@@ -89,15 +89,15 @@ static void fx2_load(void)
 
 bool fx2_service(bool verbose)
 {
-	unsigned char status = fx2_hack_status_read();
+	unsigned char status = opsis_i2c_fx2_hack_status_read();
 	if(status == FX2_HACK_SHIFT_REG_EMPTY) { // there's been a master READ
 		if (verbose) {
 			printf("fx2: read %02X (end: %02X)\r\n", next_read_addr, end_addr);
 		}
 		if (next_read_addr < end_addr) {
 			// Load next value into the system
-			fx2_hack_shift_reg_write(fx2_fw_get_value(next_read_addr+1));
-			fx2_hack_status_write(FX2_HACK_STATUS_READY);
+			opsis_i2c_fx2_hack_shift_reg_write(fx2_fw_get_value(next_read_addr+1));
+			opsis_i2c_fx2_hack_status_write(FX2_HACK_STATUS_READY);
 			next_read_addr++;
 		} else {
 			printf("fx2: Finished loading firmware.\r\n");
@@ -112,12 +112,13 @@ bool fx2_service(bool verbose)
 
 void fx2_reboot(enum fx2_fw_version fw)
 {
+	OPSIS_I2C_ACTIVE(OPSIS_I2C_FX2HACK);
 	unsigned int i;
 	fx2_fw_active = fw;
 	printf("fx2: Turning off.\r\n");
-	fx2_reset_out_write(0);
+	opsis_i2c_fx2_reset_out_write(0);
 	for(i=0;i<FX2_RESET_PERIOD;i++) __asm__("nop");
-	fx2_reset_out_write(1);
+	opsis_i2c_fx2_reset_out_write(1);
 	printf("fx2: Turning on.\r\n");
 	fx2_load();
 }

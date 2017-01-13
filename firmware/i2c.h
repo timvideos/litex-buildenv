@@ -7,6 +7,9 @@
 
 #define I2C_SDAIN	0x01
 
+#define I2C_READ	0x01
+#define I2C_WRITE	0x00
+
 typedef unsigned char (*i2c_w_read_t)(void);
 typedef void (*i2c_w_write_t)(unsigned char value);
 typedef unsigned char (*i2c_r_read_t)(void);

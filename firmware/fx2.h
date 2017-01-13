@@ -1,8 +1,10 @@
 #include <generated/csr.h>
 #include <generated/mem.h>
-#ifdef CSR_FX2_RESET_OUT_ADDR
+#ifdef CSR_OPSIS_I2C_FX2_RESET_OUT_ADDR
 
 #include <stdbool.h>
+
+#include "opsis_i2c.h"
 
 enum fx2_fw_version {
 	FX2FW_USBJTAG,

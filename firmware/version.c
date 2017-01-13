@@ -7,6 +7,7 @@
 #include <generated/mem.h>
 
 #include "stdio_wrap.h"
+#include "opsis_eeprom.h"
 
 #include "version.h"
 #include "version_data.h"
@@ -44,11 +45,29 @@ void print_board_dna(void) {
 #endif
 }
 
+void print_board_mac(void) {
+#ifdef PLATFORM_OPSIS
+	unsigned char mac[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+	opsis_eeprom_mac(mac);
+	for (int i = 0; i < sizeof(mac); i++) {
+		wprintf("%02x", mac[i]);
+		if (i != (sizeof(mac)-1))
+			wprintf(":");
+	}
+#else
+	wprintf("Unknown");
+#endif
+}
+
 void print_version(void) {
+	wprintf("\r\n");
 	wprintf("hardware version info\r\n");
 	wprintf("===============================================\r\n");
 	wprintf("           DNA: ");
 	print_board_dna();
+	wprintf("\r\n");
+	wprintf("           MAC: ");
+	print_board_mac();
 	wprintf("\r\n");
 	wprintf("\r\n");
 	wprintf("gateware version info\r\n");
