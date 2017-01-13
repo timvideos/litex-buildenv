@@ -56,7 +56,7 @@ int main(void)
 	puts("\nOpsis CPU testing software built "__DATE__" "__TIME__);
 	print_version();
 
-#ifdef CSR_INFO_OPSIS_EEPROM_W_ADDR
+#ifdef CSR_OPSIS_I2C_MASTER_W_ADDR
 	opsis_eeprom_i2c_init();
 #endif
 #ifdef CSR_TOFE_I2C_W_ADDR
@@ -95,7 +95,7 @@ int main(void)
 	processor_start(config_get(CONFIG_KEY_RES_PRIMARY));
 
 	// Reboot the FX2 chip into HDMI2USB mode
-#ifdef CSR_FX2_RESET_OUT_ADDR
+#ifdef CSR_OPSIS_I2C_FX2_RESET_OUT_ADDR
 	fx2_init();
 #endif
 #ifdef ENCODER_BASE

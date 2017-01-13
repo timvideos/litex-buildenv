@@ -932,7 +932,7 @@ void ci_service(void)
 		else if(strcmp(token, "dna") == 0)
 			print_board_dna();
 #endif
-#ifdef CSR_INFO_OPSIS_EEPROM_W_ADDR
+#ifdef CSR_OPSIS_I2C_MASTER_W_ADDR
 		else if(strcmp(token, "opsis_eeprom") == 0) {
 			opsis_eeprom_dump();
                 }
@@ -942,7 +942,7 @@ void ci_service(void)
 			tofe_eeprom_dump();
                 }
 #endif
-#ifdef CSR_FX2_RESET_OUT_ADDR
+#ifdef CSR_OPSIS_I2C_FX2_RESET_OUT_ADDR
 		else if(strcmp(token, "fx2_reboot") == 0) {
 			token = get_token(&str);
 			if(strcmp(token, "usbjtag") == 0) {

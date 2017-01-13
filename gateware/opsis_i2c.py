@@ -249,4 +249,4 @@ class OpsisI2C(Module, AutoCSR):
         self.submodules.mux = i2c.I2CMux(platform.request("opsis_i2c"))
         self.submodules.master = i2c.I2C(self.mux.get_i2c_pads())
         self.submodules.fx2_reset = GPIOOut(platform.request("fx2_reset"))
-        self.submodules.fx2_slave = I2CShiftReg(self.mux.get_i2c_pads())
+        self.submodules.fx2_hack = I2CShiftReg(self.mux.get_i2c_pads())
