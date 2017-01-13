@@ -2,6 +2,7 @@
  * Copyright 2015 / TimVideo.us
  * Copyright 2015 / EnjoyDigital
  * Copyright 2016 Joel Stanley <joel@jms.id.au>
+ * Copyright 2017 Joel Addison <joel@addison.net.au>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -236,10 +237,11 @@ static void generate_unused(uint8_t *data_block)
 void generate_edid(void *out,
 	const char mfg_name[3], const char product_code[2], int year,
 	const char *name,
-	const struct video_timing *timing)
+	const struct video_timing *timing,
+	const struct video_timing *secondary_timing)
 {
 	struct edid *e = (struct edid *)out;
-	int i, j, k;
+	int i, j, k, db;
 
 	memcpy(e->header, correct_header, 8);
 
@@ -278,10 +280,14 @@ void generate_edid(void *out,
 	e->rsv_timings = 0;
 	memset(e->timings_std, 0x01, 16);
 
-	generate_edid_timing(e->data_blocks[0], timing);
-	generate_monitor_name(e->data_blocks[1], name);
-	generate_monitor_range_descriptor(e->data_blocks[2], timing);
-	generate_unused(e->data_blocks[3]);
+	db = 0;
+	generate_edid_timing(e->data_blocks[db++], timing);
+	if (secondary_timing != NULL)
+		generate_edid_timing(e->data_blocks[db++], secondary_timing);
+	generate_monitor_name(e->data_blocks[db++], name);
+	generate_monitor_range_descriptor(e->data_blocks[db++], timing);
+	if (secondary_timing == NULL)
+		generate_unused(e->data_blocks[db++]);
 
 	e->ext_block_count = 0;
 

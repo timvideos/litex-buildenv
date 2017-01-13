@@ -8,7 +8,7 @@ I2C hdmi_out1_i2c;
 int hdmi_out1_debug_enabled = 0;
 
 void hdmi_out1_i2c_init(void) {
-    printf("hdmi_out0: Init I2C...");
+    printf("hdmi_out1: Init I2C...");
     hdmi_out1_i2c.w_read = hdmi_out1_i2c_w_read;
     hdmi_out1_i2c.w_write = hdmi_out1_i2c_w_write;
     hdmi_out1_i2c.r_read = hdmi_out1_i2c_r_read;

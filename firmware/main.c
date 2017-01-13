@@ -76,7 +76,7 @@ int main(void)
 	telnet_init();
 #endif
 
-	processor_init();
+	processor_init(config_get(CONFIG_KEY_RES_SECONDARY));
 
 #ifdef CSR_HDMI_OUT0_I2C_W_ADDR
 	hdmi_out0_i2c_init();
@@ -92,8 +92,7 @@ int main(void)
 	processor_set_hdmi_out1_source(VIDEO_IN_PATTERN);
 #endif
 	processor_update();
-	processor_start(config_get(CONFIG_KEY_RESOLUTION));
-
+	processor_start(config_get(CONFIG_KEY_RES_PRIMARY));
 
 #ifdef ENCODER_BASE
 	processor_set_encoder_source(VIDEO_IN_PATTERN);

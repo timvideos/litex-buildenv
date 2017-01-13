@@ -1,3 +1,18 @@
+/*
+ * Copyright 2015 / TimVideo.us
+ * Copyright 2015 / EnjoyDigital
+ * Copyright 2017 Joel Addison <joel@addison.net.au>
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ */
+
 #ifndef __EDID_H
 #define __EDID_H
 
@@ -6,6 +21,8 @@
 #define DESCRIPTOR_MONITOR_RANGE 0xFD
 
 #define MAX_DESCRIPTOR_DATA_LEN 13
+
+#define EDID_SECONDARY_MODE_OFF -1
 
 #define REFRESH_RATE_PRINTF "%u.%02u"
 #define REFRESH_RATE_PRINTF_ARGS(x) \
@@ -54,7 +71,8 @@ int validate_edid(const void *buf);
 void generate_edid(void *out,
 	const char mfg_name[3], const char product_code[2], int year,
 	const char *name,
-	const struct video_timing *timing);
+	const struct video_timing *timing,
+	const struct video_timing *secondary_timing);
 
 unsigned calculate_refresh_rate(const struct video_timing* video_mode);
 

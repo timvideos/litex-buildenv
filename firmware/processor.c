@@ -1,3 +1,18 @@
+/*
+ * Copyright 2015 / TimVideo.us
+ * Copyright 2015 / EnjoyDigital
+ * Copyright 2017 Joel Addison <joel@addison.net.au>
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -447,27 +462,28 @@ static void fb_set_mode(const struct video_timing *mode)
 #endif
 }
 
-static void edid_set_mode(const struct video_timing *mode)
+static void edid_set_mode(const struct video_timing *mode, const struct video_timing *sec_mode)
 {
 #if defined(CSR_HDMI_IN0_BASE) || defined(CSR_HDMI_IN1_BASE)
 	unsigned char edid[128];
 	int i;
 #endif
 #ifdef CSR_HDMI_IN0_BASE
-	generate_edid(&edid, "OHW", "TV", 2015, "HDMI2USB-1", mode);
+	generate_edid(&edid, "OHW", "TV", 2015, "HDMI2USB-1", mode, sec_mode);
 	for(i=0;i<sizeof(edid);i++)
 		MMPTR(CSR_HDMI_IN0_EDID_MEM_BASE+4*i) = edid[i];
 #endif
 #ifdef CSR_HDMI_IN1_BASE
-	generate_edid(&edid, "OHW", "TV", 2015, "HDMI2USB-2", mode);
+	generate_edid(&edid, "OHW", "TV", 2015, "HDMI2USB-2", mode, sec_mode);
 	for(i=0;i<sizeof(edid);i++)
 		MMPTR(CSR_HDMI_IN1_EDID_MEM_BASE+4*i) = edid[i];
 #endif
 }
 
 int processor_mode = 0;
+int processor_secondary_mode = EDID_SECONDARY_MODE_OFF;
 
-void processor_init(void)
+void processor_init(int sec_mode)
 {
 	processor_hdmi_out0_source = VIDEO_IN_HDMI_IN0;
 	processor_hdmi_out1_source = VIDEO_IN_HDMI_IN0;
@@ -477,11 +493,16 @@ void processor_init(void)
 		encoder_target_fps = 30;
 #endif
 	pattern = COLOR_BAR_PATTERN;
+	processor_secondary_mode = sec_mode;
 }
 
 void processor_start(int mode)
 {
 	const struct video_timing *m;
+	const struct video_timing *sec_mode = NULL;
+	if (processor_secondary_mode != EDID_SECONDARY_MODE_OFF &&
+			processor_secondary_mode != mode)
+		sec_mode = &video_modes[processor_secondary_mode];
 
 	if (mode == PROCESSOR_MODE_CUSTOM) {
 		m = &custom_modes[0];
@@ -523,7 +544,7 @@ void processor_start(int mode)
 
 	pll_config_for_clock(m->pixel_clock);
 	fb_set_mode(m);
-	edid_set_mode(m);
+	edid_set_mode(m, sec_mode);
 #ifdef CSR_HDMI_IN0_BASE
 	hdmi_in0_init_video(m->h_active, m->v_active);
 #endif
@@ -638,4 +659,12 @@ struct video_timing* processor_get_custom_mode(void)
 void processor_set_custom_mode(void)
 {
 	processor_start(PROCESSOR_MODE_CUSTOM);
+}
+
+void processor_set_secondary_mode(int mode)
+{
+	processor_secondary_mode = mode;
+	// Start the processor again to set the new EDID,
+	// and force the computer to rescan the EDID.
+	processor_start(processor_mode);
 }
