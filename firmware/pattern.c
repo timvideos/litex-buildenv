@@ -185,8 +185,11 @@ void pattern_fill_framebuffer(int h_active, int m_active)
 void pattern_service(void)
 {
 	static int last_event;
+	static char buffer[16];
+
 	if(elapsed(&last_event, SYSTEM_CLOCK_FREQUENCY)) {
-		pattern_draw_text(1, 6, uptime_str());
+		sprintf(buffer, "uptime: %s", uptime_str());
+		pattern_draw_text(1, 6, buffer);
 	}
 	flush_l2_cache();
 }

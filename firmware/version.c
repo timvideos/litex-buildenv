@@ -8,6 +8,7 @@
 
 #include "stdio_wrap.h"
 #include "opsis_eeprom.h"
+#include "uptime.h"
 
 #include "version.h"
 #include "version_data.h"
@@ -98,5 +99,6 @@ void print_version(void) {
 	wprintf("  git describe: %s\r\n", git_describe);
 	wprintf("    git status:\r\n%s\r\n", git_status);
 	wprintf("         built: "__DATE__" "__TIME__"\r\n");
+	wprintf("        uptime: %s\r\n", uptime_str());
 	wprintf("-----------------------------------------------\r\n");
 }

@@ -6,6 +6,8 @@
 
 #include "uptime.h"
 
+#include "stdio_wrap.h"
+
 static int uptime_seconds = 0;
 void uptime_service(void)
 {
@@ -23,14 +25,13 @@ int uptime(void)
 
 void uptime_print(void)
 {
-	printf(uptime_str());
-	printf("\n\r");
+	wprintf("uptime: %s\r\n", uptime_str());
 }
 
 const char* uptime_str(void)
 {
-	static char buffer[16];
-	sprintf(buffer, "uptime %02d:%02d:%02d",
+	static char buffer[9];
+	sprintf(buffer, "%02d:%02d:%02d",
 		(uptime_seconds/3600)%24,
 		(uptime_seconds/60)%60,
 		uptime_seconds%60);
