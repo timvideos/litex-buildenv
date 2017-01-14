@@ -296,25 +296,26 @@ static void debug_ddr(void);
 
 static void status_short_print(void)
 {
+	wprintf("status1: ");
 	unsigned int underflows;
 #ifdef CSR_HDMI_IN0_BASE
 	wprintf(
-		"in0: %dx%d ",
+		"in0: %dx%d",
 		hdmi_in0_resdetection_hres_read(),
 		hdmi_in0_resdetection_vres_read());
 #ifdef CSR_HDMI_IN0_FREQ_BASE
-	wprintf("(@" REFRESH_RATE_PRINTF "MHz), ",
+	wprintf("@" REFRESH_RATE_PRINTF "MHz, ",
 		REFRESH_RATE_PRINTF_ARGS(hdmi_in0_freq_value_read() / 10000));
 #endif
 #endif
 
 #ifdef CSR_HDMI_IN1_BASE
 	wprintf(
-		"in1: %dx%d ",
+		"in1: %dx%d",
 		hdmi_in1_resdetection_hres_read(),
 		hdmi_in1_resdetection_vres_read());
 #ifdef CSR_HDMI_IN1_FREQ_BASE
-	wprintf("(@" REFRESH_RATE_PRINTF "MHz), ",
+	wprintf("@" REFRESH_RATE_PRINTF "MHz, ",
 		REFRESH_RATE_PRINTF_ARGS(hdmi_in1_freq_value_read() / 10000));
 #endif
 #endif
@@ -345,7 +346,7 @@ static void status_short_print(void)
 		hdmi_out1_core_underflow_update_write(1);
 		underflows = hdmi_out1_core_underflow_counter_read();
 		wprintf(
-			"%dx%d@" REFRESH_RATE_PRINTF "Hz %s (uf:%d), ",
+			"%dx%d@" REFRESH_RATE_PRINTF "Hz %s (uf:%d) ",
 			processor_h_active,
 			processor_v_active,
 			REFRESH_RATE_PRINTF_ARGS(processor_refresh),
@@ -354,16 +355,16 @@ static void status_short_print(void)
 		hdmi_out1_core_underflow_enable_write(0);
 		hdmi_out1_core_underflow_enable_write(1);
 	} else
-		wprintf("off, ");
+		wprintf("off ");
 #endif
 
-	wprintf("EDID P: ");
-	wprintf("%dx%d@" REFRESH_RATE_PRINTF "Hz, ",
+	wprintf("\r\nstatus2: ");
+	wprintf("EDID: ");
+	wprintf("%dx%d@" REFRESH_RATE_PRINTF "Hz/",
 		processor_h_active,
 		processor_v_active,
 		REFRESH_RATE_PRINTF_ARGS(processor_refresh));
 
-	wprintf("EDID S: ");
 	if (processor_secondary_mode == EDID_SECONDARY_MODE_OFF) {
 		wprintf("off, ");
 	}
@@ -390,6 +391,7 @@ static void status_short_print(void)
 	wprintf("ddr: ");
 	debug_ddr();
 #endif
+	wprintf("\r\n");
 }
 
 static void status_print(void)
