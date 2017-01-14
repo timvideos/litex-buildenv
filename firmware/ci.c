@@ -47,6 +47,7 @@
 #include "ci.h"
 
 int status_enabled;
+int status_short_enabled;
 
 static void help_video_matrix(void)
 {
@@ -79,7 +80,9 @@ static void help_status(void)
 {
 	wputs("status commands (alias: 's')");
 	wputs("  status                         - print status message once");
+	wputs("  status short                   - print status (short) message once");
 	wputs("  status <on/off>                - repeatedly print status message");
+	wputs("  status short <on/off>          - repeatedly print (short) status message");
 }
 
 #ifdef CSR_HDMI_OUT0_BASE
@@ -115,6 +118,12 @@ static void help_debug(void)
 {
     wputs("debug commands (alias 'd')");
 	wputs("  debug pll                      - dump pll configuration");
+#ifdef CSR_HDMI_IN0_BASE
+    wputs("  debug input0                   - debug dvisampler0");
+#endif
+#ifdef CSR_HDMI_IN1_BASE
+    wputs("  debug input1                   - debug dvisampler1");
+#endif
 #ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
 	wputs("  debug ddr                      - show DDR bandwidth");
 #endif
@@ -270,7 +279,118 @@ static void status_disable(void)
 	status_enabled = 0;
 }
 
+static void status_short_enable(void)
+{
+	wprintf("Enabling short status\r\n");
+	status_short_enabled = 1;
+}
+
+static void status_short_disable(void)
+{
+	wprintf("Disabling status\r\n");
+	status_short_enabled = 0;
+}
+
+
 static void debug_ddr(void);
+
+static void status_short_print(void)
+{
+	unsigned int underflows;
+#ifdef CSR_HDMI_IN0_BASE
+	wprintf(
+		"in0: %dx%d ",
+		hdmi_in0_resdetection_hres_read(),
+		hdmi_in0_resdetection_vres_read());
+#ifdef CSR_HDMI_IN0_FREQ_BASE
+	wprintf("(@" REFRESH_RATE_PRINTF "MHz), ",
+		REFRESH_RATE_PRINTF_ARGS(hdmi_in0_freq_value_read() / 10000));
+#endif
+#endif
+
+#ifdef CSR_HDMI_IN1_BASE
+	wprintf(
+		"in1: %dx%d ",
+		hdmi_in1_resdetection_hres_read(),
+		hdmi_in1_resdetection_vres_read());
+#ifdef CSR_HDMI_IN1_FREQ_BASE
+	wprintf("(@" REFRESH_RATE_PRINTF "MHz), ",
+		REFRESH_RATE_PRINTF_ARGS(hdmi_in1_freq_value_read() / 10000));
+#endif
+#endif
+
+#ifdef CSR_HDMI_OUT0_BASE
+	wprintf("out0: ");
+	if(hdmi_out0_core_initiator_enable_read()) {
+		hdmi_out0_core_underflow_enable_write(1);
+		hdmi_out0_core_underflow_update_write(1);
+		underflows = hdmi_out0_core_underflow_counter_read();
+		wprintf(
+			"%dx%d@" REFRESH_RATE_PRINTF "Hz %s (uf:%d), ",
+			processor_h_active,
+			processor_v_active,
+			REFRESH_RATE_PRINTF_ARGS(processor_refresh),
+			processor_get_source_name(processor_hdmi_out0_source),
+			underflows);
+		hdmi_out0_core_underflow_enable_write(0);
+		hdmi_out0_core_underflow_enable_write(1);
+	} else
+		wprintf("off, ");
+#endif
+
+#ifdef CSR_HDMI_OUT1_BASE
+	wprintf("out1: ");
+	if(hdmi_out1_core_initiator_enable_read()) {
+		hdmi_out1_core_underflow_enable_write(1);
+		hdmi_out1_core_underflow_update_write(1);
+		underflows = hdmi_out1_core_underflow_counter_read();
+		wprintf(
+			"%dx%d@" REFRESH_RATE_PRINTF "Hz %s (uf:%d), ",
+			processor_h_active,
+			processor_v_active,
+			REFRESH_RATE_PRINTF_ARGS(processor_refresh),
+			processor_get_source_name(processor_hdmi_out1_source),
+			underflows);
+		hdmi_out1_core_underflow_enable_write(0);
+		hdmi_out1_core_underflow_enable_write(1);
+	} else
+		wprintf("off, ");
+#endif
+
+	wprintf("EDID P: ");
+	wprintf("%dx%d@" REFRESH_RATE_PRINTF "Hz, ",
+		processor_h_active,
+		processor_v_active,
+		REFRESH_RATE_PRINTF_ARGS(processor_refresh));
+
+	wprintf("EDID S: ");
+	if (processor_secondary_mode == EDID_SECONDARY_MODE_OFF) {
+		wprintf("off, ");
+	}
+	else {
+		char mode_descriptor[PROCESSOR_MODE_DESCLEN];
+		processor_describe_mode(mode_descriptor, processor_secondary_mode);
+		wprintf("%s, ", mode_descriptor);
+	}
+
+#ifdef ENCODER_BASE
+	wprintf("enc: ");
+	if(encoder_enabled) {
+		wprintf(
+			"%dx%d@%dfps %s (q:%d), ",
+			processor_h_active,
+			processor_v_active,
+			encoder_fps,
+			processor_get_source_name(processor_encoder_source),
+			encoder_quality);
+	} else
+		wprintf("off, ");
+#endif
+#ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
+	wprintf("ddr: ");
+	debug_ddr();
+#endif
+}
 
 static void status_print(void)
 {
@@ -374,6 +494,7 @@ static void status_print(void)
 #ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
 	wprintf("ddr: ");
 	debug_ddr();
+	wprintf("\r\n");
 #endif
 }
 
@@ -385,6 +506,9 @@ static void status_service(void)
 		if(status_enabled) {
 			status_print();
 			wprintf("\r\n");
+		}
+		if(status_short_enabled) {
+		    status_short_print();
 		}
 	}
 }
@@ -745,7 +869,7 @@ static void debug_ddr(void)
 	burstbits = (2*DFII_NPHASES) << DFII_PIX_DATA_SIZE;
 	rdb = (nr*f >> (24 - log2(burstbits)))/1000000ULL;
 	wrb = (nw*f >> (24 - log2(burstbits)))/1000000ULL;
-	wprintf("read:%5dMbps  write:%5dMbps  all:%5dMbps\r\n", rdb, wrb, rdb + wrb);
+	wprintf("read:%5dMbps write:%5dMbps all:%5dMbps", rdb, wrb, rdb + wrb);
 }
 #endif
 
@@ -901,7 +1025,16 @@ void ci_service(void)
 #endif
 	else if((strcmp(token, "status") == 0) || (strcmp(token, "s") == 0)) {
 		token = get_token(&str);
-		if(strcmp(token, "on") == 0)
+		if(strcmp(token, "short") == 0) {
+			token = get_token(&str);
+			if(strcmp(token, "on") == 0)
+				status_short_enable();
+			else if(strcmp(token, "off") == 0)
+				status_short_disable();
+			else
+				status_short_print();
+		}
+		else if(strcmp(token, "on") == 0)
 			status_enable();
 		else if(strcmp(token, "off") == 0)
 			status_disable();
@@ -925,8 +1058,10 @@ void ci_service(void)
 		}
 #endif
 #ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
-		else if(strcmp(token, "ddr") == 0)
+		else if(strcmp(token, "ddr") == 0) {
 			debug_ddr();
+			wprintf("\r\n");
+		}
 #endif
 #ifdef CSR_INFO_DNA_ID_ADDR
 		else if(strcmp(token, "dna") == 0)
@@ -935,12 +1070,12 @@ void ci_service(void)
 #ifdef CSR_OPSIS_I2C_MASTER_W_ADDR
 		else if(strcmp(token, "opsis_eeprom") == 0) {
 			opsis_eeprom_dump();
-                }
+		}
 #endif
 #ifdef CSR_TOFE_I2C_W_ADDR
 		else if(strcmp(token, "tofe_eeprom") == 0) {
 			tofe_eeprom_dump();
-                }
+		}
 #endif
 #ifdef CSR_OPSIS_I2C_FX2_RESET_OUT_ADDR
 		else if(strcmp(token, "fx2_reboot") == 0) {
@@ -956,7 +1091,7 @@ void ci_service(void)
 			else {
 				fx2_debug();
 			}
-                }
+		}
 #endif
 		else if(strcmp(token, "edid") == 0) {
 			unsigned int found = 0;
