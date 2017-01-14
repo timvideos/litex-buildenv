@@ -57,7 +57,9 @@ int main(void)
 
 #ifdef CSR_OPSIS_I2C_MASTER_W_ADDR
 	opsis_eeprom_i2c_init();
+#ifdef ETHMAC_BASE
 	opsis_eeprom_mac(mac_addr);
+#endif
 #endif
 
 	config_init();
