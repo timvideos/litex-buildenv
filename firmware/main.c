@@ -121,6 +121,8 @@ int main(void)
 #ifdef ENCODER_BASE
 	processor_set_encoder_source(config_get(CONFIG_KEY_ENCODER_SOURCE));
 	encoder_enable(config_get(CONFIG_KEY_ENCODER_ENABLED));
+	encoder_set_quality(config_get(CONFIG_KEY_ENCODER_QUALITY));
+	encoder_set_fps(config_get(CONFIG_KEY_ENCODER_FPS));
 #endif
 
 	ci_prompt();

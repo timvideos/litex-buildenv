@@ -35,8 +35,8 @@
 
 static const unsigned char config_defaults[CONFIG_KEY_COUNT] = {
 	// EDID Config
-	PROCESSOR_MODE_720p_50,
-	PROCESSOR_MODE_720p_60,
+	PROCESSOR_MODE_720p_50, // Primary
+	PROCESSOR_MODE_720p_60, // Secondary
 	// Input config
 	false, // Input0
 	true,  // Input1
@@ -44,7 +44,7 @@ static const unsigned char config_defaults[CONFIG_KEY_COUNT] = {
 	true, VIDEO_IN_DEFAULT, // Output 0
 	true, VIDEO_IN_DEFAULT, // Output 1
 	// Encoder
-	true, VIDEO_IN_DEFAULT, 85, true,
+	true, VIDEO_IN_DEFAULT, 85, 25, true,
 	// Networking - MAC Address
 	0x10, 0xe2, 0xd5, 0x00, 0x00, 0x00,
 	// Networking - IP Address
