@@ -188,7 +188,10 @@ static int wait_idelays(void)
 	  || hdmi_in0_data1_cap_dly_busy_read()
 	  || hdmi_in0_data2_cap_dly_busy_read()) {
 		if(elapsed(&ev, SYSTEM_CLOCK_FREQUENCY >> 6) == 0) {
-			printf("dvisampler0: IDELAY busy timeout\r\n");
+			printf("dvisampler0: IDELAY busy timeout (%hhx %hhx %hhx)\r\n",
+				hdmi_in0_data0_cap_dly_busy_read(),
+				hdmi_in0_data1_cap_dly_busy_read(),
+				hdmi_in0_data2_cap_dly_busy_read());
 			return 0;
 		}
 	}
