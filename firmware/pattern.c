@@ -9,6 +9,7 @@
 
 #include "pattern.h"
 #include "processor.h"
+#include "uptime.h"
 
 #define PATTERN_FRAMEBUFFER_BASE 0x02000000 + 0x100000
 
