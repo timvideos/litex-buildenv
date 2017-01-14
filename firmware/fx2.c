@@ -1,5 +1,7 @@
 #include "fx2.h"
 
+#include "asm.h"
+
 #ifdef CSR_OPSIS_I2C_FX2_RESET_OUT_ADDR
 #include <stdio.h>
 
@@ -117,7 +119,7 @@ void fx2_reboot(enum fx2_fw_version fw)
 	fx2_fw_active = fw;
 	printf("fx2: Turning off.\r\n");
 	opsis_i2c_fx2_reset_out_write(1);
-	for(i=0;i<FX2_RESET_PERIOD;i++) __asm__("nop");
+	for(i=0;i<FX2_RESET_PERIOD;i++) NOP;
 	opsis_i2c_fx2_reset_out_write(0);
 	printf("fx2: Turning on.\r\n");
 	fx2_load();
