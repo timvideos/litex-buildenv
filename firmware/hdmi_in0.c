@@ -108,13 +108,18 @@ static int hdmi_in0_locked;
 
 void hdmi_in0_init_video(int hres, int vres)
 {
-	unsigned int mask;
-
-	hdmi_in0_clocking_pll_reset_write(1);
-	hdmi_in0_connected = hdmi_in0_locked = 0;
 	hdmi_in0_hres = hres; hdmi_in0_vres = vres;
 
-	hdmi_in0_dma_frame_size_write(hres*vres*2);
+	hdmi_in0_enable();
+}
+
+void hdmi_in0_enable(void)
+{
+	unsigned int mask;
+	hdmi_in0_clocking_pll_reset_write(1);
+	hdmi_in0_connected = hdmi_in0_locked = 0;
+
+	hdmi_in0_dma_frame_size_write(hdmi_in0_hres*hdmi_in0_vres*2);
 	hdmi_in0_fb_slot_indexes[0] = 0;
 	hdmi_in0_dma_slot0_address_write(hdmi_in0_framebuffer_base(0));
 	hdmi_in0_dma_slot0_status_write(DVISAMPLER_SLOT_LOADED);
@@ -130,6 +135,13 @@ void hdmi_in0_init_video(int hres, int vres)
 	irq_setmask(mask);
 
 	hdmi_in0_fb_index = 3;
+}
+
+bool hdmi_in0_status(void)
+{
+	unsigned int mask = irq_getmask();
+	mask &= (1 << HDMI_IN0_INTERRUPT);
+	return (mask != 0);
 }
 
 void hdmi_in0_disable(void)

@@ -89,7 +89,7 @@ static void help_status(void)
 #ifdef CSR_HDMI_OUT0_BASE
 static void help_output0(void)
 {
-	wputs("output0 commands (alias: '0')");
+	wputs("output0 commands (alias: 'o0')");
 	wputs("  output0 on                     - enable output0");
 	wputs("  output0 off                    - disable output0");
 }
@@ -98,9 +98,27 @@ static void help_output0(void)
 #ifdef CSR_HDMI_OUT1_BASE
 static void help_output1(void)
 {
-	wputs("output1 commands (alias: '1')");
+	wputs("output1 commands (alias: 'o1')");
 	wputs("  output1 on                     - enable output1");
 	wputs("  output1 off                    - disable output1");
+}
+#endif
+
+#ifdef CSR_HDMI_IN0_BASE
+static void help_input0(void)
+{
+	wputs("input0 commands (alias: 'i0')");
+	wputs("  input0 on                     - enable input0");
+	wputs("  input0 off                    - disable input0");
+}
+#endif
+
+#ifdef CSR_HDMI_IN1_BASE
+static void help_input1(void)
+{
+	wputs("input1 commands (alias: 'i1')");
+	wputs("  input1 on                     - enable input1");
+	wputs("  input1 off                    - disable input1");
 }
 #endif
 
@@ -159,6 +177,14 @@ static void ci_help(void)
 #endif
 #ifdef CSR_HDMI_OUT1_BASE
 	help_output1();
+	wputs("");
+#endif
+#ifdef CSR_HDMI_IN0_BASE
+	help_input0();
+	wputs("");
+#endif
+#ifdef CSR_HDMI_IN1_BASE
+	help_input1();
 	wputs("");
 #endif
 #ifdef ENCODER_BASE
@@ -406,6 +432,11 @@ static void status_print(void)
 #ifdef CSR_HDMI_IN0_FREQ_BASE
 	wprintf(" (@" REFRESH_RATE_PRINTF " MHz)",
 		REFRESH_RATE_PRINTF_ARGS(hdmi_in0_freq_value_read() / 10000));
+	if(hdmi_in0_status()) {
+		wprintf(" (capturing)");
+	} else {
+		wprintf(" (disabled)");
+	}
 #endif
 	wprintf("\r\n");
 #endif
@@ -419,6 +450,11 @@ static void status_print(void)
 	wprintf(" (@" REFRESH_RATE_PRINTF " MHz)",
 		REFRESH_RATE_PRINTF_ARGS(hdmi_in1_freq_value_read() / 10000));
 #endif
+	if(hdmi_in1_status()) {
+		wprintf(" (capturing)");
+	} else {
+		wprintf(" (disabled)");
+	}
 	wprintf("\r\n");
 #endif
 
@@ -791,6 +827,34 @@ static void hdp_toggle(int source)
 #endif
 }
 
+#ifdef CSR_HDMI_IN0_BASE
+static void input0_on(void)
+{
+	wprintf("Enabling input0\r\n");
+	hdmi_in0_enable();
+}
+
+static void input0_off(void)
+{
+	wprintf("Disabling input0\r\n");
+	hdmi_in0_disable();
+}
+#endif
+
+#ifdef CSR_HDMI_IN1_BASE
+static void input1_on(void)
+{
+	wprintf("Enabling input1\r\n");
+	hdmi_in1_enable();
+}
+
+static void input1_off(void)
+{
+	wprintf("Disabling input1\r\n");
+	hdmi_in1_disable();
+}
+#endif
+
 #ifdef CSR_HDMI_OUT0_BASE
 static void output0_on(void)
 {
@@ -910,6 +974,14 @@ void ci_service(void)
 		else if(strcmp(token, "output1") == 0)
 			help_output1();
 #endif
+#ifdef CSR_HDMI_IN0_BASE
+		else if(strcmp(token, "input0") == 0)
+			help_input0();
+#endif
+#ifdef CSR_HDMI_IN1_BASE
+		else if(strcmp(token, "input1") == 0)
+			help_input1();
+#endif
 #ifdef ENCODER_BASE
 		else if(strcmp(token, "encoder") == 0)
 			help_encoder();
@@ -991,7 +1063,7 @@ void ci_service(void)
 		hdp_toggle(atoi(token));
 	}
 #ifdef CSR_HDMI_OUT0_BASE
-	else if((strcmp(token, "output0") == 0) || (strcmp(token, "0") == 0)) {
+	else if((strcmp(token, "output0") == 0) || (strcmp(token, "o0") == 0)) {
 		token = get_token(&str);
 		if(strcmp(token, "on") == 0)
 			output0_on();
@@ -1002,7 +1074,7 @@ void ci_service(void)
 	}
 #endif
 #ifdef CSR_HDMI_OUT1_BASE
-	else if((strcmp(token, "output1") == 0) || (strcmp(token, "1") == 0)) {
+	else if((strcmp(token, "output1") == 0) || (strcmp(token, "o1") == 0)) {
 		token = get_token(&str);
 		if(strcmp(token, "on") == 0)
 			output1_on();
@@ -1010,6 +1082,28 @@ void ci_service(void)
 			output1_off();
 		else
 			help_output1();
+	}
+#endif
+#ifdef CSR_HDMI_IN0_BASE
+	else if((strcmp(token, "input0") == 0) || (strcmp(token, "i0") == 0)) {
+		token = get_token(&str);
+		if(strcmp(token, "on") == 0)
+			input0_on();
+		else if(strcmp(token, "off") == 0)
+			input0_off();
+		else
+			help_input0();
+	}
+#endif
+#ifdef CSR_HDMI_IN1_BASE
+	else if((strcmp(token, "input1") == 0) || (strcmp(token, "i1") == 0)) {
+		token = get_token(&str);
+		if(strcmp(token, "on") == 0)
+			input1_on();
+		else if(strcmp(token, "off") == 0)
+			input1_off();
+		else
+			help_input1();
 	}
 #endif
 #ifdef ENCODER_BASE

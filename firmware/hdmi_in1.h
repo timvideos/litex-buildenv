@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #ifndef __HDMI_IN1_H
 #define __HDMI_IN1_H
 
@@ -8,6 +10,8 @@ unsigned int hdmi_in1_framebuffer_base(char n);
 
 void hdmi_in1_isr(void);
 void hdmi_in1_init_video(int hres, int vres);
+void hdmi_in1_enable(void);
+bool hdmi_in1_status(void);
 void hdmi_in1_disable(void);
 void hdmi_in1_clear_framebuffers(void);
 void hdmi_in1_print_status(void);
