@@ -43,6 +43,7 @@
 #include "telnet.h"
 #include "tofe_eeprom.h"
 #include "version.h"
+#include "uptime.h"
 
 #include "ci.h"
 
@@ -920,6 +921,7 @@ void ci_service(void)
 		wputs("");
 	}
 	else if(strcmp(token, "reboot") == 0) reboot();
+	else if(strcmp(token, "uptime") == 0 || strcmp(token, "u") == 0) uptime_print();
 #ifdef CSR_ETHPHY_MDIO_W_ADDR
 	else if(strcmp(token, "mdio_status") == 0)
 		mdio_status();

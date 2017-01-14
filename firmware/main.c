@@ -26,6 +26,7 @@
 #include "processor.h"
 #include "telnet.h"
 #include "tofe_eeprom.h"
+#include "uptime.h"
 #include "version.h"
 
 #define HDD_LED   0x01
@@ -124,6 +125,7 @@ int main(void)
 
 	ci_prompt();
 	while(1) {
+		uptime_service();
 		processor_service();
 		ci_service();
 

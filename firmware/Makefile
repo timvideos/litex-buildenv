@@ -40,6 +40,7 @@ OBJECTS=\
 	tofe_eeprom.o \
 	version.o \
 	version_data.o \
+	uptime.o \
 
 
 CFLAGS += \
