@@ -120,10 +120,10 @@ static void help_debug(void)
     wputs("debug commands (alias 'd')");
 	wputs("  debug pll                      - dump pll configuration");
 #ifdef CSR_HDMI_IN0_BASE
-    wputs("  debug input0                   - debug dvisampler0");
+    wputs("  debug input0 <on/off>          - debug dvisampler0");
 #endif
 #ifdef CSR_HDMI_IN1_BASE
-    wputs("  debug input1                   - debug dvisampler1");
+    wputs("  debug input1 <on/off>          - debug dvisampler1");
 #endif
 #ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
 	wputs("  debug ddr                      - show DDR bandwidth");
@@ -1051,13 +1051,25 @@ void ci_service(void)
 			debug_pll();
 #ifdef CSR_HDMI_IN0_BASE
 		else if(strcmp(token, "input0") == 0) {
-			hdmi_in0_debug = !hdmi_in0_debug;
+			token = get_token(&str);
+			if(strcmp(token, "off") == 0)
+				hdmi_in0_debug = 0;
+			else if(strcmp(token, "on") == 0)
+				hdmi_in0_debug = 1;
+			else
+				hdmi_in0_debug = !hdmi_in0_debug;
 			wprintf("HDMI Input 0 debug %s\r\n", hdmi_in0_debug ? "on" : "off");
 		}
 #endif
 #ifdef CSR_HDMI_IN1_BASE
 		else if(strcmp(token, "input1") == 0) {
-			hdmi_in1_debug = !hdmi_in1_debug;
+			token = get_token(&str);
+			if(strcmp(token, "off") == 0)
+				hdmi_in1_debug = 0;
+			else if(strcmp(token, "on") == 0)
+				hdmi_in1_debug = 1;
+			else
+				hdmi_in1_debug = !hdmi_in1_debug;
 			wprintf("HDMI Input 1 debug %s\r\n", hdmi_in1_debug ? "on" : "off");
 		}
 #endif
