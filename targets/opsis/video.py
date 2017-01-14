@@ -29,13 +29,14 @@ class VideoSoC(BaseSoC):
 
     def __init__(self, platform, *args, **kwargs):
         BaseSoC.__init__(self, platform, *args, **kwargs)
+
         # hdmi in 0
         self.submodules.hdmi_in0 = HDMIIn(
             platform.request("hdmi_in", 0),
             self.sdram.crossbar.get_port(mode="write"),
             fifo_depth=512)
         self.submodules.hdmi_in0_freq = freq_measurement.FrequencyMeasurement(
-            self.hdmi_in0.clocking._cd_pix.clk, self.clk_freq)
+            self.hdmi_in0.clocking.clk_input, measure_period=self.clk_freq)
 
         # hdmi in 1
         self.submodules.hdmi_in1 = HDMIIn(
@@ -43,7 +44,7 @@ class VideoSoC(BaseSoC):
             self.sdram.crossbar.get_port(mode="write"),
             fifo_depth=512)
         self.submodules.hdmi_in1_freq = freq_measurement.FrequencyMeasurement(
-            self.hdmi_in1.clocking._cd_pix.clk, self.clk_freq)
+            self.hdmi_in1.clocking.clk_input, measure_period=self.clk_freq)
 
         # hdmi out 0
         hdmi_out0_pads = platform.request("hdmi_out", 0)
