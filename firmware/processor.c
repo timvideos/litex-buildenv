@@ -406,11 +406,11 @@ static void fb_get_clock_md(unsigned int pixel_clock, unsigned int *best_m, unsi
 	*best_m = bm;
 	*best_d = bd;
 	unsigned int md1000 = (bm * 1000) / bd;
-	if (md1000 > hdmi_out0_driver_clocking_dcm_md1000_max_read()) {
+	if (md1000 > hdmi_out0_driver_clocking_clkfx_md_max_1000_read()) {
 		printf(
 			"WARNING: md1000 (%d) > (%d)\r\n",
 			md1000,
-			hdmi_out0_driver_clocking_dcm_md1000_max_read());
+			hdmi_out0_driver_clocking_clkfx_md_max_1000_read());
 	}
 }
 
