@@ -361,10 +361,11 @@ void processor_describe_mode(char *mode_descriptor, int mode)
 	if (mode >= PROCESSOR_MODE_COUNT) return;
 	unsigned refresh_rate = calculate_refresh_rate(&(video_modes[mode]));
 	sprintf(mode_descriptor,
-		"%ux%u@" REFRESH_RATE_PRINTF "Hz %s",
+		"%ux%u@" REFRESH_RATE_PRINTF "Hz%s%s",
 		video_modes[mode].h_active,
 		video_modes[mode].v_active,
 		REFRESH_RATE_PRINTF_ARGS(refresh_rate),
+		video_modes[mode].comment ? " " : "",
 		video_modes[mode].comment ? video_modes[mode].comment : "");
 }
 
