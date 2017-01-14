@@ -14,11 +14,16 @@ class TOFE(Module, AutoCSR):
         # TOFE board
         tofe_pads = platform.request('tofe')
         self.submodules.i2c = i2c.I2C(tofe_pads)
-        tofe_rst = Signal(1) # rst
-        self.submodules.rst = GPIOOut(tofe_rst)
+
+        # Use a proper Tristate for the reset signal so the "pull up" works.
+        tofe_reset = TSTriple(1)
         self.comb += [
-            tofe_pads.rst.eq(~tofe_rst[0]),
+            tofe_reset.o.eq(0),
         ]
+        self.specials += [
+            tofe_reset.get_tristate(tofe_pads.rst),
+        ]
+        self.submodules.rst = GPIOOut(tofe_reset.oe)
 
 
 class TOFELowSpeedIO(TOFE):

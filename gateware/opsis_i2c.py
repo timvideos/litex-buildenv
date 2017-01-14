@@ -4,7 +4,7 @@ FIXME: Refactor this properly...
 """
 
 from litex.gen.fhdl import *
-from litex.gen.fhdl.specials import Tristate
+from litex.gen.fhdl.specials import TSTriple
 
 from litex.gen.genlib.cdc import MultiReg
 from litex.gen.genlib.fsm import FSM, NextState
@@ -248,5 +248,15 @@ class OpsisI2C(Module, AutoCSR):
     def __init__(self, platform):
         self.submodules.mux = i2c.I2CMux(platform.request("opsis_i2c"))
         self.submodules.master = i2c.I2C(self.mux.get_i2c_pads())
-        self.submodules.fx2_reset = GPIOOut(platform.request("fx2_reset"))
+
+        # Use a proper Tristate for the FX2 reset so the "pull up" works.
+        fx2_reset = TSTriple(1)
+        self.comb += [
+            fx2_reset.o.eq(0),
+        ]
+        self.specials += [
+            fx2_reset.get_tristate(platform.request("fx2_reset")),
+        ]
+        self.submodules.fx2_reset = GPIOOut(fx2_reset.oe)
+
         self.submodules.fx2_hack = I2CShiftReg(self.mux.get_i2c_pads())

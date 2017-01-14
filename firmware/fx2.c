@@ -116,9 +116,9 @@ void fx2_reboot(enum fx2_fw_version fw)
 	unsigned int i;
 	fx2_fw_active = fw;
 	printf("fx2: Turning off.\r\n");
-	opsis_i2c_fx2_reset_out_write(0);
-	for(i=0;i<FX2_RESET_PERIOD;i++) __asm__("nop");
 	opsis_i2c_fx2_reset_out_write(1);
+	for(i=0;i<FX2_RESET_PERIOD;i++) __asm__("nop");
+	opsis_i2c_fx2_reset_out_write(0);
 	printf("fx2: Turning on.\r\n");
 	fx2_load();
 }
