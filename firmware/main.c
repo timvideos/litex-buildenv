@@ -104,20 +104,40 @@ int main(void)
 	processor_start(config_get(CONFIG_KEY_RES_PRIMARY));
 	processor_service();
 
+#ifdef CSR_HDMI_IN0_BASE
+	input1_off();
+	if (config_get(CONFIG_KEY_INPUT0_ENABLED)) {
+		input1_on();
+	}
+#endif
+
+#ifdef CSR_HDMI_IN1_BASE
+	input0_off();
+	if (config_get(CONFIG_KEY_INPUT1_ENABLED)) {
+		input0_on();
+	}
+#endif
+
 #ifdef CSR_HDMI_OUT0_I2C_W_ADDR
 	hdmi_out0_i2c_init();
 #endif
 #ifdef CSR_HDMI_OUT0_BASE
-	processor_set_hdmi_out0_source(config_get(CONFIG_KEY_OUTPUT0_SOURCE));
-	hdmi_out0_core_initiator_enable_write(config_get(CONFIG_KEY_OUTPUT0_ENABLED));
+	output0_off();
+	if (config_get(CONFIG_KEY_OUTPUT0_ENABLED)) {
+		output0_on();
+		processor_set_hdmi_out0_source(config_get(CONFIG_KEY_OUTPUT0_SOURCE));
+	}
 #endif
 
 #ifdef CSR_HDMI_OUT1_I2C_W_ADDR
 	hdmi_out1_i2c_init();
 #endif
 #ifdef CSR_HDMI_OUT1_BASE
-	processor_set_hdmi_out1_source(config_get(CONFIG_KEY_OUTPUT1_SOURCE));
-	hdmi_out1_core_initiator_enable_write(config_get(CONFIG_KEY_OUTPUT1_ENABLED));
+	output1_off();
+	if (config_get(CONFIG_KEY_OUTPUT1_ENABLED)) {
+		output1_on();
+		processor_set_hdmi_out1_source(config_get(CONFIG_KEY_OUTPUT1_SOURCE));
+	}
 #endif
 
 #ifdef ENCODER_BASE

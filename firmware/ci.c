@@ -828,13 +828,13 @@ static void hdp_toggle(int source)
 }
 
 #ifdef CSR_HDMI_IN0_BASE
-static void input0_on(void)
+void input0_on(void)
 {
 	wprintf("Enabling input0\r\n");
 	hdmi_in0_enable();
 }
 
-static void input0_off(void)
+void input0_off(void)
 {
 	wprintf("Disabling input0\r\n");
 	hdmi_in0_disable();
@@ -842,13 +842,13 @@ static void input0_off(void)
 #endif
 
 #ifdef CSR_HDMI_IN1_BASE
-static void input1_on(void)
+void input1_on(void)
 {
 	wprintf("Enabling input1\r\n");
 	hdmi_in1_enable();
 }
 
-static void input1_off(void)
+void input1_off(void)
 {
 	wprintf("Disabling input1\r\n");
 	hdmi_in1_disable();
@@ -856,13 +856,13 @@ static void input1_off(void)
 #endif
 
 #ifdef CSR_HDMI_OUT0_BASE
-static void output0_on(void)
+void output0_on(void)
 {
 	wprintf("Enabling output0\r\n");
 	hdmi_out0_core_initiator_enable_write(1);
 }
 
-static void output0_off(void)
+void output0_off(void)
 {
 	wprintf("Disabling output0\r\n");
 	hdmi_out0_core_initiator_enable_write(0);
@@ -870,13 +870,13 @@ static void output0_off(void)
 #endif
 
 #ifdef CSR_HDMI_OUT1_BASE
-static void output1_on(void)
+void output1_on(void)
 {
 	wprintf("Enabling output1\r\n");
 	hdmi_out1_core_initiator_enable_write(1);
 }
 
-static void output1_off(void)
+void output1_off(void)
 {
 	wprintf("Disabling output1\r\n");
 	hdmi_out1_core_initiator_enable_write(0);
@@ -884,25 +884,25 @@ static void output1_off(void)
 #endif
 
 #ifdef ENCODER_BASE
-static void encoder_on(void)
+void encoder_on(void)
 {
 	wprintf("Enabling encoder\r\n");
 	encoder_enable(1);
 }
 
-static void encoder_configure_quality(int quality)
+void encoder_configure_quality(int quality)
 {
 	wprintf("Setting encoder quality to %d\r\n", quality);
 	encoder_set_quality(quality);
 }
 
-static void encoder_configure_fps(int fps)
+void encoder_configure_fps(int fps)
 {
 	wprintf("Setting encoder fps to %d\r\n", fps);
 	encoder_set_fps(fps);
 }
 
-static void encoder_off(void)
+void encoder_off(void)
 {
 	wprintf("Disabling encoder\r\n");
 	encoder_enable(0);
