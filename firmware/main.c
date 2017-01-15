@@ -105,16 +105,16 @@ int main(void)
 	processor_service();
 
 #ifdef CSR_HDMI_IN0_BASE
-	input1_off();
+	input0_off();
 	if (config_get(CONFIG_KEY_INPUT0_ENABLED)) {
-		input1_on();
+		input0_on();
 	}
 #endif
 
 #ifdef CSR_HDMI_IN1_BASE
-	input0_off();
+	input1_off();
 	if (config_get(CONFIG_KEY_INPUT1_ENABLED)) {
-		input0_on();
+		input1_on();
 	}
 #endif
 
