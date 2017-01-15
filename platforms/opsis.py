@@ -412,7 +412,7 @@ _io = [
     # the "p3" Pmod connector.
     ("tofe_lsio_pmod_serial", 0,
         # PmodUSBUART - Pmod Type4 - UART
-        # JP1 should be set to VCC<->SYS
+        # JP1 should be set to VCC<->LCL
         # Pin 1 - CTS - In  - Peripheral can transmit
         # Pin 2 - TXD - Out - Data - Host to peripheral
         # Pin 3 - RXD - In  - Data - Peripheral to host
