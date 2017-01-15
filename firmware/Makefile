@@ -85,6 +85,7 @@ firmware.elf: $(FIRMWARE_DIRECTORY)/linker.ld $(OBJECTS)
 clean:
 	$(RM) $(OBJECTS) $(OBJECTS:.o=.d) firmware.elf firmware.bin .*~ *~
 
+pattern.o: version_data.h version_data.c
 version.o: version_data.h version_data.c
 
 version_data.h: version_data

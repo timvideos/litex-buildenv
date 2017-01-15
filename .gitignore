@@ -4,3 +4,5 @@ __pycache__
 *.vcd
 outgoing
 build
+*~
+*.png
