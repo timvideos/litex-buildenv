@@ -37,6 +37,7 @@
 #include "hdmi_out1.h"
 #include "mdio.h"
 #include "opsis_eeprom.h"
+#include "pattern.h"
 #include "pll.h"
 #include "processor.h"
 #include "stdio_wrap.h"
@@ -162,6 +163,7 @@ static void ci_help(void)
 	wputs("mdio_dump   - dump mdio registers");
 	wputs("mdio_status - show mdio status");
 #endif
+	wputs("pattern (p) - select next pattern");
 	wputs("");
 	help_status();
 	wputs("");
@@ -1121,6 +1123,10 @@ void ci_service(void)
 			help_encoder();
 	}
 #endif
+	else if((strcmp(token, "p") == 0) || (strcmp(token, "p") == 0)) {
+		pattern_next();
+		wprintf("Pattern now %d\r\n", pattern);
+	}
 	else if((strcmp(token, "status") == 0) || (strcmp(token, "s") == 0)) {
 		token = get_token(&str);
 		if(strcmp(token, "short") == 0) {

@@ -153,16 +153,23 @@ static void pattern_draw_text(int x, int y, char *ptr) {
 	}
 }
 
-void pattern_fill_framebuffer(int h_active, int m_active)
+void pattern_next() {
+	pattern++;
+	pattern = pattern % MAX_PATTERN;
+	pattern_fill_framebuffer(processor_h_active, processor_v_active);
+}
+
+
+void pattern_fill_framebuffer(int h_active, int w_active)
 {
-	int i;
+	int i, j;
 	int color;
 	flush_l2_cache();
 	color = -1;
 	volatile unsigned int *framebuffer = (unsigned int *)(MAIN_RAM_BASE + PATTERN_FRAMEBUFFER_BASE);
 	if(pattern == COLOR_BAR_PATTERN) {
 		/* color bar pattern */
-		for(i=0; i<h_active*m_active*2/4; i++) {
+		for(i=0; i<h_active*w_active*2/4; i++) {
 			if(i%(h_active/16) == 0)
 				color = inc_color(color);
 			if(color >= 0)
@@ -170,13 +177,37 @@ void pattern_fill_framebuffer(int h_active, int m_active)
 		}
 	} else {
 		/* vertical black white lines */
-		for(i=0; i<h_active*m_active*2/4; i++) {
+		for(i=0; i<h_active*w_active*2/4; i++) {
 			if(i%(h_active/16) == 0)
 				color = inc_color(color);
 			if(color >= 0)
 				framebuffer[i] = 0x801080ff;
 		}
 	}
+	
+	// draw a border around that.
+	for (i=0; i<h_active*2; i++) {
+		framebuffer[i] = YCBCR422_WHITE;
+	}
+	
+	for (i=(w_active-4)*h_active*2/4; i<h_active*w_active*2/4; i++) {
+		framebuffer[i] = YCBCR422_WHITE;
+	}
+	
+	for (i=0; i<w_active*2; i++) {
+		// do the left bar
+		for (j=0; j<2; j++) {
+			framebuffer[(i*h_active)+j] = YCBCR422_WHITE;
+			framebuffer[(i*h_active)+j + (1*h_active/2)] = YCBCR422_WHITE;
+		}
+		
+		// do the right bar
+		for (j=h_active-2; j<h_active; j++) {
+			framebuffer[(i*h_active)+j] = YCBCR422_WHITE;
+			framebuffer[(i*h_active)+j + (1*h_active/2)] = YCBCR422_WHITE;
+		}		
+	}
+	
 	pattern_draw_text(1, 1, "HDMI2USB");
 	pattern_draw_text(1, 3, "timvideos.us");
 	pattern_draw_text(1, 4, "enjoy-digital.fr");
