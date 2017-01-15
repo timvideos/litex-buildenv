@@ -91,33 +91,35 @@ int main(void)
 	telnet_init();
 #endif
 
-	// FIXME: Explain why secondary res is in _init and primary in _start
-	processor_init(config_get(CONFIG_KEY_RES_SECONDARY));
-
-#ifdef CSR_HDMI_OUT0_I2C_W_ADDR
-	hdmi_out0_i2c_init();
-#endif
-#ifdef CSR_HDMI_OUT0_BASE
-	hdmi_out0_core_initiator_enable_write(config_get(CONFIG_KEY_OUTPUT0_ENABLED));
-	processor_set_hdmi_out0_source(config_get(CONFIG_KEY_OUTPUT0_SOURCE));
-#endif
-
-#ifdef CSR_HDMI_OUT1_I2C_W_ADDR
-	hdmi_out1_i2c_init();
-#endif
-#ifdef CSR_HDMI_OUT1_BASE
-	hdmi_out0_core_initiator_enable_write(config_get(CONFIG_KEY_OUTPUT1_ENABLED));
-	processor_set_hdmi_out1_source(config_get(CONFIG_KEY_OUTPUT1_SOURCE));
-#endif
-	processor_update();
-	processor_start(config_get(CONFIG_KEY_RES_PRIMARY));
-
 	// Reboot the FX2 chip into HDMI2USB mode
 #ifdef CSR_OPSIS_I2C_FX2_RESET_OUT_ADDR
 	if (config_get(CONFIG_KEY_FX2_RESET)) {
 		fx2_init();
 	}
 #endif
+
+	// FIXME: Explain why secondary res is in _init and primary in _start
+	processor_init(config_get(CONFIG_KEY_RES_SECONDARY));
+	processor_update();
+	processor_start(config_get(CONFIG_KEY_RES_PRIMARY));
+	processor_service();
+
+#ifdef CSR_HDMI_OUT0_I2C_W_ADDR
+	hdmi_out0_i2c_init();
+#endif
+#ifdef CSR_HDMI_OUT0_BASE
+	processor_set_hdmi_out0_source(config_get(CONFIG_KEY_OUTPUT0_SOURCE));
+	hdmi_out0_core_initiator_enable_write(config_get(CONFIG_KEY_OUTPUT0_ENABLED));
+#endif
+
+#ifdef CSR_HDMI_OUT1_I2C_W_ADDR
+	hdmi_out1_i2c_init();
+#endif
+#ifdef CSR_HDMI_OUT1_BASE
+	processor_set_hdmi_out1_source(config_get(CONFIG_KEY_OUTPUT1_SOURCE));
+	hdmi_out1_core_initiator_enable_write(config_get(CONFIG_KEY_OUTPUT1_ENABLED));
+#endif
+
 #ifdef ENCODER_BASE
 	processor_set_encoder_source(config_get(CONFIG_KEY_ENCODER_SOURCE));
 	encoder_enable(config_get(CONFIG_KEY_ENCODER_ENABLED));
