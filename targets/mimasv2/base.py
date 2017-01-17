@@ -179,37 +179,38 @@ class BaseSoC(SoCSDRAM):
     )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
-#    mem_map = {
-#        "spiflash":     0x20000000,  # (default shadow @0xa0000000)
-#    }
-#    mem_map.update(SoCSDRAM.mem_map)
+    mem_map = {
+        "spiflash":     0x20000000,  # (default shadow @0xa0000000)
+    }
+    mem_map.update(SoCSDRAM.mem_map)
 
     def __init__(self, platform, **kwargs):
         clk_freq = 50*1000*1000
         SoCSDRAM.__init__(self, platform, clk_freq,
-            integrated_rom_size=0x8000,
+            #integrated_rom_size=0x8000,
+            integrated_rom_size=None,
             integrated_sram_size=0x4000,
             uart_baudrate=19200,
-            #cpu_reset_address=platform.gateware_size,
+            cpu_reset_address=platform.gateware_size,
             **kwargs)
         self.submodules.crg = _CRG(platform, clk_freq)
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
 
         self.submodules.info = info.Info(platform, "mimasv2", self.__class__.__name__[:8])
 
-#        self.submodules.spiflash = spi_flash.SpiFlash(
-#            platform.request("spiflash"),
-#            dummy=platform.spiflash_read_dummy_bits,
-#            div=platform.spiflash_clock_div,
-#            with_bitbang=False)
-#        self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
-#        self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
+        self.submodules.spiflash = spi_flash.SpiFlash(
+            platform.request("spiflash"),
+            dummy=platform.spiflash_read_dummy_bits,
+            div=platform.spiflash_clock_div,
+            with_bitbang=False)
+        self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
+        self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
 
-        #bios_size = 0x8000
-        #self.flash_boot_address = self.mem_map["rom"]+platform.gateware_size+bios_size
-        #self.register_mem("spiflash", self.mem_map["spiflash"],
-        #    self.spiflash.bus, size=platform.spiflash_total_size)
-        #self.register_rom(self.spiflash.bus, platform.spiflash_total_size)
+        bios_size = 0x8000
+        self.flash_boot_address = self.mem_map["rom"]+platform.gateware_size+bios_size
+        self.register_mem("spiflash", self.mem_map["spiflash"],
+            self.spiflash.bus, size=platform.spiflash_total_size)
+        self.register_rom(self.spiflash.bus, platform.spiflash_total_size)
 
         # sdram
         sdram_module = MT46H32M16(self.clk_freq, "1:2")
