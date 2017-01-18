@@ -1,5 +1,9 @@
 export CLANG=0
 
+ifeq ($(HDMI2USB_ENV),)
+    $(error "Please enter environment. 'source scripts/enter-env.sh'")
+endif
+
 PLATFORM ?= opsis
 export PLATFORM
 # Default board
