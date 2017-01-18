@@ -1,5 +1,3 @@
-export CLANG=0
-
 ifneq ($(OS),Windows_NT)
 ifeq ($(HDMI2USB_ENV),)
     $(error "Please enter environment. 'source scripts/enter-env.sh'")
@@ -19,6 +17,8 @@ export TARGET
 CPU ?= lm32
 export CPU
 
+# We don't use CLANG
+export CLANG=0
 
 TARGET_BUILD_DIR = build/$(PLATFORM)_$(TARGET)_$(CPU)/
 
