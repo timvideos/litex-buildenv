@@ -43,12 +43,12 @@ apt-get install -y atftpd
 apt-get install -y openvpn libsdl1.2-dev
 
 # FIXME: Work out if this stuff below is needed.
-#apt-get install -y software-properties-common
-#add-apt-repository -y ppa:timvideos/fpga-support
-#apt-get update
+apt-get install -y software-properties-common
+add-apt-repository -y ppa:timvideos/fpga-support
+apt-get update
 # Only need the udev rules (the full mode-switch tool is installed locally as
 # part of the download-env.sh).
-#apt-get install -y hdmi2usb-mode-switch-udev
+apt-get install -y hdmi2usb-mode-switch-udev
 
 # Get the vizzini module, only needed for the Atlys board
 #apt-get install -y vizzini-dkms
