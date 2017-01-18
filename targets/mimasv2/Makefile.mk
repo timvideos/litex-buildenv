@@ -9,5 +9,7 @@ image-load-mimasv2:
 firmware-load-mimasv2:
 	flterm --port=/dev/ttyACM0 --kernel=$(TARGET_BUILD_DIR)/software/firmware/firmware.bin --speed=19200
 
+firmware-connect-mimasv2:
+	flterm --port=/dev/ttyACM0 --speed=19200
 
 .PHONY: gateware-load-mimasv2 firmware-load-mimasv2
