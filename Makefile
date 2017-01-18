@@ -1,7 +1,9 @@
 export CLANG=0
 
+ifneq ($(OS),Windows_NT)
 ifeq ($(HDMI2USB_ENV),)
     $(error "Please enter environment. 'source scripts/enter-env.sh'")
+endif
 endif
 
 PLATFORM ?= opsis
