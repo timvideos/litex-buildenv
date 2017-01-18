@@ -179,11 +179,6 @@ class BaseSoC(SoCSDRAM):
     )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
-    mem_map = {
-        "spiflash":     0x20000000,  # (default shadow @0xa0000000)
-    }
-    mem_map.update(SoCSDRAM.mem_map)
-
     def __init__(self, platform, **kwargs):
         clk_freq = (83 + Fraction(1, 3))*1000*1000
         SoCSDRAM.__init__(self, platform, clk_freq,
@@ -207,10 +202,8 @@ class BaseSoC(SoCSDRAM):
         self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
 
         bios_size = 0x8000
-        self.flash_boot_address = self.mem_map["rom"]+platform.gateware_size+bios_size
-        self.register_mem("spiflash", self.mem_map["spiflash"],
-            self.spiflash.bus, size=platform.spiflash_total_size)
         self.register_rom(self.spiflash.bus, platform.spiflash_total_size)
+        self.flash_boot_address = self.mem_map["rom"]+platform.gateware_size+bios_size
 
         # sdram
         sdram_module = MT46H32M16(self.clk_freq, "1:2")
