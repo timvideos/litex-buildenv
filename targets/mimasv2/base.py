@@ -198,7 +198,7 @@ class BaseSoC(SoCSDRAM):
 
         self.submodules.info = info.Info(platform, "mimasv2", self.__class__.__name__[:8])
 
-        self.submodules.spiflash = spi_flash.SpiFlash(
+        self.submodules.spiflash = spi_flash.SpiFlashSingle(
             platform.request("spiflash"),
             dummy=platform.spiflash_read_dummy_bits,
             div=platform.spiflash_clock_div,
