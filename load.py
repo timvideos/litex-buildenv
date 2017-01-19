@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-from litex.build.xilinx import iMPACT
 
-prog = iMPACT()
+if False:
+    from litex.build.xilinx import iMPACT
+    prog = iMPACT()
+else:
+    from litex.build.xilinx import VivadoProgrammer
+    prog = VivadoProgrammer()
+
 prog.load_bitstream("build/gateware/top.bit")

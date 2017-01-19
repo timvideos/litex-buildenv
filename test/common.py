@@ -22,7 +22,7 @@ class ServerProxy(threading.Thread):
 
     def run(self):
         print("Starting proxy to {}".format(self.port))
-        self.comm = CommUART(self.port, 19200)
+        self.comm = CommUART(self.port, 115200)
         self.server = RemoteServer(self.comm)
         self.server.open()
         self.server.start()
@@ -50,13 +50,14 @@ def connect(desc, *args, add_args=None, **kw):
         args.ipaddress = "{}.50".format(args.iprange)
 
     print("Connecting to {}".format(args.ipaddress))
-    wb = RemoteClient(args.ipaddress, 1234, csr_csv="{}/csr.csv".format(make_testdir(args)))
+    wb = RemoteClient(args.ipaddress, 1234, csr_csv="{}/csr.csv".format(make_testdir(args)), csr_data_width=32)
     wb.open()
     print()
     print("Device DNA: {}".format(get_dna(wb)))
     print("   Git Rev: {}".format(get_git(wb)))
     print("  Platform: {}".format(get_platform(wb)))
     print("  Analyzer: {}".format(["No", "Yes"][hasattr(wb.regs, "analyzer")]))
+    print("      XADC: {}".format(get_xadc(wb)))
     print()
 
     return args, wb
@@ -78,7 +79,7 @@ def get_dna(wb):
     try:
         dna = wb.regs.info_dna_id.read()
         return hex(dna)
-    except KeyError:
+    except (KeyError, AttributeError) as e:
         return 'Unknown'
 
 
@@ -86,7 +87,26 @@ def get_git(wb):
     try:
         commit = wb.regs.info_git_commit.read()
         return hex(commit)[2:]
-    except KeyError:
+    except (KeyError, AttributeError) as e:
+        return 'Unknown'
+
+
+# xadc stuff
+def xadc2volts(v):
+    return (v/4096.0*3)
+
+def xadc2c(v):
+    return (v*503.975/4096 - 273.15)
+
+def get_xadc(wb):
+    try:
+        temp = xadc2c(wb.regs.xadc_temperature.read())
+        vccaux = xadc2volts(wb.regs.xadc_vccaux.read())
+        vccbram = xadc2volts(wb.regs.xadc_vccbram.read())
+        vccint = xadc2volts(wb.regs.xadc_vccint.read())
+        return "{:.1f}°C -- vccint: {:.2f}V  vccaux: {:.2f}V  vccbram: {:.2f}V".format(
+            temp, vccaux, vccbram, vccint)
+    except (KeyError, AttributeError) as e:
         return 'Unknown'
 
 
@@ -106,7 +126,7 @@ def get_platform(wb):
         target = stringify(wb.regs.info_platform_target)
         platform = stringify(wb.regs.info_platform_platform)
         return "{} on {}".format(target, platform)
-    except KeyError:
+    except (KeyError, AttributeError) as e:
         return 'Unknown on Unknown'
 
 
