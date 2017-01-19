@@ -207,6 +207,12 @@ check_import IPython || return 1
 
 check_import progressbar || return 1
 
+# colorama for progress bars
+
+
+
+check_import colorama || return 1
+
 # hexfile for embedding the Cypress FX2 firmware.
 
 

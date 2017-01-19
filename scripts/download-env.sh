@@ -224,6 +224,12 @@ check_import IPython
 )
 check_import progressbar
 
+# colorama for progress bars
+(
+	pip install --upgrade colorama
+)
+check_import colorama
+
 # hexfile for embedding the Cypress FX2 firmware.
 (
 	pip install --upgrade git+https://github.com/mithro/hexfile.git
