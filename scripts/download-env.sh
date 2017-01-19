@@ -86,7 +86,7 @@ if [ ! -z "$XILINX_PASSPHRASE" ]; then
 			make
 		)
 	fi
-	export MISOC_EXTRA_CMDLINE="-Ob ise_path $XILINX_DIR/opt/Xilinx/"
+	export MISOC_EXTRA_CMDLINE="-Ob toolchain_path $XILINX_DIR/opt/Xilinx/"
 	# Reserved MAC address from documentation block, see
 	# http://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
 	export XILINXD_LICENSE_FILE=$XILINX_DIR
