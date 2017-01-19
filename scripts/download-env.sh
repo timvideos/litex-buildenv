@@ -174,7 +174,15 @@ export PATH=$CONDA_DIR/bin:$PATH
 #(
 #	conda install fxload
 #)
-check_exists fxload || return 1
+check_exists fxload
+
+# MimasV2Config.py
+MIMASV2CONFIG=$BUILD_DIR/conda/bin/MimasV2Config.py
+if [ ! -e $MIMASV2CONFIG ]; then
+	wget https://raw.githubusercontent.com/numato/samplecode/master/FPGA/MimasV2/tools/configuration/python/MimasV2Config.py -O $MIMASV2CONFIG
+	chmod a+x $MIMASV2CONFIG
+fi
+check_exists MimasV2Config.py
 
 # flterm
 (

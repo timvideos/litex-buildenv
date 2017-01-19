@@ -159,6 +159,13 @@ export PATH=$CONDA_DIR/bin:$PATH
 
 check_exists fxload || return 1
 
+# MimasV2Config.py
+MIMASV2CONFIG=$BUILD_DIR/conda/bin/MimasV2Config.py
+
+
+
+check_exists MimasV2Config.py || return 1
+
 # flterm
 
 
