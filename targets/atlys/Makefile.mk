@@ -1,4 +1,7 @@
 # atlys loading
+
+TARGET ?= video
+
 gateware-load-atlys: tftp
 	atlys-mode-switch --verbose --load-gateware $(TARGET_BUILD_DIR)/gateware/top.bit
 

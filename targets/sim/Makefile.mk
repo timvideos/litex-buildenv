@@ -1,4 +1,7 @@
 # Sim targets
+
+TARGET ?= base
+
 sim-setup:
 	sudo true
 	sudo openvpn --mktun --dev tap0

@@ -10,7 +10,8 @@ from litedram.modules import MT41K256M16
 from litedram.phy import a7ddrphy
 from litedram.core import ControllerSettings
 
-from gateware import dna, xadc, oled
+from gateware.info import dna, xadc
+from gateware import oled
 
 
 class _CRG(Module):

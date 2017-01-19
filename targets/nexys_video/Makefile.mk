@@ -1,10 +1,13 @@
-# mimasv2 loading
-load-gateware-netv2:
+# nexys_video loading
+
+TARGET ?= video
+
+load-gateware-nexys_video:
 	echo "Not working yet."
 	false
 
-load-firmware-netv2:
+load-firmware-nexys_video:
 	echo "Not working yet."
 	false
 
-.PHONY: load-gateware-netv2 load-firmware-netv2
+.PHONY: load-gateware-nexys_video load-firmware-nexys_video

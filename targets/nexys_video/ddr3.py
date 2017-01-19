@@ -1,7 +1,3 @@
-#!/usr/bin/env python3
-import argparse
-import os
-
 from litex.gen import *
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 
@@ -15,7 +11,7 @@ from litex.soc.cores.uart.bridge import UARTWishboneBridge
 from litedram.modules import MT41K256M16
 from litedram.phy import a7ddrphy
 
-from gateware import dna, xadc
+from gateware.info import dna, xadc
 
 
 class _CRG(Module):
@@ -119,16 +115,4 @@ class BaseSoC(SoCSDRAM):
         self.add_wb_master(self.cpu_or_bridge.wishbone)
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Nexys LiteX SoC")
-    builder_args(parser)
-    soc_sdram_args(parser)
-    args = parser.parse_args()
-
-    platform = nexys_video.Platform()
-    soc = BaseSoC(platform, **soc_sdram_argdict(args))
-    builder = Builder(soc, output_dir="build", csr_csv="test/csr.csv")
-    vns = builder.build()
-
-if __name__ == "__main__":
-    main()
+SoC = BaseSoC

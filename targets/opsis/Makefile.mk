@@ -1,4 +1,7 @@
 # opsis loading
+
+TARGET ?= video
+
 gateware-load-opsis: tftp
 	opsis-mode-switch --verbose --load-gateware $(TARGET_BUILD_DIR)/gateware/top.bit
 

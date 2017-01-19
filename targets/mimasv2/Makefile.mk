@@ -1,4 +1,7 @@
 # mimasv2 loading
+
+TARGET ?= base
+
 gateware-load-mimasv2:
 	python3 $$(which MimasV2Config.py) /dev/ttyACM0 $(TARGET_BUILD_DIR)/gateware/top.bin
 

@@ -13,7 +13,7 @@ from litedram.core import ControllerSettings
 from litedram.frontend.bist import LiteDRAMBISTGenerator
 from litedram.frontend.bist import LiteDRAMBISTChecker
 
-from gateware import dna, xadc
+from gateware.info import dna, xadc
 
 
 class _CRG(Module):

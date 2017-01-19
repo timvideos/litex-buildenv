@@ -11,7 +11,11 @@ ifeq ($(PLATFORM),)
     $(error "PLATFORM not set, please set it.")
 endif
 
-TARGET ?= hdmi2usb
+# Include platform specific targets
+include targets/$(PLATFORM)/Makefile.mk
+ifeq ($(TARGET),)
+    $(error "Internal error: TARGET not set.")
+endif
 export TARGET
 
 CPU ?= lm32
@@ -52,9 +56,6 @@ third_party/%/.git: .gitmodules
 	git submodule sync --recursive -- $$(dirname $@)
 	git submodule update --recursive --init $$(dirname $@)
 	touch $@ -r .gitmodules
-
-# Include platform specific targets
-include targets/$(PLATFORM)/Makefile.mk
 
 # Gateware
 # --------------------------------------

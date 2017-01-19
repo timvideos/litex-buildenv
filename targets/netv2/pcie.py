@@ -15,7 +15,7 @@ from litepcie.core import LitePCIeEndpoint, LitePCIeMSI
 from litepcie.frontend.dma import LitePCIeDMA
 from litepcie.frontend.wishbone import LitePCIeWishboneBridge
 
-from gateware import dna, xadc
+from gateware.info import dna, xadc
 
 
 class _CRG(Module, AutoCSR):
