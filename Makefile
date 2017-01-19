@@ -57,6 +57,12 @@ third_party/%/.git: .gitmodules
 	git submodule update --recursive --init $$(dirname $@)
 	touch $@ -r .gitmodules
 
+# Image
+# --------------------------------------
+
+image-load: image-load-$(PLATFORM)
+	true
+
 # Gateware
 # --------------------------------------
 GATEWARE_MODULES=litex litedram liteeth litejpeg litepcie litesata litescope liteusb litevideo litex
@@ -90,6 +96,9 @@ else
 endif
 
 firmware-load: firmware firmware-load-$(PLATFORM)
+	true
+
+firmware-connect: firmware-load-$(PLATFORM)
 	true
 
 firmware-clean:
