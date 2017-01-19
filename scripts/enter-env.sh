@@ -184,12 +184,6 @@ check_version lm32-elf-ld $BINUTILS_VERSION || return 1
 
 check_version lm32-elf-gcc $GCC_VERSION || return 1
 
-# sdcc for compiling Cypress FX2 firmware
-
-
-
-check_version sdcc $SDCC_VERSION || return 1
-
 # openocd for programming via Cypress FX2
 
 

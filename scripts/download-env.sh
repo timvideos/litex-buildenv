@@ -202,12 +202,6 @@ check_version lm32-elf-ld $BINUTILS_VERSION
 )
 check_version lm32-elf-gcc $GCC_VERSION
 
-# sdcc for compiling Cypress FX2 firmware
-(
-	conda install sdcc=$SDCC_VERSION
-)
-check_version sdcc $SDCC_VERSION
-
 # openocd for programming via Cypress FX2
 (
 	conda install openocd
