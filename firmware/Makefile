@@ -6,6 +6,7 @@ include $(SOC_DIRECTORY)/software/common.mak
 
 OBJECTS=isr.o \
 		bist.o \
+		pattern.o \
 		ci.o \
 		main.o
 
