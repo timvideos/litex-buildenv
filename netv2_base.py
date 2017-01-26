@@ -91,8 +91,8 @@ class _CRG(Module):
 class BaseSoC(SoCSDRAM):
     csr_map = {
         "ddrphy":        17,
-        "ddr_generator": 18,
-        "ddr_checker":   19,
+        "generator":     18,
+        "checker":       19,
         "dna":           20,
         "xadc":          21,
         "pcie_phy":      22,
@@ -100,14 +100,6 @@ class BaseSoC(SoCSDRAM):
         "msi":           24,
     }
     csr_map.update(SoCSDRAM.csr_map)
-    interrupt_map = {
-        "dma_writer": 0,
-        "dma_reader": 1
-    }
-    interrupt_map.update(SoCSDRAM.interrupt_map)
-    # FIXME
-    #mem_map = SoCSDRAM.mem_map
-    #mem_map["csr"] = 0x00000000
 
     def __init__(self, platform, **kwargs):
         clk_freq = 100*1000000
@@ -132,11 +124,11 @@ class BaseSoC(SoCSDRAM):
                                                                    with_refresh=True))
 
         # sdram bist
-        ddr_generator_port = self.sdram.crossbar.get_port(mode="write")
-        self.submodules.ddr_generator = LiteDRAMBISTGenerator(ddr_generator_port)
+        generator_port = self.sdram.crossbar.get_port(mode="write")
+        self.submodules.generator = LiteDRAMBISTGenerator(generator_port)
 
-        ddr_checker_port = self.sdram.crossbar.get_port(mode="read")
-        self.submodules.ddr_checker = LiteDRAMBISTChecker(ddr_checker_port)
+        checker_port = self.sdram.crossbar.get_port(mode="read")
+        self.submodules.checker = LiteDRAMBISTChecker(checker_port)
 
         # led blink
         counter = Signal(32)
