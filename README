@@ -3,7 +3,7 @@
     /    / -_) /  | |/ / __/___/\ \/ _ \/ /__
    /_/|_/\__/_/   |___/____/  /___/\___/\___/
 
-           Copyright 2016 / EnjoyDigital
+        Copyright 2016-2017 / EnjoyDigital
 
            NeTV2 SoC based on LiteX
 
@@ -42,7 +42,7 @@
 UART:     OK
 PCIe:     OK
 DDR3:     OK
-HDMI_OUT: Not Tested
+HDMI_OUT: OK (720p)
 HDMI_IN:  Not Implemented
 
 [> Contact
