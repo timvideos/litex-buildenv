@@ -50,6 +50,30 @@ _io = [
         Subsignal("tx_p", Pins("H2")),
         Subsignal("tx_n", Pins("H1"))
     ),
+
+    ("hdmi_in", 0,
+        Subsignal("clk_p", Pins("P4")),
+        Subsignal("clk_n", Pins("P3")),
+        Subsignal("data0_p", Pins("U4")),
+        Subsignal("data0_n", Pins("V4")),
+        Subsignal("data1_p", Pins("P6")),
+        Subsignal("data1_n", Pins("P5")),
+        Subsignal("data2_p", Pins("R7")),
+        Subsignal("data2_n", Pins("T7")),
+        IOStandard("TDMS_33")
+    ),
+
+    ("hdmi_out", 0,
+        Subsignal("clk_p", Pins("R3")),
+        Subsignal("clk_n", Pins("T2")),
+        Subsignal("data0_p", Pins("T4")),
+        Subsignal("data0_n", Pins("T3")),
+        Subsignal("data1_p", Pins("U6")),
+        Subsignal("data1_n", Pins("U5")),
+        Subsignal("data2_p", Pins("V7")),
+        Subsignal("data2_n", Pins("V6")),
+        IOStandard("TMDS_33")
+    ),
 ]
 
 
