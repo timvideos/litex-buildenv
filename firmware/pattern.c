@@ -11,8 +11,8 @@
 
 #define PATTERN_FRAMEBUFFER_BASE 0x00200000
 
-#define processor_h_active 1280
-#define processor_v_active 720
+#define processor_h_active 1920
+#define processor_v_active 1080
 
 unsigned int pattern_framebuffer_base(void) {
 	return PATTERN_FRAMEBUFFER_BASE;

@@ -23,23 +23,23 @@ static void hdmi_out_write_mmcm_reg(unsigned int address, unsigned int data) {
     hdmi_out_driver_clocking_drp_den_write(1);
 }
 
-static void hdmi_out_config_720p60(void) {
-    hdmi_out_write_mmcm_reg(0x8, 0x1000 + (4 << 6)  + 6);
-    hdmi_out_write_mmcm_reg(0xa, 0x1000 + (2  << 6) + 2);
+static void hdmi_out_config_1080p60(void) {
+    hdmi_out_write_mmcm_reg(0x8, 0x1000 + (2 << 6) + 3);
+    hdmi_out_write_mmcm_reg(0xa, 0x1000 + (1 << 6) + 1);
 
-    hdmi_out_core_initiator_hres_write(1280);
-    hdmi_out_core_initiator_hsync_start_write(1390);
-    hdmi_out_core_initiator_hsync_end_write(1430);
-    hdmi_out_core_initiator_hscan_write(1650);
+    hdmi_out_core_initiator_hres_write(1920);
+    hdmi_out_core_initiator_hsync_start_write(1920+88);
+    hdmi_out_core_initiator_hsync_end_write(1920+88+44);
+    hdmi_out_core_initiator_hscan_write(2200);
 
-	hdmi_out_core_initiator_vres_write(720);
-    hdmi_out_core_initiator_vsync_start_write(725);
-    hdmi_out_core_initiator_vsync_end_write(730);
-    hdmi_out_core_initiator_vscan_write(750);
+	hdmi_out_core_initiator_vres_write(1080);
+    hdmi_out_core_initiator_vsync_start_write(1080+4);
+    hdmi_out_core_initiator_vsync_end_write(1080+4+5);
+    hdmi_out_core_initiator_vscan_write(1125);
 
     hdmi_out_core_initiator_enable_write(0);
     hdmi_out_core_initiator_base_write(0x00200000);
-    hdmi_out_core_initiator_length_write(1280*720*2);
+    hdmi_out_core_initiator_length_write(1920*1080*2);
 
     hdmi_out_core_initiator_enable_write(1);
 }
@@ -54,8 +54,8 @@ int main(void)
 
 	puts("\nNeTV2 CPU testing software built "__DATE__" "__TIME__);
 
-	pattern_fill_framebuffer(1280, 720);
-	hdmi_out_config_720p60();
+	pattern_fill_framebuffer(1920, 1080);
+	hdmi_out_config_1080p60();
 
 	time_init();
 	ci_prompt();

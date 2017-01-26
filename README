@@ -42,7 +42,7 @@
 UART:     OK
 PCIe:     OK
 DDR3:     OK
-HDMI_OUT: OK (720p)
+HDMI_OUT: OK (720p60 & 1080p60)
 HDMI_IN:  Not Implemented
 
 [> Contact
