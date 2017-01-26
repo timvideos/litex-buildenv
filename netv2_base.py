@@ -110,8 +110,9 @@ class BaseSoC(SoCSDRAM):
         "dma_reader": 1
     }
     interrupt_map.update(SoCSDRAM.interrupt_map)
-    mem_map = SoCSDRAM.mem_map
-    mem_map["csr"] = 0x00000000
+    # FIXME
+    #mem_map = SoCSDRAM.mem_map
+    #mem_map["csr"] = 0x00000000
 
     def __init__(self, platform, **kwargs):
         clk_freq = 100*1000000
