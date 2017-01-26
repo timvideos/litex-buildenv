@@ -2,6 +2,10 @@ netv2_base:
 	rm -rf build
 	./netv2_base.py
 
+netv2_video:
+	rm -rf build
+	./netv2_video.py
+
 load:
 	./load.py
 
