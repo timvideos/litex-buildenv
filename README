@@ -28,11 +28,22 @@
   python3 setup.py develop
   cd ..
 
-5. Build the gateware and software:
-  python3 netv2_base.py
+5. Obtain LiteVideo and install it:
+  git clone https://github.com/enjoy-digital/litevideo
+  cd litedram
+  python3 setup.py develop
+  cd ..
+
+6. Build the gateware and software:
+  make netv2_base/netv2_pcie/netv2_video
+  make load
 
 [> Status:
-Waiting hardware for testing...
+UART:     OK
+PCIe:     OK
+DDR3:     OK
+HDMI_OUT: Not Tested
+HDMI_IN:  Not Implemented
 
 [> Contact
 E-mail: florent@enjoy-digital.fr
