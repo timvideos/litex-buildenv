@@ -12,6 +12,7 @@ OBJECTS=isr.o \
 		telnet.o \
 		mdio.o \
 		bist.o \
+		flash.o \
 		ci.o \
 		main.o
 

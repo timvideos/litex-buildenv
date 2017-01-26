@@ -24,7 +24,6 @@ from litedram.frontend.bist import LiteDRAMBISTChecker
 from liteeth.phy import LiteEthPHY
 from liteeth.core.mac import LiteEthMAC
 
-from gateware import firmware
 from gateware import dna, xadc, led
 
 
@@ -123,15 +122,14 @@ class BaseSoC(SoCSDRAM):
     csr_map.update(SoCSDRAM.csr_map)
 
     mem_map = {
-        "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
+        "spiflash": 0x20000000,  # (default shadow @0xa0000000)
     }
     mem_map.update(SoCSDRAM.mem_map)
 
     def __init__(self,
                  platform,
-                 firmware_ram_size=0x10000,
-                 firmware_filename="firmware/firmware.bin",
                  with_sdram_bist=True, bist_async=True, bist_random=True,
+                 spiflash="spiflash_1x",
                  **kwargs):
         clk_freq = 100*1000000
         SoCSDRAM.__init__(self, platform, clk_freq,
@@ -146,11 +144,6 @@ class BaseSoC(SoCSDRAM):
 
         self.submodules.leds = led.ClassicLed(Cat(platform.request("user_led", i) for i in range(4)))
         self.submodules.rgb_leds = led.RGBLed(platform.request("rgb_leds"))
-
-        # firmware
-        self.submodules.firmware_ram = firmware.FirmwareROM(firmware_ram_size, firmware_filename)
-        self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
-        self.add_constant("ROM_BOOT_ADDRESS", self.mem_map["firmware_ram"])
 
         # sdram
         self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
@@ -171,17 +164,22 @@ class BaseSoC(SoCSDRAM):
             self.submodules.checker = LiteDRAMBISTChecker(checker_user_port, random=bist_random)
 
         # spi flash
-        if not self.integrated_rom_size:
-            spiflash_pads = platform.request("spiflash")
-            spiflash_pads.clk = Signal()
-            self.specials += Instance("STARTUPE2",
-                                      i_CLK=0, i_GSR=0, i_GTS=0, i_KEYCLEARB=0, i_PACK=0,
-                                      i_USRCCLKO=spiflash_pads.clk, i_USRCCLKTS=0, i_USRDONEO=1, i_USRDONETS=1)
-            self.submodules.spiflash = spi_flash.SpiFlash(spiflash_pads, dummy=11, div=2)
-            self.add_constant("SPIFLASH_PAGE_SIZE", 256)
-            self.add_constant("SPIFLASH_SECTOR_SIZE", 0x10000)
-            self.flash_boot_address = 0xb00000
-            self.register_rom(self.spiflash.bus)
+        spiflash_pads = platform.request(spiflash)
+        spiflash_pads.clk = Signal()
+        self.specials += Instance("STARTUPE2",
+                                  i_CLK=0, i_GSR=0, i_GTS=0, i_KEYCLEARB=0, i_PACK=0,
+                                  i_USRCCLKO=spiflash_pads.clk, i_USRCCLKTS=0, i_USRDONEO=1, i_USRDONETS=1)
+        spiflash_dummy = {
+            "spiflash_1x": 9,
+            "spiflash_4x": 11,
+        }
+        self.submodules.spiflash = spi_flash.SpiFlash(spiflash_pads, dummy=spiflash_dummy[spiflash], div=2)
+        self.add_constant("SPIFLASH_PAGE_SIZE", 256)
+        self.add_constant("SPIFLASH_SECTOR_SIZE", 0x10000)
+        self.add_wb_slave(mem_decoder(self.mem_map["spiflash"]), self.spiflash.bus)
+        self.add_memory_region("spiflash",
+         	self.mem_map["spiflash"] | self.shadow_base, 16*1024*1024)
+
 
         # uart mux
         uart_sel = platform.request("user_sw", 0)

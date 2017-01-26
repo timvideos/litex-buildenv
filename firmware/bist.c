@@ -10,7 +10,7 @@
 #include "ci.h"
 
 
-#define test_size 64*1024*1024
+#define test_size 32*1024*1024
 
 unsigned int ticks;
 unsigned int speed;
@@ -25,13 +25,13 @@ static void busy_wait(unsigned int ds)
 	while(timer0_value_read()) timer0_update_value_write(1);
 }
 
-void bist(void) {
+void bist_test(void) {
 	while(readchar_nonblock() == 0) {
 			// write
 			printf("writing %d Mbytes...", test_size/(1024*1024));
 			generator_reset_write(1);
 			generator_reset_write(0);
-			generator_base_write(0);
+			generator_base_write(0x10000);
 			generator_length_write((test_size*8)/128);
 
 			timer0_en_write(0);
@@ -53,7 +53,7 @@ void bist(void) {
 			printf("reading %d Mbytes...", test_size/(1024*1024));
 			checker_reset_write(1);
 			checker_reset_write(0);
-			checker_base_write(0);
+			checker_base_write(0x10000);
 			checker_length_write((test_size*8)/128);
 
 			timer0_en_write(0);
@@ -72,7 +72,7 @@ void bist(void) {
 			printf(" / %u Mbps\n", speed);
 
 			// errors
-			printf("errors: %d\n", checker_err_count_read());
+			printf("errors: %d\n", checker_errors_read());
 
 			// delay
 			busy_wait(10);

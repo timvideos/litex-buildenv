@@ -58,7 +58,10 @@ static void ci_help(void)
 	ci_puts("mdio_status - show mdio status");
 #endif
 #ifdef CSR_GENERATOR_BASE
-	ci_puts("bist        - DDR3 bist");
+	ci_puts("sdram_test  - sdram test");
+#endif
+#ifdef SPIFLASH_PAGE_SIZE
+	ci_puts("flash_test  - flash test");
 #endif
 	help_debug();
 }
@@ -195,7 +198,10 @@ void ci_service(void)
 	else if(strcmp(token, "mdio_dump") == 0) mdio_dump();
 #endif
 #ifdef CSR_GENERATOR_BASE
-	else if(strcmp(token, "bist") == 0) bist();
+	else if(strcmp(token, "sdram_test") == 0) bist_test();
+#endif
+#ifdef SPIFLASH_PAGE_SIZE
+	else if(strcmp(token, "flash_test") == 0) flash_test();
 #endif
 	else if((strcmp(token, "debug") == 0)) {
 		token = get_token(&str);

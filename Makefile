@@ -27,6 +27,6 @@ firmware:
 	cd firmware && make clean all
 
 load-firmware:
-	litex_term --kernel firmware/firmware.bin --kernel-adr 0x20000000 /dev/ttyUSB1
+	litex_term --kernel firmware/firmware.bin COM10
 
 .PHONY: load firmware load-firmware
