@@ -10,19 +10,14 @@ import netv2_platform as netv2
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
-from litex.build.tools import write_to_file
 
 from litedram.modules import MT41J128M16
 from litedram.phy import a7ddrphy
+from litedram.core import ControllerSettings
 from litedram.frontend.bist import LiteDRAMBISTGenerator
 from litedram.frontend.bist import LiteDRAMBISTChecker
 
-from litepcie.phy.s7pciephy import S7PCIEPHY
-from litepcie.core import LitePCIeEndpoint, LitePCIeMSI
-from litepcie.frontend.dma import LitePCIeDMA
-from litepcie.frontend.wishbone import LitePCIeWishboneBridge
 
-import cpu_interface
 
 class _CRG(Module):
     def __init__(self, platform):
@@ -95,7 +90,7 @@ class _CRG(Module):
 
 class BaseSoC(SoCSDRAM):
     csr_map = {
-        "ddr_phy":       17,
+        "ddrphy":        17,
         "ddr_generator": 18,
         "ddr_checker":   19,
         "dna":           20,
@@ -124,36 +119,17 @@ class BaseSoC(SoCSDRAM):
 
         self.submodules.crg = _CRG(platform)
 
-        # pcie endpoint
-        self.submodules.pcie_phy = S7PCIEPHY(platform, link_width=1)
-        self.submodules.pcie_endpoint = LitePCIeEndpoint(self.pcie_phy, with_reordering=True)
-
-        # pcie wishbone bridge (FIXME, need cdc: pcie@125Mhz, sys@100MHz)
-        self.submodules.pcie_wishbone_bridge = LitePCIeWishboneBridge(self.pcie_endpoint, lambda a: 1)
-        self.add_wb_master(self.pcie_wishbone_bridge.wishbone)
-
-        # pcie dma (FIXME, need cdc: pcie@125Mhz, sys@100MHz)
-        self.submodules.dma = LitePCIeDMA(self.pcie_phy, self.pcie_endpoint, with_loopback=True)
-        self.dma.source.connect(self.dma.sink)
-
-        # msi (FIXME, need cdc: pcie@125Mhz, sys@100MHz)
-        self.submodules.msi = LitePCIeMSI()
-        self.comb += self.msi.source.connect(self.pcie_phy.interrupt)
-        self.interrupts = {
-            "dma_writer":    self.dma.writer.irq,
-            "dma_reader":    self.dma.reader.irq
-        }
-        for k, v in sorted(self.interrupts.items()):
-            self.comb += self.msi.irqs[self.interrupt_map[k]].eq(v)
-
         # sdram
-        self.submodules.ddr_phy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
+        self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
         self.add_constant("A7DDRPHY_BITSLIP", 2)
         self.add_constant("A7DDRPHY_DELAY", 8)
         sdram_module = MT41J128M16(self.clk_freq, "1:4")
-        self.register_sdram(self.ddr_phy,
+        self.register_sdram(self.ddrphy,
                             sdram_module.geom_settings,
-                            sdram_module.timing_settings)
+                            sdram_module.timing_settings,
+                            controller_settings=ControllerSettings(with_bandwidth=True,
+                                                                   cmd_buffer_depth=8,
+                                                                   with_refresh=True))
 
         # sdram bist
         ddr_generator_port = self.sdram.crossbar.get_port(mode="write")
@@ -179,7 +155,6 @@ def main():
     builder = Builder(soc, output_dir="build")
     vns = builder.build()
 
-    csr_header = cpu_interface.get_csr_header(soc.get_csr_regions(), soc.get_constants())
-    write_to_file(os.path.join("software", "pcie", "kernel", "csr.h"), csr_header)
+
 if __name__ == "__main__":
     main()
