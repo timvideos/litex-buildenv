@@ -29,7 +29,7 @@ class PCIeDMASoC(BaseSoC):
         BaseSoC.__init__(self, platform, **kwargs)
 
         # pcie phy
-        self.submodules.pcie_phy = S7PCIEPHY(platform, link_width=1, cd="sys")
+        self.submodules.pcie_phy = S7PCIEPHY(platform, link_width=1, bar0_size=0x80000000, cd="sys")
 
         # pcie endpoint
         self.submodules.pcie_endpoint = LitePCIeEndpoint(self.pcie_phy, with_reordering=True)
