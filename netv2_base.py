@@ -28,7 +28,7 @@ class _CRG(Module):
         self.clock_domains.cd_clk100 = ClockDomain()
         self.clock_domains.cd_clk50 = ClockDomain()
 
-        self.clock_domains.cd_clk125 = ClockDomain("clk125") # PCIe
+        self.clock_domains.cd_clk125 = ClockDomain("clk125") # pcie
 
         clk50 = platform.request("clk50")
         rst = Signal(reset=1) # FIXME
@@ -96,11 +96,6 @@ class BaseSoC(SoCSDRAM):
         "ddrphy":        17,
         "generator":     18,
         "checker":       19,
-        "dna":           20,
-        "xadc":          21,
-        "pcie_phy":      22,
-        "dma":           23,
-        "msi":           24,
     }
     csr_map.update(SoCSDRAM.csr_map)
 
