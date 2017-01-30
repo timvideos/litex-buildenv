@@ -25,11 +25,14 @@ class PCIeDMASoC(BaseSoC):
     }
     interrupt_map.update(BaseSoC.interrupt_map)
 
+    BaseSoC.mem_map["csr"] = 0x00000000
+    BaseSoC.mem_map["rom"] = 0x20000000
+
     def __init__(self, platform, **kwargs):
         BaseSoC.__init__(self, platform, **kwargs)
 
         # pcie phy
-        self.submodules.pcie_phy = S7PCIEPHY(platform, link_width=1, bar0_size=0x80000000, cd="sys")
+        self.submodules.pcie_phy = S7PCIEPHY(platform, link_width=1, cd="sys")
 
         # pcie endpoint
         self.submodules.pcie_endpoint = LitePCIeEndpoint(self.pcie_phy, with_reordering=True)
