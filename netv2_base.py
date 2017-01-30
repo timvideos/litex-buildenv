@@ -130,7 +130,7 @@ class BaseSoC(SoCSDRAM):
 
         # led blink
         counter = Signal(32)
-        self.sync += counter.eq(counter + 1)
+        self.sync.clk125 += counter.eq(counter + 1)
         self.comb += platform.request("user_led", 0).eq(counter[26])
 
 
