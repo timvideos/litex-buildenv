@@ -196,8 +196,7 @@ class BaseSoC(SoCSDRAM):
         self.submodules.spiflash = spi_flash.SpiFlashSingle(
             platform.request("spiflash"),
             dummy=platform.spiflash_read_dummy_bits,
-            div=platform.spiflash_clock_div,
-            with_bitbang=False)
+            div=platform.spiflash_clock_div)
         self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
         self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
 
