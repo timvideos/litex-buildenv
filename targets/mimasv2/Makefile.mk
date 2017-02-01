@@ -1,6 +1,7 @@
 # mimasv2 loading
 
 TARGET ?= base
+# FIXME(mithro): Detect the real serial port/add see udev rules to HDMI2USB-mode-switch...
 PORT ?= /dev/ttyACM0
 
 gateware-load-mimasv2:
