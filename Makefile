@@ -65,7 +65,7 @@ image-load: image-load-$(PLATFORM)
 
 # Gateware
 # --------------------------------------
-GATEWARE_MODULES=litex litedram liteeth litejpeg litepcie litesata litescope liteusb litevideo litex
+GATEWARE_MODULES=litex litedram liteeth litepcie litesata litescope liteusb litevideo litex
 gateware-submodules: $(addsuffix /.git,$(addprefix third_party/,$(GATEWARE_MODULES)))
 	@true
 

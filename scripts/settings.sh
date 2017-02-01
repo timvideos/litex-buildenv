@@ -23,7 +23,6 @@ LITE_REPOS="
 	litex
 	litedram
 	liteeth
-	litejpeg
 	litepcie
 	litesata
 	litescope

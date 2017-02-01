@@ -7,9 +7,6 @@
 [submodule "third_party/liteeth"]
 	path = third_party/liteeth
 	url = https://github.com/enjoy-digital/liteeth.git
-[submodule "third_party/litejpeg"]
-	path = third_party/litejpeg
-	url = https://github.com/enjoy-digital/litejpeg.git
 [submodule "third_party/litepcie"]
 	path = third_party/litepcie
 	url = https://github.com/enjoy-digital/litepcie.git
