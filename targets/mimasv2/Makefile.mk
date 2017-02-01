@@ -6,9 +6,14 @@ PORT ?= /dev/ttyACM0
 BAUD ?= 19200
 
 gateware-load-mimasv2:
+	@echo "MimasV2 doesn't support loading, use the flash target instead."
+	@echo "make gateware-flash-mimasv2"
+	@false
+
+gateware-flash-mimasv2:
 	python3 $$(which MimasV2Config.py) $(PORT) $(TARGET_BUILD_DIR)/gateware/top.bin
 
-image-load-mimasv2:
+image-flash-mimasv2:
 	python mkimage.py
 	python3 $$(which MimasV2Config.py) $(PORT) $(TARGET_BUILD_DIR)/flash.bin
 
