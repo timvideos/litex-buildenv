@@ -13,6 +13,7 @@ from litedram.phy import s6ddrphy
 from litedram.core import ControllerSettings
 
 from gateware import info
+from gateware import cas
 
 from targets.utils import csr_map_update
 
@@ -170,12 +171,12 @@ class _CRG(Module):
         platform.add_period_constraint(self.cd_base50.clk, 20)
 
 
-
 class BaseSoC(SoCSDRAM):
     csr_peripherals = (
         "spiflash",
         "ddrphy",
         "info",
+        "cas",
     )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
@@ -222,5 +223,14 @@ class BaseSoC(SoCSDRAM):
             self.ddrphy.clk4x_rd_strb.eq(self.crg.clk4x_rd_strb),
         ]
 
+        self.comb += [
+            platform.request("user_led", 1).eq(platform.request("user_sw", 1)),
+            platform.request("user_led", 2).eq(platform.request("user_sw", 2)),
+            platform.request("user_led", 3).eq(platform.request("user_sw", 3)),
+            platform.request("user_led", 4).eq(platform.request("user_sw", 4)),
+            platform.request("user_led", 5).eq(platform.request("user_sw", 5)),
+        ]
+
+        self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
 
 SoC = BaseSoC
