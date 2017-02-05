@@ -223,13 +223,13 @@ class BaseSoC(SoCSDRAM):
             self.ddrphy.clk4x_rd_strb.eq(self.crg.clk4x_rd_strb),
         ]
 
-        self.comb += [
-            platform.request("user_led", 1).eq(platform.request("user_sw", 1)),
-            platform.request("user_led", 2).eq(platform.request("user_sw", 2)),
-            platform.request("user_led", 3).eq(platform.request("user_sw", 3)),
-            platform.request("user_led", 4).eq(platform.request("user_sw", 4)),
-            platform.request("user_led", 5).eq(platform.request("user_sw", 5)),
-        ]
+#        self.comb += [
+#            platform.request("user_led", 1).eq(platform.request("user_sw", 1)),
+#            platform.request("user_led", 2).eq(platform.request("user_sw", 2)),
+#            platform.request("user_led", 3).eq(platform.request("user_sw", 3)),
+#            platform.request("user_led", 4).eq(platform.request("user_sw", 4)),
+#            platform.request("user_led", 5).eq(platform.request("user_sw", 5)),
+#        ]
 
         self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
 
