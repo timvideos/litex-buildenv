@@ -99,7 +99,7 @@ class _CRG(Module):
 
 
         # power on reset?
-        reset = ~platform.request("buttonswitch", 0) | self.reset
+        reset = ~platform.request("user_sw", 0) | self.reset
         self.clock_domains.cd_por = ClockDomain()
         por = Signal(max=1 << 11, reset=(1 << 11) - 1)
         self.sync.por += If(por != 0, por.eq(por - 1))
