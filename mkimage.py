@@ -52,11 +52,15 @@ def main():
         f.seek(bios_pos)
         f.write(bios_data)
 
-        firmware_data = open(firmware, "rb").read()
-        print("Firmware @ 0x{:08x} ({:10} bytes) {:60} - HDMI2USB Firmware in FBI format (loaded into DRAM)".format(firmware_pos, len(firmware_data), firmware))
-        print(" ".join("{:02x}".format(i) for i in firmware_data[:64]))
-        f.seek(firmware_pos)
-        f.write(firmware_data)
+        try:
+            firmware_data = open(firmware, "rb").read()
+            print("Firmware @ 0x{:08x} ({:10} bytes) {:60} - HDMI2USB Firmware in FBI format (loaded into DRAM)".format(firmware_pos, len(firmware_data), firmware))
+            print(" ".join("{:02x}".format(i) for i in firmware_data[:64]))
+            f.seek(firmware_pos)
+            f.write(firmware_data)
+        except FileNotFoundError:
+            print("Firmware not found! Building image without it")
+            firmware_data=[]
 
         remain = platform.spiflash_total_size - (firmware_pos+len(firmware_data))
         print("-"*40)
