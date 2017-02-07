@@ -38,6 +38,15 @@ apt-get install -y iverilog gtkwave
 
 apt-get install -y libreadline-dev libusb-1.0-0-dev libftdi-dev python-yaml fxload
 
+# Video tools
+apt-get install -y v4l-conf guvcview mplayer
+
+# Load custom udev rules
+(
+	cp -uf  $SETUP_DIR/52-hdmi2usb.rules /etc/udev/rules.d/
+#	adduser $USER dialout
+)
+
 # Get the vizzini module needed for the Atlys board
 apt-get install -y software-properties-common
 add-apt-repository -y ppa:timvideos/fpga-support
