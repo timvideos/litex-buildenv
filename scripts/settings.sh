@@ -1,11 +1,18 @@
 #!/bin/bash
 
-# Settings for the get-env.sh and setup-env.sh scripts
+# Settings for the download-env.sh and setup-env.sh scripts
+
+BOARD=${BOARD:-opsis}
 
 BUILD_DIR=$TOP_DIR/build
 THIRD_DIR=$TOP_DIR/third_party
 CONDA_DIR=$BUILD_DIR/conda
 
+# Python module versions
+HDMI2USB_MODESWITCH_VERSION=0.0.0
+HEXFILE_VERSION=0.1
+
+# Conda package versions
 BINUTILS_VERSION=2.26
 GCC_VERSION=4.9.3
 SDCC_VERSION=3.5.0

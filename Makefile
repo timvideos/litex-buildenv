@@ -10,7 +10,9 @@ PYTHONHASHSEED := 0
 export PYTHONHASHSEED
 
 # Default board
-BOARD ?= atlys
+ifeq ($(BOARD),)
+    $(error "BOARD not set, please set it.")
+endif
 export BOARD
 # Default targets for a given board
 ifeq ($(BOARD),pipistrello)
@@ -65,6 +67,14 @@ FLASHEXTRA_CMD = \
     $(PROGRAMMER_OPTION) \
     $(BOARD)
 
+MODESWITCH_CMD = \
+  hdmi2usb-mode-switch \
+    --by-type=$(BOARD) \
+    --verbose
+
+MODEINFO_CMD = \
+  hdmi2usb-find-board \
+    --by-type=$(BOARD)
 
 ifeq ($(OS),Windows_NT)
 	FLTERM = $(PYTHON) $(MSCDIR)/tools/flterm.py
@@ -144,13 +154,23 @@ download-prebuilt:
 	
 # Load
 load-gateware:
+	$(MODESWITCH_CMD) --mode=jtag
 	$(MAKEPY_CMD) load-bitstream
 
 load: load-gateware $(addprefix load-,$(TARGETS))
 	@true
 
+# FIXME: Hack to work around our dodgy FX2 firmware
+jtag-toggle:
+	$(MODESWITCH_CMD) --mode=jtag
+	sleep 1
+	$(MODESWITCH_CMD) --mode=serial
+	sleep 1
+	$(MODESWITCH_CMD) --mode=jtag
+
 # Flash
 flash-gateware: gateware-submodules
+	$(MODESWITCH_CMD) --mode=jtag
 	$(MAKEPY_CMD) flash-bitstream
 	@echo ""
 	@echo ""

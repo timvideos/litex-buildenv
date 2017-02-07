@@ -19,11 +19,13 @@ fi
 GIT_REVISION=`git describe`
 echo "============================================="
 
+export HDMI2USB_UDEV_IGNORE=1
+
 # Run the script once to check it works
-time scripts/get-env.sh
+time scripts/download-env.sh
 # Run the script again to check it doesn't break things
-time scripts/get-env.sh
+time scripts/download-env.sh
 
 set +x
 set +e
-. scripts/setup-env.sh
+. scripts/enter-env.sh

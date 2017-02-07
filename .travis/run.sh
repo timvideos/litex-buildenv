@@ -1,6 +1,8 @@
 #!/bin/bash
 
-source scripts/setup-env.sh
+export HDMI2USB_UDEV_IGNORE=1
+
+source scripts/enter-env.sh
 
 ls -l $XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/xreport
 if [ -f $XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/xreport ]; then

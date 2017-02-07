@@ -39,9 +39,19 @@ fi
 yn=y
 #read -p "Need to install packages as root. Continue? (y/n) " yn
 if [ "$yn" = "y" -o "$yn" = "Y" -o -z "$yn" ]; then
-  sudo -E ./scripts/get-env-root.sh || exit 1
+  sudo -E ./scripts/download-env-root.sh || exit 1
 else
   echo "Aborting.."
   exit 1
 fi
-./scripts/get-env.sh || exit 1
+./scripts/download-env.sh || exit 1
+
+# Check to see whether they've installed a Xilinx license file yet
+if [ ! -e "$HOME/.Xilinx/Xilinx.lic" ]; then
+  echo "Bootstrap: Set up complete."
+  echo "Bootstrap: Failed to find a license file in ~/.Xilinx/Xilinx.lic"
+  echo "Bootstrap: You can't build HDMI2USB-misoc-firmware without Xilinx ISE Design Suite"
+  echo "Bootstrap: See scripts/README.md for instructions on how to obtain a license"
+else
+  echo "Bootstrap: Set up complete, you're good to go!";
+fi

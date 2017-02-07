@@ -12,22 +12,53 @@ CALLED=$_
 SETUP_SRC=$(realpath ${BASH_SOURCE[0]})
 SETUP_DIR=$(dirname $SETUP_SRC)
 TOP_DIR=$(realpath $SETUP_DIR/..)
+LIKELY_XILINX_LICENSE_LOCATION="$HOME/.Xilinx/Xilinx.lic"
 
 if [ $SOURCED = 0 ]; then
-	echo "You must source this script, rather then try and run it."
+	echo "You must source this script, rather than try and run it."
 	echo ". $SETUP_SRC"
 	exit 1
 fi
 
 if [ ! -z $HDMI2USB_ENV ]; then
-  echo "Already sourced this file."
-  return
+	echo "Already sourced this file."
+	return
 fi
 
 if [ ! -z $SETTINGS_FILE ]; then
-  echo "You appear to have sourced the Xilinx ISE settings, these are incompatible with building."
-  echo "Please exit this terminal and run again from a clean shell."
-  return
+	echo "You appear to have sourced the Xilinx ISE settings, these are incompatible with building."
+	echo "Please exit this terminal and run again from a clean shell."
+	return
+fi
+
+# Check ixo-usb-jtag *isn't* install
+if [ -d /lib/firmware/ixo-usb-jtag/ ]; then
+	echo "Please uninstall ixo-usb-jtag package, the required firmware is"
+	echo "included in the HDMI2USB modeswitch tool."
+	echo
+	echo "On Debian/Ubuntu run:"
+	echo "  sudo apt-get remove ixo-usb-jtag"
+	echo
+	return
+fi
+
+if [ -f /etc/udev/rules.d/99-hdmi2usb-permissions.rules -o -f /lib/udev/rules.d/99-hdmi2usb-permissions.rules -o ! -z "$HDMI2USB_UDEV_IGNORE" ]; then
+	true
+else
+	echo "Please install the HDMI2USB udev rules."
+	echo "These are installed by scripts/download-env-root.sh"
+	echo
+	return
+fi
+
+# Detect a likely lack of license early, but just warn if it's missing
+# just in case they've set it up elsewhere.
+license_found=0
+if [ ! -e $LIKELY_XILINX_LICENSE_LOCATION ]; then
+	echo "(WARNING) Please ensure you have installed Xilinx and have a license."
+	echo "(WARNING) Copy your Xilinx license to $LIKELY_XILINX_LICENSE_LOCATION to suppress this warning."
+else
+	license_found=1
 fi
 
 . $SETUP_DIR/settings.sh
@@ -36,6 +67,9 @@ echo "             This script is: $SETUP_SRC"
 echo "         Firmware directory: $TOP_DIR"
 echo "         Build directory is: $BUILD_DIR"
 echo "     3rd party directory is: $THIRD_DIR"
+if [ $license_found == 1 ]; then
+	echo "          Xilinx license in: $LIKELY_XILINX_LICENSE_LOCATION"
+fi
 
 # Check the build dir
 if [ ! -d $BUILD_DIR ]; then
@@ -70,7 +104,7 @@ function check_version {
 	else
 		$TOOL --version
 		echo "$TOOL (version $VERSION) *NOT* found"
-		echo "Please try running the $SETUP_DIR/get-env.sh script again."
+		echo "Please try running the $SETUP_DIR/download-env.sh script again."
 		return 1
 	fi
 }
@@ -82,7 +116,21 @@ function check_import {
 		return 0
 	else
 		echo "$MODULE *NOT* found!"
-		echo "Please try running the $SETUP_DIR/get-env.sh script again."
+		echo "Please try running the $SETUP_DIR/download-env.sh script again."
+		return 1
+	fi
+}
+
+function check_import_version {
+	MODULE=$1
+	EXPECT_VERSION=$2
+        ACTUAL_VERSION=$(python3 -c "import $MODULE; print($MODULE.__version__)")
+	if echo "$ACTUAL_VERSION" | grep -q $EXPECT_VERSION > /dev/null; then
+		echo "$MODULE found at $ACTUAL_VERSION"
+		return 0
+	else
+		echo "$MODULE (version $EXPECT_VERSION) *NOT* found!"
+		echo "Please try running the $SETUP_DIR/download-env.sh script again."
 		return 1
 	fi
 }
@@ -118,7 +166,16 @@ check_version sdcc $SDCC_VERSION || return 1
 check_version openocd 0.10.0-dev || return 1
 
 # hexfile for embedding the Cypress FX2 firmware.
-check_import hexfile
+
+
+
+check_import_version hexfile $HEXFILE_VERSION
+
+# Tool for changing the mode (JTAG/Serial/etc) of HDMI2USB boards
+
+
+
+check_import_version hdmi2usb.modeswitch $HDMI2USB_MODESWITCH_VERSION
 
 # git submodules
 echo ""
@@ -156,10 +213,8 @@ export HDMI2USB_ENV=1
 # Set prompt
 ORIG_PS1="$PS1"
 hdmi2usb_prompt() {
-	P=""
-	if [ ! -z "$BOARD" ]; then
-		P="$P B=$BOARD"
-	fi
+	P="(H2U B=$BOARD"
+
 	if [ ! -z "$TARGET" ]; then
 		P="$P T=$TARGET"
 	fi
@@ -167,12 +222,14 @@ hdmi2usb_prompt() {
 		P="$P P=$PROG"
 	fi
 
-	if [ ! -z "$P" ]; then
-		P="(H2U$P) $ORIG_PS1"
-	else
-		P="(HDMI2USB) $ORIG_PS1"
+	BRANCH="$(git symbolic-ref --short HEAD 2> /dev/null)"
+	if [ "$BRANCH" != "master" ]; then
+		if [ x"$BRANCH" = x ]; then
+			BRANCH="???"
+		fi
+		P="$P R=$BRANCH"
 	fi
 
-	PS1=$P
+	PS1="$P) $ORIG_PS1"
 }
 PROMPT_COMMAND=hdmi2usb_prompt

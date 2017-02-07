@@ -36,8 +36,6 @@ apt-get install -y iverilog gtkwave
 # liteeth
 # Nothing needed
 
-# libfpgalink
-
 apt-get install -y libreadline-dev libusb-1.0-0-dev libftdi-dev python-yaml fxload
 
 # Video tools
@@ -54,4 +52,4 @@ apt-get install -y software-properties-common
 add-apt-repository -y ppa:timvideos/fpga-support
 apt-get update
 apt-get install -y vizzini-dkms
-apt-get install -y ixo-usb-jtag
+apt-get install -y hdmi2usb-mode-switch-udev
