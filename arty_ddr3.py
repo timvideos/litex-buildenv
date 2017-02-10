@@ -103,14 +103,12 @@ class BaseSoC(SoCSDRAM):
     }
     csr_map.update(SoCSDRAM.csr_map)
 
-    def __init__(self,
-                 platform,
-                 with_sdram_bist=True, bist_async=True, bist_random=False,
-                 **kwargs):
+    def __init__(self, platform,
+                 with_sdram_bist=True, bist_async=True, bist_random=False):
         clk_freq = 100*1000000
         SoCSDRAM.__init__(self, platform, clk_freq,
             cpu_type=None,
-            l2_size=0,
+            l2_size=32,
             csr_data_width=32,
             with_uart=False,
             with_timer=False)
@@ -139,6 +137,7 @@ class BaseSoC(SoCSDRAM):
         self.add_wb_master(self.cpu_or_bridge.wishbone)
 
         # logic analyzer
+        analyzer_signals = [Signal(2)]
         if False:
             analyzer_signals = [
                 generator_user_port.cmd.valid,
@@ -154,7 +153,7 @@ class BaseSoC(SoCSDRAM):
                 self.checker.start.re
             ]
 
-        if True:
+        if False:
             gen_data = Signal(32)
             read_data = Signal(32)
             self.comb += [
@@ -176,7 +175,7 @@ class BaseSoC(SoCSDRAM):
                 gen_data,
                 read_data,
 
-                self.checker.core.err_count
+                self.checker.core.errors
             ]
 
         self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 512)
