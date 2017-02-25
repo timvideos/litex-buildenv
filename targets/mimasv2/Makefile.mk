@@ -11,11 +11,11 @@ gateware-load-mimasv2:
 	@false
 
 gateware-flash-mimasv2:
-	python3 $$(which MimasV2Config.py) $(PORT) $(TARGET_BUILD_DIR)/gateware/top.bin
+	$(PYTHON) $$(which MimasV2Config.py) $(PORT) $(TARGET_BUILD_DIR)/gateware/top.bin
 
 image-flash-mimasv2:
-	python mkimage.py
-	python3 $$(which MimasV2Config.py) $(PORT) $(TARGET_BUILD_DIR)/flash.bin
+	$(PYTHON) mkimage.py
+	$(PYTHON) $$(which MimasV2Config.py) $(PORT) $(TARGET_BUILD_DIR)/flash.bin
 
 firmware-load-mimasv2:
 	flterm --port=$(PORT) --kernel=$(TARGET_BUILD_DIR)/software/firmware/firmware.bin --speed=$(BAUD)
