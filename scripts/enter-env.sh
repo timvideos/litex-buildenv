@@ -153,6 +153,12 @@ echo "Checking modules from conda"
 echo "---------------------------"
 export PATH=$CONDA_DIR/bin:$PATH
 
+# Check the Python version
+(
+	conda install python=3.5
+)
+check_version python 3.5 || return 1
+
 # fxload
 
 
