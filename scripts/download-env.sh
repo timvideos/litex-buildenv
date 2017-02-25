@@ -170,6 +170,12 @@ export PATH=$CONDA_DIR/bin:$PATH
 	conda config --add channels timvideos
 )
 
+# Check the Python version
+(
+	conda install python=3.5
+)
+check_version python 3.5
+
 # fxload
 #(
 #	conda install fxload
