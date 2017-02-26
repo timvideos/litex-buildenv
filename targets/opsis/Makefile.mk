@@ -7,7 +7,7 @@ gateware-load-opsis: tftp
 
 firmware-load-opsis:
 	opsis-mode-switch --verbose --mode=serial
-	flterm --port=/dev/hdmi2usb/by-num/opsis0/tty --kernel=$(TARGET_BUILD_DIR)/software/firmware/firmware.bin
+	flterm --port=$$(opsis-mode-switch --get-serial-dev) --kernel=$(TARGET_BUILD_DIR)/software/firmware/firmware.bin
 
 reset-opsis:
 	opsis-mode-switch --verbose --mode=serial
