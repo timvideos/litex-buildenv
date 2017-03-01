@@ -47,12 +47,13 @@ _io = [
     ("dipswitch", 6, Pins("F18"), IOStandard("LVCMOS33"), Misc("PULLUP")),
     ("dipswitch", 7, Pins("F17"), IOStandard("LVCMOS33"), Misc("PULLUP")),
 
-    ("user_sw", 0, Pins("K18"), IOStandard("LVCMOS33"), Misc("PULLUP")),
-    ("user_sw", 1, Pins("K17"), IOStandard("LVCMOS33"), Misc("PULLUP")),
-    ("user_sw", 2, Pins("L17"), IOStandard("LVCMOS33"), Misc("PULLUP")),
-    ("user_sw", 3, Pins("M16"), IOStandard("LVCMOS33"), Misc("PULLUP")),
-    ("user_sw", 4, Pins("L18"), IOStandard("LVCMOS33"), Misc("PULLUP")),
-    ("user_sw", 5, Pins("M18"), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    # sw1 (user_sw:0) through sw6 (user_sw:5)
+    ("user_sw", 0, Pins("M18"), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ("user_sw", 1, Pins("L18"), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ("user_sw", 2, Pins("M16"), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ("user_sw", 3, Pins("L17"), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ("user_sw", 4, Pins("K17"), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ("user_sw", 5, Pins("K18"), IOStandard("LVCMOS33"), Misc("PULLUP")),
 
     ("user_led", 0, Pins("T18"), IOStandard("LVCMOS33"), Drive(8)),
     ("user_led", 1, Pins("T17"), IOStandard("LVCMOS33"), Drive(8)),
