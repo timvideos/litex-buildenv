@@ -4,6 +4,9 @@ ifeq ($(HDMI2USB_ENV),)
 endif
 endif
 
+PYTHON ?= python
+export PYTHON
+
 PLATFORM ?= opsis
 export PLATFORM
 # Default board
@@ -37,7 +40,7 @@ export PYTHONHASHSEED
 # ---------------------------------
 
 MAKE_CMD=\
-	time python -u ./make.py \
+	time $(PYTHON) -u ./make.py \
 		--platform=$(PLATFORM) \
 		--target=$(TARGET) \
 		--cpu-type=$(CPU) \
