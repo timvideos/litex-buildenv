@@ -13,6 +13,7 @@ from litedram.phy import s6ddrphy
 from litedram.core import ControllerSettings
 
 from gateware import info
+from gateware import cas
 
 from targets.utils import csr_map_update
 
@@ -99,7 +100,7 @@ class _CRG(Module):
 
 
         # power on reset?
-        reset = ~platform.request("buttonswitch", 0) | self.reset
+        reset = ~platform.request("user_sw", 5) | self.reset
         self.clock_domains.cd_por = ClockDomain()
         por = Signal(max=1 << 11, reset=(1 << 11) - 1)
         self.sync.por += If(por != 0, por.eq(por - 1))
@@ -170,12 +171,12 @@ class _CRG(Module):
         platform.add_period_constraint(self.cd_base50.clk, 20)
 
 
-
 class BaseSoC(SoCSDRAM):
     csr_peripherals = (
         "spiflash",
         "ddrphy",
         "info",
+        "cas",
     )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
@@ -222,5 +223,6 @@ class BaseSoC(SoCSDRAM):
             self.ddrphy.clk4x_rd_strb.eq(self.crg.clk4x_rd_strb),
         ]
 
+        self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
 
 SoC = BaseSoC
