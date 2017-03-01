@@ -55,14 +55,15 @@ _io = [
     ("user_sw", 4, Pins("K17"), IOStandard("LVCMOS33"), Misc("PULLUP")),
     ("user_sw", 5, Pins("K18"), IOStandard("LVCMOS33"), Misc("PULLUP")),
 
-    ("user_led", 0, Pins("T18"), IOStandard("LVCMOS33"), Drive(8)),
-    ("user_led", 1, Pins("T17"), IOStandard("LVCMOS33"), Drive(8)),
-    ("user_led", 2, Pins("U18"), IOStandard("LVCMOS33"), Drive(8)),
-    ("user_led", 3, Pins("U17"), IOStandard("LVCMOS33"), Drive(8)),
-    ("user_led", 4, Pins("N16"), IOStandard("LVCMOS33"), Drive(8)),
-    ("user_led", 5, Pins("N15"), IOStandard("LVCMOS33"), Drive(8)),
-    ("user_led", 6, Pins("P16"), IOStandard("LVCMOS33"), Drive(8)),
-    ("user_led", 7, Pins("P15"), IOStandard("LVCMOS33"), Drive(8)),
+    # LEDs 1 through 8
+    ("user_led", 0, Pins("P15"), IOStandard("LVCMOS33"), Drive(8)),
+    ("user_led", 1, Pins("P16"), IOStandard("LVCMOS33"), Drive(8)),
+    ("user_led", 2, Pins("N15"), IOStandard("LVCMOS33"), Drive(8)),
+    ("user_led", 3, Pins("N16"), IOStandard("LVCMOS33"), Drive(8)),
+    ("user_led", 4, Pins("U17"), IOStandard("LVCMOS33"), Drive(8)),
+    ("user_led", 5, Pins("U18"), IOStandard("LVCMOS33"), Drive(8)),
+    ("user_led", 6, Pins("T17"), IOStandard("LVCMOS33"), Drive(8)),
+    ("user_led", 7, Pins("T18"), IOStandard("LVCMOS33"), Drive(8)),
 
     ("mmc", 0,
         Subsignal("dat", Pins("K14 G18 J13 L13"), IOStandard("LVCMOS33"),
