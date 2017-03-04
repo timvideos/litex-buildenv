@@ -1,0 +1,43 @@
+# Names should be added to this file with this pattern:
+#
+# For individuals:
+#   Name <email address>
+#
+# For organizations:
+#   Organization <fnmatch pattern>
+#
+# See python fnmatch module documentation for more information.
+
+# People - in alphabetical order
+Ajit Mathew <ajitmathew04@gmail.com>
+Carl Karsten <CFKarsten@gmail.com>
+Chris Felton <chris.felton@gmail.com>
+Chris McClelland <prophet3636@gmail.com>
+Christopher Felton <chris.felton@gmail.com>
+David Nugent <davidn@uniquode.io>
+Florent Kermarrec <florent@enjoy-digital.fr>
+Jacinta Richardson <jarich@perltraining.com.au>
+Jahanzeb Ahmad <jahanzeb1982@gmail.com>
+Joel 'jae' Addison <joel@addison.net.au>
+Joel 'shenki' Stanley <joel@jms.id.au>
+Katie 'katharos' Bell <katie@katharos.id.au>
+Kenny Duffus <kenny@duffus.org>
+Matthew Iselin <miselin@google.com>
+Michael 'micolous' Farrell <micolous@gmail.com>
+Rohit Kumar Singh <rohit91.2008@gmail.com>
+Rohit Kumar Singh <rohit91@users.noreply.github.com>
+Rohit Kumar Singh <rohit@gmx.it>
+Ryan 'xfxf' Verner <ryan.verner@gmail.com>
+Shashank 'ssk1328' Gangrade <shashankgangrade@gmail.com>
+Stefano 'tumbleweed' Rivera <stefano@rivera.za.net>
+Tim 'mithro' Ansell <mithro@mithis.com>
+Vikram Raigur <vikram.purohith@students.iiit.ac.in>
+William D. Jones <thor0505@comcast.net>
+Yann Sionneau <yann@sionneau.net>
+
+
+# Companies / Groups - in alphabetical order
+Enjoy Digital <*@enjoy-digital.com>
+Google <*@google.com>
+TimVideos.us <*@timvideos.us>
+MITHIS <*@mithis.com>
