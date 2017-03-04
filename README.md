@@ -186,16 +186,9 @@ target.
 
 # License
 
-This code was original developed by [EnjoyDigital](http://enjoy-digital.fr)
-and unless otherwise noted is;
- * Copyright (C) 2015 / TimVideo.us
- * Copyright (C) 2015 / EnjoyDigital
-
-and released under a [BSD/MIT license](LICENSE). This includes the
-[gateware](gateware/), the [lm32 firmware](firmware/lm32/) and related files.
-
-The [FX2 firmware](firmware/fx2) is under the
-[GPL version 2.0 (or later)](http://www.gnu.org/licenses/gpl-2.0.en.html).
+This code was developed by the people found in the [AUTHORS](AUTHORS) file
+(including major contributions from [EnjoyDigital](http://enjoy-digital.fr))
+and released under a [BSD/MIT license](LICENSE).
 
 Code under the [third_party](third_party/) directory comes from external
 sources and is available in their own licenses.
