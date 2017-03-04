@@ -45,9 +45,12 @@ OBJECTS=\
 
 
 CFLAGS += \
-	-I. \
-	-I$(LIBUIP_DIRECTORY)/../uip \
-	-I$(LIBUIP_DIRECTORY)
+	-I$(FIRMWARE_DIRECTORY) \
+	-I$(BUILD_DIRECTORY)/software/firmware
+
+include $(UIP_DIRECTORY)/Makefile.mk
+
+LDFLAGS += \
 
 all: firmware.bin firmware.fbi
 
@@ -69,9 +72,11 @@ firmware.elf: $(FIRMWARE_DIRECTORY)/linker.ld $(OBJECTS)
                 $(OBJECTS) \
                 -L../libnet \
                 -L../libbase \
+		-lbase-nofloat \
                 -L../libcompiler_rt \
-		-L../libuip \
-		-lbase-nofloat -luip -lcompiler_rt
+		-lcompiler_rt \
+		-L../uip \
+		-luip
 	chmod -x $@
 
 # pull in dependency info for *existing* .o files

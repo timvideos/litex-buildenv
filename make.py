@@ -63,7 +63,7 @@ def main():
 
     builder = Builder(soc, **buildargs)
     if not args.no_compile_firmware:
-        builder.add_software_package("libuip", "{}/firmware/libuip".format(os.getcwd()))
+        builder.add_software_package("uip", "{}/firmware/uip".format(os.getcwd()))
         builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
     vns = builder.build(**dict(args.build_option))
 
