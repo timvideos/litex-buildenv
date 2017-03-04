@@ -1260,13 +1260,19 @@ void ci_service(void)
 #ifdef CSR_CAS_BASE
 		} else if(strcmp(token, "cas") == 0) {
 			token = get_token(&str);
-			if(strcmp(token, "leds") == 0) {
+			if (false) { }
+#ifdef CSR_CAS_LEDS_OUT_ADDR
+			else if(strcmp(token, "leds") == 0) {
 				token = get_token(&str);
 				cas_leds_out_write(atoi(token));
 			}
+#endif
+#ifdef CSR_CAS_SWITCHES_IN_ADDR
 			else if(strcmp(token, "switches") == 0) {
 				wprintf("%X\r\n", (int)cas_switches_in_read());
 			}
+#endif
+#ifdef CSR_CAS_BUTTONS_EV_STATUS_ADDR
 			else if(strcmp(token, "buttons") == 0) {
 				int status = cas_buttons_ev_status_read();
 				int pending = cas_buttons_ev_pending_read();
@@ -1276,6 +1282,7 @@ void ci_service(void)
 					cas_buttons_ev_pending_write(pending);
 				}
 			}
+#endif
 #endif
 		} else
 			help_debug();
