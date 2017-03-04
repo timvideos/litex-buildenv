@@ -31,7 +31,7 @@ int main(void)
 	hdmi_out1_i2c_init();
 #endif
 
-	puts("\r\nHDMI2USB firmware  http://timvideos.us/");
+	wputs("\r\nHDMI2USB firmware  http://timvideos.us/");
 	print_version();
 
 	config_init();

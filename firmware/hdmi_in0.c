@@ -47,10 +47,10 @@ void hdmi_in0_isr(void)
 	address_max = address_min + HDMI_IN0_FRAMEBUFFERS_SIZE*FRAMEBUFFER_COUNT;
 	if((hdmi_in0_dma_slot0_status_read() == DVISAMPLER_SLOT_PENDING)
 		&& ((hdmi_in0_dma_slot0_address_read() < address_min) || (hdmi_in0_dma_slot0_address_read() > address_max)))
-		printf("dvisampler0: slot0: stray DMA\r\n");
+		wprintf("dvisampler0: slot0: stray DMA\r\n");
 	if((hdmi_in0_dma_slot1_status_read() == DVISAMPLER_SLOT_PENDING)
 		&& ((hdmi_in0_dma_slot1_address_read() < address_min) || (hdmi_in0_dma_slot1_address_read() > address_max)))
-		printf("dvisampler0: slot1: stray DMA\r\n");
+		wprintf("dvisampler0: slot1: stray DMA\r\n");
 
 #ifdef CLEAN_COMMUTATION
 	if((hdmi_in0_resdetection_hres_read() != hdmi_in0_hres)
@@ -77,7 +77,7 @@ void hdmi_in0_isr(void)
 			hdmi_in0_next_fb_index = (hdmi_in0_next_fb_index + 1) & FRAMEBUFFER_MASK;
 		} else {
 #ifdef DEBUG
-			printf("dvisampler0: slot0: unexpected frame length: %d\r\n", length);
+			wprintf("dvisampler0: slot0: unexpected frame length: %d\r\n", length);
 #endif
 		}
 		hdmi_in0_dma_slot0_address_write(hdmi_in0_framebuffer_base(hdmi_in0_fb_slot_indexes[0]));
@@ -91,7 +91,7 @@ void hdmi_in0_isr(void)
 			hdmi_in0_next_fb_index = (hdmi_in0_next_fb_index + 1) & FRAMEBUFFER_MASK;
 		} else {
 #ifdef DEBUG
-			printf("dvisampler0: slot1: unexpected frame length: %d\r\n", length);
+			wprintf("dvisampler0: slot1: unexpected frame length: %d\r\n", length);
 #endif
 		}
 		hdmi_in0_dma_slot1_address_write(hdmi_in0_framebuffer_base(hdmi_in0_fb_slot_indexes[1]));
@@ -163,7 +163,7 @@ void hdmi_in0_print_status(void)
 	hdmi_in0_data0_wer_update_write(1);
 	hdmi_in0_data1_wer_update_write(1);
 	hdmi_in0_data2_wer_update_write(1);
-	printf("dvisampler0: ph:%4d %4d %4d // charsync:%d%d%d [%d %d %d] // WER:%3d %3d %3d // chansync:%d // res:%dx%d",
+	wprintf("dvisampler0: ph:%4d %4d %4d // charsync:%d%d%d [%d %d %d] // WER:%3d %3d %3d // chansync:%d // res:%dx%d",
 		hdmi_in0_d0, hdmi_in0_d1, hdmi_in0_d2,
 		hdmi_in0_data0_charsync_char_synced_read(),
 		hdmi_in0_data1_charsync_char_synced_read(),
@@ -178,9 +178,9 @@ void hdmi_in0_print_status(void)
 		hdmi_in0_resdetection_hres_read(),
 		hdmi_in0_resdetection_vres_read());
 #ifdef CSR_HDMI_IN0_FREQUENCY_VALUE_ADDR
-	printf(" // pixclk:%d Hz", hdmi_in0_frequency_value_read());
+	wprintf(" // pixclk:%d Hz", hdmi_in0_frequency_value_read());
 #endif
-	printf("\r\n");
+	wprintf("\r\n");
 }
 
 static int wait_idelays(void)
@@ -193,7 +193,7 @@ static int wait_idelays(void)
 	  || hdmi_in0_data1_cap_dly_busy_read()
 	  || hdmi_in0_data2_cap_dly_busy_read()) {
 		if(elapsed(&ev, identifier_frequency_read() >> 6) == 0) {
-			printf("dvisampler0: IDELAY busy timeout\r\n");
+			wprintf("dvisampler0: IDELAY busy timeout\r\n");
 			return 0;
 		}
 	}
@@ -299,16 +299,16 @@ int hdmi_in0_phase_startup(void)
 		attempts++;
 		hdmi_in0_calibrate_delays();
 		if(hdmi_in0_debug)
-			printf("dvisampler0: delays calibrated\r\n");
+			wprintf("dvisampler0: delays calibrated\r\n");
 		ret = hdmi_in0_init_phase();
 		if(ret) {
 			if(hdmi_in0_debug)
-				printf("dvisampler0: phase init OK\r\n");
+				wprintf("dvisampler0: phase init OK\r\n");
 			return 1;
 		} else {
-			printf("dvisampler0: phase init failed\r\n");
+			wprintf("dvisampler0: phase init failed\r\n");
 			if(attempts > 3) {
-				printf("dvisampler0: giving up\r\n");
+				wprintf("dvisampler0: giving up\r\n");
 				hdmi_in0_calibrate_delays();
 				return 0;
 			}
@@ -319,7 +319,7 @@ int hdmi_in0_phase_startup(void)
 static void hdmi_in0_check_overflow(void)
 {
 	if(hdmi_in0_frame_overflow_read()) {
-		printf("dvisampler0: FIFO overflow\r\n");
+		wprintf("dvisampler0: FIFO overflow\r\n");
 		hdmi_in0_frame_overflow_write(1);
 	}
 }
@@ -354,7 +354,7 @@ void hdmi_in0_service(void)
 	if(hdmi_in0_connected) {
 		if(!hdmi_in0_edid_hpd_notif_read()) {
 			if(hdmi_in0_debug)
-				printf("dvisampler0: disconnected\r\n");
+				wprintf("dvisampler0: disconnected\r\n");
 			hdmi_in0_connected = 0;
 			hdmi_in0_locked = 0;
 			hdmi_in0_clocking_pll_reset_write(1);
@@ -369,14 +369,14 @@ void hdmi_in0_service(void)
 					}
 				} else {
 					if(hdmi_in0_debug)
-						printf("dvisampler0: lost PLL lock\r\n");
+						wprintf("dvisampler0: lost PLL lock\r\n");
 					hdmi_in0_locked = 0;
 					hdmi_in0_clear_framebuffers();
 				}
 			} else {
 				if(hdmi_in0_clocking_locked_filtered()) {
 					if(hdmi_in0_debug)
-						printf("dvisampler0: PLL locked\r\n");
+						wprintf("dvisampler0: PLL locked\r\n");
 					hdmi_in0_phase_startup();
 					if(hdmi_in0_debug)
 						hdmi_in0_print_status();
@@ -387,7 +387,7 @@ void hdmi_in0_service(void)
 	} else {
 		if(hdmi_in0_edid_hpd_notif_read()) {
 			if(hdmi_in0_debug)
-				printf("dvisampler0: connected\r\n");
+				wprintf("dvisampler0: connected\r\n");
 			hdmi_in0_connected = 1;
 			hdmi_in0_clocking_pll_reset_write(0);
 		}

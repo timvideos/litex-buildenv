@@ -27,121 +27,121 @@ int status_enabled;
 
 static void help_video_matrix(void)
 {
-	puts("video_matrix commands (alias: 'x')");
-	puts("  video_matrix list              - list available video sinks and sources");
-	puts("  x l                            - list available video sinks and sources");
-	puts("  video_matrix connect <source>  - connect video source to video sink");
-	puts("                       <sink>");
-	puts("  x c <source> <sink>            - connect video source to video sink");
+	wputs("video_matrix commands (alias: 'x')");
+	wputs("  video_matrix list              - list available video sinks and sources");
+	wputs("  x l                            - list available video sinks and sources");
+	wputs("  video_matrix connect <source>  - connect video source to video sink");
+	wputs("                       <sink>");
+	wputs("  x c <source> <sink>            - connect video source to video sink");
 }
 
 static void help_video_mode(void)
 {
-	puts("video_mode commands (alias: 'm')");
-	puts("  video_mode list                - list available video modes");
-	puts("  m l                            - list available video modes");
-	puts("  video_mode <mode>              - select video mode");
+	wputs("video_mode commands (alias: 'm')");
+	wputs("  video_mode list                - list available video modes");
+	wputs("  m l                            - list available video modes");
+	wputs("  video_mode <mode>              - select video mode");
 }
 
 static void help_hdp_toggle(void)
 {
-	puts("hdp_toggle <source>              - toggle HDP on source for EDID rescan");
+	wputs("hdp_toggle <source>              - toggle HDP on source for EDID rescan");
 }
 
 static void help_status(void)
 {
-	puts("status commands (alias: 's')");
-	puts("  status                         - print status message once");
-	puts("  status <on/off>                - repeatedly print status message");
+	wputs("status commands (alias: 's')");
+	wputs("  status                         - print status message once");
+	wputs("  status <on/off>                - repeatedly print status message");
 }
 
 static void help_heartbeat(void)
 {
-	puts("change heartbeat status (alias: 'h')");
-	puts("  heartbeat <on/off>             - Turn on/off heartbeat feature");
+	wputs("change heartbeat status (alias: 'h')");
+	wputs("  heartbeat <on/off>             - Turn on/off heartbeat feature");
 }
 
 #ifdef CSR_HDMI_OUT0_BASE
 static void help_output0(void)
 {
-	puts("output0 commands (alias: '0')");
-	puts("  output0 on                     - enable output0");
-	puts("  output0 off                    - disable output0");
+	wputs("output0 commands (alias: '0')");
+	wputs("  output0 on                     - enable output0");
+	wputs("  output0 off                    - disable output0");
 }
 #endif
 
 #ifdef CSR_HDMI_OUT1_BASE
 static void help_output1(void)
 {
-	puts("output1 commands (alias: '1')");
-	puts("  output1 on                     - enable output1");
-	puts("  output1 off                    - disable output1");
+	wputs("output1 commands (alias: '1')");
+	wputs("  output1 on                     - enable output1");
+	wputs("  output1 off                    - disable output1");
 }
 #endif
 
 #ifdef ENCODER_BASE
 static void help_encoder(void)
 {
-	puts("encoder commands (alias: 'e')");
-	puts("  encoder on                     - enable encoder");
-	puts("  encoder off                    - disable encoder");
-	puts("  encoder quality <quality>      - select quality");
-	puts("  encoder fps <fps>              - configure target fps");
+	wputs("encoder commands (alias: 'e')");
+	wputs("  encoder on                     - enable encoder");
+	wputs("  encoder off                    - disable encoder");
+	wputs("  encoder quality <quality>      - select quality");
+	wputs("  encoder fps <fps>              - configure target fps");
 }
 #endif
 
 static void help_debug(void)
 {
-    puts("debug commands (alias 'd')");
-	puts("  debug pll                      - dump pll configuration");
-	puts("  debug ddr                      - show DDR bandwidth");
-	puts("  debug dna                      - show Board's DNA");
-	puts("  debug edid                     - dump monitor EDID");
-	puts("  debug freq                     - get input frequencies");
+    wputs("debug commands (alias 'd')");
+	wputs("  debug pll                      - dump pll configuration");
+	wputs("  debug ddr                      - show DDR bandwidth");
+	wputs("  debug dna                      - show Board's DNA");
+	wputs("  debug edid                     - dump monitor EDID");
+	wputs("  debug freq                     - get input frequencies");
 #ifdef CSR_OPSIS_EEPROM_I2C_W_ADDR
-	puts("  debug opsis_eeprom             - dump Opsis Info EEPROM");
+	wputs("  debug opsis_eeprom             - dump Opsis Info EEPROM");
 #endif
 #ifdef CSR_TOFE_EEPROM_I2C_W_ADDR
-	puts("  debug tofe_eeprom              - dump TOFE Board Info EEPROM");
+	wputs("  debug tofe_eeprom              - dump TOFE Board Info EEPROM");
 #endif
 #ifdef CSR_FX2_RESET_OUT_ADDR
-	puts("  debug fx2_reboot firmware      - reboot the FX2 USB IC into firmware");
+	wputs("  debug fx2_reboot firmware      - reboot the FX2 USB IC into firmware");
 #endif
 #ifdef CSR_CAS_BASE
-	puts("  debug cas leds <value>         - change the status LEDs");
-	puts("  debug cas switches             - read the control switches status");
-	puts("  debug cas buttons read         - read the control buttons status");
-	puts("  debug cas buttons clear        - clear any asserted buttons status");
+	wputs("  debug cas leds <value>         - change the status LEDs");
+	wputs("  debug cas switches             - read the control switches status");
+	wputs("  debug cas buttons read         - read the control buttons status");
+	wputs("  debug cas buttons clear        - clear any asserted buttons status");
 #endif
 }
 
 static void help(void)
 {
-	puts("help                             - this command");
-	puts("version                          - firmware/gateware version");
-	puts("reboot                           - reboot CPU");
-	puts("");
+	wputs("help                             - this command");
+	wputs("version                          - firmware/gateware version");
+	wputs("reboot                           - reboot CPU");
+	wputs("");
 	help_status();
-	puts("");
+	wputs("");
 	help_video_matrix();
-	puts("");
+	wputs("");
 	help_video_mode();
-	puts("");
+	wputs("");
 	help_heartbeat();
-	puts("");
+	wputs("");
 	help_hdp_toggle();
-	puts("");
+	wputs("");
 #ifdef CSR_HDMI_OUT0_BASE
 	help_output0();
-	puts("");
+	wputs("");
 #endif
 #ifdef CSR_HDMI_OUT1_BASE
 	help_output1();
-	puts("");
+	wputs("");
 #endif
 #ifdef ENCODER_BASE
 	help_encoder();
-	puts("");
+	wputs("");
 #endif
 	help_debug();
 }
@@ -153,7 +153,7 @@ static void reboot(void)
 
 static void status_enable(void)
 {
-	printf("Enabling status\r\n");
+	wprintf("Enabling status\r\n");
 	status_enabled = 1;
 #ifdef ENCODER_BASE
 	encoder_bandwidth_nbytes_clear_write(1);
@@ -162,7 +162,7 @@ static void status_enable(void)
 
 static void status_disable(void)
 {
-	printf("Disabling status\r\n");
+	wprintf("Disabling status\r\n");
 	status_enabled = 0;
 }
 
@@ -171,59 +171,59 @@ static void debug_ddr(void);
 static void status_print(void)
 {
 #ifdef CSR_HDMI_IN0_BASE
-	printf(
+	wprintf(
 		"input0:  %dx%d",
 		hdmi_in0_resdetection_hres_read(),
 		hdmi_in0_resdetection_vres_read());
 #ifdef CSR_HDMI_IN0_FREQUENCY_VALUE_ADDR
-	printf(" (@ %d kHz)", hdmi_in0_frequency_value_read() / 1000);
+	wprintf(" (@ %d kHz)", hdmi_in0_frequency_value_read() / 1000);
 #endif
-	printf("\r\n");
+	wprintf("\r\n");
 #endif
 
 #ifdef CSR_HDMI_IN1_BASE
-	printf(
+	wprintf(
 		"input1:  %dx%d",
 		hdmi_in1_resdetection_hres_read(),
 		hdmi_in1_resdetection_vres_read());
 #ifdef CSR_HDMI_IN1_FREQUENCY_VALUE_ADDR
-	printf(" (@ %d kHz)", hdmi_in1_frequency_value_read() / 1000);
+	wprintf(" (@ %d kHz)", hdmi_in1_frequency_value_read() / 1000);
 #endif
-	printf("\r\n");
+	wprintf("\r\n");
 #endif
 
 #ifdef CSR_HDMI_OUT0_BASE
-	printf("output0: ");
+	wprintf("output0: ");
 	if(hdmi_out0_fi_enable_read())
-		printf(
+		wprintf(
 			"%dx%d@%dHz from %s",
 			processor_h_active,
 			processor_v_active,
 			processor_refresh,
 			processor_get_source_name(processor_hdmi_out0_source));
 	else
-		printf("off");
-	printf("\r\n");
+		wprintf("off");
+	wprintf("\r\n");
 #endif
 
 #ifdef CSR_HDMI_OUT1_BASE
-	printf("output1: ");
+	wprintf("output1: ");
 	if(hdmi_out1_fi_enable_read())
-		printf(
+		wprintf(
 			"%dx%d@%uHz from %s",
 			processor_h_active,
 			processor_v_active,
 			processor_refresh,
 			processor_get_source_name(processor_hdmi_out1_source));
 	else
-		printf("off");
-	printf("\r\n");
+		wprintf("off");
+	wprintf("\r\n");
 #endif
 
 #ifdef ENCODER_BASE
-	printf("encoder: ");
+	wprintf("encoder: ");
 	if(encoder_enabled) {
-		printf(
+		wprintf(
 			"%dx%d @ %dfps (%dMbps) from %s (q: %d)",
 			processor_h_active,
 			processor_v_active,
@@ -233,10 +233,10 @@ static void status_print(void)
 			encoder_quality);
 		encoder_bandwidth_nbytes_clear_write(1);
 	} else
-		printf("off");
-	printf("\r\n");
+		wprintf("off");
+	wprintf("\r\n");
 #endif
-	printf("ddr: ");
+	wprintf("ddr: ");
 	debug_ddr();
 }
 
@@ -247,7 +247,7 @@ static void status_service(void)
 	if(elapsed(&last_event, identifier_frequency_read())) {
 		if(status_enabled) {
 			status_print();
-			printf("\r\n");
+			wprintf("\r\n");
 		}
 	}
 }
@@ -255,45 +255,45 @@ static void status_service(void)
 static void heartbeat_enable(void)
 {
 	hb_status(true);
-	printf("Heartbeat enabled\r\n");
+	wprintf("Heartbeat enabled\r\n");
 
 }
 
 static void heartbeat_disable(void)
 {
 	hb_status(false);
-	printf("Heartbeat disabled\r\n");
+	wprintf("Heartbeat disabled\r\n");
 
 }
 
 static void video_matrix_list(void)
 {
-	printf("Video sources:\r\n");
+	wprintf("Video sources:\r\n");
 #ifdef CSR_HDMI_IN0_BASE
-	printf("input0 (0): %s\r\n", HDMI_IN0_MNEMONIC);
-	puts(HDMI_IN0_DESCRIPTION);
+	wprintf("input0 (0): %s\r\n", HDMI_IN0_MNEMONIC);
+	wputs(HDMI_IN0_DESCRIPTION);
 #endif
 #ifdef CSR_HDMI_IN1_BASE
-	printf("input1 (1): %s\r\n", HDMI_IN1_MNEMONIC);
-	puts(HDMI_IN1_DESCRIPTION);
+	wprintf("input1 (1): %s\r\n", HDMI_IN1_MNEMONIC);
+	wputs(HDMI_IN1_DESCRIPTION);
 #endif
-	printf("pattern (p):\r\n");
-	printf("  Video pattern\r\n");
-	puts(" ");
-	printf("Video sinks:\r\n");
+	wprintf("pattern (p):\r\n");
+	wprintf("  Video pattern\r\n");
+	wputs(" ");
+	wprintf("Video sinks:\r\n");
 #ifdef CSR_HDMI_OUT0_BASE
-	printf("output0 (0): %s\r\n", HDMI_OUT0_MNEMONIC);
-	puts(HDMI_OUT0_DESCRIPTION);
+	wprintf("output0 (0): %s\r\n", HDMI_OUT0_MNEMONIC);
+	wputs(HDMI_OUT0_DESCRIPTION);
 #endif
 #ifdef CSR_HDMI_OUT1_BASE
-	printf("output1 (1): %s\r\n", HDMI_OUT1_MNEMONIC);
-	puts(HDMI_OUT1_DESCRIPTION);
+	wprintf("output1 (1): %s\r\n", HDMI_OUT1_MNEMONIC);
+	wputs(HDMI_OUT1_DESCRIPTION);
 #endif
 #ifdef ENCODER_BASE
-	printf("encoder (e):\r\n");
-	printf("  JPEG encoder (USB output)\r\n");
+	wprintf("encoder (e):\r\n");
+	wprintf("  JPEG encoder (USB output)\r\n");
 #endif
-	puts(" ");
+	wputs(" ");
 }
 
 static void video_matrix_connect(int source, int sink)
@@ -301,24 +301,24 @@ static void video_matrix_connect(int source, int sink)
 	if(source >= 0 && source <= VIDEO_IN_PATTERN)
 	{
 		if(sink >= 0 && sink <= VIDEO_OUT_HDMI_OUT1) {
-			printf("Connecting %s to output%d\r\n", processor_get_source_name(source), sink);
+			wprintf("Connecting %s to output%d\r\n", processor_get_source_name(source), sink);
 			if(sink == VIDEO_OUT_HDMI_OUT0)
 #ifdef CSR_HDMI_OUT0_BASE
 				processor_set_hdmi_out0_source(source);
 #else
-				printf("hdmi_out0 is missing.\r\n");
+				wprintf("hdmi_out0 is missing.\r\n");
 #endif
 			else if(sink == VIDEO_OUT_HDMI_OUT1)
 #ifdef CSR_HDMI_OUT1_BASE
 				processor_set_hdmi_out1_source(source);
 #else
-				printf("hdmi_out1 is missing.\r\n");
+				wprintf("hdmi_out1 is missing.\r\n");
 #endif
 			processor_update();
 		}
 #ifdef ENCODER_BASE
 		else if(sink == VIDEO_OUT_ENCODER) {
-			printf("Connecting %s to encoder\r\n", processor_get_source_name(source));
+			wprintf("Connecting %s to encoder\r\n", processor_get_source_name(source));
 			processor_set_encoder_source(source);
 			processor_update();
 		}
@@ -332,10 +332,10 @@ static void video_mode_list(void)
 	int i;
 
 	processor_list_modes(mode_descriptors);
-	printf("Available video modes:\r\n");
+	wprintf("Available video modes:\r\n");
 	for(i=0;i<PROCESSOR_MODE_COUNT;i++)
-		printf("mode %d: %s\r\n", i, &mode_descriptors[i*PROCESSOR_MODE_DESCLEN]);
-	printf("\r\n");
+		wprintf("mode %d: %s\r\n", i, &mode_descriptors[i*PROCESSOR_MODE_DESCLEN]);
+	wprintf("\r\n");
 }
 
 static void video_mode_set(int mode)
@@ -343,7 +343,7 @@ static void video_mode_set(int mode)
 	char mode_descriptors[PROCESSOR_MODE_COUNT*PROCESSOR_MODE_DESCLEN];
 	if(mode < PROCESSOR_MODE_COUNT) {
 		processor_list_modes(mode_descriptors);
-		printf("Setting video mode to %s\r\n", &mode_descriptors[mode*PROCESSOR_MODE_DESCLEN]);
+		wprintf("Setting video mode to %s\r\n", &mode_descriptors[mode*PROCESSOR_MODE_DESCLEN]);
 		config_set(CONFIG_KEY_RESOLUTION, mode);
 		processor_start(mode);
 	}
@@ -354,7 +354,7 @@ static void hdp_toggle(int source)
 #if defined(CSR_HDMI_IN0_BASE) || defined(CSR_HDMI_IN1_BASE)
 	int i;
 #endif
-	printf("Toggling HDP on output%d\r\n", source);
+	wprintf("Toggling HDP on output%d\r\n", source);
 #ifdef CSR_HDMI_IN0_BASE
 	if(source ==  VIDEO_IN_HDMI_IN0) {
 		hdmi_in0_edid_hpd_en_write(0);
@@ -362,7 +362,7 @@ static void hdp_toggle(int source)
 		hdmi_in0_edid_hpd_en_write(1);
 	}
 #else
-	printf("hdmi_in0 is missing.\r\n");
+	wprintf("hdmi_in0 is missing.\r\n");
 #endif
 #ifdef CSR_HDMI_IN1_BASE
 	if(source == VIDEO_IN_HDMI_IN1) {
@@ -371,20 +371,20 @@ static void hdp_toggle(int source)
 		hdmi_in1_edid_hpd_en_write(1);
 	}
 #else
-	printf("hdmi_in1 is missing.\r\n");
+	wprintf("hdmi_in1 is missing.\r\n");
 #endif
 }
 
 #ifdef CSR_HDMI_OUT0_BASE
 static void output0_on(void)
 {
-	printf("Enabling output0\r\n");
+	wprintf("Enabling output0\r\n");
 	hdmi_out0_fi_enable_write(1);
 }
 
 static void output0_off(void)
 {
-	printf("Disabling output0\r\n");
+	wprintf("Disabling output0\r\n");
 	hdmi_out0_fi_enable_write(0);
 }
 #endif
@@ -392,13 +392,13 @@ static void output0_off(void)
 #ifdef CSR_HDMI_OUT1_BASE
 static void output1_on(void)
 {
-	printf("Enabling output1\r\n");
+	wprintf("Enabling output1\r\n");
 	hdmi_out1_fi_enable_write(1);
 }
 
 static void output1_off(void)
 {
-	printf("Disabling output1\r\n");
+	wprintf("Disabling output1\r\n");
 	hdmi_out1_fi_enable_write(0);
 }
 #endif
@@ -406,25 +406,25 @@ static void output1_off(void)
 #ifdef ENCODER_BASE
 static void encoder_on(void)
 {
-	printf("Enabling encoder\r\n");
+	wprintf("Enabling encoder\r\n");
 	encoder_enable(1);
 }
 
 static void encoder_configure_quality(int quality)
 {
-	printf("Setting encoder quality to %d\r\n", quality);
+	wprintf("Setting encoder quality to %d\r\n", quality);
 	encoder_set_quality(quality);
 }
 
 static void encoder_configure_fps(int fps)
 {
-	printf("Setting encoder fps to %d\r\n", fps);
+	wprintf("Setting encoder fps to %d\r\n", fps);
 	encoder_set_fps(fps);
 }
 
 static void encoder_off(void)
 {
-	printf("Disabling encoder\r\n");
+	wprintf("Disabling encoder\r\n");
 	encoder_enable(0);
 }
 #endif
@@ -455,7 +455,7 @@ static void debug_ddr(void)
 	burstbits = (2*DFII_NPHASES) << DFII_PIX_DATA_SIZE;
 	rdb = (nr*f >> (24 - log2(burstbits)))/1000000ULL;
 	wrb = (nw*f >> (24 - log2(burstbits)))/1000000ULL;
-	printf("read:%5dMbps  write:%5dMbps  all:%5dMbps\r\n", rdb, wrb, rdb + wrb);
+	wprintf("read:%5dMbps  write:%5dMbps  all:%5dMbps\r\n", rdb, wrb, rdb + wrb);
 }
 
 #if defined(CSR_HDMI_IN0_BASE) || defined(CSR_HDMI_IN1_BASE)
@@ -465,14 +465,14 @@ static void debug_input(unsigned int channels, unsigned int change, unsigned int
     if (channels & 1) {
 		if (change & 1)
 			hdmi_in0_debug = (state & 1) != 0;
-		printf("HDMI Input 0 debug %s\r\n", hdmi_in0_debug ? "on" : "off");
+		wprintf("HDMI Input 0 debug %s\r\n", hdmi_in0_debug ? "on" : "off");
 	}
 #endif
 #ifdef CSR_HDMI_IN1_BASE
 	if (channels & 2) {
 		if (change & 2)
 			hdmi_in1_debug = (state & 2) != 0;
-		printf("HDMI Input 1 debug %s\r\n", hdmi_in0_debug ? "on" : "off");
+		wprintf("HDMI Input 1 debug %s\r\n", hdmi_in0_debug ? "on" : "off");
 	}
 #endif
 }
@@ -483,12 +483,12 @@ static void debug_freq(void)
 #ifdef CSR_HDMI_IN0_FREQUENCY_VALUE_ADDR
 	int hdmi0_freq = hdmi_in0_frequency_value_read();
 	int hdmi0_mhz = hdmi0_freq/((int)1e6);
-	printf("HDMI Input 0 Frequency: %d MHz (%d Hz)\n", hdmi0_mhz, hdmi0_freq);
+	wprintf("HDMI Input 0 Frequency: %d MHz (%d Hz)\n", hdmi0_mhz, hdmi0_freq);
 #endif
 #ifdef CSR_HDMI_IN1_FREQUENCY_VALUE_ADDR
 	int hdmi1_freq = hdmi_in1_frequency_value_read();
 	int hdmi1_mhz = hdmi1_freq/((int)1e6);
-	printf("HDMI Input 1 Frequency: %d MHz (%d Hz)\n", hdmi1_mhz, hdmi1_freq);
+	wprintf("HDMI Input 1 Frequency: %d MHz (%d Hz)\n", hdmi1_mhz, hdmi1_freq);
 #endif
 }
 
@@ -506,7 +506,7 @@ static char *readstr(void)
 			case 0x08:
 				if(ptr > 0) {
 					ptr--;
-					putsnonl("\x08 \x08");
+					wputsnonl("\x08 \x08");
 				}
 				break;
 			case 0x07:
@@ -514,13 +514,13 @@ static char *readstr(void)
 			case '\r':
 			case '\n':
 				s[ptr] = 0x00;
-				putsnonl("\r\n");
+				wputsnonl("\r\n");
 				ptr = 0;
 				return s;
 			default:
 				if(ptr >= (sizeof(s) - 1))
 					break;
-				putsnonl(c);
+				wputsnonl(c);
 				s[ptr] = c[0];
 				ptr++;
 				break;
@@ -548,7 +548,7 @@ static char *get_token(char **str)
 
 void ci_prompt(void)
 {
-	printf("HDMI2USB>");
+	wprintf("HDMI2USB>");
 }
 
 void ci_service(void)
@@ -564,7 +564,7 @@ void ci_service(void)
 	token = get_token(&str);
 
 	if(strcmp(token, "help") == 0) {
-		puts("Available commands:");
+		wputs("Available commands:");
 		token = get_token(&str);
 		if(strcmp(token, "video_matrix") == 0)
 			help_video_matrix();
@@ -592,7 +592,7 @@ void ci_service(void)
 
 		else
 			help();
-		puts("");
+		wputs("");
 	}
 	else if(strcmp(token, "reboot") == 0) reboot();
 	else if(strcmp(token, "version") == 0) print_version();
@@ -617,7 +617,7 @@ void ci_service(void)
 				source = VIDEO_IN_PATTERN;
 			}
 			else {
-				printf("Unknown video source: '%s'\r\n", token);
+				wprintf("Unknown video source: '%s'\r\n", token);
 			}
 
 			/* get video sink */
@@ -633,7 +633,7 @@ void ci_service(void)
 				sink = VIDEO_OUT_ENCODER;
 			}
 			else
-				printf("Unknown video sink: '%s'\r\n", token);
+				wprintf("Unknown video sink: '%s'\r\n", token);
 
 			if (source >= 0 && sink >= 0)
 				video_matrix_connect(source, sink);
@@ -814,7 +814,7 @@ void ci_service(void)
 			}
 #endif
 			if(found == 0)
-				printf("%s port has no EDID capabilities\r\n", token);
+				wprintf("%s port has no EDID capabilities\r\n", token);
 		}
 #ifdef CSR_CAS_BASE
 		else if(strcmp(token, "cas") == 0) {
@@ -824,12 +824,12 @@ void ci_service(void)
 				cas_leds_out_write(atoi(token));
 			}
 			else if(strcmp(token, "switches") == 0) {
-				printf("%X\r\n", (int)cas_switches_in_read());
+				wprintf("%X\r\n", (int)cas_switches_in_read());
 			}
 			else if(strcmp(token, "buttons") == 0) {
 				int status = cas_buttons_ev_status_read();
 				int pending = cas_buttons_ev_pending_read();
-				printf("%X %X\r\n", status, pending);
+				wprintf("%X %X\r\n", status, pending);
 				token = get_token(&str);
 				if(strcmp(token, "clear") == 0) {
 					cas_buttons_ev_pending_write(pending);

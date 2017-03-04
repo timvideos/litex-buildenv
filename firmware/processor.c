@@ -306,7 +306,7 @@ void processor_list_modes(char *mode_descriptors)
 {
 	int i;
 	for(i=0;i<PROCESSOR_MODE_COUNT;i++) {
-		sprintf(&mode_descriptors[PROCESSOR_MODE_DESCLEN*i],
+		swprintf(&mode_descriptors[PROCESSOR_MODE_DESCLEN*i],
 			"%ux%u @%uHz %s",
 			video_modes[i].h_active,
 			video_modes[i].v_active,
@@ -499,9 +499,9 @@ void processor_set_encoder_source(int source) {
 char * processor_get_source_name(int source) {
 	memset(processor_buffer, 0, 16);
 	if(source == VIDEO_IN_PATTERN)
-		sprintf(processor_buffer, "pattern");
+		swprintf(processor_buffer, "pattern");
 	else
-		sprintf(processor_buffer, "input%d", source);
+		swprintf(processor_buffer, "input%d", source);
 	return processor_buffer;
 }
 

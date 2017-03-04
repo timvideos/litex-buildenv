@@ -187,7 +187,7 @@ void pattern_service(void)
 	char buffer[16];
 
 	if(elapsed(&last_event, identifier_frequency_read()/10)) {
-		sprintf(buffer, "%08x", counter);
+		swprintf(buffer, "%08x", counter);
 		pattern_draw_text(1, 3, buffer);
 		counter++;
 	}
