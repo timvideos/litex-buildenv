@@ -17,6 +17,7 @@ def make_args(parser, platform='opsis', target='hdmi2usb'):
     parser.add_argument("-Op", "--platform-option", default=[], nargs=2, action="append", help="set platform-specific option")
     parser.add_argument("-Ot", "--target-option", default=[], nargs=2, action="append", help="set target-specific option")
     parser.add_argument("-Ob", "--build-option", default=[], nargs=2, action="append", help="set build option")
+    parser.add_argument("--no-compile-firmware", action="store_true", help="do not compile the firmware")
 
 
 def make_builddir(args):
@@ -61,8 +62,9 @@ def main():
         buildargs['csr_csv'] = os.path.join(testdir, "csr.csv")
 
     builder = Builder(soc, **buildargs)
-    builder.add_software_package("libuip", "{}/firmware/libuip".format(os.getcwd()))
-    builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
+    if not args.no_compile_firmware:
+        builder.add_software_package("libuip", "{}/firmware/libuip".format(os.getcwd()))
+        builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
     vns = builder.build(**dict(args.build_option))
 
     if hasattr(soc, 'pcie_phy'):

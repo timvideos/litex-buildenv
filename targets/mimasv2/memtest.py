@@ -39,11 +39,6 @@ class MemTestSoC(BaseSoC):
         self.submodules.uartbridge = UARTWishboneBridge(platform.request("serial"), self.clk_freq, baudrate=19200)
         self.add_wb_master(self.uartbridge.wishbone)
 
-        self.comb += [
-            platform.request("user_led", 0).eq(self.crg.reset),
-            platform.request("user_led", 1).eq(platform.request("buttonswitch", 1)),
-        ]
-
 #        self.submodules.io = LiteScopeIO(8)
 #        for i in range(8):
 #            try:
