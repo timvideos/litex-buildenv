@@ -1,37 +1,28 @@
 # Support for the MiniSpartan6+ - https://www.scarabhardware.com/minispartan6/
 from fractions import Fraction
 
-from migen.fhdl.std import *
-from migen.fhdl.specials import Keep
-from migen.genlib.resetsync import AsyncResetSynchronizer
-from migen.actorlib.fifo import SyncFIFO
+from litex.gen import *
+from litex.gen.genlib.io import CRG
+from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 
-from misoclib.com.gpio import GPIOOut
-from misoclib.mem.flash import spiflash
-from misoclib.mem.sdram.module import AS4C16M16
-from misoclib.mem.sdram.phy import gensdrphy
-from misoclib.mem.sdram.core.lasmicon import LASMIconSettings
-from misoclib.soc.sdram import SDRAMSoC
+from litex.soc.cores.flash import spi_flash
+from litex.soc.integration.soc_sdram import *
+from litex.soc.integration.builder import *
 
-from liteusb.common import *
-from liteusb.phy.ft245 import FT245PHY
-from liteusb.core import LiteUSBCore
-from liteusb.frontend.uart import LiteUSBUART
-from liteusb.frontend.wishbone import LiteUSBWishboneBridge
+from litedram.modules import AS4C16M16
+from litedram.phy import gensdrphy
+from litedram.core import ControllerSettings
 
-from gateware import dna
-from gateware import firmware
-from gateware import git_info
-from gateware import platform_info
+from gateware import info
+from gateware import cas
 
-from targets.common import *
+from targets.utils import csr_map_update
 
 
 class _CRG(Module):
     def __init__(self, platform, clk_freq):
         self.clock_domains.cd_sys = ClockDomain()
         self.clock_domains.cd_sys_ps = ClockDomain()
-        self.clock_domains.cd_base50 = ClockDomain()
 
         f0 = 32*1000000
         clk32 = platform.request("clk32")
@@ -78,106 +69,49 @@ class _CRG(Module):
                                   i_C0=self.cd_sys.clk, i_C1=~self.cd_sys.clk,
                                   o_Q=platform.request("sdram_clock"))
 
-        self.specials += Instance("BUFG", i_I=platform.request("clk50"), o_O=self.cd_base50.clk)
-
-
-# Patch the CPU interface to map firmware_ram into main_ram region.
-from misoclib.soc import cpuif
-original_get_linker_regions = cpuif.get_linker_regions
-def replacement_get_linker_regions(regions):
-    s = original_get_linker_regions(regions)
-    s += """\
-REGION_ALIAS("firmware_ram", main_ram);
-"""
-    return s
-cpuif.get_linker_regions = replacement_get_linker_regions
-
-
-class BaseSoC(SDRAMSoC):
-    default_platform = "minispartan6"
-
+class BaseSoC(SoCSDRAM):
     csr_peripherals = (
         "spiflash",
+        "cas",
         "ddrphy",
-        "dna",
-        "git_info",
-        "platform_info",
+        "info",
     )
-    csr_map_update(SDRAMSoC.csr_map, csr_peripherals)
+    csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
     mem_map = {
-#        "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
-        "spiflash": 0x30000000,  # (default shadow @0xb0000000)
+        "spiflash":     0x20000000,  # (default shadow @0xa0000000)
     }
-    mem_map.update(SDRAMSoC.mem_map)
+    mem_map.update(SoCSDRAM.mem_map)
 
-    def __init__(self, platform,
-                 firmware_ram_size=0xa000,
-                 firmware_filename=None,
-                 **kwargs):
+    def __init__(self, platform, **kwargs):
         clk_freq = 80*1000000
-        SDRAMSoC.__init__(self, platform, clk_freq,
-                          integrated_rom_size=0x8000,
-                          sdram_controller_settings=LASMIconSettings(with_bandwidth=True),
-                          **kwargs)
-
+        SoCSDRAM.__init__(self, platform, clk_freq,
+            integrated_rom_size=0x8000,
+            integrated_sram_size=0x8000,
+            **kwargs)
         self.submodules.crg = _CRG(platform, clk_freq)
-        self.submodules.dna = dna.DNA()
-        self.submodules.git_info = git_info.GitInfo()
-        self.submodules.platform_info = platform_info.PlatformInfo("minispartan6"[:8], self.__class__.__name__[:8])
+        self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
 
-        if not self.integrated_main_ram_size:
-            self.submodules.ddrphy = gensdrphy.GENSDRPHY(platform.request("sdram"),
-                                                         AS4C16M16(clk_freq))
-            self.register_sdram_phy(self.ddrphy)
+        self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
 
-        self.submodules.spiflash = spiflash.SpiFlash(
-            platform.request("spiflash2x"), dummy=platform.spiflash_read_dummy_bits, div=platform.spiflash_clock_div)
+        self.submodules.info = info.Info(platform, "opsis", self.__class__.__name__[:8])
+
+
+        self.submodules.spiflash = spi_flash.SpiFlash(
+            platform.request("spiflash2x"),
+            dummy=platform.spiflash_read_dummy_bits,
+            div=platform.spiflash_clock_div)
         self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
         self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
         self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size
-        self.register_mem("spiflash", self.mem_map["spiflash"], self.spiflash.bus, size=platform.gateware_size)
+        self.register_mem("spiflash", self.mem_map["spiflash"],
+            self.spiflash.bus, size=platform.spiflash_total_size)
 
+        # sdram
+        sdram_module = AS4C16M16(self.clk_freq, "1:1")
+        self.submodules.ddrphy = gensdrphy.GENSDRPHY(platform.request("sdram"))
+        self.register_sdram(self.ddrphy,
+                            sdram_module.geom_settings,
+                            sdram_module.timing_settings)
 
-class USBSoC(BaseSoC):
-    csr_map = {
-        "usb_dma": 16,
-    }
-    csr_map.update(BaseSoC.csr_map)
-
-    usb_map = {
-        "uart":   0,
-        "dma":    1,
-        "bridge": 2
-    }
-
-    def __init__(self, platform, **kwargs):
-        BaseSoC.__init__(self, platform, with_uart=False, **kwargs)
-
-        self.submodules.usb_phy = FT245PHY(platform.request("usb_fifo"), self.clk_freq)
-        self.submodules.usb_core = LiteUSBCore(self.usb_phy, self.clk_freq, with_crc=False)
-
-        # UART
-        usb_uart_port = self.usb_core.crossbar.get_port(self.usb_map["uart"])
-        self.submodules.uart = LiteUSBUART(usb_uart_port)
-
-        # DMA
-        usb_dma_port = self.usb_core.crossbar.get_port(self.usb_map["dma"])
-        usb_dma_loopback_fifo = SyncFIFO(user_description(8), 1024, buffered=True)
-        self.submodules += usb_dma_loopback_fifo
-        self.comb += [
-            usb_dma_port.source.connect(usb_dma_loopback_fifo.sink),
-            usb_dma_loopback_fifo.source.connect(usb_dma_port.sink)
-        ]
-
-        # Wishbone Bridge
-        usb_bridge_port = self.usb_core.crossbar.get_port(self.usb_map["bridge"])
-        usb_bridge = LiteUSBWishboneBridge(usb_bridge_port, self.clk_freq)
-        self.submodules += usb_bridge
-        self.add_wb_master(usb_bridge.wishbone)
-
-        # Leds
-        leds = Cat(iter([platform.request("user_led", i) for i in range(8)]))
-        self.submodules.leds = GPIOOut(leds)
-
-default_subtarget = BaseSoC
+SoC = BaseSoC

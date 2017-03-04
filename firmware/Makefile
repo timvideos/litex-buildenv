@@ -1,81 +1,97 @@
-# XXX remove this
-MSCDIR=../../third_party/misoc
-include $(MSCDIR)/software/common.mak
+include ../include/generated/variables.mak
+include $(SOC_DIRECTORY)/software/common.mak
 
-ifeq ($(BOARD),)
-$(error BOARD not defined.)
+ifeq ($(PLATFORM),)
+$(error PLATFORM not defined.)
 endif
-UBOARD = $(shell echo $(BOARD) | tr a-z A-Z)
+UPLATFORM = $(shell echo $(PLATFORM) | tr a-z A-Z)
 
 ifeq ($(TARGET),)
 $(error TARGET not defined.)
 endif
 UTARGET = $(shell echo $(TARGET) | tr a-z A-Z)
 
-CFLAGS += -Wno-unused-function -DBOARD_$(UBOARD) -DTARGET_$(UTARGET)
+CFLAGS += -DPLATFORM_$(UPLATFORM) -DTARGET_$(UTARGET)
 
-OBJECTS=isr.o \
-        processor.o \
-        hdmi_in0.o \
-        hdmi_in1.o \
-        hdmi_out0.o \
-        hdmi_out1.o \
-        heartbeat.o \
-        pattern.o \
-        edid.o \
-        pll.o \
-        ci.o \
-        config.o \
-        encoder.o \
-        fx2.o \
-        i2c.o \
-        main.o \
-        opsis_eeprom.o \
-        tofe_eeprom.o \
+BUILD_DIRECTORY=$(BUILDINC_DIRECTORY)/../../
+
+OBJECTS=\
+	ci.o \
+	config.o \
+	edid.o \
+	encoder.o \
+	etherbone.o \
+	ethernet.o \
+	fx2.o \
+	hdmi_in0.o \
+	hdmi_in1.o \
+	hdmi_out0.o \
+	hdmi_out1.o \
+	heartbeat.o \
+	i2c.o \
+	isr.o \
+	main.o \
+	mdio.o \
+	opsis_eeprom.o \
+	pattern.o \
+	pll.o \
+	processor.o \
+	stdio_wrap.o \
+	telnet.o \
+	tofe_eeprom.o \
 	version.o \
 	version_data.o \
+	uptime.o \
 
-all: version_data libs firmware.bin
 
-# pull in dependency info for *existing* .o files
--include $(OBJECTS:.o=.d)
+CFLAGS += \
+	-I. \
+	-I$(LIBUIP_DIRECTORY)/../uip \
+	-I$(LIBUIP_DIRECTORY)
+
+all: firmware.bin firmware.fbi
+
+%.fbi: %.bin
+	$(PYTHON) -m litex.soc.tools.mkmscimg -f $< -o $@
 
 %.bin: %.elf
 	$(OBJCOPY) -O binary $< $@
 	chmod -x $@
-	cp $@ boot.bin
+	$(PYTHON) -m litex.soc.tools.mkmscimg $<
 
-firmware.elf: $(OBJECTS)
+firmware.elf: $(FIRMWARE_DIRECTORY)/linker.ld $(OBJECTS)
 
-%.elf: linker.ld $(MSCDIR)/software/libbase/crt0-$(CPU).o $(MSCDIR)/software/libbase/libbase-nofloat.a $(MSCDIR)/software/libcompiler-rt/libcompiler-rt.a
+%.elf:
 	$(LD) $(LDFLAGS) \
-		-T linker.ld \
+		-T $(FIRMWARE_DIRECTORY)/linker.ld \
 		-N -o $@ \
-		$(MSCDIR)/software/libbase/crt0-$(CPU).o \
-		$(OBJECTS) \
-		-L$(MSCDIR)/software/libbase \
-		-L$(MSCDIR)/software/libcompiler-rt \
-		-lbase-nofloat -lcompiler-rt
+                ../libbase/crt0-$(CPU).o \
+                $(OBJECTS) \
+                -L../libnet \
+                -L../libbase \
+                -L../libcompiler_rt \
+		-L../libuip \
+		-lbase-nofloat -luip -lcompiler_rt
 	chmod -x $@
 
-%.o: %.c
-	$(compile-dep)
+# pull in dependency info for *existing* .o files
+-include $(OBJECTS:.o=.d)
 
-%.o: %.S
+%.o: $(FIRMWARE_DIRECTORY)/%.c
+	$(compile)
+
+%.o: $(FIRMWARE_DIRECTORY)/%.S
 	$(assemble)
 
-libs:
-	$(MAKE) -C $(MSCDIR)/software/libcompiler-rt
-	$(MAKE) -C $(MSCDIR)/software/libbase
-
 clean:
-	$(RM) $(OBJECTS) $(OBJECTS:.o=.d) firmware.elf firmware.bin
-	$(RM) .*~ *~
-	$(RM) version_data.h version_data.c
+	$(RM) $(OBJECTS) $(OBJECTS:.o=.d) firmware.elf firmware.bin .*~ *~
+
+pattern.o: version_data.h version_data.c
+version.o: version_data.h version_data.c
 
 version_data.h: version_data
 version_data.c: version_data
 version_data:
-	bash version_data.sh
+	bash $(FIRMWARE_DIRECTORY)/version_data.sh
 
-.PHONY: all clean libs load version_data
+.PHONY: all clean libs version_data

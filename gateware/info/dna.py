@@ -1,7 +1,7 @@
 # Copyright 2014-2015 Robert Jordens <jordens@gmail.com>
 
-from migen.fhdl.std import *
-from migen.bank.description import *
+from litex.gen import *
+from litex.soc.interconnect.csr import *
 
 
 class DNA(Module, AutoCSR):

@@ -19,6 +19,18 @@ if [ $SOURCED = 1 ]; then
 	return
 fi
 
+if [ ! -z "$HDMI2USB_ENV" ]; then
+	echo "You appear to have sourced the HDMI2USB settings, these are incompatible with setting up."
+	echo "Please exit this terminal and run again from a clean shell."
+	exit 1
+fi
+
+if [ ! -z "$SETTINGS_FILE" -o ! -z "$XILINX" ]; then
+	echo "You appear to have sourced the Xilinx ISE settings, these are incompatible with setting up."
+	echo "Please exit this terminal and run again from a clean shell."
+	exit 1
+fi
+
 set -e
 
 . $SETUP_DIR/settings.sh
@@ -33,21 +45,15 @@ if [ ! -d $BUILD_DIR ]; then
 	mkdir -p $BUILD_DIR
 fi
 
-# Xilinx ISE
-
+# FIXME: Move this to a separate script!
+# Cutback Xilinx ISE for CI
 # --------
 # Save the passphrase to a file so we don't echo it in the logs
-XILINX_PASSPHRASE_FILE=$(tempfile)
-trap "rm -f -- '$XILINX_PASSPHRASE_FILE'" EXIT
 if [ ! -z "$XILINX_PASSPHRASE" ]; then
+	XILINX_PASSPHRASE_FILE=$(tempfile -s .passphrase | mktemp --suffix=.passphrase)
+	trap "rm -f -- '$XILINX_PASSPHRASE_FILE'" EXIT
 	echo $XILINX_PASSPHRASE >> $XILINX_PASSPHRASE_FILE
-else
-	rm $XILINX_PASSPHRASE_FILE
-	trap - EXIT
-fi
-# --------
 
-if [ -f $XILINX_PASSPHRASE_FILE ]; then
 	# Need gpg to do the unencryption
 	XILINX_DIR=$BUILD_DIR/Xilinx
 	if [ ! -d "$XILINX_DIR" ]; then
@@ -80,7 +86,7 @@ if [ -f $XILINX_PASSPHRASE_FILE ]; then
 			make
 		)
 	fi
-	export MISOC_EXTRA_CMDLINE="-Ob ise_path $XILINX_DIR/opt/Xilinx/"
+	export MISOC_EXTRA_CMDLINE="-Ob toolchain_path $XILINX_DIR/opt/Xilinx/"
 	# Reserved MAC address from documentation block, see
 	# http://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
 	export XILINXD_LICENSE_FILE=$XILINX_DIR
@@ -90,10 +96,22 @@ if [ -f $XILINX_PASSPHRASE_FILE ]; then
 
 	rm $XILINX_PASSPHRASE_FILE
 	trap - EXIT
-else
+elif [ -z "$XILINX_DIR" ]; then
 	XILINX_DIR=/
 fi
 echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
+
+function check_exists {
+	TOOL=$1
+	if which $TOOL 2>&1; then
+		echo "$TOOL found at $(which $TOOL)"
+		return 0
+	else
+		echo "$TOOL *NOT* found"
+		echo "Please try running the $SETUP_DIR/download-env.sh script again."
+		return 1
+	fi
+}
 
 function check_version {
 	TOOL=$1
@@ -130,7 +148,7 @@ function check_import_version {
 		return 0
 	else
 		echo "$MODULE (version $EXPECT_VERSION) *NOT* found!"
-		echo "Please try running the $SETUP_DIR/get-env.sh script again."
+		echo "Please try running the $SETUP_DIR/download-env.sh script again."
 		return 1
 	fi
 }
@@ -152,6 +170,32 @@ export PATH=$CONDA_DIR/bin:$PATH
 	conda config --add channels timvideos
 )
 
+# Check the Python version
+(
+	conda install python=3.5
+)
+check_version python 3.5
+
+# fxload
+#(
+#	conda install fxload
+#)
+check_exists fxload
+
+# MimasV2Config.py
+MIMASV2CONFIG=$BUILD_DIR/conda/bin/MimasV2Config.py
+if [ ! -e $MIMASV2CONFIG ]; then
+	wget https://raw.githubusercontent.com/numato/samplecode/master/FPGA/MimasV2/tools/configuration/python/MimasV2Config.py -O $MIMASV2CONFIG
+	chmod a+x $MIMASV2CONFIG
+fi
+check_exists MimasV2Config.py
+
+# flterm
+(
+	conda install flterm
+)
+check_exists flterm
+
 # binutils for the target
 (
 	conda install binutils-lm32-elf=$BINUTILS_VERSION
@@ -164,17 +208,35 @@ check_version lm32-elf-ld $BINUTILS_VERSION
 )
 check_version lm32-elf-gcc $GCC_VERSION
 
-# sdcc for compiling Cypress FX2 firmware
-(
-	conda install sdcc=$SDCC_VERSION
-)
-check_version sdcc $SDCC_VERSION
-
 # openocd for programming via Cypress FX2
 (
 	conda install openocd
 )
 check_version openocd 0.10.0-dev
+
+# pyserial for communicating via uarts
+(
+	conda install pyserial
+)
+check_import serial
+
+# ipython for interactive debugging
+(
+	conda install ipython
+)
+check_import IPython
+
+# progressbar2 for progress bars
+(
+	pip install --upgrade progressbar2
+)
+check_import progressbar
+
+# colorama for progress bars
+(
+	pip install --upgrade colorama
+)
+check_import colorama
 
 # hexfile for embedding the Cypress FX2 firmware.
 (
@@ -199,47 +261,17 @@ echo "-----------------------"
 		git submodule update --recursive --init
 )
 
-# migen
-MIGEN_DIR=$THIRD_DIR/migen
-(
-	cd $MIGEN_DIR
-	cd vpi
-	#make all
-	#sudo make install
-)
-export PYTHONPATH=$MIGEN_DIR:$PYTHONPATH
-check_import migen
-
-# misoc
-MISOC_DIR=$THIRD_DIR/misoc
-(
-	cd $MISOC_DIR
-	cd tools
-	make
-)
-export PYTHONPATH=$MISOC_DIR:$PYTHONPATH
-$MISOC_DIR/tools/flterm --help 2> /dev/null
-check_import misoclib
-
-# liteeth
-LITEETH_DIR=$THIRD_DIR/liteeth
-(
-	cd $LITEETH_DIR
-	true
-)
-export PYTHONPATH=$LITEETH_DIR:$PYTHONPATH
-check_import liteeth
-
-# liteusb
-LITEUSB_DIR=$THIRD_DIR/liteusb
-(
-	cd $LITEUSB_DIR
-	true
-)
-export PYTHONPATH=$LITEUSB_DIR:$PYTHONPATH
-check_import liteusb
+# lite
+for LITE in $LITE_REPOS; do
+	LITE_DIR=$THIRD_DIR/$LITE
+	(
+		cd $LITE_DIR
+		python setup.py develop
+	)
+	check_import $LITE
+done
 
 echo "-----------------------"
 echo ""
 echo "Completed.  To load environment:"
-echo "source HDMI2USB-misoc-firmware/scripts/setup-env.sh"
+echo "source $SETUP_DIR/enter-env.sh"

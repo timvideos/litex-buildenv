@@ -1,3 +1,19 @@
+/*
+ * Copyright 2015 / TimVideo.us
+ * Copyright 2015 / EnjoyDigital
+ * Copyright 2016 Joel Stanley <joel@jms.id.au>
+ * Copyright 2017 Joel Addison <joel@addison.net.au>
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ */
+
 #include <stdint.h>
 #include <string.h>
 
@@ -47,7 +63,7 @@ struct edid {
 
 struct edid_timing {
 	uint8_t pixel_clock[2];
-	
+
 	uint8_t h_active_l;
 	uint8_t h_blanking_l;
 	uint8_t h_active_blanking_h;
@@ -55,7 +71,7 @@ struct edid_timing {
 	uint8_t v_active_l;
 	uint8_t v_blanking_l;
 	uint8_t v_active_blanking_h;
-	
+
 	uint8_t h_sync_offset_l;
 	uint8_t h_sync_width_l;
 	uint8_t v_sync_offset_width_l;
@@ -77,7 +93,27 @@ struct edid_descriptor {
 	uint8_t flag2;
 	uint8_t data_type;
 	uint8_t flag3;
-	uint8_t data[13];
+	uint8_t data[MAX_DESCRIPTOR_DATA_LEN];
+} __attribute__((packed));
+
+struct monitor_range_data {
+	uint8_t min_vertical_field_rate;
+	uint8_t max_vertical_field_rate;
+	uint8_t min_horizontal_line_rate;
+	uint8_t max_horizontal_line_rate;
+	uint8_t max_pixel_clock_rate;
+	uint8_t extended_timing_type;
+	union {
+		struct {
+			uint8_t reserved;
+			uint8_t start_frequency;
+			uint8_t gtf_c[2];
+			uint8_t gtf_m;
+			uint8_t gtf_k;
+			uint8_t gtf_j;
+		};
+		uint8_t padding[7];
+	};
 } __attribute__((packed));
 
 static const char correct_header[8] = {0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00};
@@ -105,34 +141,6 @@ int validate_edid(const void *buf)
 	return 1;
 }
 
-void get_monitor_name(const void *buf, char *name)
-{
-	struct edid *e = (struct edid *)buf;
-	int i;
-	uint8_t *data_block;
-	char *c;
-
-	name[0] = 0;
-
-	data_block = NULL;
-	for(i=0;i<4;i++)
-		if((e->data_blocks[i][0] == 0x00)
-		  && (e->data_blocks[i][1] == 0x00)
-		  && (e->data_blocks[i][2] == 0x00)
-		  && (e->data_blocks[i][3] == 0xfc)) {
-			data_block = e->data_blocks[i];
-			break;
-		}
-	if(!data_block)
-		return;
-
-	name[MAX_MONITOR_NAME_LEN] = 0;
-	memcpy(name, &data_block[5], MAX_MONITOR_NAME_LEN);
-	c = strchr(name, '\n');
-	if(c)
-		*c = 0;
-}
-
 static void generate_edid_timing(uint8_t *data_block, const struct video_timing *timing)
 {
 	struct edid_timing *t = (struct edid_timing *)data_block;
@@ -140,7 +148,7 @@ static void generate_edid_timing(uint8_t *data_block, const struct video_timing 
 
 	t->pixel_clock[0] = timing->pixel_clock & 0xff;
 	t->pixel_clock[1] = timing->pixel_clock >> 8;
-	
+
 	t->h_active_l = timing->h_active & 0xff;
 	t->h_blanking_l = timing->h_blanking & 0xff;
 	t->h_active_blanking_h = ((timing->h_active >> 8) << 4) | (timing->h_blanking >> 8);
@@ -148,7 +156,7 @@ static void generate_edid_timing(uint8_t *data_block, const struct video_timing 
 	t->v_active_l = timing->v_active & 0xff;
 	t->v_blanking_l = timing->v_blanking & 0xff;
 	t->v_active_blanking_h = ((timing->v_active >> 8) << 4) | (timing->v_blanking >> 8);
-	
+
 	t->h_sync_offset_l = timing->h_sync_offset & 0xff;
 	t->h_sync_width_l = timing->h_sync_width & 0xff;
 	t->v_sync_offset_width_l = timing->v_sync_offset & 0xff;
@@ -164,7 +172,22 @@ static void generate_edid_timing(uint8_t *data_block, const struct video_timing 
 	t->h_border = 0;
 	t->v_border = 0;
 
-	t->flags = 0x1e;
+	t->flags = timing->flags;
+}
+
+static void set_descriptor_header(struct edid_descriptor *d, uint8_t data_type)
+{
+	d->flag0 = d->flag1 = d->flag2 = d->flag3 = 0;
+	d->data_type = data_type;
+}
+
+static void generate_descriptor_padding(struct edid_descriptor *d, uint8_t start_pos)
+{
+	if (start_pos >= MAX_DESCRIPTOR_DATA_LEN) return;
+
+	d->data[start_pos++] = 0x0a;
+	for(;start_pos<MAX_DESCRIPTOR_DATA_LEN;start_pos++)
+		d->data[start_pos] = 0x20;
 }
 
 static void generate_monitor_name(uint8_t *data_block, const char *name)
@@ -172,16 +195,35 @@ static void generate_monitor_name(uint8_t *data_block, const char *name)
 	struct edid_descriptor *d = (struct edid_descriptor *)data_block;
 	int i;
 
-	d->flag0 = d->flag1 = d->flag2 = d->flag3 = 0;
-	d->data_type = 0xfc;
-	for(i=0;i<12;i++) {
+	set_descriptor_header(d, DESCRIPTOR_MONITOR_NAME);
+
+	for(i=0;i<MAX_DESCRIPTOR_DATA_LEN;i++) {
 		if(!name[i])
 			break;
 		d->data[i] = name[i];
 	}
-	d->data[i++] = 0x0a;
-	for(;i<13;i++)
-		d->data[i] = 0x20;
+
+	generate_descriptor_padding(d, i);
+}
+
+static void generate_monitor_range_descriptor(uint8_t *data_block,
+		const struct video_timing *timing)
+{
+	struct edid_descriptor *d = (struct edid_descriptor *)data_block;
+	struct monitor_range_data *data = (struct monitor_range_data *)d->data;
+
+	set_descriptor_header(d, DESCRIPTOR_MONITOR_RANGE);
+
+	// Fixme: set from mode?
+	data->min_vertical_field_rate = 50;  // 50Hz
+	data->max_vertical_field_rate = 60;  // 60Hz
+	data->min_horizontal_line_rate = 31; // 720p50 is 37.05kHz
+	data->max_horizontal_line_rate = 68; // 1080p60 is 67.08kHz
+	//TODO: Set this to be ~5Mhz above current dotclock
+	data->max_pixel_clock_rate = 8; // 80 MHz => 80 / 10 = 8
+	data->extended_timing_type = 0x00;
+
+	generate_descriptor_padding(d, 6);
 }
 
 static void generate_unused(uint8_t *data_block)
@@ -189,16 +231,17 @@ static void generate_unused(uint8_t *data_block)
 	struct edid_descriptor *d = (struct edid_descriptor *)data_block;
 
 	memset(d, 0, sizeof(struct edid_descriptor));
-	d->data_type = 0x10;
+	d->data_type = DESCRIPTOR_DUMMY;
 }
 
 void generate_edid(void *out,
 	const char mfg_name[3], const char product_code[2], int year,
 	const char *name,
-	const struct video_timing *timing)
+	const struct video_timing *timing,
+	const struct video_timing *secondary_timing)
 {
 	struct edid *e = (struct edid *)out;
-	int i, j, k;
+	int i, j, k, db;
 
 	memcpy(e->header, correct_header, 8);
 
@@ -218,7 +261,7 @@ void generate_edid(void *out,
 	e->video_input = 0x80; /* digital */
 	e->h_image_size = timing->h_active/64;
 	e->v_image_size = timing->v_active/64;
-	e->gamma = 0x78;
+	e->gamma = 0x50; // 1.8 => (gamma * 100) - 100
 	e->feature_support = 0x06;
 
 	e->cc_rg_l = 0;
@@ -237,19 +280,29 @@ void generate_edid(void *out,
 	e->rsv_timings = 0;
 	memset(e->timings_std, 0x01, 16);
 
-	generate_edid_timing(e->data_blocks[0], timing);
-	generate_monitor_name(e->data_blocks[1], name);
-	generate_unused(e->data_blocks[2]);
-	generate_unused(e->data_blocks[3]);
+	db = 0;
+	generate_edid_timing(e->data_blocks[db++], timing);
+	if (secondary_timing != NULL)
+		generate_edid_timing(e->data_blocks[db++], secondary_timing);
+	generate_monitor_name(e->data_blocks[db++], name);
+	generate_monitor_range_descriptor(e->data_blocks[db++], timing);
+	if (secondary_timing == NULL)
+		generate_unused(e->data_blocks[db++]);
 
 	e->ext_block_count = 0;
 
 	e->checksum = compute_checksum(e);
 }
 
+/**
+ * Calculate refresh rate for a video timing mode.
+ * Rate is in Hz * 100, which allows for two decimal places of precision.
+ */
 unsigned calculate_refresh_rate(const struct video_timing* mode)
 {
-	unsigned int refresh_span;
-	refresh_span = (mode->h_active + mode->h_blanking)*(mode->v_active + mode->v_blanking);
-	return mode->pixel_clock*10000/refresh_span;
+	unsigned refresh_span = (mode->h_active + mode->h_blanking)*(mode->v_active + mode->v_blanking);
+	uint64_t clock = mode->pixel_clock;
+	clock *= 10000 * 100; // Multiply by 100 to get 2 decimal places
+	unsigned refresh_rate = clock / refresh_span;
+	return refresh_rate;
 }

@@ -1,59 +1,56 @@
-from migen.flow.actor import *
-from migen.actorlib.fifo import AsyncFIFO, SyncFIFO
+from litex.gen.fhdl.decorators import ClockDomainsRenamer
+from litex.soc.integration.soc_core import mem_decoder
+from litex.soc.interconnect import stream
 
-from misoclib.soc import mem_decoder
-
-from gateware.encoder import Encoder
-from gateware.encoder.dma import EncoderDMAReader
-from gateware.encoder.buffer import EncoderBuffer
+from gateware.encoder import EncoderDMAReader, EncoderBuffer, Encoder
 from gateware.streamer import USBStreamer
 
-from targets.common import *
-from targets.opsis_video import VideoMixerSoC
+from targets.utils import csr_map_update
+from targets.opsis.video import SoC as BaseSoC
 
 
-class HDMI2USBSoC(VideoMixerSoC):
+class HDMI2USBSoC(BaseSoC):
     csr_peripherals = (
         "encoder_reader",
         "encoder",
     )
-    csr_map_update(VideoMixerSoC.csr_map, csr_peripherals)
+    csr_map_update(BaseSoC.csr_map, csr_peripherals)
     mem_map = {
         "encoder": 0x50000000,  # (shadow @0xd0000000)
     }
-    mem_map.update(VideoMixerSoC.mem_map)
+    mem_map.update(BaseSoC.mem_map)
 
-    def __init__(self, platform, **kwargs):
-        VideoMixerSoC.__init__(self, platform, **kwargs)
+    def __init__(self, platform, *args, **kwargs):
+        BaseSoC.__init__(self, platform, *args, **kwargs)
 
-        lasmim = self.sdram.crossbar.get_master()
-        self.submodules.encoder_reader = EncoderDMAReader(lasmim)
-        self.submodules.encoder_cdc = RenameClockDomains(AsyncFIFO([("data", 128)], 4),
-                                          {"write": "sys", "read": "encoder"})
-        self.submodules.encoder_buffer = RenameClockDomains(EncoderBuffer(), "encoder")
-        self.submodules.encoder_fifo = RenameClockDomains(SyncFIFO(EndpointDescription([("data", 16)], packetized=True), 16), "encoder")
-        self.submodules.encoder = Encoder(platform)
-        self.submodules.usb_streamer = USBStreamer(platform, platform.request("fx2"))
+        encoder_port = self.sdram.crossbar.get_port()
+        self.submodules.encoder_reader = EncoderDMAReader(encoder_port)
+        encoder_cdc = stream.AsyncFIFO([("data", 128)], 4)
+        encoder_cdc = ClockDomainsRenamer({"write": "sys",
+                                           "read": "encoder"})(encoder_cdc)
+        encoder_buffer = ClockDomainsRenamer("encoder")(EncoderBuffer())
+        encoder = Encoder(platform)
+        encoder_streamer = USBStreamer(platform, platform.request("fx2"))
+        self.submodules += encoder_cdc, encoder_buffer, encoder, encoder_streamer
 
         self.comb += [
-            Record.connect(self.encoder_reader.source, self.encoder_cdc.sink),
-            Record.connect(self.encoder_cdc.source, self.encoder_buffer.sink),
-            Record.connect(self.encoder_buffer.source, self.encoder_fifo.sink),
-            Record.connect(self.encoder_fifo.source, self.encoder.sink),
-            Record.connect(self.encoder.source, self.usb_streamer.sink)
+            self.encoder_reader.source.connect(encoder_cdc.sink),
+            encoder_cdc.source.connect(encoder_buffer.sink),
+            encoder_buffer.source.connect(encoder.sink),
+            encoder.source.connect(encoder_streamer.sink)
         ]
-        self.add_wb_slave(mem_decoder(self.mem_map["encoder"]), self.encoder.bus)
-        self.add_memory_region("encoder", self.mem_map["encoder"]+self.shadow_base, 0x2000)
+        self.add_wb_slave(mem_decoder(self.mem_map["encoder"]), encoder.bus)
+        self.add_memory_region("encoder",
+            self.mem_map["encoder"] + self.shadow_base, 0x2000)
 
-        platform.add_platform_command("""
-# Separate TMNs for FROM:TO TIG constraints
-NET "{usb_clk}" TNM_NET = "TIGusb_clk";
-TIMESPEC "TSusb_to_sys" = FROM "TIGusb_clk" TO "TIGsys_clk" TIG;
-TIMESPEC "TSsys_to_usb" = FROM "TIGsys_clk" TO "TIGusb_clk" TIG;
-""",
-            usb_clk=platform.lookup_request("fx2").ifclk,
-        )
+        self.platform.add_period_constraint(encoder_streamer.cd_usb.clk, 10.0)
+
+        encoder_streamer.cd_usb.clk.attr.add("keep")
+        self.crg.cd_encoder.clk.attr.add("keep")
+        self.platform.add_false_path_constraints(
+            self.crg.cd_sys.clk,
+            self.crg.cd_encoder.clk,
+            encoder_streamer.cd_usb.clk)
 
 
-
-default_subtarget = HDMI2USBSoC
+SoC = HDMI2USBSoC

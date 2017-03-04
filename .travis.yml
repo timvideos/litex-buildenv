@@ -20,28 +20,27 @@ addons:
     - realpath
 
 env:
+  global:
+   - HDMI2USB_UDEV_IGNORE=1
+   - CLEAN_CHECK=1
   matrix:
-   - BOARD=atlys TARGET=base
-   - BOARD=atlys TARGET=video
-   - BOARD=atlys TARGET=hdmi2usb
-   - BOARD=atlys TARGET=hdmi2eth
-   - BOARD=opsis TARGET=base
-   - BOARD=opsis TARGET=video
-   - BOARD=opsis TARGET=hdmi2usb
-   - BOARD=pipistrello TARGET=base
-   - BOARD=minispartan6 TARGET=base
-   - BOARD=minispartan6 TARGET=video
-
-matrix:
-  allow_failures:
-  - env: BOARD=atlys TARGET=hdmi2eth
-  fast_finish: true
+#   - PLATFORM=arty
+   - PLATFORM=atlys SKIP_TARGETS=hdmi2usb
+   - PLATFORM=atlys TARGET=hdmi2usb
+   - PLATFORM=minispartan6
+   - PLATFORM=mimasv2
+#   - PLATFORM=netv2
+#   - PLATFORM=nexys_video
+#   - PLATFORM=pipistrello
+   - PLATFORM=opsis SKIP_TARGETS=hdmi2usb
+   - PLATFORM=opsis TARGET=hdmi2usb
+#   - PLATFORM=sim
 
 install:
  - $PWD/.travis/setup.sh
 
 script:
- - $PWD/.travis/run.sh
+ - $PWD/.travis/build.sh
 
 notifications:
  email:

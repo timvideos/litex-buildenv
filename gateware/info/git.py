@@ -1,16 +1,34 @@
 import binascii
 import os
 import subprocess
+import sys
 
-from migen.fhdl.std import *
-from migen.bank.description import *
+from litex.gen.fhdl import *
+from litex.soc.interconnect.csr import *
 
 def git_root():
-    return subprocess.check_output(
-        "git rev-parse --show-toplevel",
-        shell=True,
-        cwd=os.path.dirname(__file__),
-    ).decode('ascii').strip() 
+    if sys.platform == "win32":
+        # Git on Windows is likely to use Unix-style paths (`/c/path/to/repo`),
+        # whereas directories passed to Python should be Windows-style paths
+        # (`C:/path/to/repo`) (because Python calls into the Windows API). 
+        # `cygpath` converts between the two.
+        git = subprocess.Popen(
+            "git rev-parse --show-toplevel",
+            cwd=os.path.dirname(__file__),
+            stdout=subprocess.PIPE,
+        )
+        path = subprocess.check_output(
+            "cygpath -wf -",
+            stdin=git.stdout,
+        )
+        git.wait()
+        return path.decode('ascii').strip()
+    else:
+        return subprocess.check_output(
+            "git rev-parse --show-toplevel",
+            shell=True,
+            cwd=os.path.dirname(__file__),
+        ).decode('ascii').strip()
 
 def git_commit():
     data = subprocess.check_output(

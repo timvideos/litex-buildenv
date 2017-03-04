@@ -1,5 +1,6 @@
-from migen.fhdl.std import *
-from migen.bank.description import *
+from litex.gen.fhdl import *
+from litex.soc.interconnect.csr import *
+
 
 def binify(s, size):
     assert size % 8 == 0

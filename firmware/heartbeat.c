@@ -28,7 +28,7 @@ void hb_service(int sink)
 	static bool color_v;
 
 	if (heartbeat_status==1) {
-		if(elapsed(&last_event, identifier_frequency_read()/FILL_RATE)) {
+		if(elapsed(&last_event, SYSTEM_CLOCK_FREQUENCY/FILL_RATE)) {
 			counter = counter+1;
 			hb_fill(color_v, sink);
 			if(counter > FILL_RATE/(HEARTBEAT_FREQUENCY*2)) {
@@ -46,14 +46,15 @@ void hb_fill(bool color_v, int sink)
 
 	volatile unsigned int *framebuffer = (unsigned int *)(MAIN_RAM_BASE + pattern_framebuffer_base());
 
+	/*
 #ifdef CSR_HDMI_OUT0_BASE
 	if (sink == VIDEO_OUT_HDMI_OUT0) {
-		framebuffer = (unsigned int *)(MAIN_RAM_BASE + hdmi_out0_fi_base0_read());
+		framebuffer = (unsigned int *)(MAIN_RAM_BASE + HDMI_IN0_FRAMEBUFFERS_BASE);
 	}
 #endif
 #ifdef CSR_HDMI_OUT1_BASE
 	if (sink == VIDEO_OUT_HDMI_OUT1) {
-		framebuffer = (unsigned int *)(MAIN_RAM_BASE + hdmi_out1_fi_base0_read());
+		framebuffer = (unsigned int *)(MAIN_RAM_BASE + HDMI_IN1_FRAMEBUFFERS_BASE);
 	}
 #endif
 #ifdef ENCODER_BASE
@@ -61,6 +62,8 @@ void hb_fill(bool color_v, int sink)
 		framebuffer = (unsigned int *)(MAIN_RAM_BASE + encoder_reader_base_read());
 	}
 #endif
+	*/
+
 	/*
 	8x8 pixel square at right bottom corner
 	8 pixel = 4 memory locations in horizoantal

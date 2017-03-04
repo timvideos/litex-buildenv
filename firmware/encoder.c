@@ -154,7 +154,7 @@ int encoder_set_quality(int quality) {
 			encoder_quality = quality;
 			break;
 		default:
-			wprintf("Unsupported encoder quality (50, 75, 85 or 100)\r\n");
+			printf("Unsupported encoder quality (50, 75, 85 or 100)\r\n");
 			return 0;
 	}
 	return 1;
@@ -179,7 +179,7 @@ void encoder_service(void) {
 	static int can_start;
 
 	if(encoder_enabled) {
-		if(elapsed(&last_event, identifier_frequency_read()/encoder_target_fps))
+		if(elapsed(&last_event, SYSTEM_CLOCK_FREQUENCY/encoder_target_fps))
 			can_start = 1;
 		if(can_start & encoder_done()) {
 			encoder_init(encoder_quality);
@@ -192,7 +192,7 @@ void encoder_service(void) {
 			encoder_reader_v_width_write(processor_v_active);
 			encoder_reader_start_write(1);
 		}
-		if(elapsed(&last_fps_event, identifier_frequency_read())) {
+		if(elapsed(&last_fps_event, SYSTEM_CLOCK_FREQUENCY)) {
 			encoder_fps = frame_cnt;
 			frame_cnt = 0;
 		}

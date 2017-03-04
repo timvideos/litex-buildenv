@@ -12,14 +12,12 @@ git fetch --unshallow && git fetch --tags
 if [ z"$TRAVIS_BRANCH" != z ]; then
 	echo "Fixing detached head"
 	git branch -v
-	git branch -D $TRAVIS_BRANCH
-	git checkout -b $TRAVIS_BRANCH
+	git branch -D $TRAVIS_BRANCH || true
+	git checkout $TRAVIS_COMMIT -b $TRAVIS_BRANCH
 	git branch -v
 fi
 GIT_REVISION=`git describe`
 echo "============================================="
-
-export HDMI2USB_UDEV_IGNORE=1
 
 # Run the script once to check it works
 time scripts/download-env.sh
@@ -28,4 +26,4 @@ time scripts/download-env.sh
 
 set +x
 set +e
-. scripts/enter-env.sh
+source scripts/enter-env.sh

@@ -73,13 +73,13 @@ void pll_config_for_clock(int freq)
 	program_data(pll_config_20x);
 #ifdef XILINX_SPARTAN6_WORKS_AMAZINGLY_WELL
 	if(freq < 2000)
-		wprintf("Frequency too low for PLLs\r\n");
+		printf("Frequency too low for PLLs\r\n");
 	else if(freq < 4500)
 		program_data(pll_config_20x);
 	else if(freq < 10000)
 		program_data(pll_config_10x);
 	else
-		wprintf("Frequency too high for PLLs\r\n");
+		printf("Frequency too high for PLLs\r\n");
 #endif
 }
 
@@ -89,33 +89,33 @@ void pll_dump(void)
 	int i;
 #endif
 #ifdef CSR_HDMI_OUT0_BASE
-	wprintf("framebuffer PLL:\r\n");
+	printf("framebuffer PLL:\r\n");
 	for(i=0;i<32;i++) {
 		hdmi_out0_driver_clocking_pll_adr_write(i);
 		hdmi_out0_driver_clocking_pll_read_write(1);
 		while(!hdmi_out0_driver_clocking_pll_drdy_read());
-		wprintf("%04x ", hdmi_out0_driver_clocking_pll_dat_r_read());
+		printf("%04x ", hdmi_out0_driver_clocking_pll_dat_r_read());
 	}
-	wprintf("\r\n");
+	printf("\r\n");
 #endif
 #ifdef CSR_HDMI_IN0_BASE
-	wprintf("dvisampler0 PLL:\r\n");
+	printf("dvisampler0 PLL:\r\n");
 	for(i=0;i<32;i++) {
 		hdmi_in0_clocking_pll_adr_write(i);
 		hdmi_in0_clocking_pll_read_write(1);
 		while(!hdmi_in0_clocking_pll_drdy_read());
-		wprintf("%04x ", hdmi_in0_clocking_pll_dat_r_read());
+		printf("%04x ", hdmi_in0_clocking_pll_dat_r_read());
 	}
-	wprintf("\r\n");
+	printf("\r\n");
 #endif
 #ifdef CSR_HDMI_IN1_BASE
-	wprintf("dvisampler1 PLL:\r\n");
+	printf("dvisampler1 PLL:\r\n");
 	for(i=0;i<32;i++) {
 		hdmi_in1_clocking_pll_adr_write(i);
 		hdmi_in1_clocking_pll_read_write(1);
 		while(!hdmi_in1_clocking_pll_drdy_read());
-		wprintf("%04x ", hdmi_in1_clocking_pll_dat_r_read());
+		printf("%04x ", hdmi_in1_clocking_pll_dat_r_read());
 	}
-	wprintf("\r\n");
+	printf("\r\n");
 #endif
 }

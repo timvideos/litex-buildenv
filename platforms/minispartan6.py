@@ -1,10 +1,11 @@
 # This file is Copyright (c) 2015 Matt O'Gorman <mog@rldn.net>
+# Copyright 2016 Joel Stanley <joel@jms.id.au>
 # License: BSD
 
-from mibuild.generic_platform import *
-from mibuild.xilinx import XilinxPlatform
-from mibuild.xilinx.programmer import XC3SProg, FpgaProg
-from mibuild.openocd import OpenOCD
+from litex.build.generic_platform import *
+from litex.build.xilinx import XilinxPlatform
+from litex.build.xilinx.programmer import XC3SProg, FpgaProg
+from litex.build.openocd import OpenOCD
 
 _io = [
     ## onboard LEDs

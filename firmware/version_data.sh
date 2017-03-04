@@ -7,10 +7,10 @@ COMMIT="$(git log --format="%H" -n 1)"
 BRANCH="$(git symbolic-ref --short HEAD)"
 DESCRIBE="$(git describe --dirty)"
 
-TMPFILE_H=$(tempfile -s .h)
-TMPFILE_C=$(tempfile -s .c)
+TMPFILE_H=$(tempfile -s .h | mktemp --suffix=.h)
+TMPFILE_C=$(tempfile -s .c | mktemp --suffix=.c)
 
-UBOARD="$(echo $BOARD | tr '[:lower:]' '[:upper:]')"
+UPLATFORM="$(echo $PLATFORM | tr '[:lower:]' '[:upper:]')"
 UTARGET="$(echo $TARGET | tr '[:lower:]' '[:upper:]')"
 
 cat > $TMPFILE_H <<EOF
@@ -30,10 +30,10 @@ EOF
 
 cat > $TMPFILE_C <<EOF
 
-#ifndef BOARD_$UBOARD
-#error "Version mismatch - BOARD_$UBOARD not defined!"
+#ifndef PLATFORM_$UPLATFORM
+#error "Version mismatch - PLATFORM_$UPLATFORM not defined!"
 #endif
-const char* board = "$BOARD";
+const char* board = "$PLATFORM";
 
 #ifndef TARGET_$UTARGET
 #error "Version mismatch - TARGET_$UTARGET not defined!"
@@ -44,9 +44,9 @@ const char* git_commit = "$COMMIT";
 const char* git_branch = "$BRANCH";
 const char* git_describe = "$DESCRIBE";
 const char* git_status =
-    "    --\n"
-$(git status --short | sed -e's-^-   "    -' -e's-$-\\n"-')
-    "    --\n";
+    "    --\r\n"
+$(git status --short | sed -e's-^-   "    -' -e's-$-\\r\\n"-')
+    "    --\r\n";
 
 EOF
 

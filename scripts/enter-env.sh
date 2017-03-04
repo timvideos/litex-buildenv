@@ -20,15 +20,15 @@ if [ $SOURCED = 0 ]; then
 	exit 1
 fi
 
-if [ ! -z $HDMI2USB_ENV ]; then
+if [ ! -z "$HDMI2USB_ENV" ]; then
 	echo "Already sourced this file."
-	return
+	return 1
 fi
 
-if [ ! -z $SETTINGS_FILE ]; then
+if [ ! -z "$SETTINGS_FILE" -o ! -z "$XILINX" ]; then
 	echo "You appear to have sourced the Xilinx ISE settings, these are incompatible with building."
 	echo "Please exit this terminal and run again from a clean shell."
-	return
+	return 1
 fi
 
 # Check ixo-usb-jtag *isn't* install
@@ -39,7 +39,7 @@ if [ -d /lib/firmware/ixo-usb-jtag/ ]; then
 	echo "On Debian/Ubuntu run:"
 	echo "  sudo apt-get remove ixo-usb-jtag"
 	echo
-	return
+	return 1
 fi
 
 if [ -f /etc/udev/rules.d/99-hdmi2usb-permissions.rules -o -f /lib/udev/rules.d/99-hdmi2usb-permissions.rules -o ! -z "$HDMI2USB_UDEV_IGNORE" ]; then
@@ -48,7 +48,7 @@ else
 	echo "Please install the HDMI2USB udev rules."
 	echo "These are installed by scripts/download-env-root.sh"
 	echo
-	return
+	return 1
 fi
 
 # Detect a likely lack of license early, but just warn if it's missing
@@ -74,26 +74,38 @@ fi
 # Check the build dir
 if [ ! -d $BUILD_DIR ]; then
 	echo "Build directory not found!"
-	return
+	return 1
 fi
 
 # Xilinx ISE
-XILINX_DIR=$BUILD_DIR/Xilinx
-if [ -f "$XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/xreport" ]; then
-	export MISOC_EXTRA_CMDLINE="-Ob ise_path $XILINX_DIR/opt/Xilinx/"
-	# Reserved MAC address from documentation block, see
-	# http://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
-	export XILINXD_LICENSE_FILE=$XILINX_DIR
-	export MACADDR=90:10:00:00:00:01
-	#export LD_PRELOAD=$XILINX_DIR/impersonate_macaddress/impersonate_macaddress.so
-	#ls -l $LD_PRELOAD
-else
-	XILINX_DIR=/
+if [ -z "$XILINX_DIR" ]; then
+	LOCAL_XILINX_DIR=$BUILD_DIR/Xilinx
+	if [ -f "$LOCAL_XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/xreport" ]; then
+		export MISOC_EXTRA_CMDLINE="-Ob toolchain_path $LOCAL_XILINX_DIR/opt/Xilinx/"
+		# Reserved MAC address from documentation block, see
+		# http://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
+		export XILINXD_LICENSE_FILE=$LOCAL_XILINX_DIR
+		export MACADDR=90:10:00:00:00:01
+		#export LD_PRELOAD=$XILINX_DIR/impersonate_macaddress/impersonate_macaddress.so
+		#ls -l $LD_PRELOAD
+		export XILINX_DIR=$LOCAL_XILINX_DIR
+	else
+		XILINX_DIR=/
+	fi
 fi
 echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
-# FIXME: Remove this when build/migen/mibuild/xilinx/programmer.py:_create_xsvf
-# understands the $MISOC_EXTRA_CMDLINE option.
-export PATH=$PATH:$XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64
+
+function check_exists {
+	TOOL=$1
+	if which $TOOL 2>&1; then
+		echo "$TOOL found at $(which $TOOL)"
+		return 0
+	else
+		echo "$TOOL *NOT* found"
+		echo "Please try running the $SETUP_DIR/download-env.sh script again."
+		return 1
+	fi
+}
 
 function check_version {
 	TOOL=$1
@@ -141,6 +153,31 @@ echo "Checking modules from conda"
 echo "---------------------------"
 export PATH=$CONDA_DIR/bin:$PATH
 
+# Check the Python version
+(
+	conda install python=3.5
+)
+check_version python 3.5 || return 1
+
+# fxload
+
+
+
+check_exists fxload || return 1
+
+# MimasV2Config.py
+MIMASV2CONFIG=$BUILD_DIR/conda/bin/MimasV2Config.py
+
+
+
+check_exists MimasV2Config.py || return 1
+
+# flterm
+
+
+
+check_exists flterm || return 1
+
 # binutils for the target
 
 
@@ -153,55 +190,57 @@ check_version lm32-elf-ld $BINUTILS_VERSION || return 1
 
 check_version lm32-elf-gcc $GCC_VERSION || return 1
 
-# sdcc for compiling Cypress FX2 firmware
-
-
-
-check_version sdcc $SDCC_VERSION || return 1
-
 # openocd for programming via Cypress FX2
 
 
 
 check_version openocd 0.10.0-dev || return 1
 
+# pyserial for communicating via uarts
+
+
+
+check_import serial || return 1
+
+# ipython for interactive debugging
+
+
+
+check_import IPython || return 1
+
+# progressbar2 for progress bars
+
+
+
+check_import progressbar || return 1
+
+# colorama for progress bars
+
+
+
+check_import colorama || return 1
+
 # hexfile for embedding the Cypress FX2 firmware.
 
 
 
-check_import_version hexfile $HEXFILE_VERSION
+check_import_version hexfile $HEXFILE_VERSION || return 1
 
 # Tool for changing the mode (JTAG/Serial/etc) of HDMI2USB boards
 
 
 
-check_import_version hdmi2usb.modeswitch $HDMI2USB_MODESWITCH_VERSION
+check_import_version hdmi2usb.modeswitch $HDMI2USB_MODESWITCH_VERSION || return 1
 
 # git submodules
 echo ""
 echo "Checking git submodules"
 echo "-----------------------"
 
-# migen
-MIGEN_DIR=$THIRD_DIR/migen
-export PYTHONPATH=$MIGEN_DIR:$PYTHONPATH
-check_import migen || return 1
-
-# misoc
-MISOC_DIR=$THIRD_DIR/misoc
-export PYTHONPATH=$MISOC_DIR:$PYTHONPATH
-$MISOC_DIR/tools/flterm --help 2> /dev/null || (echo "misoc flterm broken" && return 1)
-check_import misoclib || return 1
-
-# liteeth
-LITEETH_DIR=$THIRD_DIR/liteeth
-export PYTHONPATH=$LITEETH_DIR:$PYTHONPATH
-check_import liteeth || return 1
-
-# liteusb
-LITEUSB_DIR=$THIRD_DIR/liteusb
-export PYTHONPATH=$LITEUSB_DIR:$PYTHONPATH
-check_import liteusb || return 1
+# lite
+for LITE in $LITE_REPOS; do
+	check_import $LITE || return 1
+done
 
 echo "-----------------------"
 echo ""
@@ -213,7 +252,7 @@ export HDMI2USB_ENV=1
 # Set prompt
 ORIG_PS1="$PS1"
 hdmi2usb_prompt() {
-	P="(H2U B=$BOARD"
+	P="(H2U P=$PLATFORM"
 
 	if [ ! -z "$TARGET" ]; then
 		P="$P T=$TARGET"
@@ -231,5 +270,13 @@ hdmi2usb_prompt() {
 	fi
 
 	PS1="$P) $ORIG_PS1"
+
+	case "$TERM" in
+	xterm*|rxvt*)
+		PS1="$PS1\[\033]0;$P) \w\007\]"
+		;;
+	*)
+		;;
+	esac
 }
 PROMPT_COMMAND=hdmi2usb_prompt

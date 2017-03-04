@@ -1,117 +1,58 @@
-
 ifneq ($(OS),Windows_NT)
-ifneq "$(HDMI2USB_ENV)" "1"
-$(error "Please 'source scripts/setup-env.sh'")
+ifeq ($(HDMI2USB_ENV),)
+    $(error "Please enter environment. 'source scripts/enter-env.sh'")
 endif
 endif
 
+PYTHON ?= python
+export PYTHON
+
+PLATFORM ?= opsis
+export PLATFORM
+# Default board
+ifeq ($(PLATFORM),)
+    $(error "PLATFORM not set, please set it.")
+endif
+
+# Include platform specific targets
+include targets/$(PLATFORM)/Makefile.mk
+ifeq ($(TARGET),)
+    $(error "Internal error: TARGET not set.")
+endif
+export TARGET
+
+CPU ?= lm32
+export CPU
+
+# We don't use CLANG
+export CLANG=0
+
+TARGET_BUILD_DIR = build/$(PLATFORM)_$(TARGET)_$(CPU)/
+
+IPRANGE ?= 192.168.100
+TFTPD_DIR ?= build/tftpd/
+
+# Couple of Python settings.
+# ---------------------------------
 # Turn off Python's hash randomization
 PYTHONHASHSEED := 0
 export PYTHONHASHSEED
+# ---------------------------------
 
-# Default board
-ifeq ($(BOARD),)
-    $(error "BOARD not set, please set it.")
-endif
-export BOARD
-# Default targets for a given board
-ifeq ($(BOARD),pipistrello)
-    TARGET ?= base
-else ifeq ($(BOARD),minispartan6)
-    TARGET ?= video
-else
-    TARGET ?= hdmi2usb
-endif
-export TARGET
-# Default programmer
-PROG ?= openocd
-ifneq ($(PROG),)
-    PROGRAMMER_OPTION ?= --platform-option programmer $(PROG)
-endif
-
-FILTER ?= tee -a
-
-MSCDIR ?= third_party/misoc
-HDMI2USBDIR = $(realpath .)
-PYTHON = python3
-LOGFILE ?= $(PWD)/build/output.$(shell date +%Y%m%d-%H%M%S).log
+MAKE_CMD=\
+	time $(PYTHON) -u ./make.py \
+		--platform=$(PLATFORM) \
+		--target=$(TARGET) \
+		--cpu-type=$(CPU) \
+		--iprange=$(IPRANGE) \
+		$(MISOC_EXTRA_CMDLINE) \
+		$(LITEX_EXTRA_CMDLINE) \
 
 # We use the special PIPESTATUS which is bash only below.
 SHELL := /bin/bash
 
-FLASH_PROXIES=$(HDMI2USBDIR)/third_party/flash_proxies
-
-MAKEPY_CMD = \
-  cd $(MSCDIR) && \
-  $(PYTHON) \
-  make.py \
-    --external $(HDMI2USBDIR) \
-    --flash-proxy-dir $(FLASH_PROXIES) \
-    --target $(BOARD)_$(TARGET) \
-    --target-option firmware_filename $(HDMI2USBDIR)/firmware/lm32/firmware.bin \
-    --csr_csv $(HDMI2USBDIR)/test/csr.csv \
-    $(PROGRAMMER_OPTION) \
-    $(MISOC_EXTRA_CMDLINE)
-
-MAKEIMAGE_CMD = \
-  cd $(MSCDIR) && \
-  $(PYTHON) \
-  mkmscimg.py
-
-FLASHEXTRA_CMD = \
-  cd $(MSCDIR) && \
-  $(PYTHON) \
-  flash_extra.py \
-    --external $(HDMI2USBDIR) \
-    --flash-proxy-dir $(FLASH_PROXIES) \
-    $(PROGRAMMER_OPTION) \
-    $(BOARD)
-
-MODESWITCH_CMD = \
-  hdmi2usb-mode-switch \
-    --by-type=$(BOARD) \
-    --verbose
-
-MODEINFO_CMD = \
-  hdmi2usb-find-board \
-    --by-type=$(BOARD)
-
-ifeq ($(OS),Windows_NT)
-	FLTERM = $(PYTHON) $(MSCDIR)/tools/flterm.py
-else
-	FLTERM = $(MSCDIR)/tools/flterm
-endif
-
-# Every target has a lm32 softcore
-include Makefile.lm32
-
-# The edid_debug and hdmi2usb also use the Cypress FX2
-ifneq ($(filter $(TARGET),edid_debug hdmi2usb),)
-include Makefile.fx2
-endif
-
-help:
-	@echo "Environment:"
-	@echo "  BOARD=atlys OR opsis OR pipistrello  (current: $(BOARD))"
-	@echo " TARGET=base OR hdmi2usb OR hdmi2eth"
-	@echo "                        (current: $(TARGET))"
-	@echo "   PROG=programmer      (current: $(PROG))"
-	@echo ""
-	@if [ ! -z "$(TARGETS)" ]; then echo " Extra firmware needed for: $(TARGETS)"; echo ""; fi
-	@echo "Targets avaliable:"
-	@echo " make help"
-	@echo " make all"
-	@echo " make gateware"
-	@echo " make firmware"
-	@echo " make download-prebuilt"
-	@echo " make load"
-	@echo " make flash"
-	@for T in $(TARGETS); do make -s help-$$T; done
-	@echo " make clean"
-
-# All target
-all: clean gateware firmware
-	echo "Run 'make load' to load the firmware."
+FILTER ?= tee -a
+LOGFILE ?= $(PWD)/$(TARGET_BUILD_DIR)/output.$(shell date +%Y%m%d-%H%M%S).log
 
 # Initialize submodules automatically
 third_party/%/.git: .gitmodules
@@ -119,86 +60,104 @@ third_party/%/.git: .gitmodules
 	git submodule update --recursive --init $$(dirname $@)
 	touch $@ -r .gitmodules
 
+# Image
+# --------------------------------------
+
+image-load: image-load-$(PLATFORM)
+	true
+
 # Gateware
-MODULES=migen misoc liteeth litescope flash_proxies
-gateware-submodules: $(addsuffix /.git,$(addprefix third_party/,$(MODULES)))
+# --------------------------------------
+GATEWARE_MODULES=litex litedram liteeth litepcie litesata litescope liteusb litevideo litex
+gateware-submodules: $(addsuffix /.git,$(addprefix third_party/,$(GATEWARE_MODULES)))
 	@true
 
-gateware-generate: gateware-submodules $(addprefix gateware-generate-,$(TARGETS))
-	@echo 'Building target: $@. First dep: $<'
+gateware: gateware-submodules
+	mkdir -p $(TARGET_BUILD_DIR)
 ifneq ($(OS),Windows_NT)
-	$(MAKEPY_CMD) --build-option run False build-csr-csv build-bitstream \
-	| $(FILTER) $(LOGFILE); (exit $${PIPESTATUS[0]})
+	$(MAKE_CMD) \
+	2>&1 | $(FILTER) $(LOGFILE); (exit $${PIPESTATUS[0]})
 else
-	$(MAKEPY_CMD) --build-option run False build-csr-csv build-bitstream
+	$(MAKE_CMD)
 endif
 
-gateware-build: gateware-submodules $(addprefix gateware-build-,$(TARGETS))
-ifneq ($(OS),Windows_NT)
-	$(MAKEPY_CMD) build-csr-csv build-bitstream \
-	| $(FILTER) $(LOGFILE); (exit $${PIPESTATUS[0]})
-else
-	$(MAKEPY_CMD) build-csr-csv build-bitstream
-endif
+gateware-load: gateware-load-$(PLATFORM)
+	true
 
-gateware: gateware-generate gateware-build
-	@true
+gateware-clean:
+	rm -rf $(TARGET_BUILD_DIR)/gateware
 
 # Firmware
-firmware: $(addprefix firmware-,$(TARGETS))
-	@true
+# --------------------------------------
+firmware:
+	mkdir -p $(TARGET_BUILD_DIR)
+ifneq ($(OS),Windows_NT)
+	$(MAKE_CMD) --no-compile-gateware \
+	2>&1 | $(FILTER) $(LOGFILE); (exit $${PIPESTATUS[0]})
+else
+	$(MAKE_CMD) --no-compile-gateware
+endif
 
-# Download pre-built firmware
-download-prebuilt:
-	scripts/download-prebuilt.sh
-	
-# Load
-load-gateware:
-	$(MODESWITCH_CMD) --mode=jtag
-	$(MAKEPY_CMD) load-bitstream
+firmware-load: firmware firmware-load-$(PLATFORM)
+	true
 
-load: load-gateware $(addprefix load-,$(TARGETS))
-	@true
+firmware-connect: firmware-load-$(PLATFORM)
+	true
 
-# FIXME: Hack to work around our dodgy FX2 firmware
-jtag-toggle:
-	$(MODESWITCH_CMD) --mode=jtag
-	sleep 1
-	$(MODESWITCH_CMD) --mode=serial
-	sleep 1
-	$(MODESWITCH_CMD) --mode=jtag
+firmware-clean:
+	rm -rf $(TARGET_BUILD_DIR)/software
 
-# Flash
-flash-gateware: gateware-submodules
-	$(MODESWITCH_CMD) --mode=jtag
-	$(MAKEPY_CMD) flash-bitstream
+# TFTP booting stuff
+# --------------------------------------
+# TFTP server for minisoc to load firmware from
+tftp: firmware
+	mkdir -p $(TFTPD_DIR)
+	cp $(TARGET_BUILD_DIR)/software/firmware/firmware.bin $(TFTPD_DIR)/boot.bin
+
+tftpd_stop:
+	sudo true
+	sudo killall atftpd || true	# FIXME: This is dangerous...
+
+tftpd_start:
+	mkdir -p $(TFTPD_DIR)
+	sudo true
+	sudo atftpd --verbose --bind-address $(IPRANGE).100 --daemon --logfile /dev/stdout --no-fork --user $(shell whoami) $(TFTPD_DIR) &
+
+
+# Extra targets
+# --------------------------------------
+help:
+	@echo "Environment:"
+	@echo " PLATFORM=$(shell ls targets/ | grep -v ".py" | grep -v "common" | sed -e"s+targets/++" -e's/$$/ OR/')" | sed -e's/ OR$$//'
+	@echo "                        (current: $(PLATFORM))"
+	@echo " TARGET=$(shell ls targets/$(PLATFORM)/ | grep ".py" | grep -v "__" | sed -e"s+targets/$(PLATFORM)/++" -e's/.py/ OR/')" | sed -e's/ OR$$//'
+	@echo "                        (current: $(TARGET))"
 	@echo ""
-	@echo ""
-	@echo "Gateware has been flashed."
+	@if [ ! -z "$(TARGETS)" ]; then echo " Extra firmware needed for: $(TARGETS)"; echo ""; fi
+	@echo "Targets avaliable:"
+	@echo " make help"
+	@echo " make all"
+	@echo " make gateware"
+	@echo " make firmware"
+	@echo " make load"
+	@echo " make flash"
+	@for T in $(TARGETS); do make -s help-$$T; done
+	@echo " make clean"
 
-flash: flash-gateware $(addprefix flash-,$(TARGETS))
-	@echo ""
-	@echo ""
-	@echo "Power cycle your board to boot newly flashed stuff."
-
-# Clean
 clean:
-	@for T in $(TARGETS); do make clean-$$T; done
-	if [ -f $(MSCDIR)/software/include/generated/cpu.mak ]; then \
-		($(MAKEPY_CMD) clean) \
-	fi
-	# FIXME - This is a temporarily hack until misoc clean works better.
-	rm -rf $(MSCDIR)/software/include/generated && ( \
-		mkdir $(MSCDIR)/software/include/generated && \
-		touch $(MSCDIR)/software/include/generated/.keep_me)
-	# Cleanup Python3's __pycache__ directories
-	find . -name __pycache__ -type d -exec rm -r {} +
-	# Delete any previously downloaded pre-built firmware
-	rm -rf build/prebuilt
-	rm -f third_party/misoc/build/*.bit
-	rm -f firmware/fx2/hdmi2usb.hex
+	rm -rf $(TARGET_BUILD_DIR)
+	py3clean . || rm -rf $$(find -name __pycache__)
 
+dist-clean:
+	rm -rf build
 
-.DEFAULT_GOAL := help
-.NOTPARALLEL: *
-.PHONY: help all third_party/* gateware-submodules gateware-generate gateware-build gateware firmware download-prebuilt test
+# Tests
+# --------------------------------------
+TEST_MODULES=edid-decode
+test-submodules: $(addsuffix /.git,$(addprefix third_party/,$(TEST_MODULES)))
+	@true
+
+test-edid: test-submodules
+	$(MAKE) -C test/edid check
+
+.PHONY: gateware firmware help clean dist-clean test-edid

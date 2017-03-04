@@ -1,8 +1,8 @@
 import os
 import struct
 
-from migen.fhdl.std import *
-from migen.bus import wishbone
+from litex.gen import *
+from litex.soc.interconnect import wishbone
 
 
 class MemoryMustHaveContents(Memory):
@@ -37,4 +37,3 @@ class FirmwareROM(wishbone.SRAM):
 
         self.mem.__class__ = MemoryMustHaveContents
         self.mem.filename = filename
-

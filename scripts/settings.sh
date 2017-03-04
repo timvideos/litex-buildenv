@@ -2,7 +2,7 @@
 
 # Settings for the download-env.sh and setup-env.sh scripts
 
-BOARD=${BOARD:-opsis}
+PLATFORM=${PLATFORM:-opsis}
 
 BUILD_DIR=$TOP_DIR/build
 THIRD_DIR=$TOP_DIR/third_party
@@ -17,3 +17,15 @@ BINUTILS_VERSION=2.26
 GCC_VERSION=4.9.3
 SDCC_VERSION=3.5.0
 OPENOCD_VERSION=0.10.0-dev
+
+# lite modules
+LITE_REPOS="
+	litex
+	litedram
+	liteeth
+	litepcie
+	litesata
+	litescope
+	liteusb
+	litevideo
+	"

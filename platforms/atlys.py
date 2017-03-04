@@ -1,15 +1,7 @@
 # Support for the Digilent Atlys (http://digilentinc.com/atlys/) - The board used for HDMI2USB prototyping.
 
-from mibuild.generic_platform import *
-from mibuild.xilinx import XilinxPlatform
-
-from mibuild.openocd import OpenOCD
-# Alternative programmers
-from mibuild.xilinx import Adept
-from mibuild.xilinx import UrJTAG
-from mibuild.xilinx import XC3SProg
-from mibuild.xilinx import iMPACT
-
+from litex.build.generic_platform import *
+from litex.build.xilinx import XilinxPlatform, iMPACT
 
 # There appear to be 4 x LTC2481C on the U1-SCL / U1-SDA lines connected to the Cypress
 
@@ -681,17 +673,27 @@ class Platform(XilinxPlatform):
 
     def do_finalize(self, fragment):
         XilinxPlatform.do_finalize(self, fragment)
+
+        # The oscillator clock sources.
+        try:
+            self.add_period_constraint(self.lookup_request("clk100"), 10.0)
+        except ConstraintError:
+            pass
+
+        # HDMI input clock pins.
         for i in range(2):
             try:
-                self.add_period_constraint(self.lookup_request("hdmi_in", i).clk_p, 10)
+                self.add_period_constraint(self.lookup_request("hdmi_in", i).clk_p, 12)
             except ConstraintError:
                 pass
 
+        # Ethernet input clock pins.
         try:
             self.add_period_constraint(self.lookup_request("eth_clocks").rx, 40.0)
         except ConstraintError:
             pass
 
+        # USB input clock pins.
         try:
             self.add_period_constraint(self.lookup_request("fx2").ifclk, 10)
         except ConstraintError:

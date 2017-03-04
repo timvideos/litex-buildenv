@@ -1,10 +1,7 @@
-from mibuild.generic_platform import *
-from mibuild.xilinx import XilinxPlatform
-
-from mibuild.openocd import OpenOCD
-# Alternative programmers
-from mibuild.xilinx import UrJTAG
-from mibuild.xilinx.programmer import XC3SProg
+from litex.build.generic_platform import *
+from litex.build.xilinx import XilinxPlatform
+from litex.build.xilinx.programmer import XC3SProg
+from litex.build.openocd import OpenOCD
 
 _io = [
     ("user_led", 0, Pins("V16"), IOStandard("LVTTL"), Drive(8), Misc("SLEW=QUIETIO")),  # green at hdmi

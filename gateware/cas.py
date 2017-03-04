@@ -3,14 +3,13 @@ Module which allows control via buttons and switches and status reporting via
 LEDs.
 """
 
-from mibuild.generic_platform import ConstraintError
+from litex.build.generic_platform import ConstraintError
 
-from migen.bank.description import AutoCSR
-from migen.bank.eventmanager import *
-from migen.fhdl.std import *
-from migen.genlib.misc import WaitTimer
+from litex.soc.interconnect.csr import AutoCSR
+from litex.soc.interconnect.csr_eventmanager import *
+from litex.gen.genlib.misc import WaitTimer
 
-from misoclib.com import gpio
+from litex.soc.cores.gpio import GPIOIn, GPIOOut
 
 class ControlAndStatus(Module, AutoCSR):
     def __init__(self, platform, clk_freq):
@@ -25,7 +24,7 @@ class ControlAndStatus(Module, AutoCSR):
 
         if user_leds:
             leds = Signal(len(user_leds))
-            self.submodules.leds = gpio.GPIOOut(leds)
+            self.submodules.leds = GPIOOut(leds)
             for i in range(0, len(user_leds)):
                 self.comb += [
                     user_leds[i].eq(leds[i]),
@@ -41,7 +40,7 @@ class ControlAndStatus(Module, AutoCSR):
 
         if user_sws:
             switches = Signal(len(user_sws))
-            self.submodules.switches = gpio.GPIOIn(switches)
+            self.submodules.switches = GPIOIn(switches)
             for i in range(0, len(user_sws)):
                 self.comb += [
                     switches[i].eq(~user_sws[i]),
