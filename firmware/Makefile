@@ -48,6 +48,12 @@ CFLAGS += \
 	-I$(FIRMWARE_DIRECTORY) \
 	-I$(BUILD_DIRECTORY)/software/firmware
 
+CFLAGS += \
+	-Wall \
+	-Werror \
+	-Wno-error=unused-function \
+
+
 include $(UIP_DIRECTORY)/Makefile.mk
 
 LDFLAGS += \

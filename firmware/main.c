@@ -1,5 +1,4 @@
 #include <stdbool.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -24,6 +23,7 @@
 #include "opsis_eeprom.h"
 #include "pattern.h"
 #include "processor.h"
+#include "stdio_wrap.h"
 #include "telnet.h"
 #include "tofe_eeprom.h"
 #include "uptime.h"
@@ -50,11 +50,14 @@ static unsigned char ip_addr[4] = {0x00, 0x00, 0x00, 0x00};
 
 int main(void)
 {
+#ifdef ETHMAC_BASE
+	telnet_active = 0;
+#endif
 	irq_setmask(0);
 	irq_setie(1);
 	uart_init();
 
-	puts("HDMI2USB firmware booting...\r\n");
+	wputs("HDMI2USB firmware booting...\r\n");
 
 #ifdef CSR_OPSIS_I2C_MASTER_W_ADDR
 	opsis_eeprom_i2c_init();

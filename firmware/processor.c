@@ -13,7 +13,6 @@
  *    and/or other materials provided with the distribution.
  */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "stdio_wrap.h"
@@ -409,7 +408,7 @@ static void fb_get_clock_md(unsigned int pixel_clock, unsigned int *best_m, unsi
 #ifdef CSR_HDMI_OUT0_BASE
 	unsigned int md1000 = (bm * 1000) / bd;
 	if (md1000 > hdmi_out0_driver_clocking_clkfx_md_max_1000_read()) {
-		printf(
+		wprintf(
 			"WARNING: md1000 (%d) > (%d)\r\n",
 			md1000,
 			hdmi_out0_driver_clocking_clkfx_md_max_1000_read());

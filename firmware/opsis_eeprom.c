@@ -1,22 +1,22 @@
-#include <stdio.h>
 #include <stdint.h>
 
 #include <generated/csr.h>
 #ifdef CSR_OPSIS_I2C_MASTER_W_ADDR
 #include "i2c.h"
 #include "opsis_eeprom.h"
+#include "stdio_wrap.h"
 
 I2C opsis_eeprom_i2c;
 int opsis_eeprom_debug_enabled = 0;
 
 void opsis_eeprom_i2c_init(void) {
-    printf("opsis_eeprom: Init...");
+    wprintf("opsis_eeprom: Init...");
     opsis_eeprom_i2c.w_read = opsis_i2c_master_w_read;
     opsis_eeprom_i2c.w_write = opsis_i2c_master_w_write;
     opsis_eeprom_i2c.r_read = opsis_i2c_master_r_read;
     OPSIS_I2C_ACTIVE(OPSIS_I2C_GPIO);
     i2c_init(&opsis_eeprom_i2c);
-    printf("finished.\r\n");
+    wprintf("finished.\r\n");
 }
 
 static void opsis_eeprom_read(uint8_t addr) {
@@ -29,25 +29,25 @@ static void opsis_eeprom_read(uint8_t addr) {
     i2c_start_cond(&opsis_eeprom_i2c);
     b = i2c_write(&opsis_eeprom_i2c, OPSIS_EEPROM_SLAVE_ADDRESS | I2C_WRITE);
     if (!b && opsis_eeprom_debug_enabled)
-        printf("opsis_eeprom: NACK while writing slave address!\r\n");
+        wprintf("opsis_eeprom: NACK while writing slave address!\r\n");
     b = i2c_write(&opsis_eeprom_i2c, addr);
     if (!b && opsis_eeprom_debug_enabled)
-        printf("opsis_eeprom: NACK while writing opsis_eeprom address!\r\n");
+        wprintf("opsis_eeprom: NACK while writing opsis_eeprom address!\r\n");
 
     // Read data from I2C EEPROM
     i2c_start_cond(&opsis_eeprom_i2c);
     b = i2c_write(&opsis_eeprom_i2c, OPSIS_EEPROM_SLAVE_ADDRESS | I2C_READ);
     if (!b && opsis_eeprom_debug_enabled)
-        printf("opsis_eeprom: NACK while writing slave address (2)!\r\n");
+        wprintf("opsis_eeprom: NACK while writing slave address (2)!\r\n");
 }
 
 void opsis_eeprom_dump(void) {
     opsis_eeprom_read(0);
     for (int i = 0 ; i < 256 ; i++) {
         unsigned char b = i2c_read(&opsis_eeprom_i2c, 1);
-        printf("%02X ", b);
+        wprintf("%02X ", b);
         if(!((i+1) % 16))
-            printf("\r\n");
+            wprintf("\r\n");
     }
     i2c_stop_cond(&opsis_eeprom_i2c);
 }

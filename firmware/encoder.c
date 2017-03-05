@@ -2,12 +2,11 @@
 #include <generated/mem.h>
 #ifdef ENCODER_BASE
 
-#include <stdio.h>
-#include <console.h>
 #include <time.h>
 
-#include "processor.h"
 #include "encoder.h"
+#include "processor.h"
+#include "stdio_wrap.h"
 
 void encoder_write_reg(unsigned int adr, unsigned int value) {
 		MMPTR(ENCODER_BASE+adr) = value;
@@ -154,7 +153,7 @@ int encoder_set_quality(int quality) {
 			encoder_quality = quality;
 			break;
 		default:
-			printf("Unsupported encoder quality (50, 75, 85 or 100)\r\n");
+			wprintf("Unsupported encoder quality (50, 75, 85 or 100)\r\n");
 			return 0;
 	}
 	return 1;

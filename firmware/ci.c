@@ -20,7 +20,6 @@
 
 #include <generated/csr.h>
 #include <generated/mem.h>
-#include <generated/sdram_phy.h>
 #include <hw/flags.h>
 #include <time.h>
 #include <console.h>
@@ -35,6 +34,7 @@
 #include "hdmi_in1.h"
 #include "hdmi_out0.h"
 #include "hdmi_out1.h"
+#include "heartbeat.h"
 #include "mdio.h"
 #include "opsis_eeprom.h"
 #include "pattern.h"
@@ -43,8 +43,8 @@
 #include "stdio_wrap.h"
 #include "telnet.h"
 #include "tofe_eeprom.h"
-#include "version.h"
 #include "uptime.h"
+#include "version.h"
 
 #include "ci.h"
 
@@ -948,6 +948,7 @@ static unsigned int log2(unsigned int v)
 #ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
 static void debug_ddr(void)
 {
+	/*
 	unsigned long long int nr, nw;
 	unsigned long long int f;
 	unsigned int rdb, wrb;
@@ -961,6 +962,7 @@ static void debug_ddr(void)
 	rdb = (nr*f >> (24 - log2(burstbits)))/1000000ULL;
 	wrb = (nw*f >> (24 - log2(burstbits)))/1000000ULL;
 	wprintf("read:%5dMbps write:%5dMbps all:%5dMbps", rdb, wrb, rdb + wrb);
+	*/
 }
 #endif
 

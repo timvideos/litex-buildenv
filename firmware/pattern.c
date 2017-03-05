@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdlib.h>
 
 #include <generated/csr.h>
@@ -9,6 +8,7 @@
 
 #include "pattern.h"
 #include "processor.h"
+#include "stdio_wrap.h"
 #include "uptime.h"
 #include "version_data.h"
 

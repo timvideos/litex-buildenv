@@ -1,11 +1,9 @@
 #include <generated/csr.h>
-#include <generated/mem.h>
 #include <stdbool.h>
-#include <stdio.h>
 #include <string.h>
 
 #ifndef LOCALIP1
-#warning "No default IP address"
+//#warning "No default IP address"
 #define LOCALIP1 0
 #define LOCALIP2 0
 #define LOCALIP3 0
@@ -21,14 +19,14 @@
 //   PATTERN
 #ifdef CSR_HDMI_IN1_BASE
 	#define VIDEO_IN_DEFAULT VIDEO_IN_HDMI_IN1
-	#warning "Default HDMI In 1"
+//	#warning "Default HDMI In 1"
 #else
 #ifdef CSR_HDMI_IN0_BASE
 	#define VIDEO_IN_DEFAULT VIDEO_IN_HDMI_IN0
-	#warning "Default HDMI In 0"
+//	#warning "Default HDMI In 0"
 #else
 	#define VIDEO_IN_DEFAULT VIDEO_IN_PATTERN
-	#warning "Default Pattern"
+//	#warning "Default Pattern"
 #endif
 #endif
 
