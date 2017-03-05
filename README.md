@@ -12,20 +12,10 @@
   * Overview
   * HDMI2USB MiSoC Firmware
     * Supported Boards
-    * Development Boards
+    * In Progress Boards
+    * Other Boards
   * Getting started
   * Documentation
-  * Current Status
-    * HDMI2USB
-      * Atlys
-      * Opsis
-    * HDMI2Eth
-      * Atlys
-    * Base
-      * Atlys
-      * Opsis
-      * Pipistrello
-      * miniSpartan6+
   * License
   * Contact
 
@@ -61,15 +51,17 @@ video recording hardware for conferences, meetings and user groups worldwide.
 
 ## Supported Boards
 
-This firmware is supported on the following to boards;
+This firmware is supported on the following to boards for capturing
+conferences;
 
- * [Digilent Atlys](https://hdmi2usb.tv/digilent-atlys/) - `BOARD=atlys` - http://digilentinc.com/atlys/
+
+ * [Digilent Atlys](https://hdmi2usb.tv/digilent-atlys/) - `PLATFORM=atlys` - http://digilentinc.com/atlys/
 
    The original board used for HDMI2USB prototyping.
 
    ![Digilent Atlys Picture](https://hdmi2usb.tv/img/digilent-atlys-small.jpg)
 
- * [Numato Opsis](https://hdmi2usb.tv/numato-opsis/) - `BOARD=opsis` - https://crowdsupply.com/numato-lab/opsis
+ * [Numato Opsis](https://hdmi2usb.tv/numato-opsis/) - `PLATFORM=opsis` - https://crowdsupply.com/numato-lab/opsis
 
    The first production board made in conjunction with TimVideos.us project.
 
@@ -78,24 +70,43 @@ This firmware is supported on the following to boards;
 For a comparison between the supported boards, see the
 [HDMI2USB Hardware page](https://hdmi2usb.tv/hardware/).
 
-## Development Boards
+## In Progress Boards
 
- * Pipistrello - http://pipistrello.saanlima.com/
+The following boards are under development for conference capture;
 
-   `BOARD=pipistrello`
+ * Digilent Nexys Video
+ * Alphamax NeTV2
+
+## Other Boards
+
+The following boards are useful for development but *not* conference capture;
+
+ * Saanlima Pipistrello - http://pipistrello.saanlima.com/
+
+   `PLATFORM=pipistrello`
 
    A small FPGA board with only one HDMI output port.
    Due to the lack of video *inputs*, this board is only useful for developers.
 
- * miniSpartan6+ - https://www.scarabhardware.com/minispartan6/ -
+ * ScarabHardware miniSpartan6+ - https://www.scarabhardware.com/minispartan6/ -
    [*In progress*](https://github.com/timvideos/HDMI2USB-misoc-firmware/tree/minispartan6%2B)
 
-   `BOARD=miniSpartan`
+   `PLATFORM=miniSpartan`
 
    A small FPGA board with HDMI input and HDMI output.
    Due to the low speed ram and USB interface, this board is only useful for
    developers who want to work on the HDMI subsystem and need a small board
    that fits in their pocket.
+
+ * Numato MimasV2 - https://numato.com/mimas-v2-spartan-6-fpga-development-board-with-ddr-sdram/
+
+   `PLATFORM=mimasv2`
+
+   A small, cheap FPGA board with a Spartan 6 and DDR RAM. Due to the lack of
+   video input and high speed data interfaces this board can't be used for
+   capture. It can however be used for development of non-capture related
+   firmware features and experimenting with FPGA development.
+
 
 # Getting started
 
@@ -115,21 +126,6 @@ High level **developer** documentation for the firmware can be found in the
 [doc](doc/) directory. More documentation is found in the source code.
 
 ![System Diagram](doc/architecture.png)
-
-# Current Status
-
-The following boards are fully supported for conference capture;
- * Numato Opsis
- * Digilent Atlys
-
-The following boards are under development for conference capture;
- * Digilent Nexys Video
- * Alphamax NeTV2
-
-The following boards are useful for development but *not* conference capture;
- * ScarabHardware minispartan6+
- * Saanlima Pipistrello
- * Numato MimasV2
 
 # License
 
