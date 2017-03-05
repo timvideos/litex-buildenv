@@ -52,6 +52,7 @@ CFLAGS += \
 	-Wall \
 	-Werror \
 	-Wno-error=unused-function \
+	-Wno-error=unused-variable \
 
 
 include $(UIP_DIRECTORY)/Makefile.mk
