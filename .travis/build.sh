@@ -216,9 +216,10 @@ function build() {
 		cp $TARGET_BUILD_DIR/output.*.log $COPY_DEST/logs/
 		echo ""
 		echo "- Uploading binaries and logfiles"
-		# Only hdmi2usb is considered usable just now
+
+		# Only hdmi2usb + lm32 is considered usable at the moment
 		UNSTABLE_LINK="$PLATFORM/firmware/unstable"
-		if [ "$TARGET" = "hdmi2usb" ]; then
+		if [ "$TARGET" = "hdmi2usb" -a "$CPU" = "lm32" ]; then
 			# Create link to latest unstable build
 			rm $UNSTABLE_LINK
 			ln -s ../../$COPY_DEST $UNSTABLE_LINK
