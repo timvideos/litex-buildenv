@@ -339,7 +339,7 @@ echo "The following builds succeeded"
 echo "============================================="
 
 for S in ${SUCCESSES[@]}; do
-	echo $S | sed -e's/+/ /'
+	echo $S | sed -e's/+/ /g'
 done
 echo ""
 echo ""
@@ -348,7 +348,7 @@ echo "The following builds failed!"
 echo "============================================="
 
 for F in ${FAILURES[@]}; do
-	echo $F | sed -e's/+/ /'
+	echo $F | sed -e's/+/ /g'
 done
 
 echo ""
