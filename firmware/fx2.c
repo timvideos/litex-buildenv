@@ -18,10 +18,10 @@
 enum fx2_fw_version fx2_fw_active;
 
 
-static size_t next_read_addr;
-static size_t end_addr;
+static unsigned next_read_addr;
+static unsigned end_addr;
 
-static inline uint8_t fx2_fw_get_value(size_t addr) {
+static inline uint8_t fx2_fw_get_value(unsigned addr) {
 	uint8_t r = 0xff;
 	if (addr <= end_addr) {
 		switch(fx2_fw_active) {
@@ -35,7 +35,7 @@ static inline uint8_t fx2_fw_get_value(size_t addr) {
 #endif
 		}
 	} else {
-		wprintf("fx2: Read from invalid address %02ZX (end: %02ZX)\r\n", addr, end_addr);
+		wprintf("fx2: Read from invalid address %02X (end: %02X)\r\n", addr, end_addr);
 	}
 	return r;
 }
@@ -79,7 +79,7 @@ static void fx2_load(void)
 				break;
 			}
 		} else if ((i % FX2_REPORT_PERIOD) == 0) {
-			wprintf("fx2: Waiting at %02ZX (end: %02ZX)\r\n", next_read_addr, end_addr);
+			wprintf("fx2: Waiting at %02X (end: %02X)\r\n", next_read_addr, end_addr);
 		}
 	}
 	if (i > 0) {
@@ -94,7 +94,7 @@ bool fx2_service(bool verbose)
 	unsigned char status = opsis_i2c_fx2_hack_status_read();
 	if(status == FX2_HACK_SHIFT_REG_EMPTY) { // there's been a master READ
 		if (verbose) {
-			wprintf("fx2: read %02ZX (end: %02ZX)\r\n", next_read_addr, end_addr);
+			wprintf("fx2: read %02X (end: %02X)\r\n", next_read_addr, end_addr);
 		}
 		if (next_read_addr < end_addr) {
 			// Load next value into the system
@@ -127,7 +127,7 @@ void fx2_reboot(enum fx2_fw_version fw)
 
 void fx2_debug(void) {
 	wprintf("Possible FX2 Firmware:\r\n");
-	wprintf(" [%s] usbjtag (%02ZX) (IXO USB JTAG Mode)\r\n", fx2_fw_active == FX2FW_USBJTAG ? "*" : " ", FX2_MBFW_USBJTAG_END);
+	wprintf(" [%s] usbjtag (%02X) (IXO USB JTAG Mode)\r\n", fx2_fw_active == FX2FW_USBJTAG ? "*" : " ", FX2_MBFW_USBJTAG_END);
 #ifdef ENCODER_BASE
 	wprintf(" [%s] hdmi2usb (%02X) (HDMI2USB Video Capture Mode)\r\n", fx2_fw_active == FX2FW_HDMI2USB ? "*" : " ", FX2_MBFW_HDMI2USB_END);
 #endif
