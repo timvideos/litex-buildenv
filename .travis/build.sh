@@ -214,7 +214,7 @@ function build() {
 		git pull
 		git add -A .
 		git commit -a -m "Travis build #$TRAVIS_BUILD_NUMBER of $GIT_REVISION for PLATFORM=$PLATFORM TARGET=$TARGET"
-		git diff origin/master --stat=1000
+		git diff HEAD~1 --stat=1000,1000
 		#git push --quiet origin master > /dev/null 2>&1
 		)
 		echo "============================================="
@@ -327,13 +327,12 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 	echo ""
 	echo ""
 	echo "Pushing prebuilt binaries"
-	echo "---------------------------------------------"
+	echo "============================================="
 	(
 	cd $PREBUILT_DIR
-	git diff origin/master --stat=1000
+	git diff origin/master --stat=1000,1000
 	#git push --quiet origin master > /dev/null 2>&1
 	)
-	echo "============================================="
 fi
 
 echo ""
