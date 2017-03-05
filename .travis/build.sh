@@ -214,7 +214,7 @@ function build() {
 		git pull
 		git add -A .
 		git commit -a -m "Travis build #$TRAVIS_BUILD_NUMBER of $GIT_REVISION for PLATFORM=$PLATFORM TARGET=$TARGET"
-		git diff origin/master --stat
+		git diff origin/master --stat=1000
 		#git push --quiet origin master > /dev/null 2>&1
 		)
 		echo "============================================="
@@ -281,6 +281,7 @@ else
 	echo "---------------------------------------------"
 	export PREBUILT_DIR="/tmp/HDMI2USB-firmware-prebuilt"
 	git clone https://$GH_TOKEN@github.com/$PREBUILT_REPO_OWNER/${PREBUILT_REPO}.git $PREBUILT_DIR
+	echo "============================================="
 fi
 
 
@@ -304,6 +305,9 @@ for PLATFORM in $PLATFORMS; do
 			CPUS="$CPU"
 		fi
 	fi
+	echo ""
+	echo ""
+	echo ""
 	echo "Running with TARGETS='$TARGETS'"
 	for TARGET in $TARGETS; do
 		for CPU in $CPUS; do
@@ -326,7 +330,7 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 	echo "---------------------------------------------"
 	(
 	cd $PREBUILT_DIR
-	git diff origin/master --stat
+	git diff origin/master --stat=1000
 	#git push --quiet origin master > /dev/null 2>&1
 	)
 	echo "============================================="
