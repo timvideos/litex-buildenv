@@ -62,9 +62,13 @@ third_party/%/.git: .gitmodules
 
 # Image
 # --------------------------------------
+image:
+	$(PYTHON) mkimage.py
 
-image-load: image-load-$(PLATFORM)
+image-load: image image-load-$(PLATFORM)
 	true
+
+.PHONY: image image-load
 
 # Gateware
 # --------------------------------------
@@ -87,6 +91,8 @@ gateware-load: gateware-load-$(PLATFORM)
 gateware-clean:
 	rm -rf $(TARGET_BUILD_DIR)/gateware
 
+.PHONY: gateware gateware-load gateware-clean
+
 # Firmware
 # --------------------------------------
 firmware:
@@ -107,6 +113,8 @@ firmware-connect: firmware-load-$(PLATFORM)
 firmware-clean:
 	rm -rf $(TARGET_BUILD_DIR)/software
 
+.PHONY: firmware firmware-load firmware-connect firmware-clean
+
 # TFTP booting stuff
 # --------------------------------------
 # TFTP server for minisoc to load firmware from
@@ -123,6 +131,7 @@ tftpd_start:
 	sudo true
 	sudo atftpd --verbose --bind-address $(IPRANGE).100 --daemon --logfile /dev/stdout --no-fork --user $(shell whoami) $(TFTPD_DIR) &
 
+.PHONY: tftp tftpd_stop tftpd_start
 
 # Extra targets
 # --------------------------------------
@@ -151,6 +160,8 @@ clean:
 dist-clean:
 	rm -rf build
 
+.PHONY: help clean dist-clean
+
 # Tests
 # --------------------------------------
 TEST_MODULES=edid-decode
@@ -160,4 +171,7 @@ test-submodules: $(addsuffix /.git,$(addprefix third_party/,$(TEST_MODULES)))
 test-edid: test-submodules
 	$(MAKE) -C test/edid check
 
-.PHONY: gateware firmware help clean dist-clean test-edid
+test:
+	true
+
+.PHONY: test test-edid

@@ -14,7 +14,6 @@ gateware-flash-mimasv2:
 	$(PYTHON) $$(which MimasV2Config.py) $(PORT) $(TARGET_BUILD_DIR)/gateware/top.bin
 
 image-flash-mimasv2:
-	$(PYTHON) mkimage.py
 	$(PYTHON) $$(which MimasV2Config.py) $(PORT) $(TARGET_BUILD_DIR)/flash.bin
 
 firmware-load-mimasv2:
