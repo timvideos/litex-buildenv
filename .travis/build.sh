@@ -228,7 +228,7 @@ function build() {
 		fi
 		(
 		cd $COPY_DEST
-		sha256sum * > sha256sum.txt
+		sha256sum $(find -type f) > sha256sum.txt
 		cat sha256sum.txt
 		)
 		export GIT_AUTHOR_EMAIL="$ORIG_COMMITTER_EMAIL"
