@@ -180,9 +180,6 @@ function build() {
 		# Save the resulting binaries into the prebuilt repo. The
 		# gateware should always exist, but others might not.
 
-		# Version information
-		cp $TARGET_BUILD_DIR/software/firmware/version_data.c $COPY_DEST/version_data.c
-
 		# Gateware
 		cp $TARGET_BUILD_DIR/gateware/top.bit $COPY_DEST/gateware.bit
 		cp $TARGET_BUILD_DIR/gateware/top.bin $COPY_DEST/gateware.bin
@@ -211,11 +208,10 @@ function build() {
 			cp $FLASH_IMAGE $COPY_DEST/
 		fi
 
-		# Log outputs
+		# Logs, version information, etc
 		mkdir -p $COPY_DEST/logs/
+		cp $TARGET_BUILD_DIR/software/firmware/version_data.c $COPY_DEST/logs/version_data.c
 		cp $TARGET_BUILD_DIR/output.*.log $COPY_DEST/logs/
-		echo ""
-		echo "- Uploading binaries and logfiles"
 
 		# Only hdmi2usb + lm32 is considered usable at the moment
 		UNSTABLE_LINK="$PLATFORM/firmware/unstable"
