@@ -284,15 +284,26 @@ for PLATFORM in $PLATFORMS; do
 			TARGETS="$TARGET"
 		fi
 	fi
+
+	if [ -z "$CPUS" ]; then
+		if [ -z "$CPU" ]; then
+			#CPUS="lm32 or1k riscv32"
+			CPUS="lm32"
+		else
+			CPUS="$CPU"
+		fi
+	fi
 	echo "Running with TARGETS='$TARGETS'"
 	for TARGET in $TARGETS; do
-		build $PLATFORM $TARGET lm32 && :
-		RETURN=$?
-		if [ "$RETURN" -eq 0 ]; then
-			SUCCESSES+=("$PLATFORM+$TARGET")
-		else
-			FAILURES+=("$PLATFORM+$TARGET")
-		fi
+		for CPU in $CPUS; do
+			build $PLATFORM $TARGET $CPU && :
+			RETURN=$?
+			if [ "$RETURN" -eq 0 ]; then
+				SUCCESSES+=("$PLATFORM+$TARGET+$CPU")
+			else
+				FAILURES+=("$PLATFORM+$TARGET+$CPU")
+			fi
+		done
 	done
 done
 
