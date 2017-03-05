@@ -21,11 +21,14 @@ ifeq ($(TARGET),)
 endif
 export TARGET
 
-CPU ?= lm32
+ifeq ($(CPU),)
+    $(error "Internal error: CPU not set.")
+endif
 export CPU
 
 # We don't use CLANG
-export CLANG=0
+CLANG = 0
+export CLANG
 
 TARGET_BUILD_DIR = build/$(PLATFORM)_$(TARGET)_$(CPU)/
 
