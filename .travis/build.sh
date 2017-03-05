@@ -71,7 +71,7 @@ function build() {
 	echo ""
 	echo "- make firmware ($PLATFORM $TARGET $CPU) (prerun)"
 	echo "---------------------------------------------"
-	make firmware || return 1
+	make -j4 firmware || return 1
 	echo "- Firmware version data"
 	echo "---------------------------------------------"
 	VERSION_DATA="$(find $TARGET_BUILD_DIR -name version_data.c)"
@@ -122,7 +122,7 @@ function build() {
 	echo ""
 	echo "- make firmware ($PLATFORM $TARGET $CPU)"
 	echo "---------------------------------------------"
-	make firmware || return 1
+	make -j4 firmware || return 1
 	echo "============================================="
 
 	#echo ""
