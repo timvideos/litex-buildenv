@@ -75,7 +75,7 @@ This firmware is supported on the following to boards;
 
    ![Numato Opsis Picture](https://hdmi2usb.tv/img/numato-opsis-small.jpg)
 
-For a comparison between the supported boards, see the 
+For a comparison between the supported boards, see the
 [HDMI2USB Hardware page](https://hdmi2usb.tv/hardware/).
 
 ## Development Boards
@@ -100,12 +100,12 @@ For a comparison between the supported boards, see the
 # Getting started
 
 For **using** a HDMI2USB board, prebuilt versions of the firmware are available in
-the 
+the
 [HDMI2USB-firmware-prebuilt](http://github.com/timvideos/HDMI2USB-firmware-prebuilt)
 repository.
 
 For **helping with the development**, instructions for setting up the build
-environment are found in the [scripts/README.md](scripts/) file.
+environment are found in the [getting-started.md](getting-started.md) file.
 
 # Documentation
 
@@ -118,71 +118,18 @@ High level **developer** documentation for the firmware can be found in the
 
 # Current Status
 
-## HDMI2USB
+The following boards are fully supported for conference capture;
+ * Numato Opsis
+ * Digilent Atlys
 
-The `hdmi2usb` targets are for doing capturing and streaming using the FX2 USB
-interface.
+The following boards are under development for conference capture;
+ * Digilent Nexys Video
+ * Alphamax NeTV2
 
-### Atlys
-
-[`atlys_hdmi2usb`](targets/atlys_hdmi2usb.py)
-
-* `VideomixerSoC` validated: MiniSoC + 2 x HDMI in + 2 x HDMI out
-* `HDMI2USBSoC` validated: VideomixerSoC + JPEG encoder + USB streaming
-
-### Opsis
-
-[`opsis_hdmi2usb`](targets/opsis_hdmi2usb.py)
-
-* `VideomixerSoC` validated: MiniSoC + 2 x HDMI in + 2 x HDMI out
-* `HDMI2USBSoC` validated: VideomixerSoC + JPEG encoder + USB streaming
-
-## HDMI2Eth
-
-The `hdmi2eth` targets are for doing capturing and control using the Ethernet
-found on many boards.
-
-### Atlys
-
-[`atlys_hdmi2eth`](targets/atlys_hdmi2eth.py)
-
-* `EtherboneSoC` validated: BaseSoC + 10/100Mbps HW Ethernet UDP/IP stack and
-  Etherbone
-
-* `VideomixerSoC` validated: EtherboneSoC + HDMI in + HDMI out
-* `HDMI2ETHSoC` validated: VideomixerSoC + JPEG encoder + UDP streaming
-
-## Base
-
-The `base` targets are used during initial bring up and verification of basic
-features. Getting MiniSoc running on new hardware is the first step towards
-supporting it. All the other, more functional, targets are built on top of this
-target.
-
-### Atlys
-
-[`atlys_base`](targets/atlys_base.py)
-
-* `BaseSoC` validated: CPU + DDR2 + UART
-* `MiniSoC` validated: BaseSoC + 10/100Mbps Ethernet MAC handled by the CPU
-
-### Opsis
-
-[`opsis_base`](targets/opsis_base.py)
-
-* `BaseSoC` validated: CPU + DDR3 + UART
-* `MiniSoC` validated: BaseSoC + 1Gbps Ethernet MAC handled by the CPU
-
-### Pipistrello
-
-[`pipistrello_base`](targets/pipistrello_base.py)
-
-* `BaseSoC`: CPU + LPDDR + UART
-* `VideomixerSoC`: BaseSoC + HDMI out
-
-### miniSpartan6+
-
-* `BaseSoC`: CPU + UART
+The following boards are useful for development but *not* conference capture;
+ * ScarabHardware minispartan6+
+ * Saanlima Pipistrello
+ * Numato MimasV2
 
 # License
 
