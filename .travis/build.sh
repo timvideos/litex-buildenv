@@ -238,7 +238,7 @@ function build() {
 		git pull
 		git add -A .
 		git commit -a -m "Travis build #$TRAVIS_BUILD_NUMBER of $GIT_REVISION for PLATFORM=$PLATFORM TARGET=$TARGET"
-		git diff origin/master
+		git diff origin/master --stat
 		#git push --quiet origin master > /dev/null 2>&1
 		cd ..
 		rm -rf $COPY_REPO
