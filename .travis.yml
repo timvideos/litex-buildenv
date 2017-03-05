@@ -28,13 +28,15 @@ env:
    - PLATFORM=atlys SKIP_TARGETS=hdmi2usb
    - PLATFORM=atlys TARGET=hdmi2usb
    - PLATFORM=minispartan6
-   - PLATFORM=mimasv2
 #   - PLATFORM=netv2
 #   - PLATFORM=nexys_video
 #   - PLATFORM=pipistrello
    - PLATFORM=opsis SKIP_TARGETS=hdmi2usb
    - PLATFORM=opsis TARGET=hdmi2usb
 #   - PLATFORM=sim
+   # Test multiple CPU archs on the mimasv2
+   - CPU=lm32 PLATFORM=mimasv2
+   - CPU=or1k PLATFORM=mimasv2
 
 install:
  - $PWD/.travis/setup.sh

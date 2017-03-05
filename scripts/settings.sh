@@ -3,6 +3,7 @@
 # Settings for the download-env.sh and setup-env.sh scripts
 
 PLATFORM=${PLATFORM:-opsis}
+CPU=${CPU:-lm32}
 
 BUILD_DIR=$TOP_DIR/build
 THIRD_DIR=$TOP_DIR/third_party

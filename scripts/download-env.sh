@@ -198,15 +198,15 @@ check_exists flterm
 
 # binutils for the target
 (
-	conda install binutils-lm32-elf=$BINUTILS_VERSION
+	conda install binutils-${CPU}-elf=$BINUTILS_VERSION
 )
-check_version lm32-elf-ld $BINUTILS_VERSION
+check_version ${CPU}-elf-ld $BINUTILS_VERSION
 
 # gcc+binutils for the target
 (
-	conda install gcc-lm32-elf=$GCC_VERSION
+	conda install gcc-${CPU}-elf=$GCC_VERSION
 )
-check_version lm32-elf-gcc $GCC_VERSION
+check_version ${CPU}-elf-gcc $GCC_VERSION
 
 # openocd for programming via Cypress FX2
 (

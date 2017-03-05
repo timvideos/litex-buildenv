@@ -182,13 +182,13 @@ check_exists flterm || return 1
 
 
 
-check_version lm32-elf-ld $BINUTILS_VERSION || return 1
+check_version ${CPU}-elf-ld $BINUTILS_VERSION || return 1
 
 # gcc+binutils for the target
 
 
 
-check_version lm32-elf-gcc $GCC_VERSION || return 1
+check_version ${CPU}-elf-gcc $GCC_VERSION || return 1
 
 # openocd for programming via Cypress FX2
 
