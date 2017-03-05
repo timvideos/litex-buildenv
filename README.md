@@ -88,8 +88,7 @@ The following boards are useful for development but *not* conference capture;
    A small FPGA board with only one HDMI output port.
    Due to the lack of video *inputs*, this board is only useful for developers.
 
- * ScarabHardware miniSpartan6+ - https://www.scarabhardware.com/minispartan6/ -
-   [*In progress*](https://github.com/timvideos/HDMI2USB-misoc-firmware/tree/minispartan6%2B)
+ * ScarabHardware miniSpartan6+ - https://www.scarabhardware.com/minispartan6/
 
    `PLATFORM=miniSpartan`
 
@@ -106,7 +105,6 @@ The following boards are useful for development but *not* conference capture;
    video input and high speed data interfaces this board can't be used for
    capture. It can however be used for development of non-capture related
    firmware features and experimenting with FPGA development.
-
 
 # Getting started
 
