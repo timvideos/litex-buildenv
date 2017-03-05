@@ -145,40 +145,17 @@ function build() {
 		done
 	fi
 
-	# Copy built files
-	if [ -z "$GH_TOKEN" ]; then
-		# Only if run by travis display error
-		if [ ! -z $TRAVIS_BUILD_NUMBER  ]; then
-			echo ""
-			echo ""
-			echo ""
-			echo "- No Github token so unable to copy built files"
-		fi
-	elif [ -z "$TRAVIS_BRANCH" ]; then
+	# Save the resulting binaries into the prebuilt repo. The gateware
+	# should always exist, but others might not.
+	if [ ! -z "$PREBUILT_DIR" ]; then
+		COPY_DEST="$PREBUILT_DIR/archive/$GIT_REVISION/$PLATFORM/$TARGET/$CPU/"
 		echo ""
 		echo ""
 		echo ""
-		echo "- No branch name, unable to copy built files"
-	else
-		# Look at repo we are running in to determine where to try pushing to if in a fork
-		COPY_REPO_OWNER=$(echo $TRAVIS_REPO_SLUG|awk -F'/' '{print $1}')
-		echo "COPY_REPO_OWNER = $COPY_REPO_OWNER"
-		COPY_REPO="HDMI2USB-firmware-prebuilt"
-		GIT_REVISION=$TRAVIS_BRANCH/$(git describe)
-		COPY_DEST="archive/$GIT_REVISION/$PLATFORM/${TARGET}/${CPU}/"
-		ORIG_COMMITTER_NAME=$(git log -1 --pretty=%an)
-		ORIG_COMMITTER_EMAIL=$(git log -1 --pretty=%ae)
-		echo ""
-		echo ""
-		echo ""
-		echo "- Uploading built files to github.com/$COPY_REPO_OWNER/$COPY_REPO$COPY_DEST"
+		echo "- Adding built files to github.com/$PREBUILT_REPO_OWNER/$PREBUILT_REPO"
 		echo "---------------------------------------------"
-		rm -rf $COPY_REPO
-		git clone https://$GH_TOKEN@github.com/$COPY_REPO_OWNER/$COPY_REPO.git
-		cd $COPY_REPO
+
 		mkdir -p $COPY_DEST
-		# Save the resulting binaries into the prebuilt repo. The
-		# gateware should always exist, but others might not.
 
 		# Gateware
 		cp $TARGET_BUILD_DIR/gateware/top.bit $COPY_DEST/gateware.bit
@@ -232,13 +209,14 @@ function build() {
 		export GIT_COMMITTER_EMAIL="robot@timvideos.us"
 		export GIT_COMMITTER_NAME="TimVideos Robot"
 		echo ""
+		(
+		cd $PREBUILT_DIR
 		git pull
 		git add -A .
 		git commit -a -m "Travis build #$TRAVIS_BUILD_NUMBER of $GIT_REVISION for PLATFORM=$PLATFORM TARGET=$TARGET"
 		git diff origin/master --stat
 		#git push --quiet origin master > /dev/null 2>&1
-		cd ..
-		rm -rf $COPY_REPO
+		)
 		echo "============================================="
 	fi
 
@@ -273,6 +251,39 @@ function build() {
 declare -a SUCCESSES
 declare -a FAILURES
 
+
+# Clone prebuilt repo to copy results into
+if [ -z "$GH_TOKEN" ]; then
+	# Only if run by travis display error
+	if [ ! -z $TRAVIS_BUILD_NUMBER  ]; then
+		echo ""
+		echo ""
+		echo ""
+		echo "- No Github token so unable to copy built files"
+	fi
+elif [ -z "$TRAVIS_BRANCH" ]; then
+	echo ""
+	echo ""
+	echo ""
+	echo "- No branch name, unable to copy built files"
+else
+	# Look at repo we are running in to determine where to try pushing to if in a fork
+	PREBUILT_PREO=HDMI2USB-firmware-prebuilt
+	PREBUILT_REPO_OWNER=$(echo $TRAVIS_REPO_SLUG|awk -F'/' '{print $1}')
+	echo "PREBUILT_REPO_OWNER = $PREBUILT_REPO_OWNER"
+	GIT_REVISION=$TRAVIS_BRANCH/$(git describe)
+	ORIG_COMMITTER_NAME=$(git log -1 --pretty=%an)
+	ORIG_COMMITTER_EMAIL=$(git log -1 --pretty=%ae)
+	echo ""
+	echo ""
+	echo ""
+	echo "- Uploading built files to github.com/$PREBUILT_REPO_OWNER/$PREBUILT_REPO"
+	echo "---------------------------------------------"
+	export PREBUILT_DIR="/tmp/HDMI2USB-firmware-prebuilt"
+	git clone https://$GH_TOKEN@github.com/$PREBUILT_REPO_OWNER/${PREBUILT_REPO}.git $PREBUILT_DIR
+fi
+
+
 for PLATFORM in $PLATFORMS; do
 	if [ -z "$TARGETS" ]; then
 		if [ -z "$SKIP_TARGETS" ]; then
@@ -306,6 +317,20 @@ for PLATFORM in $PLATFORMS; do
 		done
 	done
 done
+
+if [ ! -z "$PREBUILT_DIR" ]; then
+	echo ""
+	echo ""
+	echo ""
+	echo "Pushing prebuilt binaries"
+	echo "---------------------------------------------"
+	(
+	cd $PREBUILT_DIR
+	git diff origin/master --stat
+	#git push --quiet origin master > /dev/null 2>&1
+	)
+	echo "============================================="
+fi
 
 echo ""
 echo ""
