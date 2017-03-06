@@ -38,7 +38,7 @@ env:
 #   - PLATFORM=sim
    # Test multiple CPU archs on the mimasv2
    - CPU=lm32 PLATFORM=mimasv2
-   - CPU=or1k PLATFORM=mimasv2
+   - CPU=or1k PLATFORM=mimasv2 SKIP_TARGETS="memtest"
 
 install:
  - $PWD/.travis/setup.sh
