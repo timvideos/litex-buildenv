@@ -81,9 +81,9 @@ if [ ! -z "$XILINX_PASSPHRASE" ]; then
 			wget -c http://xilinx.timvideos.us/Xilinx.lic.gpg
 			cat $XILINX_PASSPHRASE_FILE | gpg --batch --passphrase-fd 0 Xilinx.lic.gpg
 
-			git clone https://github.com/mithro/impersonate_macaddress
-			cd impersonate_macaddress
-			make
+			#git clone https://github.com/mithro/impersonate_macaddress
+			#cd impersonate_macaddress
+			#make
 		)
 	fi
 	export MISOC_EXTRA_CMDLINE="-Ob toolchain_path $XILINX_DIR/opt/Xilinx/"
