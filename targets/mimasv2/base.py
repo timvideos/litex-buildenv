@@ -1,4 +1,7 @@
 # Support for the MimasV2
+
+import os
+
 from fractions import Fraction
 
 from litex.gen import *
@@ -186,7 +189,7 @@ class BaseSoC(SoCSDRAM):
             #integrated_rom_size=0x8000,
             integrated_rom_size=None,
             integrated_sram_size=0x4000,
-            uart_baudrate=19200,
+            uart_baudrate=(19200, 115200)[int(os.environ.get('JIMMO', '0'))],
             cpu_reset_address=platform.gateware_size,
             **kwargs)
         self.submodules.crg = _CRG(platform, clk_freq)

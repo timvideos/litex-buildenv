@@ -1,9 +1,18 @@
 # mimasv2 loading
 
 TARGET ?= base
+
 # FIXME(mithro): Detect the real serial port/add see udev rules to HDMI2USB-mode-switch...
+ifeq ($(JIMMO),)
 PORT ?= /dev/ttyACM0
+PROG_PORT ?= $(PORT)
+COMM_PORT ?= $(PORT)
 BAUD ?= 19200
+else
+PROG_PORT ?= /dev/ttyACM0
+COMM_PORT ?= /dev/ttyACM1
+BAUD ?= 115200
+endif
 
 gateware-load-mimasv2:
 	@echo "MimasV2 doesn't support loading, use the flash target instead."
@@ -11,7 +20,7 @@ gateware-load-mimasv2:
 	@false
 
 gateware-flash-mimasv2:
-	$(PYTHON) $$(which MimasV2Config.py) $(PORT) $(TARGET_BUILD_DIR)/gateware/top.bin
+	$(PYTHON) $$(which MimasV2Config.py) $(PROG_PORT) $(TARGET_BUILD_DIR)/gateware/top.bin
 
 image-load-mimasv2:
 	@echo "MimasV2 doesn't support loading, use the flash target instead."
@@ -19,10 +28,10 @@ image-load-mimasv2:
 	@false
 
 image-flash-mimasv2:
-	$(PYTHON) $$(which MimasV2Config.py) $(PORT) $(TARGET_BUILD_DIR)/flash.bin
+	$(PYTHON) $$(which MimasV2Config.py) $(PROG_PORT) $(TARGET_BUILD_DIR)/flash.bin
 
 firmware-load-mimasv2:
-	flterm --port=$(PORT) --kernel=$(TARGET_BUILD_DIR)/software/firmware/firmware.bin --speed=$(BAUD)
+	flterm --port=$(COMM_PORT) --kernel=$(TARGET_BUILD_DIR)/software/firmware/firmware.bin --speed=$(BAUD)
 
 firmware-flash-mimasv2:
 	@echo "MimasV2 doesn't support just flashing firmware, use image target instead."
@@ -30,6 +39,6 @@ firmware-flash-mimasv2:
 	@false
 
 firmware-connect-mimasv2:
-	flterm --port=$(PORT) --speed=$(BAUD)
+	flterm --port=$(COMM_PORT) --speed=$(BAUD)
 
 .PHONY: gateware-load-mimasv2 firmware-load-mimasv2
