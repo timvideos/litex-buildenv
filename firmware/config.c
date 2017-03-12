@@ -32,9 +32,14 @@
 
 
 static const unsigned char config_defaults[CONFIG_KEY_COUNT] = {
+#if PLATFORM_NETV2 || PLATFORM_NEXYS_VIDEO
+	PROCESSOR_MODE_1920_1080_60,    // Primary
+	EDID_SECONDARY_MODE_OFF,        // Secondary
+#else
 	// EDID Config
 	PROCESSOR_MODE_720p_50, // Primary
 	PROCESSOR_MODE_720p_60, // Secondary
+#endif
 	// Input config
 	false, // Input0
 	true,  // Input1

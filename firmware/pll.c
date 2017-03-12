@@ -35,7 +35,7 @@ static void program_data(const unsigned short *data)
 	 * so we start at word 6.
 	 * PLLs also seem to dislike any write to the last words.
 	 */
-#ifdef CSR_HDMI_OUT0_BASE
+#ifdef CSR_HDMI_OUT0_DRIVER_CLOCKING_PLL_RESET_ADDR
 	for(i=6;i<32-5;i++) {
 		hdmi_out0_driver_clocking_pll_adr_write(i);
 		hdmi_out0_driver_clocking_pll_dat_w_write(data[i]);
@@ -43,7 +43,7 @@ static void program_data(const unsigned short *data)
 		while(!hdmi_out0_driver_clocking_pll_drdy_read());
 	}
 #endif
-#ifdef CSR_HDMI_IN0_BASE
+#ifdef CSR_HDMI_IN0_CLOCKING_PLL_RESET_ADDR
 	for(i=6;i<32-5;i++) {
 		hdmi_in0_clocking_pll_adr_write(i);
 		hdmi_in0_clocking_pll_dat_w_write(data[i]);
@@ -51,7 +51,7 @@ static void program_data(const unsigned short *data)
 		while(!hdmi_in0_clocking_pll_drdy_read());
 	}
 #endif
-#ifdef CSR_HDMI_IN1_BASE
+#ifdef CSR_HDMI_IN1_CLOCKING_PLL_RESET_ADDR
 	for(i=6;i<32-5;i++) {
 		hdmi_in1_clocking_pll_adr_write(i);
 		hdmi_in1_clocking_pll_dat_w_write(data[i]);
@@ -88,7 +88,7 @@ void pll_dump(void)
 #if defined(CSR_HDMI_OUT0_BASE) || defined(CSR_HDMI_IN0_BASE) || defined(CSR_HDMI_IN1_BASE)
 	int i;
 #endif
-#ifdef CSR_HDMI_OUT0_BASE
+#ifdef CSR_HDMI_OUT0_DRIVER_CLOCKING_PLL_RESET_ADDR
 	wprintf("framebuffer PLL:\r\n");
 	for(i=0;i<32;i++) {
 		hdmi_out0_driver_clocking_pll_adr_write(i);
@@ -98,7 +98,7 @@ void pll_dump(void)
 	}
 	wprintf("\r\n");
 #endif
-#ifdef CSR_HDMI_IN0_BASE
+#ifdef CSR_HDMI_IN0_CLOCKING_PLL_RESET_ADDR
 	wprintf("dvisampler0 PLL:\r\n");
 	for(i=0;i<32;i++) {
 		hdmi_in0_clocking_pll_adr_write(i);
@@ -108,7 +108,7 @@ void pll_dump(void)
 	}
 	wprintf("\r\n");
 #endif
-#ifdef CSR_HDMI_IN1_BASE
+#ifdef CSR_HDMI_IN1_CLOCKING_PLL_RESET_ADDR
 	wprintf("dvisampler1 PLL:\r\n");
 	for(i=0;i<32;i++) {
 		hdmi_in1_clocking_pll_adr_write(i);

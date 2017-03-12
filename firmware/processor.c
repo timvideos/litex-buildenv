@@ -310,6 +310,31 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 
 		.flags = EDID_DIGITAL | EDID_HSYNC_POS | EDID_VSYNC_POS
 	},
+#if PLATFORM_NETV2 || PLATFORM_NEXYS_VIDEO
+	// 1920x1080 @ 60.00 Hz    ModeLine "1920x1080" 148.35 1920 2008 2052 2200 1080 1084 1089 1125 +HSync +VSync
+	{
+		.pixel_clock = 14835,
+
+		.h_active = 1920,
+		.h_blanking = 280,
+		.h_sync_offset = 88,
+		.h_sync_width = 44,
+
+		.v_active = 1080,
+		.v_blanking = 45,
+		.v_sync_offset = 4,
+		.v_sync_width = 5,
+
+		.flags = EDID_DIGITAL | EDID_HSYNC_POS | EDID_VSYNC_POS
+	},
+	// Other 1080p60 modes not enabled
+	// ModeLine "1920x1080" 138.500 1920 1968 2000 2080 1080 1083 1088 1111 +hsync -vsync
+	// ModeLine "1920x1080" 148.35 1920 2008 2052 2200 1080 1084 1089 1125 +HSync +VSync
+	// ModeLine "1920x1080" 148.50 1920 2008 2052 2200 1080 1084 1088 1125 -HSync -VSync
+	// Other 1080p50 modes not enabled
+	// Modeline "1920x1080_50" 141.50 1920 2032 2232 2544 1080 1083 1088 1114 -HSync +Vsync
+	// ModeLine "1920x1080_50" 148.50 1920 2448 2492 2640 1080 1084 1089 1125 +HSync +VSync
+#endif
 	// 720x480 @ 60.00 Hz    Modeline "720x480" 26.72 720 736 808 896 480 481 484 497 -HSync +Vsync
 	{
 		.pixel_clock = 2672,
@@ -369,15 +394,15 @@ void processor_describe_mode(char *mode_descriptor, int mode)
 		video_modes[mode].comment ? video_modes[mode].comment : "");
 }
 
+// Spartan-6 PLL clocking
+#ifdef CSR_HDMI_OUT0_DRIVER_CLOCKING_PLL_RESET_ADDR
 static void fb_clkgen_write(int cmd, int data)
 {
-#ifdef CSR_HDMI_OUT0_BASE
 	int word;
 	word = (data << 2) | cmd;
 	hdmi_out0_driver_clocking_cmd_data_write(word);
 	hdmi_out0_driver_clocking_send_cmd_data_write(1);
 	while(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_BUSY);
-#endif
 }
 
 static void fb_get_clock_md(unsigned int pixel_clock, unsigned int *best_m, unsigned int *best_d)
@@ -405,7 +430,6 @@ static void fb_get_clock_md(unsigned int pixel_clock, unsigned int *best_m, unsi
 		}
 	*best_m = bm;
 	*best_d = bd;
-#ifdef CSR_HDMI_OUT0_BASE
 	unsigned int md1000 = (bm * 1000) / bd;
 	if (md1000 > hdmi_out0_driver_clocking_clkfx_md_max_1000_read()) {
 		wprintf(
@@ -413,18 +437,52 @@ static void fb_get_clock_md(unsigned int pixel_clock, unsigned int *best_m, unsi
 			md1000,
 			hdmi_out0_driver_clocking_clkfx_md_max_1000_read());
 	}
-#endif
 }
+
+static void fb_set_clock(unsigned int pixel_clock)
+{
+	unsigned int clock_m, clock_d;
+
+	fb_get_clock_md(pixel_clock, &clock_m, &clock_d);
+	fb_clkgen_write(0x1, clock_d-1);
+	fb_clkgen_write(0x3, clock_m-1);
+
+	hdmi_out0_driver_clocking_send_go_write(1);
+	while(!(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_PROGDONE));
+	while(!(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_LOCKED));
+}
+#endif
+
+// Artix-7 MMCM clocking
+#ifdef CSR_HDMI_OUT0_DRIVER_CLOCKING_DRP_DWE_ADDR
+static void hdmi_out0_write_mmcm_reg(unsigned int address, unsigned int data) {
+	hdmi_out0_driver_clocking_drp_addr_write(address);
+	hdmi_out0_driver_clocking_drp_di_write(data);
+	hdmi_out0_driver_clocking_drp_dwe_write(1);
+	hdmi_out0_driver_clocking_drp_den_write(1);
+}
+
+static void fb_set_clock(unsigned int pixel_clock)
+{
+	// FIXME: Mode hard coded to 1080p60 modeline
+	if (pixel_clock != 14835) {
+		wprintf(
+			"WARNING: pixel_clock %d unsupported!\r\n",
+			pixel_clock);
+	}
+	hdmi_out0_write_mmcm_reg(0x8, 0x1000 + (2 << 6) + 3);
+	hdmi_out0_write_mmcm_reg(0xa, 0x1000 + (1 << 6) + 1);
+}
+#endif
 
 static void fb_set_mode(const struct video_timing *mode)
 {
-	unsigned int clock_m, clock_d;
 	unsigned int hdmi_out0_enabled;
 	unsigned int hdmi_out1_enabled;
 
-	fb_get_clock_md(mode->pixel_clock, &clock_m, &clock_d);
-
 #ifdef CSR_HDMI_OUT0_BASE
+	fb_set_clock(mode->pixel_clock);
+
 	if (hdmi_out0_core_initiator_enable_read()) {
 		hdmi_out0_enabled = 1;
 		hdmi_out0_core_initiator_enable_write(0);
@@ -462,14 +520,6 @@ static void fb_set_mode(const struct video_timing *mode)
 	hdmi_out1_core_initiator_enable_write(hdmi_out1_enabled);
 #endif
 
-	fb_clkgen_write(0x1, clock_d-1);
-	fb_clkgen_write(0x3, clock_m-1);
-
-#ifdef CSR_HDMI_OUT0_BASE
-	hdmi_out0_driver_clocking_send_go_write(1);
-	while(!(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_PROGDONE));
-	while(!(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_LOCKED));
-#endif
 }
 
 static void edid_set_mode(const struct video_timing *mode, const struct video_timing *sec_mode)
@@ -528,10 +578,12 @@ void processor_start(int mode)
 
 #ifdef CSR_HDMI_OUT0_BASE
 	hdmi_out0_core_initiator_enable_write(0);
-	hdmi_out0_driver_clocking_pll_reset_write(1);
 #endif
 #ifdef CSR_HDMI_OUT1_BASE
 	hdmi_out1_core_initiator_enable_write(0);
+#endif
+#ifdef CSR_HDMI_OUT0_DRIVER_CLOCKING_PLL_RESET_ADDR
+	hdmi_out0_driver_clocking_pll_reset_write(1);
 #endif
 #ifdef CSR_HDMI_IN0_BASE
 	hdmi_in0_edid_hpd_en_write(0);
@@ -562,8 +614,10 @@ void processor_start(int mode)
 	hdmi_in1_init_video(m->h_active, m->v_active);
 #endif
 
-#ifdef CSR_HDMI_OUT0_BASE
+#ifdef CSR_HDMI_OUT0_DRIVER_CLOCKING_PLL_RESET_ADDR
 	hdmi_out0_driver_clocking_pll_reset_write(0);
+#endif
+#ifdef CSR_HDMI_OUT0_BASE
 	hdmi_out0_core_initiator_enable_write(1);
 #endif
 #ifdef CSR_HDMI_OUT1_BASE

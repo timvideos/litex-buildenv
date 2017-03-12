@@ -25,6 +25,7 @@
 #include <console.h>
 
 #include "asm.h"
+#include "bist.h"
 #include "ci.h"
 #include "config.h"
 #include "edid.h"
@@ -155,6 +156,9 @@ static void help_encoder(void)
 static void help_debug(void)
 {
     wputs("debug commands (alias 'd')");
+#ifdef CSR_GENERATOR_BASE
+	wputs("  debug sdram_test               - run a memory test");
+#endif
 	wputs("  debug pll                      - dump pll configuration");
 #ifdef CSR_HDMI_IN0_BASE
     wputs("  debug input0 <on/off>          - debug dvisampler0");
@@ -1182,6 +1186,9 @@ void ci_service(void)
 		token = get_token(&str);
 		if(strcmp(token, "pll") == 0)
 			debug_pll();
+#ifdef CSR_GENERATOR_BASE
+		else if(strcmp(token, "sdram_test") == 0) bist_test();
+#endif
 #ifdef CSR_HDMI_IN0_BASE
 		else if(strcmp(token, "input0") == 0) {
 			token = get_token(&str);

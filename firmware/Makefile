@@ -16,6 +16,7 @@ CFLAGS += -DPLATFORM_$(UPLATFORM) -DTARGET_$(UTARGET)
 BUILD_DIRECTORY=$(BUILDINC_DIRECTORY)/../../
 
 OBJECTS=\
+	bist.o \
 	ci.o \
 	config.o \
 	edid.o \

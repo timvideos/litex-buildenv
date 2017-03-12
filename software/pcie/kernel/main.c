@@ -273,7 +273,7 @@ static int litepcie_dma_wait(LitePCIeState *s, struct litepcie_ioctl_dma_wait *m
             m->tx_buf_num = 0;
         }
         if (s->rx_dma_started) {
-            m->rx_buf_num = (litepcie_readl(s, CSR_DMA_WRITER_TABLE_LOOP_STATUS_ADDR) & 0xfffff);
+            m->rx_buf_num = (litepcie_readl(s, CSR_DMA_WRITER_TABLE_LOOP_STATUS_ADDR) & 0xffff);
         } else {
             m->rx_buf_num = 0;
         }
@@ -481,10 +481,6 @@ static int litepcie_pci_probe(struct pci_dev *dev, const struct pci_device_id *i
         printk(KERN_ERR LITEPCIE_NAME " Failed to allocate irq %d\n", dev->irq);
         goto fail5;
     }
-
-    /* soft reset */
-    litepcie_writel(s, CSR_CRG_SOFT_RST_ADDR, 1);
-    udelay(5);
 
     /* allocate DMA buffers */
     for(i = 0; i < DMA_BUFFER_COUNT; i++) {

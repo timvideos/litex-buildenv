@@ -29,8 +29,8 @@ int pattern;
 #define VERTICAL_BLACK_WHITE_LINES_PATTERN 1
 #define MAX_PATTERN 2
 
-void pattern_next(void);
 void pattern_fill_framebuffer(int h_active, int m_active);
 void pattern_service(void);
+void pattern_next(void);
 
 #endif /* __PATTERN_H */

@@ -1,6 +1,5 @@
 from litex.gen import *
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
-from litex.gen.fhdl.specials import Keep
 
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
@@ -24,7 +23,7 @@ class _CRG(Module):
         self.clock_domains.cd_clk100 = ClockDomain()
         self.clock_domains.cd_clk50 = ClockDomain()
 
-        self.clock_domains.cd_clk125 = ClockDomain("clk125") # PCIe
+        self.clock_domains.cd_clk125 = ClockDomain("clk125") # pcie
 
         clk50 = platform.request("clk50")
         rst = Signal(reset=1) # FIXME
@@ -90,20 +89,12 @@ class _CRG(Module):
 class BaseSoC(SoCSDRAM):
     csr_map = {
         "ddrphy":        17,
-        "ddr_generator": 18,
-        "ddr_checker":   19,
+        "generator":     18,
+        "checker":       19,
         "dna":           20,
         "xadc":          21,
-        "pcie_phy":      22,
-        "dma":           23,
-        "msi":           24,
     }
     csr_map.update(SoCSDRAM.csr_map)
-    interrupt_map = {
-        "dma_writer": 0,
-        "dma_reader": 1
-    }
-    interrupt_map.update(SoCSDRAM.interrupt_map)
 
     def __init__(self, platform, **kwargs):
         clk_freq = 100*1000000
@@ -130,16 +121,16 @@ class BaseSoC(SoCSDRAM):
                                                                    with_refresh=True))
 
         # sdram bist
-        ddr_generator_port = self.sdram.crossbar.get_port(mode="write")
-        self.submodules.ddr_generator = LiteDRAMBISTGenerator(ddr_generator_port)
+        generator_port = self.sdram.crossbar.get_port(mode="write")
+        self.submodules.generator = LiteDRAMBISTGenerator(generator_port)
 
-        ddr_checker_port = self.sdram.crossbar.get_port(mode="read")
-        self.submodules.ddr_checker = LiteDRAMBISTChecker(ddr_checker_port)
+        checker_port = self.sdram.crossbar.get_port(mode="read")
+        self.submodules.checker = LiteDRAMBISTChecker(checker_port)
 
         # led blink
-        counter = Signal(32)
-        self.sync += counter.eq(counter + 1)
-        self.comb += platform.request("user_led", 0).eq(counter[26])
+        #counter = Signal(32)
+        #self.sync.clk125 += counter.eq(counter + 1)
+        #self.comb += platform.request("user_led", 0).eq(counter[26])
 
 
 SoC = BaseSoC
