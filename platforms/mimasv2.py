@@ -38,23 +38,26 @@ _io = [
         Subsignal("dm", Pins("K3 K4")),
         IOStandard("MOBILE_DDR")),
 
-    ("user_sw", 0, Pins("C17"), IOStandard("LVCMOS33"), Misc("PULLUP")),
-    ("user_sw", 1, Pins("C18"), IOStandard("LVCMOS33"), Misc("PULLUP")),
-    ("user_sw", 2, Pins("D17"), IOStandard("LVCMOS33"), Misc("PULLUP")),
-    ("user_sw", 3, Pins("D18"), IOStandard("LVCMOS33"), Misc("PULLUP")),
-    ("user_sw", 4, Pins("E18"), IOStandard("LVCMOS33"), Misc("PULLUP")),
-    ("user_sw", 5, Pins("E16"), IOStandard("LVCMOS33"), Misc("PULLUP")),
-    ("user_sw", 6, Pins("F18"), IOStandard("LVCMOS33"), Misc("PULLUP")),
-    ("user_sw", 7, Pins("F17"), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    # Small DIP switches
+    # DP1 (user_sw:0) -> DP8 (user_sw:7)
+    ("user_sw", 0, Pins("F17"), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ("user_sw", 1, Pins("F18"), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ("user_sw", 2, Pins("E16"), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ("user_sw", 3, Pins("E18"), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ("user_sw", 4, Pins("D18"), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ("user_sw", 5, Pins("D17"), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ("user_sw", 6, Pins("C18"), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    ("user_sw", 7, Pins("C17"), IOStandard("LVCMOS33"), Misc("PULLUP")),
 
     # Despite being marked as "sw" these are actually buttons which need
     # debouncing.
-    # sw1 (user_sw:0) through sw6 (user_sw:5)
+    # sw1 (user_btn:0) through sw6 (user_btn:5)
     ("user_btn", 0, Pins("M18"), IOStandard("LVCMOS33"), Misc("PULLUP")),
     ("user_btn", 1, Pins("L18"), IOStandard("LVCMOS33"), Misc("PULLUP")),
     ("user_btn", 2, Pins("M16"), IOStandard("LVCMOS33"), Misc("PULLUP")),
     ("user_btn", 3, Pins("L17"), IOStandard("LVCMOS33"), Misc("PULLUP")),
     ("user_btn", 4, Pins("K17"), IOStandard("LVCMOS33"), Misc("PULLUP")),
+    # Use SW6 as the reset button for now.
     ("user_btn", 5, Pins("K18"), IOStandard("LVCMOS33"), Misc("PULLUP")),
 
     # LEDs 1 through 8
