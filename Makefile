@@ -63,17 +63,20 @@ third_party/%/.git: .gitmodules
 	git submodule update --recursive --init $$(dirname $@)
 	touch $@ -r .gitmodules
 
-# Image
+# Image - a combination of multiple parts (gateware+bios+firmware+more?)
 # --------------------------------------
 image:
 	$(PYTHON) mkimage.py
 
 image-load: image image-load-$(PLATFORM)
-	true
+	@true
 
-.PHONY: image image-load
+image-flash: image image-flash-$(PLATFORM)
+	@true
 
-# Gateware
+.PHONY: image image-load image-flash
+
+# Gateware - the stuff which configures the FPGA.
 # --------------------------------------
 GATEWARE_MODULES=litex litedram liteeth litepcie litesata litescope liteusb litevideo litex
 gateware-submodules: $(addsuffix /.git,$(addprefix third_party/,$(GATEWARE_MODULES)))
@@ -89,14 +92,17 @@ else
 endif
 
 gateware-load: gateware-load-$(PLATFORM)
-	true
+	@true
+
+gateware-flash: gateware-flash-$(PLATFORM)
+	@true
 
 gateware-clean:
 	rm -rf $(TARGET_BUILD_DIR)/gateware
 
-.PHONY: gateware gateware-load gateware-clean
+.PHONY: gateware gateware-load gateware-flash gateware-clean
 
-# Firmware
+# Firmware - the stuff which runs in the soft CPU inside the FPGA.
 # --------------------------------------
 firmware:
 	mkdir -p $(TARGET_BUILD_DIR)
@@ -108,15 +114,18 @@ else
 endif
 
 firmware-load: firmware firmware-load-$(PLATFORM)
-	true
+	@true
+
+firmware-flash: firmware firmware-flash-$(PLATFORM)
+	@true
 
 firmware-connect: firmware-load-$(PLATFORM)
-	true
+	@true
 
 firmware-clean:
 	rm -rf $(TARGET_BUILD_DIR)/software
 
-.PHONY: firmware firmware-load firmware-connect firmware-clean
+.PHONY: firmware firmware-load firmware-flash firmware-connect firmware-clean
 
 # TFTP booting stuff
 # --------------------------------------
@@ -138,6 +147,9 @@ tftpd_start:
 
 # Extra targets
 # --------------------------------------
+flash: flash-$(PLATFORM)
+	@true
+
 help:
 	@echo "Environment:"
 	@echo " PLATFORM=$(shell ls targets/ | grep -v ".py" | grep -v "common" | sed -e"s+targets/++" -e's/$$/ OR/')" | sed -e's/ OR$$//'
@@ -151,7 +163,6 @@ help:
 	@echo " make all"
 	@echo " make gateware"
 	@echo " make firmware"
-	@echo " make load"
 	@echo " make flash"
 	@for T in $(TARGETS); do make -s help-$$T; done
 	@echo " make clean"
@@ -163,7 +174,7 @@ clean:
 dist-clean:
 	rm -rf build
 
-.PHONY: help clean dist-clean
+.PHONY: flash help clean dist-clean
 
 # Tests
 # --------------------------------------
