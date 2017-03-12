@@ -1,7 +1,7 @@
 from litevideo.output import VideoOut
 from litedram.common import LiteDRAMPort
 
-from targets.netv2.base import BaseSoC
+from targets.netv2.pcie import PCIeDMASoC as BaseSoC
 
 
 class VideoOutSoC(BaseSoC):

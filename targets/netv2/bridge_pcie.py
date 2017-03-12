@@ -47,11 +47,13 @@ class PCIeDMASoC(SoCCore):
         "xadc":     21,
     }
     csr_map.update(SoCCore.csr_map)
+
     interrupt_map = {
         "dma_writer": 0,
-        "dma_reader": 1
+        "dma_reader": 1,
     }
     interrupt_map.update(SoCCore.interrupt_map)
+
     mem_map = SoCCore.mem_map
     mem_map["csr"] = 0x00000000
 
@@ -69,15 +71,17 @@ class PCIeDMASoC(SoCCore):
         self.submodules.dna = dna.DNA()
         self.submodules.xadc = xadc.XADC()
 
-        # PCIe endpoint
+        # pcie phy
         self.submodules.pcie_phy = S7PCIEPHY(platform, link_width=1)
+
+        # pci endpoint
         self.submodules.pcie_endpoint = LitePCIeEndpoint(self.pcie_phy, with_reordering=True)
 
-        # PCIe Wishbone bridge
+        # pcie wishbone bridge
         self.add_cpu_or_bridge(LitePCIeWishboneBridge(self.pcie_endpoint, lambda a: 1))
         self.add_wb_master(self.cpu_or_bridge.wishbone)
 
-        # PCIe DMA
+        # pcie dma
         self.submodules.dma = LitePCIeDMA(self.pcie_phy, self.pcie_endpoint, with_loopback=True)
         self.dma.source.connect(self.dma.sink)
 
@@ -85,7 +89,7 @@ class PCIeDMASoC(SoCCore):
             self.submodules.uart_bridge = UARTWishboneBridge(platform.request("serial"), clk_freq, baudrate=115200)
             self.add_wb_master(self.uart_bridge.wishbone)
 
-        # MSI
+        # pcie msi
         self.submodules.msi = LitePCIeMSI()
         self.comb += self.msi.source.connect(self.pcie_phy.interrupt)
         self.interrupts = {
@@ -95,7 +99,7 @@ class PCIeDMASoC(SoCCore):
         for k, v in sorted(self.interrupts.items()):
             self.comb += self.msi.irqs[self.interrupt_map[k]].eq(v)
 
-        # led blink
+        # flash the led on pcie clock
         counter = Signal(32)
         self.sync += counter.eq(counter + 1)
         self.comb += platform.request("user_led", 0).eq(counter[26])
