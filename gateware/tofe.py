@@ -56,8 +56,15 @@ class TOFELowSpeedIO(TOFE):
         ]
 
 
+class TOFE2AXIOM(TOFE):
+    """TOFE to AXIOM Adapter board."""
+    pass
+
+
 def TOFEBoard(name):
     if name.lower() == "lowspeedio":
+        return TOFELowSpeedIO
+    elif name.lower() == "axiom":
         return TOFELowSpeedIO
     else:
         return TOFE

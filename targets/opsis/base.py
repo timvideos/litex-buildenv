@@ -230,6 +230,13 @@ class BaseSoC(SoCSDRAM):
 
     def __init__(self, platform, **kwargs):
         clk_freq = 50*1000000
+
+        if 'tofe_board' in kwargs:
+            tofe_board_name = kwargs.get('tofe_board')
+            del kwargs['tofe_board']
+        else:
+            tofe_board_name = None
+
         SoCSDRAM.__init__(self, platform, clk_freq,
             integrated_rom_size=0x8000,
             integrated_sram_size=0x4000,
@@ -277,7 +284,11 @@ class BaseSoC(SoCSDRAM):
             self.ddrphy.clk8x_rd_strb.eq(self.crg.clk8x_rd_strb),
         ]
 
-        self.submodules.tofe = tofe.TOFEBoard("lowspeedio")(platform, self.suart)
+        if tofe_board_name:
+            if tofe_board_name == 'lowspeedio':
+                self.submodules.tofe = tofe.TOFEBoard(tofe_board_name)(platform, self.suart)
+            else:
+                self.submodules.tofe = tofe.TOFEBoard(tofe_board_name)(platform)
 
 
 SoC = BaseSoC
