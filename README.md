@@ -1,4 +1,4 @@
-# HDMI2USB MiSoC Firmware
+# HDMI2USB LiteX Firmware
 
 ## Quick Links
 
@@ -10,7 +10,7 @@
 # Table of contents
 
   * Overview
-  * HDMI2USB MiSoC Firmware
+  * HDMI2USB LiteX Firmware
     * Supported Boards
     * In Progress Boards
     * Other Boards
@@ -47,7 +47,7 @@ video recording hardware for conferences, meetings and user groups worldwide.
 
 ![HDMI2USB Diagram](https://hdmi2usb.tv/img/hdmi2usb.png "HDMI2USB Diagram")
 
-# HDMI2USB MiSoC Firmware
+# HDMI2USB LiteX Firmware
 
 ## Supported Boards
 
