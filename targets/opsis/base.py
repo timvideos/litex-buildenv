@@ -230,6 +230,13 @@ class BaseSoC(SoCSDRAM):
 
     def __init__(self, platform, **kwargs):
         clk_freq = 50*1000000
+
+        if 'tofe_board' in kwargs:
+            tofe_board_name = kwargs.get('tofe_board')
+            del kwargs['tofe_board']
+        else:
+            tofe_board_name = None
+
         SoCSDRAM.__init__(self, platform, clk_freq,
             integrated_rom_size=0x8000,
             integrated_sram_size=0x4000,
@@ -252,9 +259,11 @@ class BaseSoC(SoCSDRAM):
             div=platform.spiflash_clock_div)
         self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
         self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
-        self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size
         self.register_mem("spiflash", self.mem_map["spiflash"],
             self.spiflash.bus, size=platform.spiflash_total_size)
+
+        bios_size = 0x8000
+        self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size+bios_size
 
         # front panel (ATX)
         self.submodules.front_panel = FrontPanelGPIO(platform, clk_freq)
@@ -277,7 +286,11 @@ class BaseSoC(SoCSDRAM):
             self.ddrphy.clk8x_rd_strb.eq(self.crg.clk8x_rd_strb),
         ]
 
-        self.submodules.tofe = tofe.TOFEBoard("lowspeedio")(platform, self.suart)
+        if tofe_board_name:
+            if tofe_board_name == 'lowspeedio':
+                self.submodules.tofe = tofe.TOFEBoard(tofe_board_name)(platform, self.suart)
+            else:
+                self.submodules.tofe = tofe.TOFEBoard(tofe_board_name)(platform)
 
 
 SoC = BaseSoC

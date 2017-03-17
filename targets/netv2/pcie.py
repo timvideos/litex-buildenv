@@ -1,3 +1,5 @@
+from litex.gen import *
+
 from litepcie.phy.s7pciephy import S7PCIEPHY
 from litepcie.core import LitePCIeEndpoint, LitePCIeMSI
 from litepcie.frontend.dma import LitePCIeDMA
