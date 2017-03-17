@@ -41,6 +41,7 @@
 #include "pattern.h"
 #include "pll.h"
 #include "processor.h"
+#include "reboot.h"
 #include "stdio_wrap.h"
 #include "telnet.h"
 #include "tofe_eeprom.h"
@@ -315,11 +316,6 @@ static char *get_token(char **str)
 		}
 	} while (*t == '\0');
 	return t;
-}
-
-static void reboot(void)
-{
-	REBOOT;
 }
 
 static void status_enable(void)

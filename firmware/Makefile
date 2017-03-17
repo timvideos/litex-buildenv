@@ -37,13 +37,14 @@ OBJECTS=\
 	pattern.o \
 	pll.o \
 	processor.o \
+	reboot.o \
 	stdio_wrap.o \
 	telnet.o \
 	tofe_eeprom.o \
+	uptime.o \
 	version.o \
 	version_data.o \
-	uptime.o \
-
+	boot-helper-$(CPU).o
 
 CFLAGS += \
 	-I$(FIRMWARE_DIRECTORY) \
@@ -89,6 +90,9 @@ firmware.elf: $(FIRMWARE_DIRECTORY)/linker.ld $(OBJECTS)
 
 # pull in dependency info for *existing* .o files
 -include $(OBJECTS:.o=.d)
+
+boot-helper-$(CPU).S: $(BIOS_DIRECTORY)/boot-helper-$(CPU).S
+	cp $< $@
 
 %.o: $(FIRMWARE_DIRECTORY)/%.c
 	$(compile)
