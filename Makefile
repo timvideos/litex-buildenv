@@ -33,6 +33,7 @@ export CLANG
 TARGET_BUILD_DIR = build/$(PLATFORM)_$(TARGET)_$(CPU)/
 
 IPRANGE ?= 192.168.100
+export IPRANGE
 TFTPD_DIR ?= build/tftpd/
 
 # Couple of Python settings.
