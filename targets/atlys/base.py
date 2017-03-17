@@ -208,9 +208,11 @@ class BaseSoC(SoCSDRAM):
             div=platform.spiflash_clock_div)
         self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
         self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
-        self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size
         self.register_mem("spiflash", self.mem_map["spiflash"],
             self.spiflash.bus, size=platform.spiflash_total_size)
+
+        bios_size = 0x8000
+        self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size+bios_size
 
         #self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
 
