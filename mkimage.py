@@ -12,6 +12,7 @@ def main():
     parser = argparse.ArgumentParser(description="SPI Flash contents tool")
     make_args(parser)
 
+    parser.add_argument("--output-file", default="flash.bin")
     parser.add_argument("--override-gateware")
     parser.add_argument("--override-bios")
     parser.add_argument("--override-firmware")
@@ -58,7 +59,7 @@ def main():
     bios_pos = platform.gateware_size
     firmware_pos = platform.gateware_size + BIOS_SIZE
 
-    output = os.path.join(builddir, "flash.bin")
+    output = os.path.join(builddir, args.output_file)
     print()
     with open(output, "wb") as f:
         # FPGA gateware
