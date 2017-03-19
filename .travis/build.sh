@@ -212,7 +212,7 @@ function build() {
 		(
 		cd $PREBUILT_DIR
 		git add -A .
-		git commit -a -m "Travis build #$TRAVIS_BUILD_NUMBER of $GIT_REVISION for PLATFORM=$PLATFORM TARGET=$TARGET CPU=$CPU"
+		git commit -a -m "Travis build #$TRAVIS_BUILD_NUMBER of $GIT_REVISION for PLATFORM=$PLATFORM TARGET=$TARGET CPU=$CPU\nFrom https://github.com/$TRAVIS_REPO_SLUG/tree/$TRAVIS_COMMIT\n$TRAVIS_COMIT_MESSAGE"
 		git diff HEAD~1 --stat=1000,1000
 		)
 		echo "============================================="
