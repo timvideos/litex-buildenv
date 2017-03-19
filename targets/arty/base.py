@@ -1,7 +1,3 @@
-#!/usr/bin/env python3
-import argparse
-import os
-
 from litex.gen import *
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 
@@ -21,10 +17,8 @@ from litedram.core.controller import ControllerSettings
 from litedram.frontend.bist import LiteDRAMBISTGenerator
 from litedram.frontend.bist import LiteDRAMBISTChecker
 
-from liteeth.phy import LiteEthPHY
-from liteeth.core.mac import LiteEthMAC
-
-from gateware import dna, xadc, led
+from gateware.info import dna, xadc
+from gateware import led
 
 
 class UARTVirtualPhy:
@@ -208,65 +202,5 @@ class BaseSoC(SoCSDRAM):
         self.submodules.bridge = WishboneStreamingBridge(uart_phys["bridge"], self.clk_freq)
         self.add_wb_master(self.bridge.wishbone)
 
-class MiniSoC(BaseSoC):
-    csr_map = {
-        "ethphy": 30,
-        "ethmac": 31
-    }
-    csr_map.update(BaseSoC.csr_map)
 
-    interrupt_map = {
-        "ethmac": 2,
-    }
-    interrupt_map.update(BaseSoC.interrupt_map)
-
-    mem_map = {
-        "ethmac": 0x30000000,  # (shadow @0xb0000000)
-    }
-    mem_map.update(BaseSoC.mem_map)
-
-    def __init__(self, *args, **kwargs):
-        BaseSoC.__init__(self, *args, **kwargs)
-
-        self.submodules.ethphy = LiteEthPHY(self.platform.request("eth_clocks"),
-                                            self.platform.request("eth"))
-        self.submodules.ethmac = LiteEthMAC(phy=self.ethphy, dw=32, interface="wishbone")
-        self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)
-        self.add_memory_region("ethmac", self.mem_map["ethmac"] | self.shadow_base, 0x2000)
-
-
-        self.ethphy.crg.cd_eth_rx.clk.attr.add("keep")
-        self.ethphy.crg.cd_eth_tx.clk.attr.add("keep")
-        self.platform.add_period_constraint(self.crg.cd_sys.clk, 10.0)
-        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_rx.clk, 40.0)
-        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_tx.clk, 40.0)
-        self.platform.add_false_path_constraints(
-            self.crg.cd_sys.clk,
-            self.ethphy.crg.cd_eth_rx.clk,
-            self.ethphy.crg.cd_eth_tx.clk)
-
-    def configure_ip(self, ip_type, ip):
-        for i, e in enumerate(ip):
-            s = ip_type + str(i + 1)
-            s = s.upper()
-            self.add_constant(s, e)
-
-def main():
-    parser = argparse.ArgumentParser(description="Arty LiteX SoC")
-    builder_args(parser)
-    soc_sdram_args(parser)
-    parser.add_argument("--with-ethernet", action="store_true",
-                        help="enable Ethernet support")
-    parser.add_argument("--nocompile-gateware", action="store_true")
-    args = parser.parse_args()
-
-    platform = arty.Platform()
-    cls = MiniSoC if args.with_ethernet else BaseSoC
-    soc = cls(platform, **soc_sdram_argdict(args))
-    builder = Builder(soc, output_dir="build",
-                      compile_gateware=not args.nocompile_gateware,
-                      csr_csv="test/csr.csv")
-    vns = builder.build()
-
-if __name__ == "__main__":
-    main()
+SoC = BaseSoC

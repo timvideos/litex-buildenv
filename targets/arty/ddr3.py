@@ -1,11 +1,5 @@
-#!/usr/bin/env python3
-import argparse
-import os
-
 from litex.gen import *
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
-
-from litex.boards.platforms import arty
 
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
@@ -19,7 +13,7 @@ from litedram.frontend.bist import LiteDRAMBISTChecker
 
 from litescope import LiteScopeAnalyzer
 
-from gateware import dna, xadc
+from gateware.info import dna, xadc
 
 
 class _CRG(Module):
@@ -184,17 +178,4 @@ class BaseSoC(SoCSDRAM):
         self.analyzer.export_csv(vns, "test/analyzer.csv")
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Arty LiteX SoC")
-    builder_args(parser)
-    soc_sdram_args(parser)
-    args = parser.parse_args()
-
-    platform = arty.Platform()
-    soc = BaseSoC(platform, **soc_sdram_argdict(args))
-    builder = Builder(soc, output_dir="build", csr_csv="test/csr.csv")
-    vns = builder.build()
-    soc.do_exit(vns)
-
-if __name__ == "__main__":
-    main()
+SoC = BaseSoC

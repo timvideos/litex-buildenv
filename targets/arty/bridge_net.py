@@ -1,13 +1,9 @@
-#!/usr/bin/env python3
-
-from arty_base import *
-
-from litex.soc.integration.soc_core import *
-
 from liteeth.common import convert_ip
 from liteeth.phy.mii import LiteEthPHYMII
 from liteeth.core import LiteEthUDPIPCore
 from liteeth.frontend.etherbone import LiteEthEtherbone
+
+from targets.arty.base import BaseSoC
 
 
 class EtherboneSoC(BaseSoC):
@@ -21,8 +17,7 @@ class EtherboneSoC(BaseSoC):
                  platform,
                  mac_address=0x10e2d5000000,
                  ip_address="192.168.1.50"):
-        BaseSoC.__init__(self, platform, cpu_type=None,
-                         csr_data_width=32)
+        BaseSoC.__init__(self, platform, cpu_type=None, csr_data_width=32)
 
         # Ethernet PHY and UDP/IP stack
         self.submodules.ethphy = LiteEthPHYMII(self.platform.request("eth_clocks"),
@@ -48,19 +43,5 @@ class EtherboneSoC(BaseSoC):
             self.ethphy.crg.cd_eth_rx.clk,
             self.ethphy.crg.cd_eth_tx.clk)
 
-def main():
-    parser = argparse.ArgumentParser(description="Arty LiteX SoC")
-    builder_args(parser)
-    parser.add_argument("--nocompile-gateware", action="store_true")
-    args = parser.parse_args()
 
-    platform = arty.Platform()
-    soc = EtherboneSoC(platform)
-    builder = Builder(soc, output_dir="build",
-                      compile_gateware=not args.nocompile_gateware,
-                      csr_csv="test/csr.csv")
-    vns = builder.build()
-
-if __name__ == "__main__":
-    main()
-
+BaseSoC = EtherboneSoC
