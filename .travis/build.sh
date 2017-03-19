@@ -212,7 +212,11 @@ function build() {
 		(
 		cd $PREBUILT_DIR
 		git add -A .
-		git commit -a -m "Travis build #$TRAVIS_BUILD_NUMBER of $GIT_REVISION for PLATFORM=$PLATFORM TARGET=$TARGET CPU=$CPU\nFrom https://github.com/$TRAVIS_REPO_SLUG/tree/$TRAVIS_COMMIT\n$TRAVIS_COMIT_MESSAGE"
+		git commit -a \
+			-m "Travis build #$TRAVIS_BUILD_NUMBER of $GIT_REVISION for PLATFORM=$PLATFORM TARGET=$TARGET CPU=$CPU" \
+			-m "" \
+			-m "From https://github.com/$TRAVIS_REPO_SLUG/tree/$TRAVIS_COMMIT" \
+			-m "$TRAVIS_COMIT_MESSAGE"
 		git diff HEAD~1 --stat=1000,1000
 		)
 		echo "============================================="
@@ -332,7 +336,7 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 	while true; do
 		git push --quiet origin master > /dev/null 2>&1 && break
 		git fetch
-		git merge origin/master -m "Merging"
+		git merge origin/master -m "Merging #$TRAVIS_JOB_NUMBER of $GIT_REVISION"
 	done
 	)
 fi
