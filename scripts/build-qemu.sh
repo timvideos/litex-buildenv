@@ -31,15 +31,24 @@ if [ ! -f "$QEMU_BUILD_DIR/Makefile" ]; then
 	mkdir -p $QEMU_BUILD_DIR
 	(
 		cd $QEMU_BUILD_DIR
-		../../qemu/configure --target-list=$CPU-softmmu --python=/usr/bin/python2
+		../../qemu/configure \
+			--target-list=$CPU-softmmu \
+			--python=/usr/bin/python2 \
+			--enable-fdt \
+			--disable-kvm \
+			--disable-xen \
+			--enable-debug \
+			--enable-debug-info
+
 		ln -s $(realpath $PWD/../software/include/generated) generated
 	)
 fi
 
-(
-	cd $QEMU_BUILD_DIR
-	make -j128
-)
+
+OLD_DIR=$PWD
+cd $QEMU_BUILD_DIR
+make -j128
+cd $OLD_DIR
 
 /usr/bin/env python mkimage.py --output-file=qemu.bin --override-gateware=none
 
