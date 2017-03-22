@@ -127,9 +127,9 @@ void fx2_reboot(enum fx2_fw_version fw)
 
 void fx2_debug(void) {
 	wprintf("Possible FX2 Firmware:\r\n");
-	wprintf(" [%s] usbjtag (%02X) (IXO USB JTAG Mode)\r\n", fx2_fw_active == FX2FW_USBJTAG ? "*" : " ", FX2_MBFW_USBJTAG_END);
+	wprintf(" [%s] usbjtag (%02X) (IXO USB JTAG Mode)\r\n", fx2_fw_active == FX2FW_USBJTAG ? "*" : " ", (unsigned int)FX2_MBFW_USBJTAG_END);
 #ifdef ENCODER_BASE
-	wprintf(" [%s] hdmi2usb (%02X) (HDMI2USB Video Capture Mode)\r\n", fx2_fw_active == FX2FW_HDMI2USB ? "*" : " ", FX2_MBFW_HDMI2USB_END);
+	wprintf(" [%s] hdmi2usb (%02X) (HDMI2USB Video Capture Mode)\r\n", fx2_fw_active == FX2FW_HDMI2USB ? "*" : " ", (unsigned int)FX2_MBFW_HDMI2USB_END);
 #endif
 }
 
