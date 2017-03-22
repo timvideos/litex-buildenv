@@ -6,3 +6,4 @@ outgoing
 build
 *~
 *.png
+third_party/qemu-litex

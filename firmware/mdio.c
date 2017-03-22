@@ -80,8 +80,8 @@ int mdio_read(int phyadr, int reg)
 	raw_write(phyadr, 5);
 	raw_write(reg, 5);
 	raw_turnaround();
-	r = raw_read();
 	raw_turnaround();
+	r = raw_read();
 
 	return r;
 }
@@ -94,6 +94,8 @@ void mdio_dump(void) {
 
 int mdio_status(void) {
 	int status;
+	mdio_dump();
+
 	status = mdio_read(0, 17);
 
 	wprintf("MDIO ");
