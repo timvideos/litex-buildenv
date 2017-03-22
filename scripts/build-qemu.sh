@@ -48,6 +48,20 @@ fi
 TARGET_BUILD_DIR=$(realpath build)/${PLATFORM}_${TARGET}_${CPU}/
 TARGET_QEMU_BUILD_DIR=$TARGET_BUILD_DIR/qemu
 
+case $CPU in
+	lm32)
+		QEMU_CPU=lm32
+		;;
+	or1k)
+		QEMU_CPU=or32
+		;;
+	*)
+		echo "CPU $CPU isn't supported at the moment."
+		exit 1
+		;;
+esac
+QEMU_ARCH=$QEMU_CPU-softmmu
+
 if [ ! -d $TARGET_BUILD_DIR/software/include/generated ]; then
 	make firmware
 fi
@@ -57,7 +71,7 @@ if [ ! -f "$TARGET_QEMU_BUILD_DIR/Makefile" ]; then
 	(
 		cd $TARGET_QEMU_BUILD_DIR
 		$QEMU_SRC_DIR/configure \
-			--target-list=$CPU-softmmu \
+			--target-list=$QEMU_ARCH \
 			--python=/usr/bin/python2 \
 			--enable-fdt \
 			--disable-kvm \
@@ -94,7 +108,7 @@ if [ $HAS_LITEETH -eq 1 ]; then
 	make tftp
 fi
 
-$TARGET_QEMU_BUILD_DIR/$CPU-softmmu/qemu-system-$CPU \
+$TARGET_QEMU_BUILD_DIR/$QEMU_ARCH/qemu-system-$QEMU_CPU \
 	-M litex \
 	-nographic -nodefaults \
 	-monitor pty \
