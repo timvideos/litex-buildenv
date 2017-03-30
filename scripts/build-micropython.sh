@@ -35,6 +35,12 @@ fi
 set -x
 set -e
 
+# Install a toolchain with the newlib standard library
+if ! $CPU-elf-newlib-gcc --version > /dev/null 2>&1; then
+	conda install gcc-$CPU-elf-newlib
+fi
+
+# Get micropython is needed
 MPY_SRC_DIR=$TOP_DIR/third_party/micropython
 if [ ! -d "$MPY_SRC_DIR" ]; then
 	(
@@ -45,13 +51,14 @@ if [ ! -d "$MPY_SRC_DIR" ]; then
 	)
 fi
 
+# Generate the bios and local firmware
 TARGET_BUILD_DIR=$(realpath build)/${PLATFORM}_${TARGET}_${CPU}/
-TARGET_MPY_BUILD_DIR=$TARGET_BUILD_DIR/software/micropython
-
 if [ ! -d $TARGET_BUILD_DIR/software/include/generated ]; then
 	make firmware
 fi
 
+# Setup the micropython build directory
+TARGET_MPY_BUILD_DIR=$TARGET_BUILD_DIR/software/micropython
 if [ ! -e "$TARGET_MPY_BUILD_DIR/generated" ]; then
 	mkdir -p $TARGET_MPY_BUILD_DIR
 	(
@@ -60,14 +67,15 @@ if [ ! -e "$TARGET_MPY_BUILD_DIR/generated" ]; then
 	)
 fi
 
-
+# Build micropython
 OLD_DIR=$PWD
 cd $TARGET_MPY_BUILD_DIR
 export CROSS_COMPILE=$CPU-elf-newlib-
 export BUILDINC_DIRECTORY=$TARGET_BUILD_DIR/software/include
 export BUILD=$TARGET_MPY_BUILD_DIR
 make -C ../../../../third_party/micropython/litex/
-python -m litex.soc.tools.mkmscimg -f $TARGET_MPY_BUILD_DIR/firmware.bin -o $TARGET_MPY_BUILD_DIR/firmware.fbi
 cd $OLD_DIR
 
+# Generate a firmware image suitable for flashing.
+python -m litex.soc.tools.mkmscimg -f $TARGET_MPY_BUILD_DIR/firmware.bin -o $TARGET_MPY_BUILD_DIR/firmware.fbi
 /usr/bin/env python mkimage.py --output-file=$TARGET_BUILD_DIR/micropython.bin --override-firmware=$TARGET_MPY_BUILD_DIR/firmware.fbi
