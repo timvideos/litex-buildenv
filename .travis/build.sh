@@ -157,33 +157,39 @@ function build() {
 
 		mkdir -p $COPY_DEST
 
-		# Gateware
-		cp $TARGET_BUILD_DIR/gateware/top.bit $COPY_DEST/gateware.bit
-		cp $TARGET_BUILD_DIR/gateware/top.bin $COPY_DEST/gateware.bin
+		declare -a SAVE
+		declare -a SAVE
+		SAVE+="flash.bin" 				# Combined binary include gateware+bios+firmware
+		# Gateware output for using
+		SAVE+=("gateware/top.bit")			# Gateware in JTAG compatible format
+		SAVE+=("gateware/top.bin")			# Gateware in flashable format
+		# Gateware inputs for reference
+		SAVE+=("gateware/top.v")			# Gateware verilog code
+		SAVE+=("gateware/top.ucf")			# Gateware constraints
+		# Gateware tools reporting information - Xilinx ISE
+		SAVE+=("gateware/top_map.map")			# Report: Map
+		SAVE+=("gateware/top.pad")			# Report: Pinout
+		SAVE+=("gateware/top.par")			# Report: Place and route
+		SAVE+=("gateware/top.srp")			# Report: Synthasis
+		# Software support files
+		SAVE+=("software/include/")			# Generated headers+config needed for QEmu, micropython, etc
+		SAVE+=("software/bios/bios.*")			# BIOS for soft-cpu inside the gateware
+		SAVE+=("software/firmware/firmware.*")		# HDMI2USB firmware for soft-cpu inside the gateware
+		SAVE+=("support/fx2.hex")			# Firmware for Cypress FX2 on some boards
 
-		# Gateware BIOS
-		BIOS=$TARGET_BUILD_DIR/software/bios/bios.bin
-		if [ -f $BIOS ]; then
-			cp $BIOS $COPY_DEST/
-		fi
+		for TO_SAVE in ${SAVE[@]}; do
+			echo
+			if ! ls $TARGET_BUILD_DIR/$TO_SAVE >/dev/null 2>&1; then
+				echo "Nothing to save! ($TO_SAVE)"
+				continue
+			else
+				echo "Saving $TO_SAVE"
+			fi
 
-		# Soft CPU Firmware
-		SOFTCPU_FIRMWARE=$TARGET_BUILD_DIR/software/firmware/firmware.fbi
-		if [ -f $SOFTCPU_FIRMWARE ]; then
-			cp $SOFTCPU_FIRMWARE $COPY_DEST/
-		fi
-
-		# FX2 firmware
-		FX2_FIRMWARE=$TARGET_BUILD_DIR/suport/fx2.hex
-		if [ -f $FX2_FIRMWARE ]; then
-			cp $FX2_FIRMWARE $COPY_DEST
-		fi
-
-		# Combined flash binary
-		FLASH_IMAGE=$TARGET_BUILD_DIR/flash.bin
-		if [ -f $FLASH_IMAGE ]; then
-			cp $FLASH_IMAGE $COPY_DEST/
-		fi
+			TO_SAVE_DIR="$(dirname $TO_SAVE)"
+			mkdir -p $COPY_DEST/$TO_SAVE_DIR
+			cp -v -r -a $TARGET_BUILD_DIR/$TO_SAVE $COPY_DEST/$TO_SAVE_DIR
+		done
 
 		# Logs, version information, etc
 		mkdir -p $COPY_DEST/logs/
