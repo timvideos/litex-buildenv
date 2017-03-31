@@ -125,13 +125,13 @@ function build() {
 	make -j4 firmware || return 1
 	echo "============================================="
 
-	#echo ""
-	#echo ""
-	#echo ""
-	#echo "- make image ($PLATFORM $TARGET $CPU)"
-	#echo "---------------------------------------------"
-	#make image || return 1
-	#echo "============================================="
+	echo ""
+	echo ""
+	echo ""
+	echo "- make image ($PLATFORM $TARGET $CPU)"
+	echo "---------------------------------------------"
+	make image || true
+	echo "============================================="
 
 	if [ ! -z "$PROGS" ]; then
 		for PROG in $PROGS; do
