@@ -202,9 +202,9 @@ check_exists flterm
 )
 check_version ${CPU}-elf-ld $BINUTILS_VERSION
 
-# gcc+binutils for the target
+# gcc for the target
 (
-	conda install gcc-${CPU}-elf=$GCC_VERSION
+	conda install gcc-${CPU}-elf-nostdc=$GCC_VERSION
 )
 check_version ${CPU}-elf-gcc $GCC_VERSION
 
