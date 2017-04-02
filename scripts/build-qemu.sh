@@ -89,7 +89,8 @@ cd $TARGET_QEMU_BUILD_DIR
 make -j8
 cd $OLD_DIR
 
-/usr/bin/env python mkimage.py --output-file=qemu.bin --override-gateware=none
+/usr/bin/env python mkimage.py --output-file=qemu.bin --override-gateware=none --force-image-size=true
+$TARGET_QEMU_BUILD_DIR/qemu-img convert -f raw $TARGET_BUILD_DIR/qemu.bin -O qcow2 -S 16M $TARGET_BUILD_DIR/qemu.qcow2
 
 HAS_LITEETH=$(grep -q ETHMAC_BASE $TARGET_BUILD_DIR/software/include/generated/csr.h && echo 1 || echo 0)
 
@@ -108,13 +109,16 @@ if [ $HAS_LITEETH -eq 1 ]; then
 	make tftp
 fi
 
+SPIFLASH_MODEL=$(grep spiflash_model platforms/$PLATFORM.py | sed -e's/[^"]*"//' -e's/".*$//')
+echo $SPIFLASH_MODEL
+
 $TARGET_QEMU_BUILD_DIR/$QEMU_ARCH/qemu-system-$QEMU_CPU \
 	-M litex \
 	-nographic -nodefaults \
 	-monitor pty \
 	-serial stdio \
 	-bios $TARGET_BUILD_DIR/software/bios/bios.bin \
-	-kernel $TARGET_BUILD_DIR/qemu.bin \
+	-drive if=mtd,format=qcow2,file=$TARGET_BUILD_DIR/qemu.qcow2,serial=$SPIFLASH_MODEL \
 	$EXTRA_ARGS
 
 

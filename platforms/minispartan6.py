@@ -159,6 +159,7 @@ class Platform(XilinxPlatform):
     # Mac 25L6405' (ID 0x001720c2)
     # FIXME: Create a "spi flash module" object in the same way we have SDRAM
     # module objects.
+    spiflash_model = "25l6405"
     spiflash_read_dummy_bits = 4
     spiflash_clock_div = 4
     spiflash_total_size = int((64/8)*1024*1024) # 64Mbit

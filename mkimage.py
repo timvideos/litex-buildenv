@@ -16,6 +16,7 @@ def main():
     parser.add_argument("--override-gateware")
     parser.add_argument("--override-bios")
     parser.add_argument("--override-firmware")
+    parser.add_argument("--force-image-size")
 
     args = parser.parse_args()
 
@@ -117,6 +118,13 @@ def main():
         print(("           Total space {:10} bytes"
                " ({} Megabits, {:.2f} Megabytes)"
                ).format(total, int(total*8/1024/1024), total/1024/1024))
+
+        if args.force_image_size:
+            if args.force_image_size.lower() in ("true", "1"):
+                flash_size = platform.spiflash_total_size
+            else:
+                flash_size = int(args.force_image_size)
+            f.write(b'\xff' * (flash_size - f.tell()))
 
     print()
     print("Flash image: {}".format(output))
