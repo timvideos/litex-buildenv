@@ -103,7 +103,7 @@ echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
 
 function check_exists {
 	TOOL=$1
-	if which $TOOL 2>&1; then
+	if which $TOOL >/dev/null; then
 		echo "$TOOL found at $(which $TOOL)"
 		return 0
 	else
@@ -153,12 +153,14 @@ function check_import_version {
 	fi
 }
 
-# Install and setup conda for downloading packages
 echo ""
-echo "Install modules from conda"
-echo "---------------------------"
+echo "Initializing environment"
+echo "---------------------------------"
+# Install and setup conda for downloading packages
 export PATH=$CONDA_DIR/bin:$PATH
 (
+	echo
+	echo "Installing conda (self contained Python environment with binary package support)"
 	if [ ! -d $CONDA_DIR ]; then
 		cd $BUILD_DIR
 		wget -c https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
@@ -171,19 +173,26 @@ export PATH=$CONDA_DIR/bin:$PATH
 )
 
 # Check the Python version
-(
-	conda install python=3.5
-)
+echo
+echo "Installing python3.5"
+conda install python=3.5
 check_version python 3.5
 
+echo ""
+echo "Installing binaries into environment"
+echo "---------------------------------"
+
 # fxload
-#(
-#	conda install fxload
-#)
+echo
+echo "Installing fxload (tool for Cypress FX2)"
+# conda install fxload
 check_exists fxload
 
+# FIXME: Remove this once @jimmo has finished his new firmware
 # MimasV2Config.py
 MIMASV2CONFIG=$BUILD_DIR/conda/bin/MimasV2Config.py
+echo
+echo "Installing MimasV2Config.py (mimasv2 flashing tool)"
 if [ ! -e $MIMASV2CONFIG ]; then
 	wget https://raw.githubusercontent.com/numato/samplecode/master/FPGA/MimasV2/tools/configuration/python/MimasV2Config.py -O $MIMASV2CONFIG
 	chmod a+x $MIMASV2CONFIG
@@ -191,63 +200,72 @@ fi
 check_exists MimasV2Config.py
 
 # flterm
-(
-	conda install flterm
-)
+echo
+echo "Installing flterm (serial terminal tool)"
+conda install flterm
 check_exists flterm
 
 # binutils for the target
-(
-	conda install binutils-${CPU}-elf=$BINUTILS_VERSION
-)
+echo
+echo "Installing binutils for ${CPU} (assembler, linker, and other tools)"
+conda install binutils-${CPU}-elf=$BINUTILS_VERSION
 check_version ${CPU}-elf-ld $BINUTILS_VERSION
 
 # gcc for the target
-(
-	conda install gcc-${CPU}-elf-nostdc=$GCC_VERSION
-)
+echo
+echo "Installing gcc for ${CPU} ('bare metal' C cross compiler)"
+conda install gcc-${CPU}-elf-nostdc=$GCC_VERSION
 check_version ${CPU}-elf-gcc $GCC_VERSION
 
+# gdb for the target
+#echo
+#echo "Installing gdb for ${CPU} (debugger)"
+#conda install gdb-${CPU}-elf=$GDB_VERSION
+#check_version ${CPU}-elf-gdb $GDB_VERSION
+
 # openocd for programming via Cypress FX2
-(
-	conda install openocd
-)
+echo
+echo "Installing openocd (jtag tool for programming and debug)"
+conda install openocd
 check_version openocd 0.10.0-dev
 
+echo ""
+echo "Installing Python modules into environment"
+echo "---------------------------------------"
 # pyserial for communicating via uarts
-(
-	conda install pyserial
-)
+echo
+echo "Installing pyserial (python module)"
+conda install pyserial
 check_import serial
 
 # ipython for interactive debugging
-(
-	conda install ipython
-)
+echo
+echo "Installing ipython (python module)"
+conda install ipython
 check_import IPython
 
 # progressbar2 for progress bars
-(
-	pip install --upgrade progressbar2
-)
+echo
+echo "Installing progressbar2 (python module)"
+pip install --upgrade progressbar2
 check_import progressbar
 
 # colorama for progress bars
-(
-	pip install --upgrade colorama
-)
+echo
+echo "Installing colorama (python module)"
+pip install --upgrade colorama
 check_import colorama
 
 # hexfile for embedding the Cypress FX2 firmware.
-(
-	pip install --upgrade git+https://github.com/mithro/hexfile.git
-)
+echo
+echo "Installing hexfile (python module)"
+pip install --upgrade git+https://github.com/mithro/hexfile.git
 check_import_version hexfile $HEXFILE_VERSION
 
 # Tool for changing the mode (JTAG/Serial/etc) of HDMI2USB boards
-(
-	pip install --upgrade git+https://github.com/timvideos/HDMI2USB-mode-switch.git
-)
+echo
+echo "Installing HDMI2USB-mode-switch (flashing and config tool)"
+pip install --upgrade git+https://github.com/timvideos/HDMI2USB-mode-switch.git
 check_import_version hdmi2usb.modeswitch $HDMI2USB_MODESWITCH_VERSION
 
 # git submodules
@@ -265,7 +283,9 @@ echo "-----------------------"
 for LITE in $LITE_REPOS; do
 	LITE_DIR=$THIRD_DIR/$LITE
 	(
+		echo
 		cd $LITE_DIR
+		echo "Installing $LITE from $LITE_DIR (local python module)"
 		python setup.py develop
 	)
 	check_import $LITE
