@@ -253,6 +253,13 @@ check_import_version hdmi2usb.modeswitch $HDMI2USB_MODESWITCH_VERSION || return 
 echo ""
 echo "Checking git submodules"
 echo "-----------------------"
+(
+	cd $TOP_DIR
+
+
+
+	git status
+)
 
 # lite
 for LITE in $LITE_REPOS; do

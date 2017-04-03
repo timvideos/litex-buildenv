@@ -277,6 +277,7 @@ echo "-----------------------"
 	git submodule update --recursive --init
 	git submodule foreach \
 		git submodule update --recursive --init
+	git status
 )
 
 # lite
