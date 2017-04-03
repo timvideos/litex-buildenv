@@ -142,7 +142,7 @@ function check_import {
 function check_import_version {
 	MODULE=$1
 	EXPECT_VERSION=$2
-        ACTUAL_VERSION=$(python3 -c "import $MODULE; print($MODULE.__version__)")
+	ACTUAL_VERSION=$(python3 -c "import $MODULE; print($MODULE.__version__)")
 	if echo "$ACTUAL_VERSION" | grep -q $EXPECT_VERSION > /dev/null; then
 		echo "$MODULE found at $ACTUAL_VERSION"
 		return 0
@@ -165,7 +165,7 @@ export PATH=$CONDA_DIR/bin:$PATH
 		cd $BUILD_DIR
 		wget -c https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 		chmod a+x Miniconda3-latest-Linux-x86_64.sh
-	        ./Miniconda3-latest-Linux-x86_64.sh -p $CONDA_DIR -b
+		./Miniconda3-latest-Linux-x86_64.sh -p $CONDA_DIR -b
 		conda config --set always_yes yes --set changeps1 no
 		conda update -q conda
 	fi

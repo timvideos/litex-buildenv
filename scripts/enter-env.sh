@@ -136,7 +136,7 @@ function check_import {
 function check_import_version {
 	MODULE=$1
 	EXPECT_VERSION=$2
-        ACTUAL_VERSION=$(python3 -c "import $MODULE; print($MODULE.__version__)")
+	ACTUAL_VERSION=$(python3 -c "import $MODULE; print($MODULE.__version__)")
 	if echo "$ACTUAL_VERSION" | grep -q $EXPECT_VERSION > /dev/null; then
 		echo "$MODULE found at $ACTUAL_VERSION"
 		return 0
