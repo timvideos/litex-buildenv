@@ -19,6 +19,13 @@ if [ $SOURCED = 1 ]; then
         return
 fi
 
+if [ -z "$HDMI2USB_ENV" ]; then
+        echo "You appear to not be inside the HDMI2USB environment."
+	echo "Please enter environment with:"
+	echo "  source scripts/enter-env.sh"
+        exit 1
+fi
+
 if [ -z "$PLATFORM" ]; then
 	echo "Please set PLATFORM"
 	exit 1
