@@ -130,7 +130,20 @@ class Platform(XilinxPlatform):
     default_clk_name = "clk100"
     default_clk_period = 10.0
 
-    def __init__(self, toolchain="vivado", programmer="vivado"):
+    # From https://www.xilinx.com/support/documentation/user_guides/ug470_7Series_Config.pdf
+    # 77,845,216 bits == 9730652 == 0x947a5c -- Therefore 0x1000000
+    gateware_size = 0x1000000
+
+    # Spansion S25FL256S (ID 0x00190201)
+    # FIXME: Create a "spi flash module" object in the same way we have SDRAM
+    # module objects.
+    spiflash_read_dummy_bits = 10
+    spiflash_clock_div = 4
+    spiflash_total_size = int((256/8)*1024*1024) # 256Mbit
+    spiflash_page_size = 256
+    spiflash_sector_size = 0x10000
+
+    def __init__(self, toolchain="vivado", programmer="openocd"):
         XilinxPlatform.__init__(self, "xc7a200t-sbg484-1", _io,
                                 toolchain=toolchain)
         self.toolchain.bitstream_commands = \
@@ -143,10 +156,13 @@ class Platform(XilinxPlatform):
 
 
     def create_programmer(self):
-        if self.programmer == "xc3sprog":
+        if self.programmer == "openocd":
+            proxy="bscan_spi_{}.bit".format(self.device.split('-')[0])
+            return OpenOCD(config="board/digilent_nexys_video.cfg", flash_proxy_basename=proxy)
+        elif self.programmer == "xc3sprog":
             return XC3SProg("nexys4")
         elif self.programmer == "vivado":
-            return VivadoProgrammer(flash_part="n25q128-3.3v-spi-x1_x2_x4")
+            return VivadoProgrammer(flash_part="n25q128-3.3v-spi-x1_x2_x4") # FIXME: Spansion S25FL256S
         else:
             raise ValueError("{} programmer is not supported"
                              .format(self.programmer))

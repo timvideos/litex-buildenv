@@ -3,6 +3,7 @@
 # License: BSD
 
 from litex.build.generic_platform import *
+from litex.build.openocd import OpenOCD
 from litex.build.xilinx import XilinxPlatform, XC3SProg, VivadoProgrammer
 
 _io = [
@@ -104,8 +105,21 @@ class Platform(XilinxPlatform):
     default_clk_name = "clk100"
     default_clk_period = 10.0
 
-    def __init__(self, toolchain="vivado", programmer="vivado"):
-        XilinxPlatform.__init__(self, "xc7a35ticsg324-1L", _io,
+    # From https://www.xilinx.com/support/documentation/user_guides/ug470_7Series_Config.pdf
+    # 17536096 bits == 2192012 == 0x21728c -- Therefore 0x220000
+    gateware_size = 0x220000
+
+    # Micron N25Q128A13ESF40 (ID 0x0018ba20)
+    # FIXME: Create a "spi flash module" object in the same way we have SDRAM
+    # module objects.
+    spiflash_read_dummy_bits = 10
+    spiflash_clock_div = 4
+    spiflash_total_size = int((128/8)*1024*1024) # 128Mbit
+    spiflash_page_size = 256
+    spiflash_sector_size = 0x10000
+
+    def __init__(self, toolchain="vivado", programmer="openocd"):
+        XilinxPlatform.__init__(self, "xc7a35t-csg324-1L", _io,
                                 toolchain=toolchain)
         self.toolchain.bitstream_commands = \
             ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
@@ -116,7 +130,10 @@ class Platform(XilinxPlatform):
         self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 34]")
 
     def create_programmer(self):
-        if self.programmer == "xc3sprog":
+        if self.programmer == "openocd":
+            proxy="bscan_spi_{}.bit".format(self.device.split('-')[0])
+            return OpenOCD(config="board/digilent_arty.cfg", flash_proxy_basename=proxy)
+        elif self.programmer == "xc3sprog":
             return XC3SProg("nexys4")
         elif self.programmer == "vivado":
             return VivadoProgrammer(flash_part="n25q128-3.3v-spi-x1_x2_x4")

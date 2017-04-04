@@ -41,4 +41,6 @@ firmware-flash-mimasv2:
 firmware-connect-mimasv2:
 	flterm --port=$(COMM_PORT) --speed=$(BAUD)
 
-.PHONY: gateware-load-mimasv2 firmware-load-mimasv2
+.PHONY: gateware-load-mimasv2 gateware-flash-mimasv2
+.PHONY: image-load-mimasv2 image-flash-mimasv2
+.PHONY: firmware-load-mimasv2 firmware-flash-mimasv2 firmware-connect-mimasv2

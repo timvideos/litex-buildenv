@@ -75,7 +75,10 @@ image-load: image image-load-$(PLATFORM)
 image-flash: image image-flash-$(PLATFORM)
 	@true
 
-.PHONY: image image-load image-flash
+image-flash-py: image
+	$(PYTHON) flash.py --mode=image
+
+.PHONY: image image-load image-flash image-flash-py
 
 # Gateware - the stuff which configures the FPGA.
 # --------------------------------------
@@ -98,10 +101,13 @@ gateware-load: gateware-load-$(PLATFORM)
 gateware-flash: gateware-flash-$(PLATFORM)
 	@true
 
+gateware-flash-py:
+	$(PYTHON) flash.py --mode=gateware
+
 gateware-clean:
 	rm -rf $(TARGET_BUILD_DIR)/gateware
 
-.PHONY: gateware gateware-load gateware-flash gateware-clean
+.PHONY: gateware gateware-load gateware-flash gateware-flash-py gateware-clean
 
 # Firmware - the stuff which runs in the soft CPU inside the FPGA.
 # --------------------------------------
@@ -119,6 +125,9 @@ firmware-load: firmware firmware-load-$(PLATFORM)
 
 firmware-flash: firmware firmware-flash-$(PLATFORM)
 	@true
+
+firmware-flash-py: firmware
+	$(PYTHON) flash.py --mode=firmware
 
 firmware-connect: firmware-connect-$(PLATFORM)
 	@true
