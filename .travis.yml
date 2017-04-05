@@ -26,7 +26,7 @@ env:
   matrix:
 #   - PLATFORM=arty
    - CPU=lm32 PLATFORM=atlys SKIP_TARGETS="hdmi2usb\|video.*"
-   - CPU=or1k PLATFORM=atlys SKIP_TARGETS="hdmi2usb\|video.*"
+   - CPU=or1k PLATFORM=atlys TARGETS="base net"
    - PLATFORM=atlys TARGET=video
    - PLATFORM=atlys TARGET=hdmi2usb
    - PLATFORM=minispartan6
@@ -34,12 +34,12 @@ env:
 #   - PLATFORM=nexys_video
 #   - PLATFORM=pipistrello
    - CPU=lm32 PLATFORM=opsis SKIP_TARGETS="hdmi2usb\|video.*"
-   - CPU=or1k PLATFORM=opsis SKIP_TARGETS="hdmi2usb\|video.*"
+   - CPU=or1k PLATFORM=opsis TARGETS="base net"
    - PLATFORM=opsis TARGET=video
    - PLATFORM=opsis TARGET=hdmi2usb
 #   - PLATFORM=sim
    - CPU=lm32 PLATFORM=mimasv2
-   - CPU=or1k PLATFORM=mimasv2 SKIP_TARGETS="memtest" # or1k and memtest don't fit on mimasv2
+   - CPU=or1k PLATFORM=mimasv2 TARGETS="base" # or1k and memtest don't fit on mimasv2
 
 install:
  - $PWD/.travis/setup.sh
