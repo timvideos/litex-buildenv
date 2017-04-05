@@ -226,8 +226,8 @@ check_version ${CPU}-elf-gcc $GCC_VERSION
 # openocd for programming via Cypress FX2
 echo
 echo "Installing openocd (jtag tool for programming and debug)"
-conda install openocd
-check_version openocd 0.10.0-dev
+conda install openocd=$OPENOCD_VERSION
+check_version openocd $OPENOCD_VERSION
 
 echo ""
 echo "Installing Python modules into environment"

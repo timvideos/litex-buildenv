@@ -208,7 +208,7 @@ check_version ${CPU}-elf-gcc $GCC_VERSION || return 1
 
 
 
-check_version openocd 0.10.0-dev || return 1
+check_version openocd $OPENOCD_VERSION || return 1
 
 echo ""
 echo "Checking Python modules in environment"
