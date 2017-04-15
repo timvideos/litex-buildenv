@@ -10,6 +10,12 @@ from litex.gen import *
 from litex.soc.cores import uart
 
 
+class UARTVirtualPhy(Module):
+    def __init__(self):
+        self.sink = Endpoint([("data", 8)])
+        self.source = Endpoint([("data", 8)])
+
+
 class SharedUART(Module):
 
     def __init__(self, clk_freq, baud_rate):
