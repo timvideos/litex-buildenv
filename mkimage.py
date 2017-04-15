@@ -13,7 +13,6 @@ def main():
     parser.add_argument("--output-file", default="image.bin")
     parser.add_argument("--override-gateware")
     parser.add_argument("--override-bios")
-    parser.add_argument("--override-firmware")
     parser.add_argument("--force-image-size")
 
     args = parser.parse_args()
