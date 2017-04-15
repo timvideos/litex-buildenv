@@ -618,6 +618,11 @@ class Platform(XilinxPlatform):
     default_clk_period = 10.0
     hdmi_infos = _hdmi_infos
 
+    # https://reference.digilentinc.com/atlys:atlys:refmanual#flash_memory
+    # The Atlys has a XC6SLX45 which bitstream takes up ~12Mbit (1484472 bytes)
+    # 0x200000 offset (16Mbit) gives plenty of space
+    gateware_size = 0x200000
+
     # Micron N25Q128 (ID 0x0018ba20)
     # FIXME: Create a "spi flash module" object in the same way we have SDRAM
     # module objects.
@@ -627,12 +632,6 @@ class Platform(XilinxPlatform):
     spiflash_total_size = int((128/8)*1024*1024) # 128Mbit
     spiflash_page_size = 256
     spiflash_sector_size = 0x10000
-
-    # https://reference.digilentinc.com/atlys:atlys:refmanual#flash_memory
-    # The Atlys has a XC6SLX45 which bitstream takes up ~12Mbit (1484472 bytes)
-    # 0x200000 offset (16Mbit) gives plenty of space
-    gateware_size = 0x200000
-
 
     def __init__(self, programmer="openocd", vccb2_voltage="VCC3V3"):
         # Some IO configurations only work at certain vccb2 voltages.

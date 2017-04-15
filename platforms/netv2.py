@@ -83,6 +83,18 @@ class Platform(XilinxPlatform):
     default_clk_name = "clk50"
     default_clk_period = 20.0
 
+    # From https://www.xilinx.com/support/documentation/user_guides/ug470_7Series_Config.pdf
+    # 17536096 bits == 2192012 == 0x21728c -- Therefore 0x220000
+    gateware_size = 0x220000
+
+    # ???
+    # FIXME: Create a "spi flash module" object in the same way we have SDRAM
+    # module objects.
+    spiflash_read_dummy_bits = 10
+    spiflash_clock_div = 4
+    spiflash_total_size = int((256/8)*1024*1024) # 256Mbit
+    spiflash_page_size = 256
+    spiflash_sector_size = 0x10000
     spiflash_model = "n25q128"
 
     def __init__(self, toolchain="vivado", programmer="vivado"):

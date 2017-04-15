@@ -158,7 +158,10 @@ class Platform(XilinxPlatform):
     default_clk_period = 31.25
     hdmi_infos = _hdmi_infos
 
-    # Mac 25L6405' (ID 0x001720c2)
+    # 0x180000 offset (12Mbit) gives plenty of space
+    gateware_size = 0x180000
+
+    # Mac 25L6405 (ID 0x001720c2)
     # FIXME: Create a "spi flash module" object in the same way we have SDRAM
     # module objects.
     spiflash_model = "25l6405"
@@ -167,10 +170,6 @@ class Platform(XilinxPlatform):
     spiflash_total_size = int((64/8)*1024*1024) # 64Mbit
     spiflash_page_size = 256
     spiflash_sector_size = 0x10000
-
-    # 0x180000 offset (12Mbit) gives plenty of space
-    gateware_size = 0x180000
-
 
     def __init__(self, device="xc6slx25", programmer="openocd"):
         XilinxPlatform.__init__(self, device+"-3-ftg256", _io, _connectors)
