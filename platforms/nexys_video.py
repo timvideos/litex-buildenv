@@ -142,6 +142,7 @@ class Platform(XilinxPlatform):
     spiflash_total_size = int((256/8)*1024*1024) # 256Mbit
     spiflash_page_size = 256
     spiflash_sector_size = 0x10000
+    spiflash_model = "n25q128"
 
     def __init__(self, toolchain="vivado", programmer="openocd"):
         XilinxPlatform.__init__(self, "xc7a200t-sbg484-1", _io,

@@ -25,20 +25,21 @@ env:
    - CLEAN_CHECK=1
   matrix:
 #   - PLATFORM=arty
-   - PLATFORM=atlys SKIP_TARGETS="hdmi2usb\|video.*"
+   - CPU=lm32 PLATFORM=atlys SKIP_TARGETS="hdmi2usb\|video.*"
+   - CPU=or1k PLATFORM=atlys TARGETS="base net"
    - PLATFORM=atlys TARGET=video
    - PLATFORM=atlys TARGET=hdmi2usb
    - PLATFORM=minispartan6
 #   - PLATFORM=netv2
 #   - PLATFORM=nexys_video
 #   - PLATFORM=pipistrello
-   - PLATFORM=opsis SKIP_TARGETS="hdmi2usb\|video.*"
+   - CPU=lm32 PLATFORM=opsis SKIP_TARGETS="hdmi2usb\|video.*"
+   - CPU=or1k PLATFORM=opsis TARGETS="base net"
    - PLATFORM=opsis TARGET=video
    - PLATFORM=opsis TARGET=hdmi2usb
 #   - PLATFORM=sim
-   # Test multiple CPU archs on the mimasv2
    - CPU=lm32 PLATFORM=mimasv2
-   - CPU=or1k PLATFORM=mimasv2 SKIP_TARGETS="memtest"
+   - CPU=or1k PLATFORM=mimasv2 TARGETS="base" # or1k and memtest don't fit on mimasv2
 
 install:
  - $PWD/.travis/setup.sh

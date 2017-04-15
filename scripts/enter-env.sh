@@ -97,7 +97,7 @@ echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
 
 function check_exists {
 	TOOL=$1
-	if which $TOOL 2>&1; then
+	if which $TOOL >/dev/null; then
 		echo "$TOOL found at $(which $TOOL)"
 		return 0
 	else
@@ -136,7 +136,7 @@ function check_import {
 function check_import_version {
 	MODULE=$1
 	EXPECT_VERSION=$2
-        ACTUAL_VERSION=$(python3 -c "import $MODULE; print($MODULE.__version__)")
+	ACTUAL_VERSION=$(python3 -c "import $MODULE; print($MODULE.__version__)")
 	if echo "$ACTUAL_VERSION" | grep -q $EXPECT_VERSION > /dev/null; then
 		echo "$MODULE found at $ACTUAL_VERSION"
 		return 0
@@ -147,17 +147,21 @@ function check_import_version {
 	fi
 }
 
-# Install and setup conda for downloading packages
 echo ""
-echo "Checking modules from conda"
-echo "---------------------------"
+echo "Checking environment"
+echo "---------------------------------"
+# Install and setup conda for downloading packages
 export PATH=$CONDA_DIR/bin:$PATH
 
 # Check the Python version
-(
-	conda install python=3.5
-)
+
+
+
 check_version python 3.5 || return 1
+
+echo ""
+echo "Checking binaries in environment"
+echo "---------------------------------"
 
 # fxload
 
@@ -165,8 +169,12 @@ check_version python 3.5 || return 1
 
 check_exists fxload || return 1
 
+# FIXME: Remove this once @jimmo has finished his new firmware
 # MimasV2Config.py
 MIMASV2CONFIG=$BUILD_DIR/conda/bin/MimasV2Config.py
+
+
+
 
 
 
@@ -184,18 +192,27 @@ check_exists flterm || return 1
 
 check_version ${CPU}-elf-ld $BINUTILS_VERSION || return 1
 
-# gcc+binutils for the target
+# gcc for the target
 
 
 
 check_version ${CPU}-elf-gcc $GCC_VERSION || return 1
 
+# gdb for the target
+#
+#
+#
+#check_version ${CPU}-elf-gdb $GDB_VERSION
+
 # openocd for programming via Cypress FX2
 
 
 
-check_version openocd 0.10.0-dev || return 1
+check_version openocd $OPENOCD_VERSION || return 1
 
+echo ""
+echo "Checking Python modules in environment"
+echo "---------------------------------------"
 # pyserial for communicating via uarts
 
 
@@ -236,9 +253,23 @@ check_import_version hdmi2usb.modeswitch $HDMI2USB_MODESWITCH_VERSION || return 
 echo ""
 echo "Checking git submodules"
 echo "-----------------------"
+(
+	cd $TOP_DIR
+
+
+
+	git status
+)
 
 # lite
 for LITE in $LITE_REPOS; do
+
+
+
+
+
+
+
 	check_import $LITE || return 1
 done
 

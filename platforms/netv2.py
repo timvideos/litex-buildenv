@@ -82,6 +82,8 @@ class Platform(XilinxPlatform):
     default_clk_name = "clk100"
     default_clk_period = 20.0
 
+    spiflash_model = "n25q128"
+
     def __init__(self, toolchain="vivado", programmer="vivado"):
         XilinxPlatform.__init__(self, "xc7a50t-csg325-2", _io,
                                 toolchain=toolchain)
