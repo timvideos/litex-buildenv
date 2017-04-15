@@ -114,7 +114,7 @@ class BaseSoC(SoCSDRAM):
         self.submodules.crg = _CRG(platform)
 
         # Basic peripherals
-        self.submodules.info = info.Info(platform, "arty", self.__class__.__name__[:8])
+        self.submodules.info = info.Info(platform, self.__class__.__name__)
         self.submodules.leds = led.ClassicLed(Cat(platform.request("user_led", i) for i in range(4)))
         self.submodules.rgb_leds = led.RGBLed(platform.request("rgb_leds"))
 

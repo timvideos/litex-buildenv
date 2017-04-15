@@ -203,7 +203,7 @@ class BaseSoC(SoCSDRAM):
         self.submodules.crg = _CRG(platform, clk_freq)
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
 
-        self.submodules.info = info.Info(platform, "mimasv2", self.__class__.__name__[:8])
+        self.submodules.info = info.Info(platform, self.__class__.__name__)
 
         self.submodules.spiflash = spi_flash.SpiFlashSingle(
             platform.request("spiflash"),

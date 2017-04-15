@@ -11,7 +11,7 @@ from litedram.core import ControllerSettings
 from litedram.frontend.bist import LiteDRAMBISTGenerator
 from litedram.frontend.bist import LiteDRAMBISTChecker
 
-from gateware.info import dna, xadc
+from gateware import info
 
 
 class _CRG(Module):
@@ -91,8 +91,7 @@ class BaseSoC(SoCSDRAM):
         "ddrphy":        17,
         "generator":     18,
         "checker":       19,
-        "dna":           20,
-        "xadc":          21,
+        "info":          20,
     }
     csr_map.update(SoCSDRAM.csr_map)
 
@@ -105,8 +104,7 @@ class BaseSoC(SoCSDRAM):
             **kwargs)
 
         self.submodules.crg = _CRG(platform)
-        self.submodules.dna = dna.DNA()
-        self.submodules.xadc = xadc.XADC()
+        self.submodules.info = info.Info()
 
         # sdram
         self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))

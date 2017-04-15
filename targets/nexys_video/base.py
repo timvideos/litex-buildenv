@@ -105,7 +105,7 @@ class BaseSoC(SoCSDRAM):
         self.submodules.crg = _CRG(platform)
 
         # Basic peripherals
-        self.submodules.info = info.Info(platform, "nexys_video", self.__class__.__name__[:8])
+        self.submodules.info = info.Info(platform, self.__class__.__name__)
         self.submodules.oled = oled.OLED(platform.request("oled"))
 
         # sdram

@@ -73,4 +73,5 @@ class BaseSoC(SoCSDRAM):
         self.add_constant("MEMTEST_ADDR_SIZE", 1024)
         self.add_constant("SIMULATION", 1)
 
+
 SoC = BaseSoC
