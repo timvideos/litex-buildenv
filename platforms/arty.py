@@ -120,7 +120,7 @@ class Platform(XilinxPlatform):
     spiflash_sector_size = 0x10000
 
     def __init__(self, toolchain="vivado", programmer="openocd"):
-        XilinxPlatform.__init__(self, "xc7a35t-csg324-1L", _io,
+        XilinxPlatform.__init__(self, "xc7a35t-csg324-1", _io,
                                 toolchain=toolchain)
         self.toolchain.bitstream_commands = \
             ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
