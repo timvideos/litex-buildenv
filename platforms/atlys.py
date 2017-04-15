@@ -611,7 +611,9 @@ _hdmi_infos = {
     )
 }
 
+
 class Platform(XilinxPlatform):
+    name = "atlys"
     default_clk_name = "clk100"
     default_clk_period = 10.0
     hdmi_infos = _hdmi_infos

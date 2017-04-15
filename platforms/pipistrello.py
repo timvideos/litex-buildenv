@@ -131,7 +131,10 @@ _hdmi_infos = {
       "  Type A connector, marked as J4.\\r\\n"
     )
 }
+
+
 class Platform(XilinxPlatform):
+    name = "pipistrello"
     identifier = 0x5049
     default_clk_name = "clk50"
     default_clk_period = 20

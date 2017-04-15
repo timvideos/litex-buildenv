@@ -79,7 +79,8 @@ _io = [
 
 
 class Platform(XilinxPlatform):
-    default_clk_name = "clk100"
+    name = "netv2"
+    default_clk_name = "clk50"
     default_clk_period = 20.0
 
     spiflash_model = "n25q128"

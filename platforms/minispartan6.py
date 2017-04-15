@@ -151,7 +151,9 @@ _hdmi_infos = {
     ),
 }
 
+
 class Platform(XilinxPlatform):
+    name = "minisp6"
     default_clk_name = "clk32"
     default_clk_period = 31.25
     hdmi_infos = _hdmi_infos

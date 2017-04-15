@@ -102,6 +102,7 @@ _io = [
 
 
 class Platform(XilinxPlatform):
+    name = "arty"
     default_clk_name = "clk100"
     default_clk_period = 10.0
 
