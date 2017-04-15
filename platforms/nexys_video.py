@@ -45,6 +45,27 @@ _io = [
 
     ("cpu_reset", 0, Pins("G4"), IOStandard("LVCMOS15")),
 
+
+    # P22 - QSPI_DQ0 - MOSI
+    # R22 - QSPI_DQ1 - MISO
+    # P21 - QSPI_DQ2 - ~WP
+    # R21 - QSPI_DQ3 - ~HOLD
+    # T19 - QSPI_CS  - ~CS
+    # L12 - CCLK
+    ("spiflash_4x", 0,  # clock needs to be accessed through STARTUPE2
+        Subsignal("cs_n", Pins("T19")),
+        Subsignal("dq", Pins("P22", "R22", "P21", "R21")),
+        IOStandard("LVCMOS33")
+    ),
+    ("spiflash_1x", 0,  # clock needs to be accessed through STARTUPE2
+        Subsignal("cs_n", Pins("T19")),
+        Subsignal("mosi", Pins("P22")),
+        Subsignal("miso", Pins("R22")),
+        Subsignal("wp", Pins("P21")),
+        Subsignal("hold", Pins("R21")),
+        IOStandard("LVCMOS33")
+    ),
+
     ("serial", 0,
         Subsignal("tx", Pins("AA19")),
         Subsignal("rx", Pins("V18")),
