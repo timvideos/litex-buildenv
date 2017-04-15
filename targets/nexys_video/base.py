@@ -1,16 +1,16 @@
 from litex.gen import *
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
-from litex.gen.fhdl.specials import Keep
 
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
+from litex.soc.cores.flash import spi_flash
 from litex.soc.integration.builder import *
 
 from litedram.modules import MT41K256M16
 from litedram.phy import a7ddrphy
 from litedram.core import ControllerSettings
 
-from gateware.info import dna, xadc
+from gateware import info
 from gateware import oled
 
 
@@ -83,19 +83,19 @@ class _CRG(Module):
 
 class BaseSoC(SoCSDRAM):
     csr_map = {
-        "ddrphy": 17,
-        "dna":    18,
-        "xadc":   19,
-        "oled":   20
+        "spiflash": 16,
+        "ddrphy":   17,
+        "info":     18,
+        "oled":     20,
     }
     csr_map.update(SoCSDRAM.csr_map)
 
-    #mem_map = {
-    #    "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
-    #}
-    #mem_map.update(SoCSDRAM.mem_map)
+    mem_map = {
+        "spiflash": 0x20000000,  # (default shadow @0xa0000000)
+    }
+    mem_map.update(SoCSDRAM.mem_map)
 
-    def __init__(self, platform, **kwargs):
+    def __init__(self, platform, spiflash="spiflash_1x", **kwargs):
         clk_freq = 100*1000000
         SoCSDRAM.__init__(self, platform, clk_freq,
             integrated_rom_size=0x8000,
@@ -103,8 +103,9 @@ class BaseSoC(SoCSDRAM):
             **kwargs)
 
         self.submodules.crg = _CRG(platform)
-        self.submodules.dna = dna.DNA()
-        self.submodules.xadc = xadc.XADC()
+
+        # Basic peripherals
+        self.submodules.info = info.Info(platform, "nexys_video", self.__class__.__name__[:8])
         self.submodules.oled = oled.OLED(platform.request("oled"))
 
         # sdram
@@ -115,9 +116,27 @@ class BaseSoC(SoCSDRAM):
         self.register_sdram(self.ddrphy,
                             sdram_module.geom_settings,
                             sdram_module.timing_settings,
-                            controller_settings=ControllerSettings(with_bandwidth=True,
-                                                                   cmd_buffer_depth=8,
-                                                                   with_refresh=True))
+                            controller_settings=ControllerSettings(
+                                with_bandwidth=True,
+                                cmd_buffer_depth=8,
+                                with_refresh=True))
+
+        # spi flash
+        spiflash_pads = platform.request(spiflash)
+        spiflash_pads.clk = Signal()
+        self.specials += Instance("STARTUPE2",
+                                  i_CLK=0, i_GSR=0, i_GTS=0, i_KEYCLEARB=0, i_PACK=0,
+                                  i_USRCCLKO=spiflash_pads.clk, i_USRCCLKTS=0, i_USRDONEO=1, i_USRDONETS=1)
+        spiflash_dummy = {
+            "spiflash_1x": 9,
+            "spiflash_4x": 11,
+        }
+        self.submodules.spiflash = spi_flash.SpiFlash(spiflash_pads, dummy=spiflash_dummy[spiflash], div=2)
+        self.add_constant("SPIFLASH_PAGE_SIZE", 256)
+        self.add_constant("SPIFLASH_SECTOR_SIZE", 0x10000)
+        self.add_wb_slave(mem_decoder(self.mem_map["spiflash"]), self.spiflash.bus)
+        self.add_memory_region(
+            "spiflash", self.mem_map["spiflash"] | self.shadow_base, 16*1024*1024)
 
 
 SoC = BaseSoC

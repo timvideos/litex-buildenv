@@ -1,30 +1,17 @@
 from litex.gen import *
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex.boards.platforms import arty
-
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
 from litex.soc.cores.flash import spi_flash
-from litex.soc.cores.uart.core import RS232PHY, UART
 from litex.soc.integration.builder import *
-from litex.soc.interconnect.wishbonebridge import WishboneStreamingBridge
-from litex.soc.interconnect.stream import *
 
 from litedram.modules import MT41K128M16
 from litedram.phy import a7ddrphy
-from litedram.core.controller import ControllerSettings
-from litedram.frontend.bist import LiteDRAMBISTGenerator
-from litedram.frontend.bist import LiteDRAMBISTChecker
+from litedram.core import ControllerSettings
 
-from gateware.info import dna, xadc
+from gateware import info
 from gateware import led
-
-
-class UARTVirtualPhy:
-    def __init__(self):
-        self.sink = Endpoint([("data", 8)])
-        self.source = Endpoint([("data", 8)])
 
 
 class _CRG(Module):
@@ -94,24 +81,21 @@ class _CRG(Module):
             )
         self.specials += Instance("IDELAYCTRL", i_REFCLK=ClockSignal("clk200"), i_RST=ic_reset)
 
+        # 25MHz clock for Ethernet
         eth_clk = Signal()
         self.specials += [
             Instance("BUFR", p_BUFR_DIVIDE="4", i_CE=1, i_CLR=0, i_I=clk100, o_O=eth_clk),
             Instance("BUFG", i_I=eth_clk, o_O=platform.request("eth_ref_clk")),
         ]
 
-class BaseSoC(SoCSDRAM):
-    default_platform = "arty"
 
+class BaseSoC(SoCSDRAM):
     csr_map = {
-        "spiflash":  16,
-        "ddrphy":    17,
-        "dna":       18,
-        "xadc":      19,
-        "leds":      20,
-        "rgb_leds":  21,
-        "generator": 22,
-        "checker":   23
+        "spiflash": 16,
+        "ddrphy":   17,
+        "info":     18,
+        "leds":     20,
+        "rgb_leds": 21,
     }
     csr_map.update(SoCSDRAM.csr_map)
 
@@ -120,22 +104,17 @@ class BaseSoC(SoCSDRAM):
     }
     mem_map.update(SoCSDRAM.mem_map)
 
-    def __init__(self,
-                 platform,
-                 with_sdram_bist=True, bist_async=True, bist_random=True,
-                 spiflash="spiflash_1x",
-                 **kwargs):
+    def __init__(self, platform, spiflash="spiflash_1x", **kwargs):
         clk_freq = 100*1000000
         SoCSDRAM.__init__(self, platform, clk_freq,
             integrated_rom_size=0x8000,
             integrated_sram_size=0x8000,
-            with_uart=False,
             **kwargs)
 
         self.submodules.crg = _CRG(platform)
-        self.submodules.dna = dna.DNA()
-        self.submodules.xadc = xadc.XADC()
 
+        # Basic peripherals
+        self.submodules.info = info.Info(platform, "arty", self.__class__.__name__[:8])
         self.submodules.leds = led.ClassicLed(Cat(platform.request("user_led", i) for i in range(4)))
         self.submodules.rgb_leds = led.RGBLed(platform.request("rgb_leds"))
 
@@ -147,15 +126,10 @@ class BaseSoC(SoCSDRAM):
         self.register_sdram(self.ddrphy,
                             sdram_module.geom_settings,
                             sdram_module.timing_settings,
-                            controller_settings=ControllerSettings(cmd_buffer_depth=8))
-
-        # sdram bist
-        if with_sdram_bist:
-            generator_user_port = self.sdram.crossbar.get_port(mode="write", cd="clk50" if bist_async else "sys")
-            self.submodules.generator = LiteDRAMBISTGenerator(generator_user_port, random=bist_random)
-
-            checker_user_port = self.sdram.crossbar.get_port(mode="read", cd="clk50" if bist_async else "sys")
-            self.submodules.checker = LiteDRAMBISTChecker(checker_user_port, random=bist_random)
+                            controller_settings=ControllerSettings(
+                                with_bandwidth=True,
+                                cmd_buffer_depth=8,
+                                with_refresh=True))
 
         # spi flash
         spiflash_pads = platform.request(spiflash)
@@ -171,36 +145,8 @@ class BaseSoC(SoCSDRAM):
         self.add_constant("SPIFLASH_PAGE_SIZE", 256)
         self.add_constant("SPIFLASH_SECTOR_SIZE", 0x10000)
         self.add_wb_slave(mem_decoder(self.mem_map["spiflash"]), self.spiflash.bus)
-        self.add_memory_region("spiflash",
-         	self.mem_map["spiflash"] | self.shadow_base, 16*1024*1024)
-
-
-        # uart mux
-        uart_sel = platform.request("user_sw", 0)
-
-        self.submodules.uart_phy = RS232PHY(platform.request("serial"), self.clk_freq, 115200)
-        uart_phys = {
-            "cpu": UARTVirtualPhy(),
-            "bridge": UARTVirtualPhy()
-        }
-        self.comb += [
-            If(uart_sel,
-                self.uart_phy.source.connect(uart_phys["bridge"].source),
-                uart_phys["bridge"].sink.connect(self.uart_phy.sink),
-                uart_phys["cpu"].source.ready.eq(1) # avoid stalling cpu
-            ).Else(
-                self.uart_phy.source.connect(uart_phys["cpu"].source),
-                uart_phys["cpu"].sink.connect(self.uart_phy.sink),
-                uart_phys["bridge"].source.ready.eq(1) # avoid stalling bridge
-            )
-        ]
-
-        # uart cpu
-        self.submodules.uart = UART(uart_phys["cpu"])
-
-        # uart bridge
-        self.submodules.bridge = WishboneStreamingBridge(uart_phys["bridge"], self.clk_freq)
-        self.add_wb_master(self.bridge.wishbone)
+        self.add_memory_region(
+            "spiflash", self.mem_map["spiflash"] | self.shadow_base, 16*1024*1024)
 
 
 SoC = BaseSoC
