@@ -4,7 +4,7 @@ from fractions import Fraction
 from litex.gen import *
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex.soc.cores.flash import spi_flash
+from litex.soc.cores import spi_flash
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
