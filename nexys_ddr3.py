@@ -10,7 +10,7 @@ from litex.boards.platforms import nexys_video
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
-from litex.soc.cores.uart.bridge import UARTWishboneBridge
+from litex.soc.cores.uart import UARTWishboneBridge
 
 from litedram.modules import MT41K256M16
 from litedram.phy import a7ddrphy
