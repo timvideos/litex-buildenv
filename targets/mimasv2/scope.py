@@ -1,5 +1,5 @@
 from litex.soc.cores import uart
-from litex.soc.cores.uart.bridge import UARTWishboneBridge
+from litex.soc.cores.uart import UARTWishboneBridge
 
 from litedram.frontend.bist import LiteDRAMBISTGenerator, LiteDRAMBISTChecker, LiteDRAMBISTCheckerScope
 
