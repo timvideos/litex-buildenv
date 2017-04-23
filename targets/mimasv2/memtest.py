@@ -1,15 +1,16 @@
 from litex.soc.cores import uart
 from litex.soc.cores.uart import UARTWishboneBridge
 
-from litedram.frontend.bist import LiteDRAMBISTGenerator, LiteDRAMBISTChecker, LiteDRAMBISTCheckerScope
+from litedram.frontend.bist import LiteDRAMBISTGenerator, LiteDRAMBISTChecker
 
 from litescope import LiteScopeAnalyzer
 from litescope import LiteScopeIO
 
+from gateware.memtest import LiteDRAMBISTCheckerScope
+from gateware import shared_uart
+
 from targets.utils import csr_map_update
 from targets.mimasv2.base import BaseSoC
-
-from gateware import shared_uart
 
 
 class MemTestSoC(BaseSoC):

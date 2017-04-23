@@ -1,8 +1,9 @@
 from litedram.frontend.bist import LiteDRAMBISTGenerator
 from litedram.frontend.bist import LiteDRAMBISTChecker
-from litedram.frontend.bist import LiteDRAMBISTCheckerScope
 
 from litescope import LiteScopeAnalyzer
+
+from gateware.memtest import LiteDRAMBISTCheckerScope
 
 from targets.utils import csr_map_update
 from targets.opsis.net import NetSoC as BaseSoC
