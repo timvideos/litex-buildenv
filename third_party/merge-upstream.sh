@@ -2,7 +2,7 @@
 
 set -e
 
-TARGETS=${@-$(find * -maxdepth 0 -type d)}
+TARGETS=${@-$(find * -maxdepth 0 -type d | grep -v micropython | grep -v qemu)}
 
 COMMIT_MSG=$(tempfile) || exit
 trap "rm -f -- '$COMMIT_MSG'" EXIT
