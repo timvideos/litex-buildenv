@@ -99,7 +99,7 @@ class BaseSoC(SoCSDRAM):
     }
     csr_map.update(SoCSDRAM.csr_map)
 
-    def __init__(self, platform, **kwargs):
+    def __init__(self, platform, pcie_blink=True, **kwargs):
         clk_freq = 100*1000000
         SoCSDRAM.__init__(self, platform, clk_freq,
             integrated_rom_size=0x8000,
@@ -129,9 +129,10 @@ class BaseSoC(SoCSDRAM):
         self.submodules.checker = LiteDRAMBISTChecker(checker_port)
 
         # led blink
-        counter = Signal(32)
-        self.sync.clk125 += counter.eq(counter + 1)
-        self.comb += platform.request("user_led", 0).eq(counter[26])
+        if pcie_blink:
+            counter = Signal(32)
+            self.sync.clk125 += counter.eq(counter + 1)
+            self.comb += platform.request("user_led", 0).eq(counter[26])
 
 
 def main():
