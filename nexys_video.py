@@ -7,8 +7,6 @@ from litevideo.output import VideoOut
 
 from litescope import LiteScopeAnalyzer
 
-from gateware.freq_measurement import FrequencyMeasurement
-
 from litevideo.output.hdmi.s7 import S7HDMIOutPHY, S7HDMIOutEncoderSerializer
 
 base_cls = EtherboneSoC
@@ -17,7 +15,6 @@ base_cls = EtherboneSoC
 class VideoOutSoC(base_cls):
     csr_map = {
         "hdmi_in": 22,
-        "hdmi_in_freq": 23,
         "hdmi_in_edid_mem": 24,
         "analyzer": 25
     }
@@ -39,13 +36,7 @@ class VideoOutSoC(base_cls):
             hdmi_in_pads.hpa.eq(1),
             hdmi_in_pads.txen.eq(1)
         ]
-        self.submodules.hdmi_in = HDMIIn(hdmi_in_pads,
-                                         None,
-                                         fifo_depth=512,
-                                         device="xc7",)
-        self.submodules.hdmi_in_freq = FrequencyMeasurement(self.hdmi_in.clocking.cd_pix.clk,
-                                                            self.clk_freq)
-
+        self.submodules.hdmi_in = HDMIIn(hdmi_in_pads, None, fifo_depth=512, device="xc7")
 
         # hdmi output
         hdmi_out_pads = platform.request("hdmi_out")
