@@ -8,6 +8,74 @@ from liteeth.core import LiteEthUDPIPCore
 from liteeth.frontend.etherbone import LiteEthEtherbone
 
 
+class _CRG(Module):
+    def __init__(self, platform):
+        self.clock_domains.cd_sys = ClockDomain()
+        self.clock_domains.cd_clk200 = ClockDomain()
+        self.clock_domains.cd_clk100 = ClockDomain()
+
+        clk100 = platform.request("clk100")
+        rst = platform.request("cpu_reset")
+
+        pll_locked = Signal()
+        pll_fb = Signal()
+        self.pll_sys = Signal()
+        pll_clk200 = Signal()
+        self.specials += [
+            Instance("PLLE2_BASE",
+                     p_STARTUP_WAIT="FALSE", o_LOCKED=pll_locked,
+
+                     # VCO @ 1400 MHz
+                     p_REF_JITTER1=0.01, p_CLKIN1_PERIOD=10.0,
+                     p_CLKFBOUT_MULT=14, p_DIVCLK_DIVIDE=1,
+                     i_CLKIN1=clk100, i_CLKFBIN=pll_fb, o_CLKFBOUT=pll_fb,
+
+                     # 140 MHz
+                     p_CLKOUT0_DIVIDE=10, p_CLKOUT0_PHASE=0.0,
+                     o_CLKOUT0=self.pll_sys,
+
+                     # 200 MHz
+                     p_CLKOUT1_DIVIDE=7, p_CLKOUT1_PHASE=0.0,
+                     o_CLKOUT1=pll_clk200,
+            ),
+            Instance("BUFG", i_I=self.pll_sys, o_O=self.cd_sys.clk),
+            Instance("BUFG", i_I=pll_clk200, o_O=self.cd_clk200.clk),
+            Instance("BUFG", i_I=clk100, o_O=self.cd_clk100.clk),
+            AsyncResetSynchronizer(self.cd_sys, ~pll_locked | ~rst),
+            AsyncResetSynchronizer(self.cd_clk200, ~pll_locked | ~rst),
+            AsyncResetSynchronizer(self.cd_clk100, ~pll_locked | ~rst),
+        ]
+
+        reset_counter = Signal(4, reset=15)
+        ic_reset = Signal(reset=1)
+        self.sync.clk200 += \
+            If(reset_counter != 0,
+                reset_counter.eq(reset_counter - 1)
+            ).Else(
+                ic_reset.eq(0)
+            )
+        self.specials += Instance("IDELAYCTRL", i_REFCLK=ClockSignal("clk200"), i_RST=ic_reset)
+
+
+class BaseSoC(SoCSDRAM):
+    csr_map = {
+        "dna":    18,
+        "xadc":   19,
+        "oled":   20
+    }
+    csr_map.update(SoCSDRAM.csr_map)
+
+    def __init__(self, platform, **kwargs):
+        clk_freq = 142*1000000
+        SoCSDRAM.__init__(self, platform, clk_freq,
+            integrated_main_ram_size=0x8000,
+            integrated_rom_size=0x8000,
+            integrated_sram_size=0x8000,
+            **kwargs)
+
+        self.submodules.crg = _CRG(platform)
+
+
 class EtherboneSoC(BaseSoC):
     csr_map = {
         "ethphy":  30,
