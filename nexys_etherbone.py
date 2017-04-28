@@ -32,7 +32,7 @@ class EtherboneSoC(BaseSoC):
 
         # Etherbone bridge
         self.add_cpu_or_bridge(LiteEthEtherbone(self.ethcore.udp, 20000))
-        self.add_wb_master(self.cpu_or_bridge.master.bus)
+        self.add_wb_master(self.cpu_or_bridge.wishbone.bus)
 
 
         self.ethphy.crg.cd_eth_rx.clk.attr.add("keep")
