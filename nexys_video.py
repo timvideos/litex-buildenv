@@ -33,9 +33,9 @@ class VideoOutSoC(base_cls):
 
         # hdmi in
         self.submodules.hdmi_in = HDMIIn(platform.request("hdmi_in", 0),
-                                         self.sdram.crossbar.get_port(mode="write"),
+                                         None,
                                          fifo_depth=512,
-                                         device="xc7")
+                                         device="xc7",)
         self.submodules.hdmi_in_freq = FrequencyMeasurement(self.hdmi_in.clocking.cd_pix.clk,
                                                             self.clk_freq)
 
@@ -57,7 +57,15 @@ class VideoOutSoC(base_cls):
             self.hdmi_in.data2_cap.alignment.delay_ce,
             self.hdmi_in.data2_cap.alignment.bitslip_value,
             self.hdmi_in.data2_cap.alignment.invalid,
-            self.hdmi_in.data2_cap.d
+            self.hdmi_in.data2_cap.d,
+
+            self.hdmi_in.syncpol.valid_o,
+            self.hdmi_in.syncpol.de,
+            self.hdmi_in.syncpol.hsync,
+            self.hdmi_in.syncpol.vsync,
+            self.hdmi_in.syncpol.r,
+            self.hdmi_in.syncpol.g,
+            self.hdmi_in.syncpol.b,
         ]
         self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 2048, cd="pix")
 
