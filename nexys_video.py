@@ -9,6 +9,8 @@ from litescope import LiteScopeAnalyzer
 
 from gateware.freq_measurement import FrequencyMeasurement
 
+from litevideo.output.hdmi.s7 import S7HDMIOutPHY, S7HDMIOutEncoderSerializer
+
 base_cls = EtherboneSoC
 
 
@@ -32,12 +34,39 @@ class VideoOutSoC(base_cls):
         # # #
 
         # hdmi in
-        self.submodules.hdmi_in = HDMIIn(platform.request("hdmi_in", 0),
+        hdmi_in_pads = platform.request("hdmi_in")
+        self.comb += [
+            hdmi_in_pads.hpa.eq(1),
+            hdmi_in_pads.txen.eq(1)
+        ]
+        self.submodules.hdmi_in = HDMIIn(hdmi_in_pads,
                                          None,
                                          fifo_depth=512,
                                          device="xc7",)
         self.submodules.hdmi_in_freq = FrequencyMeasurement(self.hdmi_in.clocking.cd_pix.clk,
                                                             self.clk_freq)
+
+
+        # hdmi output
+        hdmi_out_pads = platform.request("hdmi_out")
+
+        self.submodules.hdmi_output_clkgen = S7HDMIOutEncoderSerializer(hdmi_out_pads.clk_p, hdmi_out_pads.clk_n, bypass_encoder=True)
+        self.submodules.hdmi_output = S7HDMIOutPHY(hdmi_out_pads)
+        self.comb += [
+                self.hdmi_output_clkgen.data.eq(Signal(10, reset=0b0000011111)),
+                hdmi_out_pads.scl.eq(1)
+        ]
+
+        # hdmi loopback
+        self.comb += [
+            self.hdmi_output.sink.valid.eq(self.hdmi_in.syncpol.valid_o),
+            self.hdmi_output.sink.de.eq(self.hdmi_in.syncpol.de),
+            self.hdmi_output.sink.hsync.eq(self.hdmi_in.syncpol.hsync),
+            self.hdmi_output.sink.vsync.eq(self.hdmi_in.syncpol.vsync),
+            self.hdmi_output.sink.r.eq(self.hdmi_in.syncpol.r),
+            self.hdmi_output.sink.g.eq(self.hdmi_in.syncpol.g),
+            self.hdmi_output.sink.b.eq(self.hdmi_in.syncpol.b)
+        ]
 
 
         analyzer_signals = [
@@ -86,6 +115,7 @@ def main():
                       compile_gateware=not args.nocompile_gateware,
                       csr_csv="test/csr.csv")
     vns = builder.build()
+    soc.do_exit(vns)
 
 if __name__ == "__main__":
     main()

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-from litex.soc.tools.remote import RemoteClient
+from litex.soc.tools.remote.comm_udp import CommUDP
 from litescope.software.driver.analyzer import LiteScopeAnalyzerDriver
 
-wb = RemoteClient("192.168.1.50", 1234, csr_data_width=8)
+wb = CommUDP("192.168.1.50", 20000)
 wb.open()
 
 # # #
