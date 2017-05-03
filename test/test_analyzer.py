@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 import time
 
-from litex.soc.tools.remote.comm_udp import CommUDP
+from litex.soc.tools.remote import RemoteClient
 from litescope.software.driver.analyzer import LiteScopeAnalyzerDriver
 
-wb = CommUDP("192.168.1.50", 20000)
+wb = RemoteClient()
 wb.open()
 
 # # #
@@ -16,9 +16,8 @@ time.sleep(2)
 
 logic_analyzer = LiteScopeAnalyzerDriver(wb.regs, "analyzer", debug=True)
 
-cond = {}
-logic_analyzer.configure_trigger(cond=cond)
-logic_analyzer.run(offset=256, length=2048)
+logic_analyzer.configure_trigger(cond={})
+logic_analyzer.run(offset=256, length=1024)
 
 while not logic_analyzer.done():
     pass
