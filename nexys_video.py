@@ -37,6 +37,7 @@ class VideoOutSoC(base_cls):
             hdmi_in_pads.txen.eq(1)
         ]
         self.submodules.hdmi_in = HDMIIn(hdmi_in_pads, None, fifo_depth=512, device="xc7")
+        platform.add_period_constraint(hdmi_in_pads.clk_p, 13.4) # 720p60 / 74.25Mhz pixel clock
 
         # hdmi output
         hdmi_out_pads = platform.request("hdmi_out")
@@ -59,38 +60,41 @@ class VideoOutSoC(base_cls):
             self.hdmi_output.sink.b.eq(self.hdmi_in.syncpol.b)
         ]
 
+        with_analyzer = False
 
-        analyzer_signals = [
-            self.hdmi_in.data0_cap.alignment.delay_value,
-            self.hdmi_in.data0_cap.alignment.delay_ce,
-            self.hdmi_in.data0_cap.alignment.bitslip_value,
-            self.hdmi_in.data0_cap.alignment.invalid,
-            self.hdmi_in.data0_cap.d,
+        if with_analyzer:
+            analyzer_signals = [
+                self.hdmi_in.data0_cap.alignment.delay_value,
+                self.hdmi_in.data0_cap.alignment.delay_ce,
+                self.hdmi_in.data0_cap.alignment.bitslip_value,
+                self.hdmi_in.data0_cap.alignment.invalid,
+                self.hdmi_in.data0_cap.d,
 
-            self.hdmi_in.data1_cap.alignment.delay_value,
-            self.hdmi_in.data1_cap.alignment.delay_ce,
-            self.hdmi_in.data1_cap.alignment.bitslip_value,
-            self.hdmi_in.data1_cap.alignment.invalid,
-            self.hdmi_in.data1_cap.d,
+                self.hdmi_in.data1_cap.alignment.delay_value,
+                self.hdmi_in.data1_cap.alignment.delay_ce,
+                self.hdmi_in.data1_cap.alignment.bitslip_value,
+                self.hdmi_in.data1_cap.alignment.invalid,
+                self.hdmi_in.data1_cap.d,
 
-            self.hdmi_in.data2_cap.alignment.delay_value,
-            self.hdmi_in.data2_cap.alignment.delay_ce,
-            self.hdmi_in.data2_cap.alignment.bitslip_value,
-            self.hdmi_in.data2_cap.alignment.invalid,
-            self.hdmi_in.data2_cap.d,
+                self.hdmi_in.data2_cap.alignment.delay_value,
+                self.hdmi_in.data2_cap.alignment.delay_ce,
+                self.hdmi_in.data2_cap.alignment.bitslip_value,
+                self.hdmi_in.data2_cap.alignment.invalid,
+                self.hdmi_in.data2_cap.d,
 
-            self.hdmi_in.syncpol.valid_o,
-            self.hdmi_in.syncpol.de,
-            self.hdmi_in.syncpol.hsync,
-            self.hdmi_in.syncpol.vsync,
-            self.hdmi_in.syncpol.r,
-            self.hdmi_in.syncpol.g,
-            self.hdmi_in.syncpol.b,
-        ]
-        self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 2048, cd="pix")
+                self.hdmi_in.syncpol.valid_o,
+                self.hdmi_in.syncpol.de,
+                self.hdmi_in.syncpol.hsync,
+                self.hdmi_in.syncpol.vsync,
+                self.hdmi_in.syncpol.r,
+                self.hdmi_in.syncpol.g,
+                self.hdmi_in.syncpol.b,
+            ]
+            self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 2048, cd="pix")
 
     def do_exit(self, vns):
-        self.analyzer.export_csv(vns, "test/analyzer.csv")
+        if hasattr(self, "analyzer"):
+            self.analyzer.export_csv(vns, "test/analyzer.csv")
 
 
 def main():
