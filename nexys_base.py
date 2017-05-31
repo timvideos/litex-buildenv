@@ -30,7 +30,7 @@ class _CRG(Module):
         self.clock_domains.cd_clk100 = ClockDomain()
 
         clk100 = platform.request("clk100")
-        rst = platform.request("cpu_reset")
+        rst = ~platform.request("cpu_reset")
 
         pll_locked = Signal()
         pll_fb = Signal()
@@ -72,7 +72,7 @@ class _CRG(Module):
             Instance("BUFG", i_I=pll_sys4x_dqs, o_O=self.cd_sys4x_dqs.clk),
             Instance("BUFG", i_I=pll_clk200, o_O=self.cd_clk200.clk),
             Instance("BUFG", i_I=clk100, o_O=self.cd_clk100.clk),
-            AsyncResetSynchronizer(self.cd_sys, ~pll_locked | ~rst),
+            AsyncResetSynchronizer(self.cd_sys, ~pll_locked | rst),
             AsyncResetSynchronizer(self.cd_clk200, ~pll_locked | rst),
             AsyncResetSynchronizer(self.cd_clk100, ~pll_locked | rst),
         ]
@@ -112,7 +112,7 @@ class BaseSoC(SoCSDRAM):
         self.submodules.crg = _CRG(platform)
         self.submodules.dna = dna.DNA()
         self.submodules.xadc = xadc.XADC()
-        self.submodules.oled = oled.OLED(platform.request("oled"))
+        #self.submodules.oled = oled.OLED(platform.request("oled"))
 
         # sdram
         self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
@@ -125,6 +125,9 @@ class BaseSoC(SoCSDRAM):
                             controller_settings=ControllerSettings(with_bandwidth=True,
                                                                    cmd_buffer_depth=8,
                                                                    with_refresh=True))
+
+        self.crg.cd_sys.clk.attr.add("keep")
+        self.platform.add_period_constraint(self.crg.cd_sys.clk, 10.0)
 
 
 class MiniSoC(BaseSoC):
@@ -155,7 +158,6 @@ class MiniSoC(BaseSoC):
 
         self.ethphy.crg.cd_eth_rx.clk.attr.add("keep")
         self.ethphy.crg.cd_eth_tx.clk.attr.add("keep")
-        self.platform.add_period_constraint(self.crg.cd_sys.clk, 10.0)
         self.platform.add_period_constraint(self.ethphy.crg.cd_eth_rx.clk, 8.0)
         self.platform.add_period_constraint(self.ethphy.crg.cd_eth_tx.clk, 8.0)
         self.platform.add_false_path_constraints(

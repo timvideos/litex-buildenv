@@ -11,6 +11,8 @@ OBJECTS=isr.o \
 		etherbone.o \
 		telnet.o \
 		mdio.o \
+		hdmi_in0.o \
+		edid.o \
 		ci.o \
 		i2c.o \
 		oled.o \
