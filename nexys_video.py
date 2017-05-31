@@ -5,7 +5,7 @@ from nexys_base import *
 from litevideo.input import HDMIIn
 from litevideo.output import VideoOut
 
-from gateware.freq_measurement import FrequencyMeasurement
+from litex.soc.cores.frequency_meter import FrequencyMeter
 
 base_cls = MiniSoC
 
@@ -36,9 +36,9 @@ class VideoOutSoC(base_cls):
                                           self.sdram.crossbar.get_port(mode="write"),
                                           fifo_depth=512,
                                           device="xc7")
-        self.submodules.hdmi_in0_freq = FrequencyMeasurement(self.hdmi_in0.clocking.cd_pix.clk,
-                                                             self.clk_freq)
+        self.submodules.hdmi_in0_freq = FrequencyMeter(period=self.clk_freq)
         self.comb += [
+            self.hdmi_in0_freq.clk.eq(self.hdmi_in0.clocking.cd_pix.clk),
             hdmi_in0_pads.hpa.eq(1),
             hdmi_in0_pads.txen.eq(1)
         ]
