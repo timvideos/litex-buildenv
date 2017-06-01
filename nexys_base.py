@@ -5,7 +5,7 @@ import os
 from litex.gen import *
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex.boards.platforms import nexys_video as nexys
+from litex.boards.platforms import nexys_video
 
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
@@ -21,7 +21,15 @@ from liteeth.core.mac import LiteEthMAC
 from gateware import dna, xadc, oled
 
 
-class _CRG(Module):
+def csr_map_update(csr_map, csr_peripherals):
+    csr_map.update(dict((n, v)
+        for v, n in enumerate(csr_peripherals, start=max(csr_map.values()) + 1)))
+
+def period_ns(freq):
+    return 1e9/freq
+
+
+class CRG(Module):
     def __init__(self, platform):
         self.clock_domains.cd_sys = ClockDomain()
         self.clock_domains.cd_sys4x = ClockDomain(reset_less=True)
@@ -89,30 +97,25 @@ class _CRG(Module):
 
 
 class BaseSoC(SoCSDRAM):
-    csr_map = {
-        "ddrphy": 17,
-        "dna":    18,
-        "xadc":   19,
-        "oled":   20
+    csr_peripherals = {
+        "ddrphy",
+        "dna",
+        "xadc",
+        "oled",
     }
-    csr_map.update(SoCSDRAM.csr_map)
-
-    mem_map = {
-        "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
-    }
-    mem_map.update(SoCSDRAM.mem_map)
+    csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
     def __init__(self, platform, **kwargs):
-        clk_freq = 100*1000000
+        clk_freq = int(100e6)
         SoCSDRAM.__init__(self, platform, clk_freq,
             integrated_rom_size=0x8000,
             integrated_sram_size=0x8000,
             **kwargs)
 
-        self.submodules.crg = _CRG(platform)
+        self.submodules.crg = CRG(platform)
         self.submodules.dna = dna.DNA()
         self.submodules.xadc = xadc.XADC()
-        #self.submodules.oled = oled.OLED(platform.request("oled"))
+        self.submodules.oled = oled.OLED(platform.request("oled"))
 
         # sdram
         self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
@@ -127,15 +130,15 @@ class BaseSoC(SoCSDRAM):
                                                                    with_refresh=True))
 
         self.crg.cd_sys.clk.attr.add("keep")
-        self.platform.add_period_constraint(self.crg.cd_sys.clk, 10.0)
+        self.platform.add_period_constraint(self.crg.cd_sys.clk, period_ns(100e6))
 
 
 class MiniSoC(BaseSoC):
-    csr_map = {
-        "ethphy": 30,
-        "ethmac": 31
+    csr_peripherals = {
+        "ethphy",
+        "ethmac",
     }
-    csr_map.update(BaseSoC.csr_map)
+    csr_map_update(BaseSoC.csr_map, csr_peripherals)
 
     interrupt_map = {
         "ethmac": 2,
@@ -158,8 +161,8 @@ class MiniSoC(BaseSoC):
 
         self.ethphy.crg.cd_eth_rx.clk.attr.add("keep")
         self.ethphy.crg.cd_eth_tx.clk.attr.add("keep")
-        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_rx.clk, 8.0)
-        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_tx.clk, 8.0)
+        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_rx.clk, period_ns(125e6))
+        self.platform.add_period_constraint(self.ethphy.crg.cd_eth_tx.clk, period_ns(125e6))
         self.platform.add_false_path_constraints(
             self.crg.cd_sys.clk,
             self.ethphy.crg.cd_eth_rx.clk,
@@ -180,7 +183,7 @@ def main():
     parser.add_argument("--nocompile-gateware", action="store_true")
     args = parser.parse_args()
 
-    platform = nexys.Platform()
+    platform = nexys_video.Platform()
     cls = MiniSoC if args.with_ethernet else BaseSoC
     soc = cls(platform, **soc_sdram_argdict(args))
     builder = Builder(soc, output_dir="build",

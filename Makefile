@@ -1,22 +1,22 @@
 CPU ?= lm32
 
-nexys_minisoc:
+minisoc:
 	rm -rf build
 	./nexys_base.py --with-ethernet --nocompile-gateware --cpu-type $(CPU)
 	cd firmware && make clean all
 	./nexys_base.py --with-ethernet --cpu-type $(CPU)
 
-nexys_etherbone:
+etherbone:
 	rm -rf build
 	./nexys_etherbone.py --cpu-type $(CPU)
 
-nexys_video:
+video:
 	rm -rf build
 	./nexys_video.py --nocompile-gateware --cpu-type $(CPU)
 	cd firmware && make clean all
 	./nexys_video.py --cpu-type $(CPU)
 
-nexys_ddr3:
+ddr3:
 	rm -rf build
 	./nexys_ddr3.py
 
