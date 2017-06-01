@@ -118,6 +118,9 @@ class BaseSoC(SoCSDRAM):
         self.submodules.xadc = xadc.XADC()
         self.submodules.oled = oled.OLED(platform.request("oled"))
 
+        self.crg.cd_sys.clk.attr.add("keep")
+        self.platform.add_period_constraint(self.crg.cd_sys.clk, period_ns(100e6))
+
         # sdram
         self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
         self.add_constant("A7DDRPHY_BITSLIP", 2)
@@ -129,10 +132,6 @@ class BaseSoC(SoCSDRAM):
                             controller_settings=ControllerSettings(with_bandwidth=True,
                                                                    cmd_buffer_depth=8,
                                                                    with_refresh=True))
-
-        self.crg.cd_sys.clk.attr.add("keep")
-        self.platform.add_period_constraint(self.crg.cd_sys.clk, period_ns(100e6))
-
 
 class MiniSoC(BaseSoC):
     csr_peripherals = {
@@ -174,6 +173,7 @@ class MiniSoC(BaseSoC):
             s = ip_type + str(i + 1)
             s = s.upper()
             self.add_constant(s, e)
+
 
 def main():
     parser = argparse.ArgumentParser(description="Nexys LiteX SoC")

@@ -105,6 +105,7 @@ class EtherboneSoC(SoCSDRAM):
             self.ethphy.crg.cd_eth_rx.clk,
             self.ethphy.crg.cd_eth_tx.clk)
 
+
 def main():
     parser = argparse.ArgumentParser(description="Nexys LiteX SoC")
     builder_args(parser)

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 from nexys_base import *
 
 from litex.soc.cores.uart import UARTWishboneBridge
