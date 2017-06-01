@@ -68,7 +68,7 @@ void mmcm_config_for_clock(int freq)
 		hdmi_in_0_config_30_60mhz();
 	else if(freq < 12000)
 		hdmi_in_0_config_60_120mhz();
-	else if(freq < 240)
+	else if(freq < 24000)
 		hdmi_in_0_config_120_240mhz();
 	else
 		printf("Frequency too high for input MMCMs\r\n");
