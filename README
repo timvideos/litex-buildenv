@@ -4,7 +4,7 @@
       /_/|_/\__/_\_\\_, /___/  /___/\___/\___/
                    /___/
 
-         Copyright 2015-2016 / EnjoyDigital
+         Copyright 2015-2017 / EnjoyDigital
 
       Digilent's Nexys Video SoC based on LiteX
 
@@ -36,11 +36,13 @@
   cd ..
 
 6. Build the gateware and software:
-  make nexys_minisoc
+  make minisoc (or ddr3, etherbone, video)
   make load
 
 [> Status:
 BaseSoC / MiniSoC validated with 16 bits DDR3 @ 800Mbps/pin.
+EtherboneSoC validated.
+VideoSoC validated with hdmi in/hdmi out @ 720p60.
 
 [> Contact
 E-mail: florent@enjoy-digital.fr

@@ -6,6 +6,10 @@ minisoc:
 	cd firmware && make clean all
 	./nexys_base.py --with-ethernet --cpu-type $(CPU)
 
+ddr3:
+	rm -rf build
+	./nexys_ddr3.py
+
 etherbone:
 	rm -rf build
 	./nexys_etherbone.py --cpu-type $(CPU)
@@ -15,10 +19,6 @@ video:
 	./nexys_video.py --nocompile-gateware --cpu-type $(CPU)
 	cd firmware && make clean all
 	./nexys_video.py --cpu-type $(CPU)
-
-ddr3:
-	rm -rf build
-	./nexys_ddr3.py
 
 load:
 	./load.py
