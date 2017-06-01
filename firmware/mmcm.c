@@ -21,7 +21,12 @@ void mmcm_dump(void)
 #endif
 #ifdef CSR_HDMI_IN_BASE
 	printf("dvisampler MMCM:\r\n");
-	printf("TODO!");
+	for(i=0;i<128;i++) {
+		hdmi_in_clocking_mmcm_adr_write(i);
+		hdmi_in_clocking_mmcm_read_write(1);
+		while(!hdmi_in_clocking_mmcm_drdy_read());
+		printf("%04x ", hdmi_in_clocking_mmcm_dat_r_read());
+	}
 	printf("\r\n");
 #endif
 }
