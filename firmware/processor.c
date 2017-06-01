@@ -313,15 +313,23 @@ void processor_list_modes(char *mode_descriptors)
 	}
 }
 
-static void fb_clkgen_write(int cmd, int data)
+static void fb_clkgen_write(int m, int d)
 {
 #ifdef CSR_HDMI_OUT0_BASE
-	printf("TODO: fb_clkgen_write\r\n");
-	// 75Mhz hdmi out pix clock
-	// pix(clkout0) = 1500/20 = 75MHz
-	hdmi_out0_mmcm_write(0x8, 0x1000 | (10<<6) | 10);
-	// pix5x(clkout1) = 1500/4 = 375MHz
-	hdmi_out0_mmcm_write(0xa, 0x1000 | (2<<6) | 2);
+	/* clkfbout_mult = m*/
+	if m%2:
+		hdmi_out0_mmcm_write(0x14, 0x1000 | ((m/2)<<6) | m/2);
+	else
+		hdmi_out0_mmcm_write(0x14, 0x1000 | ((m/2)<<6) | (m/2 + 1));
+	/* divclk_divide = d*/
+	if d%2:
+		hdmi_out0_mmcm_write(0x16, ((d/2)<<6) | d/2);
+	else
+		hdmi_out0_mmcm_write(0x16, ((d/2)<<6) | (d/2 + 1));
+	/* clkout0_divide = 10 */
+	hdmi_out0_mmcm_write(0x8, 0x1000 | (5<<6) | 5);
+	/* clkout1_divide = 2 */
+	hdmi_out0_mmcm_write(0xa, 0x1000 | (1<<6) | 1);
 #endif
 }
 
@@ -334,7 +342,7 @@ static void fb_get_clock_md(unsigned int pixel_clock, unsigned int *best_m, unsi
 	unsigned int diff_tested;
 
 	ideal_m = pixel_clock;
-	ideal_d = 5000;
+	ideal_d = 100000;
 
 	bm = 1;
 	bd = 0;
@@ -358,7 +366,7 @@ static void fb_set_mode(const struct video_timing *mode)
 	unsigned int hdmi_out0_enabled;
 	unsigned int hdmi_out1_enabled;
 
-	fb_get_clock_md(mode->pixel_clock, &clock_m, &clock_d);
+	fb_get_clock_md(10*mode->pixel_clock, &clock_m, &clock_d);
 
 #ifdef CSR_HDMI_OUT0_BASE
 	if (hdmi_out0_core_initiator_enable_read()) {
@@ -398,14 +406,7 @@ static void fb_set_mode(const struct video_timing *mode)
 	hdmi_out1_core_initiator_enable_write(hdmi_out1_enabled);
 #endif
 
-	fb_clkgen_write(0x1, clock_d-1);
-	fb_clkgen_write(0x3, clock_m-1);
-
-#ifdef CSR_HDMI_OUT0_BASE
-	//hdmi_out0_driver_clocking_send_go_write(1);
-	//while(!(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_PROGDONE));
-	//while(!(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_LOCKED));
-#endif
+	fb_clkgen_write(clock_m, clock_d);
 }
 
 static void edid_set_mode(const struct video_timing *mode)
