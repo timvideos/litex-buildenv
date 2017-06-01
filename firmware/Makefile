@@ -17,8 +17,9 @@ OBJECTS=isr.o \
 		hdmi_out.o \
 		pattern.o \
 		edid.o \
-		pll.o \
+		mmcm.o \
 		ci.o \
+		encoder.o \
 		i2c.o \
 		oled.o \
 		main.o \

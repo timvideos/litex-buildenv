@@ -9,20 +9,18 @@
 #include <generated/sdram_phy.h>
 #include <time.h>
 #include <console.h>
-#include <hw/flags.h>
+#include "flags.h"
 
 #include "asm.h"
 #include "config.h"
-#include "hdmi_in0.h"
-#include "hdmi_in1.h"
+#include "hdmi_in.h"
 #include "processor.h"
-#include "pll.h"
+#include "mmcm.h"
 #include "ci.h"
 #include "telnet.h"
 #include "mdio.h"
 #include "encoder.h"
 #include "hdmi_out.h"
-#include "hdmi_out1.h"
 
 
 int status_enabled;
@@ -79,7 +77,7 @@ static void help_encoder(void)
 
 static void help_debug(void)
 {
-	wputs("debug pll                      - dump pll configuration");
+	wputs("debug mmcm                     - dump mmcm configuration");
 #ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
 	wputs("debug ddr                      - show DDR bandwidth");
 #endif
@@ -229,14 +227,14 @@ static void debug_ddr(void);
 static void status_print(void)
 {
 	unsigned int underflows;
-#ifdef CSR_HDMI_IN0_BASE
+#ifdef CSR_HDMI_IN_BASE
 	wprintf(
 		"input0:  %dx%d",
-		hdmi_in0_resdetection_hres_read(),
-		hdmi_in0_resdetection_vres_read());
-#ifdef CSR_HDMI_IN0_FREQ_BASE
-	wprintf(" (@ %3d.%2d MHz)", hdmi_in0_freq_value_read() / 1000000,
-		                        (hdmi_in0_freq_value_read() / 10000) % 100);
+		hdmi_in_resdetection_hres_read(),
+		hdmi_in_resdetection_vres_read());
+#ifdef CSR_HDMI_IN_FREQ_BASE
+	wprintf(" (@ %3d.%2d MHz)", hdmi_in_freq_value_read() / 1000000,
+		                        (hdmi_in_freq_value_read() / 10000) % 100);
 #endif
 	wprintf("\r\n");
 #endif
@@ -326,12 +324,12 @@ static void status_service(void)
 }
 
 // FIXME
-#define HDMI_IN0_MNEMONIC ""
+#define HDMI_IN_MNEMONIC ""
 #define HDMI_IN1_MNEMONIC ""
 #define HDMI_OUT_MNEMONIC ""
 #define HDMI_OUT1_MNEMONIC ""
 
-#define HDMI_IN0_DESCRIPTION ""
+#define HDMI_IN_DESCRIPTION ""
 #define HDMI_IN1_DESCRIPTION ""
 #define HDMI_OUT_DESCRIPTION ""
 #define HDMI_OUT1_DESCRIPTION ""
@@ -340,9 +338,9 @@ static void status_service(void)
 static void video_matrix_list(void)
 {
 	wprintf("Video sources:\r\n");
-#ifdef CSR_HDMI_IN0_BASE
-	wprintf("input0: %s\r\n", HDMI_IN0_MNEMONIC);
-	wputs(HDMI_IN0_DESCRIPTION);
+#ifdef CSR_HDMI_IN_BASE
+	wprintf("input0: %s\r\n", HDMI_IN_MNEMONIC);
+	wputs(HDMI_IN_DESCRIPTION);
 #endif
 #ifdef CSR_HDMI_IN1_BASE
 	wprintf("input1: %s\r\n", HDMI_IN1_MNEMONIC);
@@ -422,18 +420,18 @@ static void video_mode_set(int mode)
 
 static void hdp_toggle(int source)
 {
-#if defined(CSR_HDMI_IN0_BASE) || defined(CSR_HDMI_IN1_BASE)
+#if defined(CSR_HDMI_IN_BASE) || defined(CSR_HDMI_IN1_BASE)
 	int i;
 #endif
 	wprintf("Toggling HDP on output%d\r\n", source);
-#ifdef CSR_HDMI_IN0_BASE
-	if(source ==  VIDEO_IN_HDMI_IN0) {
-		hdmi_in0_edid_hpd_en_write(0);
+#ifdef CSR_HDMI_IN_BASE
+	if(source ==  VIDEO_IN_HDMI_IN) {
+		hdmi_in_edid_hpd_en_write(0);
 		for(i=0; i<65536; i++);
-		hdmi_in0_edid_hpd_en_write(1);
+		hdmi_in_edid_hpd_en_write(1);
 	}
 #else
-	wprintf("hdmi_in0 is missing.\r\n");
+	wprintf("hdmi_in is missing.\r\n");
 #endif
 #ifdef CSR_HDMI_IN1_BASE
 	if(source == VIDEO_IN_HDMI_IN1) {
@@ -500,9 +498,9 @@ static void encoder_off(void)
 }
 #endif
 
-static void debug_pll(void)
+static void debug_mmcm(void)
 {
-	pll_dump();
+	mmcm_dump();
 }
 
 static unsigned int log2(unsigned int v)
@@ -606,7 +604,7 @@ void ci_service(void)
 			token = get_token(&str);
 			source = -1;
 			if(strcmp(token, "input0") == 0) {
-				source = VIDEO_IN_HDMI_IN0;
+				source = VIDEO_IN_HDMI_IN;
 			}
 			else if(strcmp(token, "input1") == 0) {
 				source = VIDEO_IN_HDMI_IN1;
@@ -700,12 +698,12 @@ void ci_service(void)
 	}
 	else if(strcmp(token, "debug") == 0) {
 		token = get_token(&str);
-		if(strcmp(token, "pll") == 0)
-			debug_pll();
-#ifdef CSR_HDMI_IN0_BASE
+		if(strcmp(token, "mmcm") == 0)
+			debug_mmcm();
+#ifdef CSR_HDMI_IN_BASE
 		else if(strcmp(token, "input0") == 0) {
-			hdmi_in0_debug = !hdmi_in0_debug;
-			wprintf("HDMI Input 0 debug %s\r\n", hdmi_in0_debug ? "on" : "off");
+			hdmi_in_debug = !hdmi_in_debug;
+			wprintf("HDMI Input 0 debug %s\r\n", hdmi_in_debug ? "on" : "off");
 		}
 #endif
 #ifdef CSR_HDMI_IN1_BASE

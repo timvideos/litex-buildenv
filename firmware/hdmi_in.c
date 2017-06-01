@@ -8,7 +8,7 @@
 #include <system.h>
 #include <generated/csr.h>
 #include <generated/mem.h>
-//#include <hw/flags.h>
+#include "flags.h"
 
 #ifdef CSR_HDMI_IN_BASE
 

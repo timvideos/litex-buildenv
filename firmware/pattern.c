@@ -3,7 +3,7 @@
 
 #include <generated/csr.h>
 #include <generated/mem.h>
-#include <hw/flags.h>
+#include "flags.h"
 #include <system.h>
 #include <time.h>
 
@@ -171,7 +171,7 @@ void pattern_fill_framebuffer(int h_active, int m_active)
 		/* vertical black white lines */
 		for(i=0; i<h_active*m_active*2/4; i++) {
 			framebuffer[i] = 0x801080ff;
-		}	
+		}
 	}
 	pattern_draw_text(1, 1, "HDMI2USB");
 	pattern_draw_text(1, 3, "timvideos.us");
