@@ -152,21 +152,6 @@ static void reboot(void)
 	asm("call r0");
 }
 
-static void status_print(void)
-{
-	unsigned int underflows;
-#ifdef CSR_HDMI_IN0_BASE
-	printf(
-		"input0:  %dx%d",
-		hdmi_in0_resdetection_hres_read(),
-		hdmi_in0_resdetection_vres_read());
-#ifdef CSR_HDMI_IN0_FREQ_BASE
-	printf(" (@ %3d.%2d MHz)", hdmi_in0_freq_value_read() / 1000000,
-		                        (hdmi_in0_freq_value_read() / 10000) % 100);
-#endif
-	printf("\r\n");
-#endif
-}
 
 static void print_board_dna(void) {
 	int i;

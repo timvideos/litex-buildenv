@@ -55,7 +55,7 @@ class VideoSoC(base_cls):
             self.hdmi_in.clocking.cd_pix5x.clk)
 
         # hdmi out
-        hdmi_out_dram_port = self.sdram.crossbar.get_port(mode="read", dw=16, cd="hdmi_out0_pix", reverse=True)
+        hdmi_out_dram_port = self.sdram.crossbar.get_port(mode="read", dw=16, cd="hdmi_out_pix", reverse=True)
         self.submodules.hdmi_out = VideoOut(platform.device,
                                             platform.request("hdmi_out"),
                                             hdmi_out_dram_port,
