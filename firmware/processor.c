@@ -316,16 +316,18 @@ void processor_list_modes(char *mode_descriptors)
 static void fb_clkgen_write(int m, int d)
 {
 #ifdef CSR_HDMI_OUT0_BASE
-	/* clkfbout_mult = m*/
-	if m%2:
-		hdmi_out0_mmcm_write(0x14, 0x1000 | ((m/2)<<6) | m/2);
-	else
+	/* clkfbout_mult = m */
+	if(m%2)
 		hdmi_out0_mmcm_write(0x14, 0x1000 | ((m/2)<<6) | (m/2 + 1));
-	/* divclk_divide = d*/
-	if d%2:
-		hdmi_out0_mmcm_write(0x16, ((d/2)<<6) | d/2);
 	else
+		hdmi_out0_mmcm_write(0x14, 0x1000 | ((m/2)<<6) | m/2);
+	/* divclk_divide = d */
+	if (d == 1)
+		hdmi_out0_mmcm_write(0x16, 0x1000);
+	else if(d%2)
 		hdmi_out0_mmcm_write(0x16, ((d/2)<<6) | (d/2 + 1));
+	else
+		hdmi_out0_mmcm_write(0x16, ((d/2)<<6) | d/2);
 	/* clkout0_divide = 10 */
 	hdmi_out0_mmcm_write(0x8, 0x1000 | (5<<6) | 5);
 	/* clkout1_divide = 2 */
@@ -333,6 +335,7 @@ static void fb_clkgen_write(int m, int d)
 #endif
 }
 
+/* FIXME: add vco frequency check */
 static void fb_get_clock_md(unsigned int pixel_clock, unsigned int *best_m, unsigned int *best_d)
 {
 	unsigned int ideal_m, ideal_d;
@@ -342,12 +345,12 @@ static void fb_get_clock_md(unsigned int pixel_clock, unsigned int *best_m, unsi
 	unsigned int diff_tested;
 
 	ideal_m = pixel_clock;
-	ideal_d = 100000;
+	ideal_d = 10000;
 
 	bm = 1;
 	bd = 0;
-	for(d=1;d<=256;d++)
-		for(m=2;m<=256;m++) {
+	for(d=1;d<=128;d++)
+		for(m=2;m<=128;m++) {
 			/* common denominator is d*bd*ideal_d */
 			diff_current = abs(d*ideal_d*bm - d*bd*ideal_m);
 			diff_tested = abs(bd*ideal_d*m - d*bd*ideal_m);
@@ -366,7 +369,7 @@ static void fb_set_mode(const struct video_timing *mode)
 	unsigned int hdmi_out0_enabled;
 	unsigned int hdmi_out1_enabled;
 
-	fb_get_clock_md(10*mode->pixel_clock, &clock_m, &clock_d);
+	fb_get_clock_md(10*(mode->pixel_clock), &clock_m, &clock_d);
 
 #ifdef CSR_HDMI_OUT0_BASE
 	if (hdmi_out0_core_initiator_enable_read()) {
