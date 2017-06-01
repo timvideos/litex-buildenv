@@ -317,6 +317,11 @@ static void fb_clkgen_write(int cmd, int data)
 {
 #ifdef CSR_HDMI_OUT0_BASE
 	printf("TODO: fb_clkgen_write\r\n");
+	// 75Mhz hdmi out pix clock
+	// pix(clkout0) = 1500/20 = 75MHz
+	hdmi_out0_mmcm_write(0x8, 0x1000 | (10<<6) | 10);
+	// pix5x(clkout1) = 1500/4 = 375MHz
+	hdmi_out0_mmcm_write(0xa, 0x1000 | (2<<6) | 2);
 #endif
 }
 
