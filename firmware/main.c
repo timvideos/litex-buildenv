@@ -23,17 +23,16 @@
 static const unsigned char mac_addr[6] = {0x10, 0xe2, 0xd5, 0x00, 0x00, 0x00};
 static const unsigned char ip_addr[4] = {192, 168, 1, 50};
 
-
 int main(void)
 {
 	irq_setmask(0);
 	irq_setie(1);
 	uart_init();
-#ifdef CSR_HDMI_OUT_I2C_W_ADDR
-	hdmi_out_i2c_init();
+#ifdef CSR_HDMI_OUT0_I2C_W_ADDR
+	hdmi_out0_i2c_init();
 #endif
 
-	puts("\nOpsis CPU testing software built "__DATE__" "__TIME__);
+	puts("\nNexys CPU testing software built "__DATE__" "__TIME__);
 
 	config_init();
 	time_init();
@@ -49,8 +48,8 @@ int main(void)
 #endif
 
 	processor_init();
-#ifdef CSR_HDMI_OUT_BASE
-	processor_set_hdmi_out_source(VIDEO_IN_PATTERN);
+#ifdef CSR_HDMI_OUT0_BASE
+	processor_set_hdmi_out0_source(VIDEO_IN_PATTERN);
 #endif
 	processor_update();
 	processor_start(config_get(CONFIG_KEY_RESOLUTION));

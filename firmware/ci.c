@@ -13,14 +13,14 @@
 
 #include "asm.h"
 #include "config.h"
-#include "hdmi_in.h"
+#include "hdmi_in0.h"
 #include "processor.h"
 #include "mmcm.h"
 #include "ci.h"
 #include "telnet.h"
 #include "mdio.h"
 #include "encoder.h"
-#include "hdmi_out.h"
+#include "hdmi_out0.h"
 
 
 int status_enabled;
@@ -49,7 +49,7 @@ static void help_status(void)
 	wputs("status <on/off>                - repeatedly print status message");
 }
 
-#ifdef CSR_HDMI_OUT_BASE
+#ifdef CSR_HDMI_OUT0_BASE
 static void help_output0(void)
 {
 	wputs("output0 on                     - enable output0");
@@ -102,7 +102,7 @@ static void ci_help(void)
 	wputs("");
 	help_hdp_toggle();
 	wputs("");
-#ifdef CSR_HDMI_OUT_BASE
+#ifdef CSR_HDMI_OUT0_BASE
 	help_output0();
 	wputs("");
 #endif
@@ -227,14 +227,14 @@ static void debug_ddr(void);
 static void status_print(void)
 {
 	unsigned int underflows;
-#ifdef CSR_HDMI_IN_BASE
+#ifdef CSR_HDMI_IN0_BASE
 	wprintf(
 		"input0:  %dx%d",
-		hdmi_in_resdetection_hres_read(),
-		hdmi_in_resdetection_vres_read());
-#ifdef CSR_HDMI_IN_FREQ_BASE
-	wprintf(" (@ %3d.%2d MHz)", hdmi_in_freq_value_read() / 1000000,
-		                        (hdmi_in_freq_value_read() / 10000) % 100);
+		hdmi_in0_resdetection_hres_read(),
+		hdmi_in0_resdetection_vres_read());
+#ifdef CSR_HDMI_IN0_FREQ_BASE
+	wprintf(" (@ %3d.%2d MHz)", hdmi_in0_freq_value_read() / 1000000,
+		                        (hdmi_in0_freq_value_read() / 10000) % 100);
 #endif
 	wprintf("\r\n");
 #endif
@@ -251,21 +251,21 @@ static void status_print(void)
 	wprintf("\r\n");
 #endif
 
-#ifdef CSR_HDMI_OUT_BASE
+#ifdef CSR_HDMI_OUT0_BASE
 	wprintf("output0: ");
-	if(hdmi_out_core_initiator_enable_read()) {
-		hdmi_out_core_underflow_enable_write(1);
-	    hdmi_out_core_underflow_update_write(1);
-	    underflows = hdmi_out_core_underflow_counter_read();
+	if(hdmi_out0_core_initiator_enable_read()) {
+		hdmi_out0_core_underflow_enable_write(1);
+	    hdmi_out0_core_underflow_update_write(1);
+	    underflows = hdmi_out0_core_underflow_counter_read();
 		wprintf(
 			"%dx%d@%dHz from %s (underflows: %d)",
 			processor_h_active,
 			processor_v_active,
 			processor_refresh,
-			processor_get_source_name(processor_hdmi_out_source),
+			processor_get_source_name(processor_hdmi_out0_source),
 			underflows);
-		hdmi_out_core_underflow_enable_write(0);
-		hdmi_out_core_underflow_enable_write(1);
+		hdmi_out0_core_underflow_enable_write(0);
+		hdmi_out0_core_underflow_enable_write(1);
 	} else
 		wprintf("off");
 	wprintf("\r\n");
@@ -324,23 +324,23 @@ static void status_service(void)
 }
 
 // FIXME
-#define HDMI_IN_MNEMONIC ""
+#define HDMI_IN0_MNEMONIC ""
 #define HDMI_IN1_MNEMONIC ""
-#define HDMI_OUT_MNEMONIC ""
+#define HDMI_OUT0_MNEMONIC ""
 #define HDMI_OUT1_MNEMONIC ""
 
-#define HDMI_IN_DESCRIPTION ""
+#define HDMI_IN0_DESCRIPTION ""
 #define HDMI_IN1_DESCRIPTION ""
-#define HDMI_OUT_DESCRIPTION ""
+#define HDMI_OUT0_DESCRIPTION ""
 #define HDMI_OUT1_DESCRIPTION ""
 // FIXME
 
 static void video_matrix_list(void)
 {
 	wprintf("Video sources:\r\n");
-#ifdef CSR_HDMI_IN_BASE
-	wprintf("input0: %s\r\n", HDMI_IN_MNEMONIC);
-	wputs(HDMI_IN_DESCRIPTION);
+#ifdef CSR_HDMI_IN0_BASE
+	wprintf("input0: %s\r\n", HDMI_IN0_MNEMONIC);
+	wputs(HDMI_IN0_DESCRIPTION);
 #endif
 #ifdef CSR_HDMI_IN1_BASE
 	wprintf("input1: %s\r\n", HDMI_IN1_MNEMONIC);
@@ -350,9 +350,9 @@ static void video_matrix_list(void)
 	wprintf("  Video pattern\r\n");
 	wputs(" ");
 	wprintf("Video sinks:\r\n");
-#ifdef CSR_HDMI_OUT_BASE
-	wprintf("output0: %s\r\n", HDMI_OUT_MNEMONIC);
-	wputs(HDMI_OUT_DESCRIPTION);
+#ifdef CSR_HDMI_OUT0_BASE
+	wprintf("output0: %s\r\n", HDMI_OUT0_MNEMONIC);
+	wputs(HDMI_OUT0_DESCRIPTION);
 #endif
 #ifdef CSR_HDMI_OUT1_BASE
 	wprintf("output1: %s\r\n", HDMI_OUT1_MNEMONIC);
@@ -371,11 +371,11 @@ static void video_matrix_connect(int source, int sink)
 	{
 		if(sink >= 0 && sink <= VIDEO_OUT_HDMI_OUT1) {
 			wprintf("Connecting %s to output%d\r\n", processor_get_source_name(source), sink);
-			if(sink == VIDEO_OUT_HDMI_OUT)
-#ifdef CSR_HDMI_OUT_BASE
-				processor_set_hdmi_out_source(source);
+			if(sink == VIDEO_OUT_HDMI_OUT0)
+#ifdef CSR_HDMI_OUT0_BASE
+				processor_set_hdmi_out0_source(source);
 #else
-				wprintf("hdmi_out is missing.\r\n");
+				wprintf("hdmi_out0 is missing.\r\n");
 #endif
 			else if(sink == VIDEO_OUT_HDMI_OUT1)
 #ifdef CSR_HDMI_OUT1_BASE
@@ -420,18 +420,18 @@ static void video_mode_set(int mode)
 
 static void hdp_toggle(int source)
 {
-#if defined(CSR_HDMI_IN_BASE) || defined(CSR_HDMI_IN1_BASE)
+#if defined(CSR_HDMI_IN0_BASE) || defined(CSR_HDMI_IN1_BASE)
 	int i;
 #endif
 	wprintf("Toggling HDP on output%d\r\n", source);
-#ifdef CSR_HDMI_IN_BASE
-	if(source ==  VIDEO_IN_HDMI_IN) {
-		hdmi_in_edid_hpd_en_write(0);
+#ifdef CSR_HDMI_IN0_BASE
+	if(source ==  VIDEO_IN_HDMI_IN0) {
+		hdmi_in0_edid_hpd_en_write(0);
 		for(i=0; i<65536; i++);
-		hdmi_in_edid_hpd_en_write(1);
+		hdmi_in0_edid_hpd_en_write(1);
 	}
 #else
-	wprintf("hdmi_in is missing.\r\n");
+	wprintf("hdmi_in0 is missing.\r\n");
 #endif
 #ifdef CSR_HDMI_IN1_BASE
 	if(source == VIDEO_IN_HDMI_IN1) {
@@ -444,17 +444,17 @@ static void hdp_toggle(int source)
 #endif
 }
 
-#ifdef CSR_HDMI_OUT_BASE
+#ifdef CSR_HDMI_OUT0_BASE
 static void output0_on(void)
 {
 	wprintf("Enabling output0\r\n");
-	hdmi_out_core_initiator_enable_write(1);
+	hdmi_out0_core_initiator_enable_write(1);
 }
 
 static void output0_off(void)
 {
 	wprintf("Disabling output0\r\n");
-	hdmi_out_core_initiator_enable_write(0);
+	hdmi_out0_core_initiator_enable_write(0);
 }
 #endif
 
@@ -567,7 +567,7 @@ void ci_service(void)
 			help_video_mode();
 		else if(strcmp(token, "hdp_toggle") == 0)
 			help_hdp_toggle();
-#ifdef CSR_HDMI_OUT_BASE
+#ifdef CSR_HDMI_OUT0_BASE
 		else if(strcmp(token, "output0") == 0)
 			help_output0();
 #endif
@@ -604,7 +604,7 @@ void ci_service(void)
 			token = get_token(&str);
 			source = -1;
 			if(strcmp(token, "input0") == 0) {
-				source = VIDEO_IN_HDMI_IN;
+				source = VIDEO_IN_HDMI_IN0;
 			}
 			else if(strcmp(token, "input1") == 0) {
 				source = VIDEO_IN_HDMI_IN1;
@@ -620,7 +620,7 @@ void ci_service(void)
 			token = get_token(&str);
 			sink = -1;
 			if(strcmp(token, "output0") == 0) {
-				sink = VIDEO_OUT_HDMI_OUT;
+				sink = VIDEO_OUT_HDMI_OUT0;
 			}
 			else if(strcmp(token, "output1") == 0) {
 				sink = VIDEO_OUT_HDMI_OUT1;
@@ -650,7 +650,7 @@ void ci_service(void)
 		token = get_token(&str);
 		hdp_toggle(atoi(token));
 	}
-#ifdef CSR_HDMI_OUT_BASE
+#ifdef CSR_HDMI_OUT0_BASE
 	else if(strcmp(token, "output0") == 0) {
 		token = get_token(&str);
 		if(strcmp(token, "on") == 0)
@@ -700,10 +700,10 @@ void ci_service(void)
 		token = get_token(&str);
 		if(strcmp(token, "mmcm") == 0)
 			debug_mmcm();
-#ifdef CSR_HDMI_IN_BASE
+#ifdef CSR_HDMI_IN0_BASE
 		else if(strcmp(token, "input0") == 0) {
-			hdmi_in_debug = !hdmi_in_debug;
-			wprintf("HDMI Input 0 debug %s\r\n", hdmi_in_debug ? "on" : "off");
+			hdmi_in0_debug = !hdmi_in0_debug;
+			wprintf("HDMI Input 0 debug %s\r\n", hdmi_in0_debug ? "on" : "off");
 		}
 #endif
 #ifdef CSR_HDMI_IN1_BASE
@@ -749,10 +749,10 @@ void ci_service(void)
 		else if(strcmp(token, "edid") == 0) {
 			unsigned int found = 0;
 			token = get_token(&str);
-#ifdef CSR_HDMI_OUT_I2C_W_ADDR
+#ifdef CSR_HDMI_OUT0_I2C_W_ADDR
 			if(strcmp(token, "output0") == 0) {
 				found = 1;
-				hdmi_out_print_edid();
+				hdmi_out0_print_edid();
 			}
 #endif
 #ifdef CSR_HDMI_OUT1_I2C_W_ADDR

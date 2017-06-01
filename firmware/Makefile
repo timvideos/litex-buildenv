@@ -13,8 +13,8 @@ OBJECTS=isr.o \
 		mdio.o \
 		config.o \
 		processor.o \
-		hdmi_in.o \
-		hdmi_out.o \
+		hdmi_in0.o \
+		hdmi_out0.o \
 		pattern.o \
 		edid.o \
 		mmcm.o \
