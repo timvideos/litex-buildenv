@@ -253,13 +253,13 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 		.v_sync_offset = 5,
 		.v_sync_width = 5
 	},
-	// 1920x1080 @ 30.00 Hz    ModeLine "1920x1080" 89.01 1920 2448 2492 2640 1080 1084 1089 1125 +HSync +VSync
+	// 1920x1080 @ 60.00 Hz    Modeline: "1920x1080" 148.500 1920 2008 2052 2200 1080 1084 1089 1125 +hsync +vsync
 	{
-		.pixel_clock = 8901,
+		.pixel_clock = 14850,
 
 		.h_active = 1920,
-		.h_blanking = 720,
-		.h_sync_offset = 528,
+		.h_blanking = 280,
+		.h_sync_offset = 88,
 		.h_sync_width = 44,
 
 		.v_active = 1080,
