@@ -11,13 +11,18 @@ OBJECTS=isr.o \
 		etherbone.o \
 		telnet.o \
 		mdio.o \
+		config.o \
+		processor.o \
 		hdmi_in.o \
+		hdmi_out.o \
+		pattern.o \
 		edid.o \
+		pll.o \
 		ci.o \
 		i2c.o \
 		oled.o \
-		pattern.o \
-		main.o
+		main.o \
+		stdio_wrap.o
 
 CFLAGS += -I. -I$(UIPDIR) -I$(LIBUIPDIR)
 
@@ -54,6 +59,9 @@ main.o: main.c
 
 libs:
 	$(MAKE) -C $(LIBUIPDIR)
+
+load: firmware.bin
+	litex_term --kernel firmware.bin COM5
 
 clean:
 	cd libuip && make clean

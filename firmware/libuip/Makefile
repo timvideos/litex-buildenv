@@ -63,6 +63,9 @@ all: $(UIPLIB)
 
 .PHONY: all compile clean
 
+# pull in dependency info for *existing* .o files
+-include $(UIPOBJS:.o=.d)
+
 %.o: %.c
 	$(compile)
 
