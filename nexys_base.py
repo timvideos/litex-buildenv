@@ -18,7 +18,8 @@ from litedram.core import ControllerSettings
 from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 from liteeth.core.mac import LiteEthMAC
 
-from gateware import dna, xadc, oled
+from litex.soc.cores import dna, xadc
+from gateware import oled
 
 
 def csr_map_update(csr_map, csr_peripherals):
