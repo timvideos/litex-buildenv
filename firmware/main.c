@@ -25,16 +25,16 @@ static const unsigned char ip_addr[4] = {192, 168, 1, 50};
 
 /* hdmi_out functions */
 
-static void hdmi_out_write_mmcm_reg(uint32_t address, uint32_t data) {
-	hdmi_out_driver_clocking_drp_addr_write(address);
-    hdmi_out_driver_clocking_drp_di_write(data);
-    hdmi_out_driver_clocking_drp_dwe_write(1);
-    hdmi_out_driver_clocking_drp_den_write(1);
+static void hdmi_out_mmcm_write(uint8_t address, uint16_t data) {
+	hdmi_out_driver_clocking_mmcm_adr_write(address);
+    hdmi_out_driver_clocking_mmcm_dat_w_write(data);
+    hdmi_out_driver_clocking_mmcm_write_write(1);
+    while (hdmi_out_driver_clocking_mmcm_drdy_read() == 0);
 }
 
 static void hdmi_out_config_720p60(void) {
-    hdmi_out_write_mmcm_reg(0x8, 0x1000 + (4 << 6)  + 6);
-    hdmi_out_write_mmcm_reg(0xa, 0x1000 + (2  << 6) + 2);
+    hdmi_out_mmcm_write(0x8, 0x1000 + (10 << 6)  + 10);
+    hdmi_out_mmcm_write(0xa, 0x1000 + (2  << 6) + 2);
 
     hdmi_out_core_initiator_hres_write(1280);
     hdmi_out_core_initiator_hsync_start_write(1390);
