@@ -469,7 +469,7 @@ void processor_start(int mode)
 	pattern_fill_framebuffer(m->h_active, m->v_active);
 #endif
 
-	//mmcm_config_for_clock(m->pixel_clock); FIXME
+	mmcm_config_for_clock(m->pixel_clock);
 	fb_set_mode(m);
 	edid_set_mode(m);
 #ifdef CSR_HDMI_IN_BASE

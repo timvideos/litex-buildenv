@@ -23,13 +23,6 @@
 static const unsigned char mac_addr[6] = {0x10, 0xe2, 0xd5, 0x00, 0x00, 0x00};
 static const unsigned char ip_addr[4] = {192, 168, 1, 50};
 
-// FIXME
-static void hdmi_out_mmcm_write(uint8_t address, uint16_t data) {
-	hdmi_out_driver_clocking_mmcm_adr_write(address);
-    hdmi_out_driver_clocking_mmcm_dat_w_write(data);
-    hdmi_out_driver_clocking_mmcm_write_write(1);
-    while (hdmi_out_driver_clocking_mmcm_drdy_read() == 0);
-}
 
 int main(void)
 {
@@ -54,10 +47,6 @@ int main(void)
 	etherbone_init();
 	telnet_init();
 #endif
-
-	// FIXME
-	hdmi_out_mmcm_write(0x8, 0x1000 + (10 << 6)  + 10);
-    hdmi_out_mmcm_write(0xa, 0x1000 + (2  << 6) + 2);
 
 	processor_init();
 #ifdef CSR_HDMI_OUT_BASE
