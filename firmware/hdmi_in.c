@@ -324,7 +324,7 @@ void hdmi_in_service(void)
 			if(hdmi_in_locked) {
 				if(hdmi_in_clocking_locked_filtered()) {
 					if(elapsed(&last_event, SYSTEM_CLOCK_FREQUENCY/2)) {
-						hdmi_in_adjust_phase();
+						//hdmi_in_adjust_phase(); FIXME
 						if(hdmi_in_debug)
 							hdmi_in_print_status();
 					}
