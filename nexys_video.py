@@ -30,7 +30,7 @@ class VideoSoC(base_cls):
 
         # # #
 
-        pix_freq = 74.25e6
+        pix_freq = 148.50e6
 
         # hdmi in
         hdmi_in0_pads = platform.request("hdmi_in")

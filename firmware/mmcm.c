@@ -41,6 +41,7 @@ static void hdmi_in_0_config_30_60mhz(void) {
 	hdmi_in0_clocking_mmcm_write(0x08, 0x1000 | (10<<6) | 10); /* clkout0_divide = 20 */
 	hdmi_in0_clocking_mmcm_write(0x0a, 0x1000 |  (8<<6) |  8); /* clkout1_divide = 16 */
 	hdmi_in0_clocking_mmcm_write(0x0c, 0x1000 |  (2<<6) |  2); /* clkout2_divide =  4 */
+	hdmi_in0_clocking_mmcm_write(0x0d, 0);                     /* clkout2_divide =  4 */
 }
 
 static void hdmi_in_0_config_60_120mhz(void) {
@@ -48,6 +49,7 @@ static void hdmi_in_0_config_60_120mhz(void) {
 	hdmi_in0_clocking_mmcm_write(0x08, 0x1000 |  (5<<6) | 5); /* clkout0_divide = 10 */
 	hdmi_in0_clocking_mmcm_write(0x0a, 0x1000 |  (4<<6) | 4); /* clkout1_divide =  8 */
 	hdmi_in0_clocking_mmcm_write(0x0c, 0x1000 |  (1<<6) | 1); /* clkout2_divide =  2 */
+	hdmi_in0_clocking_mmcm_write(0x0d, 0);                    /* clkout2_divide =  2 */
 }
 
 static void hdmi_in_0_config_120_240mhz(void) {
@@ -55,6 +57,7 @@ static void hdmi_in_0_config_120_240mhz(void) {
 	hdmi_in0_clocking_mmcm_write(0x08, 0x1000 |  (2<<6) | 3);  /* clkout0_divide = 5 */
 	hdmi_in0_clocking_mmcm_write(0x0a, 0x1000 |  (2<<6) | 2);  /* clkout1_divide = 4 */
 	hdmi_in0_clocking_mmcm_write(0x0c, 0x1000 |  (0<<6) | 0);  /* clkout2_divide = 1 */
+	hdmi_in0_clocking_mmcm_write(0x0d, (1<<6));                /* clkout2_divide = 1 */
 }
 
 void mmcm_config_for_clock(int freq)
