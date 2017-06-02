@@ -16,6 +16,7 @@
 #include "ethernet.h"
 #include "etherbone.h"
 #include "telnet.h"
+#include "oled.h"
 #include "processor.h"
 #include "pattern.h"
 #include "mdio.h"
@@ -33,6 +34,12 @@ int main(void)
 #endif
 
 	puts("\nNexys CPU testing software built "__DATE__" "__TIME__);
+
+#ifdef CSR_OLED_BASE
+	oled_init();
+	oled_refresh();
+	printf("here!");
+#endif
 
 	config_init();
 	time_init();

@@ -49,11 +49,10 @@ static void busy_wait(unsigned int ds)
 }
 
 void oled_spi_write(unsigned char value) {
-	// FIXME
-	//oled_spi_mosi_write(value);
-	//oled_spi_length_write(8);
-	//oled_spi_ctrl_write(1);
-	//while(oled_spi_status_read() == 0);
+	oled_spi_mosi_write(value);
+	oled_spi_length_write(8);
+	oled_spi_ctrl_write(1);
+	while(oled_spi_status_read() == 0);
 }
 
 void oled_write_command(unsigned char value) {
