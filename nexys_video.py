@@ -7,6 +7,8 @@ from litevideo.output import VideoOut
 
 from litex.soc.cores.frequency_meter import FrequencyMeter
 
+from litescope import LiteScopeAnalyzer
+
 base_cls = MiniSoC
 
 
@@ -83,6 +85,35 @@ class VideoSoC(base_cls):
         self.comb += platform.request("user_led", 2).eq(pix5x_counter[26])
 
 
+class VideoSoCDebug(VideoSoC):
+    csr_peripherals = {
+        "analyzer",
+    }
+    csr_map_update(VideoSoC.csr_map, csr_peripherals)
+
+    def __init__(self, platform, *args, **kwargs):
+        VideoSoC.__init__(self, platform, *args, **kwargs)
+
+        # # #
+
+        analyzer_signals = [
+            self.hdmi_in0.data0_cap.d,
+            self.hdmi_in0.data1_cap.d,
+            self.hdmi_in0.data2_cap.d,
+            self.hdmi_in0.syncpol.valid_o,
+            self.hdmi_in0.syncpol.de,
+            self.hdmi_in0.syncpol.hsync,
+            self.hdmi_in0.syncpol.vsync,
+            self.hdmi_in0.syncpol.r,
+            self.hdmi_in0.syncpol.g,
+            self.hdmi_in0.syncpol.b,
+        ]
+        self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 256, cd="hdmi_in0_pix", cd_ratio=2)
+
+    def do_exit(self, vns):
+        self.analyzer.export_csv(vns, "test/analyzer.csv")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Nexys LiteX SoC")
     builder_args(parser)
@@ -91,11 +122,13 @@ def main():
     args = parser.parse_args()
 
     platform = nexys_video.Platform()
-    soc = VideoSoC(platform, **soc_sdram_argdict(args))
+    #soc = VideoSoC(platform, **soc_sdram_argdict(args))
+    soc = VideoSoCDebug(platform, **soc_sdram_argdict(args))
     builder = Builder(soc, output_dir="build",
                       compile_gateware=not args.nocompile_gateware,
                       csr_csv="test/csr.csv")
     vns = builder.build()
+    soc.do_exit(vns)
 
 if __name__ == "__main__":
     main()
