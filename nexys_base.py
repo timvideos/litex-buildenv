@@ -10,6 +10,7 @@ from litex.boards.platforms import nexys_video
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
+from litex.soc.cores.uart import *
 
 from litedram.modules import MT41K256M16
 from litedram.phy import a7ddrphy
@@ -111,12 +112,24 @@ class BaseSoC(SoCSDRAM):
         SoCSDRAM.__init__(self, platform, clk_freq,
             integrated_rom_size=0x8000,
             integrated_sram_size=0x8000,
+            with_uart=False,
             **kwargs)
 
         self.submodules.crg = CRG(platform)
         self.submodules.dna = dna.DNA()
         self.submodules.xadc = xadc.XADC()
         self.submodules.oled = oled.OLED(platform.request("oled"))
+
+
+        uart_interfaces = [RS232PHYInterface() for i in range(2)]
+        self.submodules.uart = UART(uart_interfaces[0])
+        self.submodules.bridge = WishboneStreamingBridge(uart_interfaces[1], self.clk_freq)
+        self.add_wb_master(self.bridge.wishbone)
+
+        self.submodules.uart_phy = RS232PHY(platform.request("serial"), self.clk_freq, 115200)
+        self.submodules.uart_multiplexer = UARTMultiplexer(uart_interfaces, self.uart_phy)
+        self.comb += self.uart_multiplexer.sel.eq(platform.request("user_sw", 0))
+
 
         self.crg.cd_sys.clk.attr.add("keep")
         self.platform.add_period_constraint(self.crg.cd_sys.clk, period_ns(100e6))
