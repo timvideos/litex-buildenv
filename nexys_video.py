@@ -41,7 +41,6 @@ class VideoSoC(base_cls):
                                          device="xc7")
         self.comb += [
             self.hdmi_in0_freq.clk.eq(self.hdmi_in0.clocking.cd_pix.clk),
-            hdmi_in0_pads.hpa.eq(1),
             hdmi_in0_pads.txen.eq(1)
         ]
         self.platform.add_period_constraint(self.hdmi_in0.clocking.cd_pix.clk, period_ns(1*pix_freq))
@@ -68,6 +67,20 @@ class VideoSoC(base_cls):
             self.crg.cd_sys.clk,
             self.hdmi_out0.driver.clocking.cd_pix.clk,
             self.hdmi_out0.driver.clocking.cd_pix5x.clk)
+
+
+        # debug
+        pix_counter = Signal(32)
+        self.sync.hdmi_in0_pix += pix_counter.eq(pix_counter + 1)
+        self.comb += platform.request("user_led", 0).eq(pix_counter[26])
+
+        pix1p25x_counter = Signal(32)
+        self.sync.pix1p25x += pix1p25x_counter.eq(pix1p25x_counter + 1)
+        self.comb += platform.request("user_led", 1).eq(pix1p25x_counter[26])
+
+        pix5x_counter = Signal(32)
+        self.sync.hdmi_in0_pix5x += pix5x_counter.eq(pix5x_counter + 1)
+        self.comb += platform.request("user_led", 2).eq(pix5x_counter[26])
 
 
 def main():
