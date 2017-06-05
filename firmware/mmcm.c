@@ -7,7 +7,7 @@
  * Despite varying pixel clocks, we must keep the PLL VCO operating
  * in the specified range of 600MHz - 1200MHz.
  */
-
+#if defined(CSR_HDMI_OUT0_BASE)
 void hdmi_out0_mmcm_write(int adr, int data) {
 	hdmi_out0_driver_clocking_mmcm_adr_write(adr);
 	hdmi_out0_driver_clocking_mmcm_dat_w_write(data);
@@ -21,7 +21,9 @@ int hdmi_out0_mmcm_read(int adr) {
 	while(!hdmi_out0_driver_clocking_mmcm_drdy_read());
 	return hdmi_out0_driver_clocking_mmcm_dat_r_read();
 }
+#endif
 
+#ifdef CSR_HDMI_IN0_BASE
 void hdmi_in0_clocking_mmcm_write(int adr, int data) {
 	hdmi_in0_clocking_mmcm_adr_write(adr);
 	hdmi_in0_clocking_mmcm_dat_w_write(data);
@@ -59,6 +61,7 @@ static void hdmi_in_0_config_120_240mhz(void) {
 	hdmi_in0_clocking_mmcm_write(0x0c, 0x1000 |  (0<<6) | 0);  /* clkout2_divide = 1 */
 	hdmi_in0_clocking_mmcm_write(0x0d, (1<<6));                /* clkout2_divide = 1 */
 }
+#endif
 
 void mmcm_config_for_clock(int freq)
 {
@@ -66,7 +69,7 @@ void mmcm_config_for_clock(int freq)
 	 * FIXME: we also need to configure phase detector
 	 */
 	if(freq < 3000)
-		printf("Frequency too low for input MMCM\r\n");
+		printf("Frequency too low for input MMCMs\r\n");
 	else if(freq < 6000)
 		hdmi_in_0_config_30_60mhz();
 	else if(freq < 12000)
@@ -79,9 +82,7 @@ void mmcm_config_for_clock(int freq)
 
 void mmcm_dump(void)
 {
-#if defined(CSR_HDMI_OUT0_BASE)
 	int i;
-#endif
 #ifdef CSR_HDMI_OUT0_BASE
 	printf("framebuffer MMCM:\r\n");
 	for(i=0;i<128;i++)
