@@ -3,12 +3,19 @@ NETV2_DIR=../build
 include $(NETV2_DIR)/software/include/generated/variables.mak
 include $(SOC_DIRECTORY)/software/common.mak
 
-
 OBJECTS=isr.o \
-		bist.o \
+		config.o \
+		processor.o \
+		hdmi_in0.o \
+		hdmi_out0.o \
 		pattern.o \
+		edid.o \
+		mmcm.o \
 		ci.o \
-		main.o
+		encoder.o \
+		i2c.o \
+		main.o \
+		stdio_wrap.o
 
 CFLAGS += -I.
 
@@ -41,6 +48,9 @@ main.o: main.c
 
 %.o: %.S
 	$(assemble)
+
+load: firmware.bin
+	litex_term --kernel firmware.bin COM8
 
 clean:
 	$(RM) $(OBJECTS) $(OBJECTS:.o=.d) firmware.elf firmware.bin .*~ *~

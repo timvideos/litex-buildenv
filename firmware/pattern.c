@@ -3,16 +3,14 @@
 
 #include <generated/csr.h>
 #include <generated/mem.h>
-#include <hw/flags.h>
+#include "flags.h"
 #include <system.h>
 #include <time.h>
 
 #include "pattern.h"
+#include "processor.h"
 
-#define PATTERN_FRAMEBUFFER_BASE 0x00200000
-
-#define processor_h_active 1920
-#define processor_v_active 1080
+#define PATTERN_FRAMEBUFFER_BASE 0x02000000 + 0x100000
 
 unsigned int pattern_framebuffer_base(void) {
 	return PATTERN_FRAMEBUFFER_BASE;
@@ -161,7 +159,7 @@ void pattern_fill_framebuffer(int h_active, int m_active)
 	flush_l2_cache();
 	color = -1;
 	volatile unsigned int *framebuffer = (unsigned int *)(MAIN_RAM_BASE + PATTERN_FRAMEBUFFER_BASE);
-	if(pattern == COLOR_BAR_PATTERN) {
+	if (pattern == COLOR_BAR_PATTERN) {
 		/* color bar pattern */
 		for(i=0; i<h_active*m_active*2/4; i++) {
 			if(i%(h_active/16) == 0)
@@ -169,29 +167,31 @@ void pattern_fill_framebuffer(int h_active, int m_active)
 			if(color >= 0)
 				framebuffer[i] = color_bar[color];
 		}
-	} else {
+	} else if (pattern == BLACK_WHITE_BAR_PATTERN) {
 		/* vertical black white lines */
 		for(i=0; i<h_active*m_active*2/4; i++) {
-			if(i%(h_active/16) == 0)
-				color = inc_color(color);
-			if(color >= 0)
-				framebuffer[i] = 0x801080ff;
-		}
+			framebuffer[i] = 0x801080ff;
+		}	
 	}
-	pattern_draw_text(1, 1, "LiteX NeTV2-SoC");
+	pattern_draw_text(1, 1, "HDMI2USB");
+	pattern_draw_text(1, 3, "timvideos.us");
+	pattern_draw_text(1, 4, "enjoy-digital.fr");
 	flush_l2_cache();
 }
 
 void pattern_service(void)
 {
 	static int last_event;
-	static int counter;
+	static int seconds;
 	char buffer[16];
 
-	if(elapsed(&last_event, SYSTEM_CLOCK_FREQUENCY/10)) {
-		sprintf(buffer, "%08x", counter);
-		pattern_draw_text(1, 3, buffer);
-		counter++;
+	if(elapsed(&last_event, SYSTEM_CLOCK_FREQUENCY)) {
+		sprintf(buffer, "uptime %02d:%02d:%02d",
+			(seconds/3600)%24,
+			(seconds/60)%60,
+			seconds%60);
+		pattern_draw_text(1, 6, buffer);
+		seconds++;
 	}
 	flush_l2_cache();
 }
