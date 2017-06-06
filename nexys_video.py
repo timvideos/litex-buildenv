@@ -72,20 +72,6 @@ class VideoSoC(base_cls):
             self.hdmi_out0.driver.clocking.cd_pix5x.clk)
 
 
-        # debug
-        pix_counter = Signal(32)
-        self.sync.hdmi_in0_pix += pix_counter.eq(pix_counter + 1)
-        self.comb += platform.request("user_led", 0).eq(pix_counter[26])
-
-        pix1p25x_counter = Signal(32)
-        self.sync.pix1p25x += pix1p25x_counter.eq(pix1p25x_counter + 1)
-        self.comb += platform.request("user_led", 1).eq(pix1p25x_counter[26])
-
-        pix5x_counter = Signal(32)
-        self.sync.hdmi_in0_pix5x += pix5x_counter.eq(pix5x_counter + 1)
-        self.comb += platform.request("user_led", 2).eq(pix5x_counter[26])
-
-
 class VideoSoCDebug(VideoSoC):
     csr_peripherals = {
         "analyzer",
@@ -97,6 +83,7 @@ class VideoSoCDebug(VideoSoC):
 
         # # #
 
+        # analyzer
         analyzer_signals = [
             self.hdmi_in0.data0_charsync.raw_data,
             self.hdmi_in0.data1_charsync.raw_data,
@@ -116,6 +103,20 @@ class VideoSoCDebug(VideoSoC):
             self.hdmi_in0.syncpol.vsync,
         ]
         self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 1024, cd="hdmi_in0_pix", cd_ratio=2)
+
+        # leds
+        pix_counter = Signal(32)
+        self.sync.hdmi_in0_pix += pix_counter.eq(pix_counter + 1)
+        self.comb += platform.request("user_led", 0).eq(pix_counter[26])
+
+        pix1p25x_counter = Signal(32)
+        self.sync.pix1p25x += pix1p25x_counter.eq(pix1p25x_counter + 1)
+        self.comb += platform.request("user_led", 1).eq(pix1p25x_counter[26])
+
+        pix5x_counter = Signal(32)
+        self.sync.hdmi_in0_pix5x += pix5x_counter.eq(pix5x_counter + 1)
+        self.comb += platform.request("user_led", 2).eq(pix5x_counter[26])
+
 
     def do_exit(self, vns):
         self.analyzer.export_csv(vns, "test/analyzer.csv")
