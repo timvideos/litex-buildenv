@@ -97,18 +97,24 @@ class VideoSoCDebug(VideoSoC):
         # # #
 
         analyzer_signals = [
-            self.hdmi_in0.data0_cap.d,
-            self.hdmi_in0.data1_cap.d,
-            self.hdmi_in0.data2_cap.d,
+            self.hdmi_in0.data0_charsync.raw_data,
+            self.hdmi_in0.data1_charsync.raw_data,
+            self.hdmi_in0.data2_charsync.raw_data,
+
+            self.hdmi_in0.data0_charsync.synced,
+            self.hdmi_in0.data1_charsync.synced,
+            self.hdmi_in0.data2_charsync.synced,
+
+            self.hdmi_in0.data0_charsync.data,
+            self.hdmi_in0.data1_charsync.data,
+            self.hdmi_in0.data2_charsync.data,
+
             self.hdmi_in0.syncpol.valid_o,
             self.hdmi_in0.syncpol.de,
             self.hdmi_in0.syncpol.hsync,
             self.hdmi_in0.syncpol.vsync,
-            self.hdmi_in0.syncpol.r,
-            self.hdmi_in0.syncpol.g,
-            self.hdmi_in0.syncpol.b,
         ]
-        self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 256, cd="hdmi_in0_pix", cd_ratio=2)
+        self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 1024, cd="hdmi_in0_pix", cd_ratio=2)
 
     def do_exit(self, vns):
         self.analyzer.export_csv(vns, "test/analyzer.csv")

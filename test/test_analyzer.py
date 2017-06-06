@@ -9,15 +9,10 @@ wb.open()
 
 # # #
 
-wb.regs.hdmi_in_clocking_mmcm_reset.write(1)
-wb.regs.hdmi_in_clocking_mmcm_reset.write(0)
-
-time.sleep(2)
-
 logic_analyzer = LiteScopeAnalyzerDriver(wb.regs, "analyzer", debug=True)
 
-logic_analyzer.configure_trigger(cond={})
-logic_analyzer.run(offset=256, length=1024)
+logic_analyzer.configure_trigger(cond={"charsync0_data": 0x354})
+logic_analyzer.run(offset=32, length=128)
 
 while not logic_analyzer.done():
     pass
