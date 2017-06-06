@@ -11,7 +11,7 @@ enum {
 	CONFIG_KEY_COUNT
 };
 
-#define CONFIG_DEFAULTS { 9, 1, 2, 3, 4 }
+#define CONFIG_DEFAULTS { 11, 1, 2, 3, 4 }
 
 void config_init(void);
 void config_write_all(void);
