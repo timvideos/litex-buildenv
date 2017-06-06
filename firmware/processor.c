@@ -574,11 +574,12 @@ void processor_update(void)
 
 void processor_service(void)
 {
+	const struct video_timing *m = &video_modes[processor_mode];
 #ifdef CSR_HDMI_IN0_BASE
-	hdmi_in0_service();
+	hdmi_in0_service(m->pixel_clock);
 #endif
 #ifdef CSR_HDMI_IN1_BASE
-	hdmi_in1_service();
+	hdmi_in1_service(m->pixel_clock);
 #endif
 	processor_update();
 #ifdef ENCODER_BASE

@@ -178,8 +178,10 @@ void hdmi_in0_print_status(void)
 		hdmi_in0_resdetection_vres_read());
 }
 
-int hdmi_in0_calibrate_delays(void)
+int hdmi_in0_calibrate_delays(int freq)
 {
+	int i, phase_detector_delay;
+
 	hdmi_in0_data0_cap_dly_ctl_write(DVISAMPLER_DELAY_RST);
 	hdmi_in0_data1_cap_dly_ctl_write(DVISAMPLER_DELAY_RST);
 	hdmi_in0_data2_cap_dly_ctl_write(DVISAMPLER_DELAY_RST);
@@ -187,6 +189,15 @@ int hdmi_in0_calibrate_delays(void)
 	hdmi_in0_data1_cap_phase_reset_write(1);
 	hdmi_in0_data2_cap_phase_reset_write(1);
 	hdmi_in0_d0 = hdmi_in0_d1 = hdmi_in0_d2 = 0;
+
+	/* preload slave phase detector idelay with 90° phase shift
+	  (78 ps taps on 7-series) */
+	phase_detector_delay = 10000000/(4*freq*78);
+	for(i=0; i<phase_detector_delay; i++) {
+		hdmi_in0_data0_cap_dly_ctl_write(DVISAMPLER_DELAY_SLAVE_INC);
+		hdmi_in0_data1_cap_dly_ctl_write(DVISAMPLER_DELAY_SLAVE_INC);
+		hdmi_in0_data2_cap_dly_ctl_write(DVISAMPLER_DELAY_SLAVE_INC);
+	}
 	return 1;
 }
 
@@ -194,36 +205,42 @@ int hdmi_in0_adjust_phase(void)
 {
 	switch(hdmi_in0_data0_cap_phase_read()) {
 		case DVISAMPLER_TOO_LATE:
-			hdmi_in0_data0_cap_dly_ctl_write(DVISAMPLER_DELAY_DEC);
+			hdmi_in0_data0_cap_dly_ctl_write(DVISAMPLER_DELAY_MASTER_DEC |
+				                             DVISAMPLER_DELAY_SLAVE_DEC);
 			hdmi_in0_d0--;
 			hdmi_in0_data0_cap_phase_reset_write(1);
 			break;
 		case DVISAMPLER_TOO_EARLY:
-			hdmi_in0_data0_cap_dly_ctl_write(DVISAMPLER_DELAY_INC);
+			hdmi_in0_data0_cap_dly_ctl_write(DVISAMPLER_DELAY_MASTER_INC |
+				                             DVISAMPLER_DELAY_SLAVE_INC);
 			hdmi_in0_d0++;
 			hdmi_in0_data0_cap_phase_reset_write(1);
 			break;
 	}
 	switch(hdmi_in0_data1_cap_phase_read()) {
 		case DVISAMPLER_TOO_LATE:
-			hdmi_in0_data1_cap_dly_ctl_write(DVISAMPLER_DELAY_DEC);
+			hdmi_in0_data1_cap_dly_ctl_write(DVISAMPLER_DELAY_MASTER_DEC |
+				                             DVISAMPLER_DELAY_SLAVE_DEC);
 			hdmi_in0_d1--;
 			hdmi_in0_data1_cap_phase_reset_write(1);
 			break;
 		case DVISAMPLER_TOO_EARLY:
-			hdmi_in0_data1_cap_dly_ctl_write(DVISAMPLER_DELAY_INC);
+			hdmi_in0_data1_cap_dly_ctl_write(DVISAMPLER_DELAY_MASTER_INC |
+				                             DVISAMPLER_DELAY_SLAVE_INC);
 			hdmi_in0_d1++;
 			hdmi_in0_data1_cap_phase_reset_write(1);
 			break;
 	}
 	switch(hdmi_in0_data2_cap_phase_read()) {
 		case DVISAMPLER_TOO_LATE:
-			hdmi_in0_data2_cap_dly_ctl_write(DVISAMPLER_DELAY_DEC);
+			hdmi_in0_data2_cap_dly_ctl_write(DVISAMPLER_DELAY_MASTER_DEC |
+				                             DVISAMPLER_DELAY_SLAVE_DEC);
 			hdmi_in0_d2--;
 			hdmi_in0_data2_cap_phase_reset_write(1);
 			break;
 		case DVISAMPLER_TOO_EARLY:
-			hdmi_in0_data2_cap_dly_ctl_write(DVISAMPLER_DELAY_INC);
+			hdmi_in0_data2_cap_dly_ctl_write(DVISAMPLER_DELAY_MASTER_INC |
+				                             DVISAMPLER_DELAY_SLAVE_INC);
 			hdmi_in0_d2++;
 			hdmi_in0_data2_cap_phase_reset_write(1);
 			break;
@@ -250,7 +267,7 @@ int hdmi_in0_init_phase(void)
 	return 0;
 }
 
-int hdmi_in0_phase_startup(void)
+int hdmi_in0_phase_startup(freq)
 {
 	int ret;
 	int attempts;
@@ -258,7 +275,7 @@ int hdmi_in0_phase_startup(void)
 	attempts = 0;
 	while(1) {
 		attempts++;
-		hdmi_in0_calibrate_delays();
+		hdmi_in0_calibrate_delays(freq);
 		if(hdmi_in0_debug)
 			printf("dvisampler0: delays calibrated\r\n");
 		ret = hdmi_in0_init_phase();
@@ -270,7 +287,7 @@ int hdmi_in0_phase_startup(void)
 			printf("dvisampler0: phase init failed\r\n");
 			if(attempts > 3) {
 				printf("dvisampler0: giving up\r\n");
-				hdmi_in0_calibrate_delays();
+				hdmi_in0_calibrate_delays(freq);
 				return 0;
 			}
 		}
@@ -308,7 +325,7 @@ static int hdmi_in0_clocking_locked_filtered(void)
 	return 0;
 }
 
-void hdmi_in0_service(void)
+void hdmi_in0_service(int freq)
 {
 	static int last_event;
 
@@ -338,7 +355,7 @@ void hdmi_in0_service(void)
 				if(hdmi_in0_clocking_locked_filtered()) {
 					if(hdmi_in0_debug)
 						printf("dvisampler0: PLL locked\r\n");
-					hdmi_in0_phase_startup();
+					hdmi_in0_phase_startup(freq);
 					if(hdmi_in0_debug)
 						hdmi_in0_print_status();
 					hdmi_in0_locked = 1;
