@@ -7,28 +7,23 @@ from litevideo.output import VideoOut
 
 from litex.soc.cores.frequency_meter import FrequencyMeter
 
-from litescope import LiteScopeAnalyzer
 
-base_cls = BaseSoC
-
-
-class VideoSoC(base_cls):
+class VideoSoC(BaseSoC):
     csr_peripherals = {
         "hdmi_out0",
         "hdmi_in0",
         "hdmi_in0_freq",
-        "hdmi_in0_edid_mem",
-        "analyzer",
+        "hdmi_in0_edid_mem"
     }
-    csr_map_update(base_cls.csr_map, csr_peripherals)
+    csr_map_update(BaseSoC.csr_map, csr_peripherals)
 
     interrupt_map = {
         "hdmi_in0": 3,
     }
-    interrupt_map.update(base_cls.interrupt_map)
+    interrupt_map.update(BaseSoC.interrupt_map)
 
     def __init__(self, platform, *args, **kwargs):
-        base_cls.__init__(self, platform, *args, **kwargs)
+        BaseSoC.__init__(self, platform, *args, **kwargs)
 
         # # #
 
@@ -68,12 +63,18 @@ class VideoSoC(base_cls):
             self.hdmi_out0.driver.clocking.cd_pix.clk,
             self.hdmi_out0.driver.clocking.cd_pix5x.clk)
 
+        # hdmi over
+        self.comb += [
+            platform.request("hdmi_sda_over_up").eq(0),
+            platform.request("hdmi_sda_over_dn").eq(0),
+            platform.request("hdmi_hdp_over").eq(0),
+        ]
+
 
 def main():
     parser = argparse.ArgumentParser(description="NeTV2 LiteX SoC")
     builder_args(parser)
     soc_sdram_args(parser)
-    parser.add_argument("--nocompile-gateware", action="store_true")
     args = parser.parse_args()
 
     platform = netv2.Platform()

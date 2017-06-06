@@ -60,10 +60,8 @@ _io = [
         Subsignal("data1_n", Pins("P5"), IOStandard("TMDS_33")),
         Subsignal("data2_p", Pins("R7"), IOStandard("TMDS_33")),
         Subsignal("data2_n", Pins("T7"), IOStandard("TMDS_33")),
-        Subsignal("scl", Pins("V3"), IOStandard("LVCMOS33")),
-        Subsignal("sda", Pins("V2"), IOStandard("LVCMOS33")),
-        Subsignal("cec", Pins("R5"), IOStandard("LVCMOS33")),
-        Subsignal("hpd", Pins("T5"), IOStandard("LVCMOS33")),
+        Subsignal("scl", Pins("K5"), IOStandard("LVCMOS33")), # FPIO5 (not connected)
+        Subsignal("sda", Pins("J5"), IOStandard("LVCMOS33")), # FPIO4 (not connected)
     ),
 
     ("hdmi_out", 0,
@@ -77,6 +75,11 @@ _io = [
         Subsignal("data2_n", Pins("V6"), IOStandard("TMDS_33")),
         IOStandard("TMDS_33")
     ),
+
+    ("hdmi_sda_over_up", 0, Pins("V7"), IOStandard("LVCMOS33")),
+    ("hdmi_sda_over_dn", 0, Pins("R6"), IOStandard("LVCMOS33")),
+    ("hdmi_hdp_over", 0, Pins("V8"), IOStandard("LVCMOS33")),
+
 ]
 
 

@@ -134,7 +134,6 @@ def main():
     parser = argparse.ArgumentParser(description="NeTV2 LiteX Base SoC")
     builder_args(parser)
     soc_sdram_args(parser)
-    parser.add_argument("--nocompile-gateware", action="store_true")
     args = parser.parse_args()
 
     platform = netv2.Platform()
