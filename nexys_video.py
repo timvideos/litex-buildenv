@@ -60,7 +60,8 @@ class VideoSoC(base_cls):
         self.submodules.hdmi_out0 = VideoOut(platform.device,
                                             platform.request("hdmi_out"),
                                             hdmi_out0_dram_port,
-                                            "ycbcr422")
+                                            "ycbcr422",
+                                            fifo_depth=4096)
 
         self.platform.add_period_constraint(self.hdmi_out0.driver.clocking.cd_pix.clk, period_ns(1*pix_freq))
         self.platform.add_period_constraint(self.hdmi_out0.driver.clocking.cd_pix5x.clk, period_ns(5*pix_freq))
@@ -128,8 +129,8 @@ def main():
     args = parser.parse_args()
 
     platform = nexys_video.Platform()
-    #soc = VideoSoC(platform, **soc_sdram_argdict(args))
-    soc = VideoSoCDebug(platform, **soc_sdram_argdict(args))
+    soc = VideoSoC(platform, **soc_sdram_argdict(args))
+    #soc = VideoSoCDebug(platform, **soc_sdram_argdict(args))
     builder = Builder(soc, output_dir="build",
                       compile_gateware=not args.nocompile_gateware,
                       csr_csv="test/csr.csv")
