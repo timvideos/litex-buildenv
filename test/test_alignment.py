@@ -32,19 +32,19 @@ def configure_delay(channel, delay):
     else:
         ValueError
 
-def get_phase_status(channel):
+def get_phase_status(channel, measure_time=1):
     phase_status = 0
     if channel == 0:
         wb.regs.hdmi_in0_data0_cap_phase_reset.write(1)
-        time.sleep(0.1)
+        time.sleep(measure_time)
         phase_status = (wb.regs.hdmi_in0_data0_cap_phase.read() & 0x3)
     elif channel == 1:
         wb.regs.hdmi_in0_data1_cap_phase_reset.write(1)
-        time.sleep(0.1)
+        time.sleep(measure_time)
         phase_status = (wb.regs.hdmi_in0_data1_cap_phase.read() & 0x3)
     elif channel == 2:
         wb.regs.hdmi_in0_data2_cap_phase_reset.write(1)
-        time.sleep(0.1)
+        time.sleep(measure_time)
         phase_status = (wb.regs.hdmi_in0_data2_cap_phase.read() & 0x3)
     else:
         ValueError
