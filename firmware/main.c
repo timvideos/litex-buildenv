@@ -38,7 +38,6 @@ int main(void)
 #ifdef CSR_OLED_BASE
 	oled_init();
 	oled_refresh();
-	printf("here!");
 #endif
 
 	config_init();
