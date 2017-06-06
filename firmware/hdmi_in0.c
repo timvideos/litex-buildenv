@@ -231,6 +231,30 @@ int hdmi_in0_adjust_phase(void)
 	return 1;
 }
 
+static void hdmi_in0_manual_phase_adjust(void)
+{
+	int i;
+
+	hdmi_in0_d0 = 0;
+	hdmi_in0_d1 = 0;
+	hdmi_in0_d2 = 3;
+
+	/* data0 */
+	hdmi_in0_data0_cap_dly_ctl_write(DVISAMPLER_DELAY_RST);
+	for (i=0; i<hdmi_in0_d0; i++)
+		hdmi_in0_data0_cap_dly_ctl_write(DVISAMPLER_DELAY_INC);
+
+	/* data1 */
+	hdmi_in0_data1_cap_dly_ctl_write(DVISAMPLER_DELAY_RST);
+	for (i=0; i<hdmi_in0_d1; i++)
+		hdmi_in0_data1_cap_dly_ctl_write(DVISAMPLER_DELAY_INC);
+
+	/* data2 */
+	hdmi_in0_data2_cap_dly_ctl_write(DVISAMPLER_DELAY_RST);
+	for (i=0; i<hdmi_in0_d2; i++)
+		hdmi_in0_data2_cap_dly_ctl_write(DVISAMPLER_DELAY_INC);
+}
+
 int hdmi_in0_init_phase(void)
 {
 	int o_d0, o_d1, o_d2;
@@ -250,6 +274,7 @@ int hdmi_in0_init_phase(void)
 	return 0;
 }
 
+#if 0
 int hdmi_in0_phase_startup(void)
 {
 	int ret;
@@ -276,6 +301,13 @@ int hdmi_in0_phase_startup(void)
 		}
 	}
 }
+#else
+int hdmi_in0_phase_startup(void)
+{
+	hdmi_in0_manual_phase_adjust();
+	return 1;
+}
+#endif
 
 static void hdmi_in0_check_overflow(void)
 {
