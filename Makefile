@@ -1,12 +1,12 @@
-netv2_base:
+base:
 	rm -rf build
 	./netv2_base.py
 
-netv2_pcie:
+pcie:
 	rm -rf build
 	./netv2_pcie.py
 
-netv2_video:
+video:
 	rm -rf build
 	./netv2_video.py
 
