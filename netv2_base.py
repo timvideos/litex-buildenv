@@ -35,7 +35,7 @@ class CRG(Module):
         self.clock_domains.cd_clk100 = ClockDomain()
 
         clk50 = platform.request("clk50")
-        rst = Signal() # FIXME
+        self.rst = Signal()
 
         pll_locked = Signal()
         pll_fb = Signal()
@@ -73,9 +73,9 @@ class CRG(Module):
             Instance("BUFG", i_I=pll_clk200, o_O=self.cd_clk200.clk),
             Instance("BUFG", i_I=pll_sys4x, o_O=self.cd_sys4x.clk),
             Instance("BUFG", i_I=pll_sys4x_dqs, o_O=self.cd_sys4x_dqs.clk),
-            AsyncResetSynchronizer(self.cd_sys, ~pll_locked | rst),
+            AsyncResetSynchronizer(self.cd_sys, ~pll_locked | self.rst),
             AsyncResetSynchronizer(self.cd_clk200, ~pll_locked | 1), # FIXME
-            AsyncResetSynchronizer(self.cd_clk100, ~pll_locked | rst)
+            AsyncResetSynchronizer(self.cd_clk100, ~pll_locked | self.rst)
         ]
 
         reset_counter = Signal(4, reset=15)
@@ -124,10 +124,15 @@ class BaseSoC(SoCSDRAM):
                                                                    cmd_buffer_depth=8,
                                                                    with_refresh=True))
 
-        # led
-        counter = Signal(32)
-        self.sync += counter.eq(counter + 1)
-        self.comb += platform.request("user_led", 0).eq(counter[26])
+        # common led
+        self.sys_led = Signal()
+        self.pcie_led = Signal()
+        self.comb += platform.request("user_led", 0).eq(self.sys_led ^ self.pcie_led)
+
+        # sys led
+        sys_counter = Signal(32)
+        self.sync += sys_counter.eq(sys_counter + 1)
+        self.comb += self.sys_led.eq(sys_counter[26])
 
 
 def main():

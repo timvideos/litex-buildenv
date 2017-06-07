@@ -109,8 +109,10 @@ class Platform(XilinxPlatform):
             ["write_cfgmem -verbose -force -format bin -interface spix1 -size 64 "
              "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
         self.programmer = programmer
-        self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 35]")
 
+        self.add_platform_command("""
+create_clock -name pcie_phy_clk -period 10.0 [get_pins {{pcie_phy/pcie_support_i/pcie_i/inst/inst/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtp_channel.gtpe2_channel_i/TXOUTCLK}}]
+""")
 
     def create_programmer(self):
         if self.programmer == "vivado":

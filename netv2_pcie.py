@@ -11,7 +11,7 @@ from litex.build.tools import write_to_file
 import cpu_interface
 
 
-class PCIeDMASoC(BaseSoC):
+class PCIeSoC(BaseSoC):
     csr_map = {
         "pcie_phy": 20,
         "dma":      21,
@@ -29,10 +29,13 @@ class PCIeDMASoC(BaseSoC):
     BaseSoC.mem_map["rom"] = 0x20000000
 
     def __init__(self, platform, **kwargs):
-        BaseSoC.__init__(self, platform, **kwargs)
+        BaseSoC.__init__(self, platform, csr_data_width=32, **kwargs)
+
+        # pcie rst
+        self.comb += self.crg.rst.eq(ResetSignal("pcie"))
 
         # pcie phy
-        self.submodules.pcie_phy = S7PCIEPHY(platform, link_width=1, cd="sys")
+        self.submodules.pcie_phy = S7PCIEPHY(platform, link_width=1)
 
         # pcie endpoint
         self.submodules.pcie_endpoint = LitePCIeEndpoint(self.pcie_phy, with_reordering=True)
@@ -55,6 +58,11 @@ class PCIeDMASoC(BaseSoC):
         for k, v in sorted(self.interrupts.items()):
             self.comb += self.msi.irqs[self.interrupt_map[k]].eq(v)
 
+        # pcie led
+        pcie_counter = Signal(32)
+        self.sync.pcie += pcie_counter.eq(pcie_counter + 1)
+        self.comb += self.pcie_led.eq(pcie_counter[26])
+
 
 def main():
     parser = argparse.ArgumentParser(description="NeTV2 LiteX PCIe SoC")
@@ -63,7 +71,7 @@ def main():
     args = parser.parse_args()
 
     platform = netv2.Platform()
-    soc = PCIeDMASoC(platform, **soc_sdram_argdict(args))
+    soc = PCIeSoC(platform, **soc_sdram_argdict(args))
     builder = Builder(soc, output_dir="build")
     vns = builder.build()
 
