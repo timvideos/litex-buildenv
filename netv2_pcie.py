@@ -31,11 +31,11 @@ class PCIeSoC(BaseSoC):
     def __init__(self, platform, **kwargs):
         BaseSoC.__init__(self, platform, csr_data_width=32, **kwargs)
 
-        # pcie rst
-        self.comb += self.crg.rst.eq(ResetSignal("pcie"))
-
         # pcie phy
         self.submodules.pcie_phy = S7PCIEPHY(platform, link_width=1)
+        self.platform.add_false_path_constraints(
+            self.crg.cd_sys.clk,
+            self.pcie_phy.cd_pcie.clk)
 
         # pcie endpoint
         self.submodules.pcie_endpoint = LitePCIeEndpoint(self.pcie_phy, with_reordering=True)

@@ -35,6 +35,8 @@ class CRG(Module):
         self.clock_domains.cd_clk100 = ClockDomain()
 
         clk50 = platform.request("clk50")
+        clk50.attr.add("keep")
+        platform.add_period_constraint(clk50, period_ns(50e6))
         self.rst = Signal()
 
         pll_locked = Signal()
