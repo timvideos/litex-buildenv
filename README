@@ -9,6 +9,7 @@
       Digilent's Nexys Video SoC based on LiteX
 
 [> Getting started
+------------------
 1. Install Python3 and your vendor's software
 
 2. Obtain LiteX and install it:
@@ -39,10 +40,12 @@
   make minisoc (or ddr3, etherbone, video)
   make load
 
-[> Status:
+[> Status
+---------
 BaseSoC / MiniSoC validated with 16 bits DDR3 @ 800Mbps/pin.
 EtherboneSoC validated.
 VideoSoC validated with hdmi in/hdmi out @ 720p60.
 
 [> Contact
+----------
 E-mail: florent@enjoy-digital.fr
