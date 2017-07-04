@@ -71,11 +71,7 @@ class CRG(Module):
 
                      # 200 MHz
                      p_CLKOUT3_DIVIDE=8, p_CLKOUT3_PHASE=0.0,
-                     o_CLKOUT3=pll_clk200,
-
-                     # 400MHz
-                     p_CLKOUT4_DIVIDE=4, p_CLKOUT4_PHASE=0.0,
-                     #o_CLKOUT4=
+                     o_CLKOUT3=pll_clk200
             ),
             Instance("BUFG", i_I=self.pll_sys, o_O=self.cd_sys.clk),
             Instance("BUFG", i_I=pll_sys4x, o_O=self.cd_sys4x.clk),
@@ -136,8 +132,8 @@ class BaseSoC(SoCSDRAM):
 
         # sdram
         self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
-        self.add_constant("A7DDRPHY_BITSLIP", 2)
-        self.add_constant("A7DDRPHY_DELAY", 8)
+        self.add_constant("A7DDRPHY_BITSLIP", 3)
+        self.add_constant("A7DDRPHY_DELAY", 14)
         sdram_module = MT41K256M16(self.clk_freq, "1:4")
         self.register_sdram(self.ddrphy,
                             sdram_module.geom_settings,
