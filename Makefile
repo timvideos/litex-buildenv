@@ -148,7 +148,7 @@ tftpd_start:
 
 # Extra targets
 # --------------------------------------
-flash: flash-$(PLATFORM)
+flash: image-flash
 	@true
 
 help:
