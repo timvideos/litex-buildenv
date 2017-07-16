@@ -4,9 +4,11 @@ TARGET ?= video
 
 gateware-load-opsis:
 	opsis-mode-switch --verbose --load-gateware $(TARGET_BUILD_DIR)/gateware/top.bit
+	opsis-mode-switch --verbose --reset-gateware
 
 gateware-flash-opsis:
 	opsis-mode-switch --verbose --flash-gateware=$(TARGET_BUILD_DIR)/gateware/top.bin
+	opsis-mode-switch --verbose --reset-gateware
 
 firmware-load-opsis:
 	opsis-mode-switch --verbose --mode=serial
@@ -14,6 +16,7 @@ firmware-load-opsis:
 
 firmware-flash-opsis:
 	opsis-mode-switch --verbose --flash-lm32-firmware=$(TARGET_BUILD_DIR)/software/firmware/firmware.fbi
+	opsis-mode-switch --verbose --reset-gateware
 
 firmware-connect-opsis:
 	opsis-mode-switch --verbose --mode=serial
@@ -21,6 +24,7 @@ firmware-connect-opsis:
 
 image-flash-opsis:
 	opsis-mode-switch --verbose --flash-gateware=$(TARGET_BUILD_DIR)/flash.bin
+	opsis-mode-switch --verbose --reset-gateware
 
 reset-opsis:
 	opsis-mode-switch --verbose --mode=serial
