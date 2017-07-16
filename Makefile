@@ -73,7 +73,7 @@ third_party/%/.git: .gitmodules
 # Image - a combination of multiple parts (gateware+bios+firmware+more?)
 # --------------------------------------
 image:
-	$(PYTHON) mkimage.py
+	$(PYTHON) mkimage.py $(MISOC_EXTRA_CMDLINE) $(LITEX_EXTRA_CMDLINE)
 
 image-load: image image-load-$(PLATFORM)
 	@true
