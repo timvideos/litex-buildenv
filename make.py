@@ -21,7 +21,11 @@ def make_args(parser, platform='opsis', target='hdmi2usb'):
 
 
 def make_builddir(args):
-    return "build/{}_{}_{}/".format(args.platform, args.target.lower(), args.cpu_type)
+    full_platform = args.platform
+    for name, value in args.target_option:
+        if name == 'tofe_board':
+            full_platform = "{}.{}".format(full_platform, value)
+    return "build/{}_{}_{}/".format(full_platform.lower(), args.target.lower(), args.cpu_type)
 
 
 def make_testdir(args):
