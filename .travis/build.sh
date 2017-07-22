@@ -351,9 +351,18 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 			)
 		done
 	fi
+	echo
+	echo "Changes to be pushed"
+	echo "---------------------------------------------"
 	git diff origin/master --stat=1000,1000
-	while true; do
+	for i in 1 2 3 4 5 6 7 8 9 10; do	# Try 10 times.
+		echo
+		echo "Pushing"
+		echo "---------------------------------------------"
 		git push --quiet origin master > /dev/null 2>&1 && break
+		echo
+		echo "Merging"
+		echo "---------------------------------------------"
 		git diff --stat origin/master && break
 		git fetch
 		git merge origin/master -m "Merging #$TRAVIS_JOB_NUMBER of $GIT_REVISION"
