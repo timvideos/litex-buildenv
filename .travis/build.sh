@@ -338,24 +338,30 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 	echo "============================================="
 	(
 	cd $PREBUILT_DIR
-	if [ "$TRAVIS_BRANCH" = "master" ]; then
-		for PLATFORM in $PLATFORMS; do
-			(
-			cd $PLATFORM/firmware
-			LATEST="$(ls ../../archive/master/ | tail -n 1)"
-			HDMI2USB_FIRMWARE="$LATEST/$PLATFORM/hdmi2usb/lm32"
-			if [ -d "$HDMI2USB_FIRMWARE" ]; then
-				ln -sf unstable "$HDMI2USB_FIRMWARE"
-				git add unstable
-			fi
-			)
-		done
-	fi
-	echo
-	echo "Changes to be pushed"
-	echo "---------------------------------------------"
-	git diff origin/master --stat=1000,1000
 	for i in 1 2 3 4 5 6 7 8 9 10; do	# Try 10 times.
+		if [ "$TRAVIS_BRANCH" = "master" ]; then
+			echo
+			echo "Updating unstable link"
+			echo "---------------------------------------------"
+			for PLATFORM in $PLATFORMS; do
+				(
+				cd $PLATFORM/firmware
+				LATEST="$(ls ../../archive/master/ | tail -n 1)"
+				HDMI2USB_FIRMWARE="$LATEST/$PLATFORM/hdmi2usb/lm32"
+				if [ -d "$HDMI2USB_FIRMWARE" ]; then
+					echo "Changing $PLATFORM from '$(readlink unstable)' to '$HDMI2USB_FIRMWARE'"
+					ln -sf unstable "$HDMI2USB_FIRMWARE"
+					git add unstable
+				else
+					echo "Not updating $PLATFORM"
+				fi
+				)
+			done
+		fi
+		echo
+		echo "Changes to be pushed"
+		echo "---------------------------------------------"
+		git diff origin/master --stat=1000,1000
 		echo
 		echo "Pushing"
 		echo "---------------------------------------------"
@@ -367,6 +373,8 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 		git fetch
 		git merge origin/master -m "Merging #$TRAVIS_JOB_NUMBER of $GIT_REVISION"
 	done
+	echo
+	echo "Push finished!"
 	)
 fi
 
