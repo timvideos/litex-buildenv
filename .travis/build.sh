@@ -341,7 +341,7 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 				fi
 				cd $PLATFORM/firmware
 				LATEST="$(ls ../../archive/master/ | tail -n 1)"
-				HDMI2USB_FIRMWARE="$LATEST/$PLATFORM/hdmi2usb/lm32"
+				HDMI2USB_FIRMWARE="../../archive/master/$LATEST/$PLATFORM/hdmi2usb/lm32"
 				echo "Checking for '$HDMI2USB_FIRMWARE'"
 				if [ -d "$HDMI2USB_FIRMWARE" ]; then
 					echo "Changing $PLATFORM from '$(readlink unstable)' to '$HDMI2USB_FIRMWARE'"
@@ -361,13 +361,12 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 		echo
 		echo "Merging (Try $i)"
 		echo "---------------------------------------------"
-		git diff --stat origin/master && break
 		git fetch
 		git merge origin/master -m "Merging #$TRAVIS_JOB_NUMBER of $GIT_REVISION"
 		echo
 		echo "Changes to be pushed (Try $i)"
 		echo "---------------------------------------------"
-		git diff origin/master --stat=1000,1000
+		git diff origin/master --stat=1000,1000 && break
 		echo
 		echo "Pushing (Try $i)"
 		echo "---------------------------------------------"
