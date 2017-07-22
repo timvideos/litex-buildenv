@@ -345,7 +345,7 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 				echo "Checking for '$HDMI2USB_FIRMWARE'"
 				if [ -d "$HDMI2USB_FIRMWARE" ]; then
 					echo "Changing $PLATFORM from '$(readlink unstable)' to '$HDMI2USB_FIRMWARE'"
-					ln -sf unstable "$HDMI2USB_FIRMWARE"
+					ln -sf "$HDMI2USB_FIRMWARE" unstable
 					git add unstable
 					git commit -a \
 						-m "Updating unstable link (Travis build #$TRAVIS_BUILD_NUMBER of $GIT_REVISION for PLATFORM=$PLATFORM TARGET=$TARGET CPU=$CPU)" \
@@ -366,11 +366,16 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 		echo
 		echo "Changes to be pushed (Try $i)"
 		echo "---------------------------------------------"
-		git diff origin/master --stat=1000,1000 --exit-code && break
+		git diff origin/master --stat=1000,1000
+		git diff origin/master --quiet --exit-code && break
 		echo
 		echo "Pushing (Try $i)"
 		echo "---------------------------------------------"
-		git push --quiet origin master > /dev/null 2>&1
+		if git push --quiet origin master > /dev/null 2>&1 ; then
+			echo "Push success!"
+		else
+			echo "Push failed :-("
+		fi
 	done
 	echo
 	echo "Push finished!"
