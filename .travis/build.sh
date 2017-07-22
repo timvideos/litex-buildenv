@@ -331,14 +331,14 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 	cd $PREBUILT_DIR
 	for i in 1 2 3 4 5 6 7 8 9 10; do	# Try 10 times.
 		if [ "$TRAVIS_BRANCH" = "master" ]; then
-			echo
-			echo "Updating unstable link (Try $i)"
-			echo "---------------------------------------------"
 			for PLATFORM in $PLATFORMS; do
 				(
 				if [ ! -d "$PLATFORM/firmware" ]; then
 					continue
 				fi
+				echo
+				echo "Updating unstable link (Try $i)"
+				echo "---------------------------------------------"
 				cd $PLATFORM/firmware
 				LATEST="$(ls ../../archive/master/ | tail -n 1)"
 				HDMI2USB_FIRMWARE="../../archive/master/$LATEST/$PLATFORM/hdmi2usb/lm32"
@@ -362,7 +362,7 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 		echo "Merging (Try $i)"
 		echo "---------------------------------------------"
 		git fetch
-		git merge origin/master -m "Merging #$TRAVIS_JOB_NUMBER of $GIT_REVISION"
+		git merge origin/master --stat --commit -m "Merging #$TRAVIS_JOB_NUMBER of $GIT_REVISION"
 		echo
 		echo "Changes to be pushed (Try $i)"
 		echo "---------------------------------------------"
@@ -370,7 +370,7 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 		echo
 		echo "Pushing (Try $i)"
 		echo "---------------------------------------------"
-		git push --quiet origin master > /dev/null 2>&1 && break
+		git push --quiet origin master > /dev/null 2>&1
 	done
 	echo
 	echo "Push finished!"
