@@ -345,6 +345,9 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 			echo "---------------------------------------------"
 			for PLATFORM in $PLATFORMS; do
 				(
+				if [ ! -d "$PLATFORM/firmware" ]; then
+					continue
+				fi
 				cd $PLATFORM/firmware
 				LATEST="$(ls ../../archive/master/ | tail -n 1)"
 				HDMI2USB_FIRMWARE="$LATEST/$PLATFORM/hdmi2usb/lm32"
