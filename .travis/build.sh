@@ -338,9 +338,23 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 	echo "============================================="
 	(
 	cd $PREBUILT_DIR
+	if [ "$TRAVIS_BRANCH" = "master" ]; then
+		for PLATFORM in $PLATFORMS; do
+			(
+			cd $PLATFORM/firmware
+			LATEST="$(ls ../../archive/master/ | tail -n 1)"
+			HDMI2USB_FIRMWARE="$LATEST/$PLATFORM/hdmi2usb/lm32"
+			if [ -d "$HDMI2USB_FIRMWARE" ]; then
+				ln -sf unstable "$HDMI2USB_FIRMWARE"
+				git add unstable
+			fi
+			)
+		done
+	fi
 	git diff origin/master --stat=1000,1000
 	while true; do
 		git push --quiet origin master > /dev/null 2>&1 && break
+		git diff --stat origin/master && break
 		git fetch
 		git merge origin/master -m "Merging #$TRAVIS_JOB_NUMBER of $GIT_REVISION"
 	done
