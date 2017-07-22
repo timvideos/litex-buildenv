@@ -366,7 +366,7 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 		echo
 		echo "Changes to be pushed (Try $i)"
 		echo "---------------------------------------------"
-		git diff origin/master --stat=1000,1000 && break
+		git diff origin/master --stat=1000,1000 --exit-code && break
 		echo
 		echo "Pushing (Try $i)"
 		echo "---------------------------------------------"
