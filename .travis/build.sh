@@ -343,9 +343,9 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 				LATEST="$(ls ../../archive/master/ | tail -n 1)"
 				HDMI2USB_FIRMWARE="../../archive/master/$LATEST/$PLATFORM/hdmi2usb/lm32"
 				echo "Checking for '$HDMI2USB_FIRMWARE'"
-				if [ -d "$HDMI2USB_FIRMWARE" ]; then
+				if [ -d "$HDMI2USB_FIRMWARE" -a "$(readlink unstable)" != "$HDMI2USB_FIRMWARE" ]; then
 					echo "Changing $PLATFORM from '$(readlink unstable)' to '$HDMI2USB_FIRMWARE'"
-					ln -sf "$HDMI2USB_FIRMWARE" unstable
+					ln -sfT "$HDMI2USB_FIRMWARE" unstable
 					git add unstable
 					git commit -a \
 						-m "Updating unstable link (Travis build #$TRAVIS_BUILD_NUMBER of $GIT_REVISION for PLATFORM=$PLATFORM TARGET=$TARGET CPU=$CPU)" \
