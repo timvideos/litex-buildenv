@@ -30,7 +30,13 @@ export CPU
 CLANG = 0
 export CLANG
 
-TARGET_BUILD_DIR = build/$(PLATFORM)_$(TARGET)_$(CPU)/
+ifeq ($(TOFE_BOARD),)
+FULL_PLATFORM = $(PLATFORM)
+else
+FULL_PLATFORM = $(PLATFORM).$(TOFE_BOARD)
+LITEX_EXTRA_CMDLINE += -Ot tofe_board $(TOFE_BOARD)
+endif
+TARGET_BUILD_DIR = build/$(FULL_PLATFORM)_$(TARGET)_$(CPU)/
 
 IPRANGE ?= 192.168.100
 export IPRANGE
@@ -67,7 +73,7 @@ third_party/%/.git: .gitmodules
 # Image - a combination of multiple parts (gateware+bios+firmware+more?)
 # --------------------------------------
 image:
-	$(PYTHON) mkimage.py
+	$(PYTHON) mkimage.py $(MISOC_EXTRA_CMDLINE) $(LITEX_EXTRA_CMDLINE)
 
 image-load: image image-load-$(PLATFORM)
 	@true
@@ -148,7 +154,7 @@ tftpd_start:
 
 # Extra targets
 # --------------------------------------
-flash: flash-$(PLATFORM)
+flash: image-flash
 	@true
 
 help:
