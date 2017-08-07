@@ -42,7 +42,7 @@ if [ -d /lib/firmware/ixo-usb-jtag/ ]; then
 	return 1
 fi
 
-if [ -f /etc/udev/rules.d/99-hdmi2usb-permissions.rules -o -f /lib/udev/rules.d/99-hdmi2usb-permissions.rules -o ! -z "$HDMI2USB_UDEV_IGNORE" ]; then
+if [ -f /lib/udev/rules.d/60-hdmi2usb-udev.rules -o ! -z "$HDMI2USB_UDEV_IGNORE" ]; then
 	true
 else
 	echo "Please install the HDMI2USB udev rules."
@@ -165,7 +165,8 @@ echo "---------------------------------"
 
 # fxload
 
-
+# check sbin for fxload as well
+export PATH=$PATH:/sbin
 
 check_exists fxload || return 1
 

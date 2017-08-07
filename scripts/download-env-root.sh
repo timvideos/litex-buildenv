@@ -48,7 +48,7 @@ add-apt-repository -y ppa:timvideos/fpga-support
 apt-get update
 # Only need the udev rules (the full mode-switch tool is installed locally as
 # part of the download-env.sh).
-apt-get install -y hdmi2usb-mode-switch-udev
+apt-get install -y hdmi2usb-udev
 
 # Get the vizzini module, only needed for the Atlys board
 #apt-get install -y vizzini-dkms
