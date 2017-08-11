@@ -30,6 +30,8 @@ class ControlAndStatus(Module, AutoCSR):
                     user_leds[i].eq(leds[i]),
                 ]
 
+            self.num_leds = CSRConstant(len(user_leds), name='num_leds')
+
         # Work out how many switches this board has
         user_sws = []
         while True:
@@ -45,6 +47,8 @@ class ControlAndStatus(Module, AutoCSR):
                 self.comb += [
                     switches[i].eq(~user_sws[i]),
                 ]
+
+            self.num_sws = CSRConstant(len(user_sws), name='num_switches')
 
         # Work out how many push buttons this board has
         user_btns = []
@@ -73,3 +77,4 @@ class ControlAndStatus(Module, AutoCSR):
                 self.submodules += [btn_timer]
 
             self.buttons_ev.finalize()
+            self.num_buttons = CSRConstant(len(user_btns), name='num_buttons')
