@@ -163,6 +163,8 @@ info:
 	@echo "FULL_PLATFORM='$(FULL_PLATFORM)'"
 	@echo "CPU='$(CPU)'"
 	@echo "TARGET_BUILD_DIR='$(TARGET_BUILD_DIR)'"
+	@echo "MISOC_EXTRA_CMDLINE='$(MISOC_EXTRA_CMDLINE)'"
+	@echo "LITEX_EXTRA_CMDLINE='$(LITEX_EXTRA_CMDLINE)'"
 
 help:
 	@echo "Environment:"
