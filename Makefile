@@ -157,6 +157,13 @@ tftpd_start:
 flash: image-flash
 	@true
 
+info:
+	@echo "TARGET='$(TARGET)'"
+	@echo "PLATFORM='$(PLATFORM)'"
+	@echo "FULL_PLATFORM='$(FULL_PLATFORM)'"
+	@echo "CPU='$(CPU)'"
+	@echo "TARGET_BUILD_DIR='$(TARGET_BUILD_DIR)'"
+
 help:
 	@echo "Environment:"
 	@echo " PLATFORM=$(shell ls targets/ | grep -v ".py" | grep -v "common" | sed -e"s+targets/++" -e's/$$/ OR/')" | sed -e's/ OR$$//'
