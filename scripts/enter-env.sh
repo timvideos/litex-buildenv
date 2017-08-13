@@ -284,25 +284,7 @@ export HDMI2USB_ENV=1
 # Set prompt
 ORIG_PS1="$PS1"
 hdmi2usb_prompt() {
-	P="(H2U P=$PLATFORM"
-
-	if [ ! -z "$TARGET" ]; then
-		P="$P T=$TARGET"
-	fi
-	if [ ! -z "$PROG" ]; then
-		P="$P P=$PROG"
-	fi
-
-	BRANCH="$(git symbolic-ref --short HEAD 2> /dev/null)"
-	if [ "$BRANCH" != "master" ]; then
-		if [ x"$BRANCH" = x ]; then
-			BRANCH="???"
-		fi
-		P="$P R=$BRANCH"
-	fi
-
-	PS1="$P) $ORIG_PS1"
-
+	PS1="(H2U $(cd $TOP_DIR; make prompt)) $ORIG_PS1"
 	case "$TERM" in
 	xterm*|rxvt*)
 		PS1="$PS1\[\033]0;$P) \w\007\]"

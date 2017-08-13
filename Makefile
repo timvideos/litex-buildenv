@@ -22,6 +22,8 @@ ifeq ($(TARGET),)
 endif
 export TARGET
 
+DEFAULT_CPU = lm32
+CPU ?= $(DEFAULT_CPU)
 ifeq ($(CPU),)
     $(error "Internal error: CPU not set.")
 endif
@@ -199,6 +201,7 @@ env:
 	@echo "DEFAULT_TARGET='$(DEFAULT_TARGET)'"
 	@echo "CPU='$(CPU)'"
 	@echo "FIRMWARE='$(FIRMWARE)'"
+	@echo "PROG='$(PROG)'"
 	@echo "TARGET_BUILD_DIR='$(TARGET_BUILD_DIR)'"
 	@echo "MISOC_EXTRA_CMDLINE='$(MISOC_EXTRA_CMDLINE)'"
 	@echo "LITEX_EXTRA_CMDLINE='$(LITEX_EXTRA_CMDLINE)'"
@@ -213,6 +216,22 @@ build/cache.mk: targets/*/*.py scripts/makefile-cache.sh
 include build/cache.mk
 
 TARGETS=$(TARGETS_$(PLATFORM))
+
+prompt:
+	@echo -n "P=$(PLATFORM)"
+	@if [ x"$(TARGET)" != x"$(DEFAULT_TARGET)" ]; then echo -n " T=$(TARGET)"; fi
+	@if [ x"$(CPU)" != x"$(DEFAULT_CPU)" ]; then echo -n " C=$(CPU)"; fi
+	@if [ x"$(FIRMWARE)" != x"firmware" ]; then \
+		echo -n " F=$(FIRMWARE)"; \
+	fi
+	@if [ x"$(PROG)" != x"" ]; then echo -n " P=$(PROG)"; fi
+	@BRANCH="$(shell git symbolic-ref --short HEAD 2> /dev/null)"; \
+		if [ "$$BRANCH" != "master" ]; then \
+			if [ x"$$BRANCH" = x"" ]; then \
+				BRANCH="???"; \
+			fi; \
+			echo " R=$$BRANCH"; \
+		fi
 
 # @if [ ! -z "$(TARGETS)" ]; then echo " Extra firmware needed for: $(TARGETS)"; echo ""; fi
 # FIXME: Add something about the TFTP stuff
