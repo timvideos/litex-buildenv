@@ -74,6 +74,15 @@ SHELL := /bin/bash
 FILTER ?= tee -a
 LOGFILE ?= $(PWD)/$(TARGET_BUILD_DIR)/output.$(shell date +%Y%m%d-%H%M%S).log
 
+build/cache.mk: targets/*/*.py scripts/makefile-cache.sh
+	@mkdir -p build
+	@./scripts/makefile-cache.sh
+
+-include build/cache.mk
+
+TARGETS=$(TARGETS_$(PLATFORM))
+
+
 # Initialize submodules automatically
 third_party/%/.git: .gitmodules
 	git submodule sync --recursive -- $$(dirname $@)
@@ -209,13 +218,13 @@ env:
 	@echo "CLANG=$(CLANG)"
 	@echo "PYTHONHASHSEED=$(PYTHONHASHSEED)"
 
-build/cache.mk: targets/*/*.py scripts/makefile-cache.sh
-	@mkdir -p build
-	@./scripts/makefile-cache.sh
-
-include build/cache.mk
-
-TARGETS=$(TARGETS_$(PLATFORM))
+info:
+	@echo "              Platform: $(FULL_PLATFORM)"
+	@echo "                Target: $(TARGET)"
+	@echo "                   CPU: $(CPU)"
+	@if [ x"$(FIRMWARE)" != x"firmware" ]; then \
+		echo "               Firmare: $(FIRMWARE)"; \
+	fi
 
 prompt:
 	@echo -n "P=$(PLATFORM)"

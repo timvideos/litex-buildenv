@@ -1,24 +1,42 @@
 #!/bin/bash
 
-set -e
+if [ "`whoami`" = "root" ]
+then
+    echo "Running the script as root is not permitted"
+    exit 1
+fi
 
-SETUP_SRC=$(realpath ${BASH_SOURCE[@]})
-SETUP_DIR=$(dirname $SETUP_SRC)
-TOP_DIR=$(realpath $SETUP_DIR/..)
-BUILD_DIR=$TOP_DIR/build
-PREBUILT_DIR=$BUILD_DIR/prebuilt
+CALLED=$_
+[[ "${BASH_SOURCE[0]}" != "${0}" ]] && SOURCED=1 || SOURCED=0
 
-if [ ! -e $BUILD_DIR ]; then
-	echo "$BUILD_DIR does not exist so it looks like the prerequisite tools may not be available"
-	echo "They can be installed by running scripts/get-env-root.sh and scripts/get-env.sh"
-	exit 1
+SCRIPT_SRC=$(realpath ${BASH_SOURCE[0]})
+SCRIPT_DIR=$(dirname $SCRIPT_SRC)
+TOP_DIR=$(realpath $SCRIPT_DIR/..)
+
+if [ $SOURCED = 1 ]; then
+        echo "You must run this script, rather then try to source it."
+        echo "$SCRIPT_SRC"
+        return
 fi
 
 if [ -z "$HDMI2USB_ENV" ]; then
-	echo "You appear to have not sourced the HDMI2USB settings."
-	echo "Please run '. $SETUP_DIR/enter-env.sh' before running this script."
+        echo "You appear to not be inside the HDMI2USB environment."
+	echo "Please enter environment with:"
+	echo "  source scripts/enter-env.sh"
+        exit 1
+fi
+
+# Imports TARGET, PLATFORM, CPU and TARGET_BUILD_DIR from Makefile
+eval $(make env)
+
+if [ -d $TARGET_BUILD_DIR ]; then
+	echo "Build directory '$TARGET_BUILD_DIR' already exists."
+	echo "Remove this directory with 'make clean' before running this script."
 	exit 1
 fi
+
+set -e
+
 
 GITHUB_URL=https://github.com/timvideos/HDMI2USB-firmware-prebuilt/
 
@@ -27,9 +45,9 @@ UPSTREAM_REMOTE=$(git remote -v | grep fetch | grep 'github.com/timvideos' | sed
 #UPSTREAM_GITREV=$(git merge-base $UPSTREAM_REMOTE/$UPSTREAM_BRANCH HEAD)
 UPSTREAM_GITREV=$(git show-branch --merge-base $UPSTREAM_REMOTE/$UPSTREAM_BRANCH HEAD)
 UPSTREAM_GITDESC=$(git describe $UPSTREAM_GITREV)
-eval $(make info)
 
 : ${PREBUILT_REPO:="timvideos/HDMI2USB-firmware-prebuilt"}
+echo ""
 echo "   Prebuilt Repository: $PREBUILT_REPO"
 echo ""
 echo "       Upstream remote: $UPSTREAM_REMOTE"
@@ -37,12 +55,10 @@ echo "       Upstream branch: $UPSTREAM_BRANCH"
 echo "      Upstream git rev: $UPSTREAM_GITREV"
 echo " Upstream git describe: $UPSTREAM_GITDESC"
 echo ""
-echo "              Platform: $PLATFORM"
-echo "                Target: $TARGET"
-echo "                   CPU: $CPU"
+make info
 echo ""
 echo
-DOWNLOAD_URL="$GITHUB_URL/trunk/archive/$UPSTREAM_BRANCH/$UPSTREAM_GITDESC/$PLATFORM/$TARGET/$CPU/"
+DOWNLOAD_URL="$GITHUB_URL/trunk/archive/$UPSTREAM_BRANCH/$UPSTREAM_GITDESC/$FULL_PLATFORM/$TARGET/$CPU/"
 echo "Downloading"
 echo " from '$DOWNLOAD_URL'"
 echo "   to '$TARGET_BUILD_DIR'"
