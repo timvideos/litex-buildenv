@@ -282,6 +282,7 @@ help:
 	@echo " make clean             - Clean all build artifacts."
 
 clean:
+	rm build/cache.mk
 	rm -rf $(TARGET_BUILD_DIR)
 	py3clean . || rm -rf $$(find -name __pycache__)
 
