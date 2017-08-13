@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -x
 set -e
 
 PLATFORMS=$(ls targets/ | grep -v ".py" | grep -v "common" | tr '\n' ' ' | sed -e"s+targets/++")

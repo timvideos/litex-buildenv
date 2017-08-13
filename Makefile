@@ -210,8 +210,8 @@ env:
 	@echo "PYTHONHASHSEED=$(PYTHONHASHSEED)"
 
 build/cache.mk: targets/*/*.py scripts/makefile-cache.sh
-	mkdir -p build
-	./scripts/makefile-cache.sh
+	@mkdir -p build
+	@./scripts/makefile-cache.sh
 
 include build/cache.mk
 
