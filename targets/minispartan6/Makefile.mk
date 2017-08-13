@@ -1,11 +1,14 @@
 # minispartan6 loading
 
-TARGET ?= base
+DEFAULT_TARGET = base
 
 gateware-load-minispartan6:
-	openocd -f board/minispartan6.cfg -c "init; pld load 0 $(TARGET_BUILD_DIR)/gateware/top.bit; exit"
+	openocd -f board/minispartan6.cfg -c "init; pld load 0 $(GATEWARE_FILEBASE).bit; exit"
 
 firmware-load-minispartan6:
-	flterm --port=/dev/ttyUSB1 --kernel=$(TARGET_BUILD_DIR)/software/firmware/firmware.bin
+	flterm --port=/dev/ttyUSB1 --kernel=$(FIRMWARE_FILEBASE).bin
 
-.PHONY: gateware-load-minispartan6 firmware-load-minispartan6
+help-minispartan6:
+	@true
+
+.PHONY: gateware-load-minispartan6 firmware-load-minispartan6 help-minispartan6

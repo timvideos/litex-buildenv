@@ -16,6 +16,7 @@ def main():
     parser.add_argument("--override-gateware")
     parser.add_argument("--override-bios")
     parser.add_argument("--override-firmware")
+    parser.add_argument("--firmware-name", default="HDMI2USB")
     parser.add_argument("--force-image-size")
 
     args = parser.parse_args()
@@ -101,8 +102,10 @@ def main():
 
         # SoftCPU firmware
         print(("Firmware @ 0x{:08x} ({:10} bytes) {:60}"
-               " - HDMI2USB Firmware in FBI format (loaded into DRAM)"
-               ).format(firmware_pos, len(firmware_data), firmware))
+               " - {} Firmware in FBI format (loaded into DRAM)"
+               ).format(
+                   firmware_pos, len(firmware_data), firmware,
+                   args.firmware_name))
         print(" ".join("{:02x}".format(i) for i in firmware_data[:64]))
         f.seek(firmware_pos)
         f.write(firmware_data)

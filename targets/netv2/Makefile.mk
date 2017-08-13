@@ -1,6 +1,6 @@
-# mimasv2 loading
+# netv2 loading
 
-TARGET ?= pcie
+DEFAULT_TARGET = pcie
 
 load-gateware-netv2:
 	echo "Not working yet."
@@ -10,4 +10,7 @@ load-firmware-netv2:
 	echo "Not working yet."
 	false
 
-.PHONY: load-gateware-netv2 load-firmware-netv2
+help-netv2:
+	@true
+
+.PHONY: load-gateware-netv2 load-firmware-netv2 help-netv2

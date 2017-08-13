@@ -27,7 +27,7 @@ if [ -z "$HDMI2USB_ENV" ]; then
 fi
 
 # Imports TARGET, PLATFORM, CPU and TARGET_BUILD_DIR from Makefile
-eval $(make info)
+eval $(make env)
 
 set -x
 set -e

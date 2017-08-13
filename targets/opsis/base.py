@@ -231,9 +231,9 @@ class BaseSoC(SoCSDRAM):
     def __init__(self, platform, **kwargs):
         clk_freq = 50*1000000
 
-        if 'tofe_board' in kwargs:
-            tofe_board_name = kwargs.get('tofe_board')
-            del kwargs['tofe_board']
+        if 'expansion' in kwargs:
+            tofe_board_name = kwargs.get('expansion')
+            del kwargs['expansion']
         else:
             tofe_board_name = None
 
