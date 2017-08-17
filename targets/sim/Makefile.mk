@@ -1,6 +1,6 @@
 # Sim targets
 
-TARGET ?= base
+DEFAULT_TARGET = base
 
 sim-setup:
 	sudo true
@@ -17,4 +17,8 @@ sim-teardown:
 	sudo ifconfig tap0 down
 	sudo openvpn --rmtun --dev tap0
 
-.PHONY: sim-setup sim-teardown
+help-sim:
+	@echo " make sim-setup"
+	@echo " make sim-teardown"
+
+.PHONY: sim-setup sim-teardown help-sim

@@ -1,6 +1,6 @@
 # mimasv2 loading
 
-TARGET ?= base
+DEFAULT_TARGET = base
 
 # FIXME(mithro): Detect the real serial port/add see udev rules to HDMI2USB-mode-switch...
 ifeq ($(JIMMO),)
@@ -20,7 +20,7 @@ gateware-load-mimasv2:
 	@false
 
 gateware-flash-mimasv2:
-	$(PYTHON) $$(which MimasV2Config.py) $(PROG_PORT) $(TARGET_BUILD_DIR)/gateware/top.bin
+	$(PYTHON) $$(which MimasV2Config.py) $(PROG_PORT) $(GATEWARE_FILEBASE).bin
 
 image-load-mimasv2:
 	@echo "MimasV2 doesn't support loading, use the flash target instead."
@@ -28,10 +28,10 @@ image-load-mimasv2:
 	@false
 
 image-flash-mimasv2:
-	$(PYTHON) $$(which MimasV2Config.py) $(PROG_PORT) $(TARGET_BUILD_DIR)/flash.bin
+	$(PYTHON) $$(which MimasV2Config.py) $(PROG_PORT) $(IMAGE_FILE)
 
 firmware-load-mimasv2:
-	flterm --port=$(COMM_PORT) --kernel=$(TARGET_BUILD_DIR)/software/firmware/firmware.bin --speed=$(BAUD)
+	flterm --port=$(COMM_PORT) --kernel=$(FIRMWARE_FILEBASE).bin --speed=$(BAUD)
 
 firmware-flash-mimasv2:
 	@echo "MimasV2 doesn't support just flashing firmware, use image target instead."
@@ -41,4 +41,7 @@ firmware-flash-mimasv2:
 firmware-connect-mimasv2:
 	flterm --port=$(COMM_PORT) --speed=$(BAUD)
 
-.PHONY: gateware-load-mimasv2 firmware-load-mimasv2
+help-mimasv2:
+	@true
+
+.PHONY: gateware-load-mimasv2 firmware-load-mimasv2 help-mimasv2
