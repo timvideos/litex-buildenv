@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include "framebuffer.h"
 
 #ifndef __HDMI_IN0_H
 #define __HDMI_IN0_H
@@ -6,7 +7,7 @@
 extern int hdmi_in0_debug;
 extern int hdmi_in0_fb_index;
 
-unsigned int hdmi_in0_framebuffer_base(char n);
+fb_ptrdiff_t hdmi_in0_framebuffer_base(char n);
 
 void hdmi_in0_isr(void);
 void hdmi_in0_init_video(int hres, int vres);
