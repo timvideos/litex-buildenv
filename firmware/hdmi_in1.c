@@ -18,17 +18,13 @@
 int hdmi_in1_debug;
 int hdmi_in1_fb_index;
 
-#define FRAMEBUFFER_COUNT 4
-#define FRAMEBUFFER_MASK (FRAMEBUFFER_COUNT - 1)
-
 #define HDMI_IN1_FRAMEBUFFERS_BASE (0x01000000 + 0x100000)
-#define HDMI_IN1_FRAMEBUFFERS_SIZE (1920*1080*2)
 
 //#define CLEAN_COMMUTATION
 //#define DEBUG
 
-unsigned int hdmi_in1_framebuffer_base(char n) {
-	return HDMI_IN1_FRAMEBUFFERS_BASE + n*HDMI_IN1_FRAMEBUFFERS_SIZE;
+fb_ptrdiff_t hdmi_in1_framebuffer_base(char n) {
+	return HDMI_IN1_FRAMEBUFFERS_BASE + n*FRAMEBUFFER_SIZE;
 }
 
 static int hdmi_in1_fb_slot_indexes[2];
@@ -45,7 +41,7 @@ void hdmi_in1_isr(void)
 	unsigned int address_min, address_max;
 
 	address_min = HDMI_IN1_FRAMEBUFFERS_BASE & 0x0fffffff;
-	address_max = address_min + HDMI_IN1_FRAMEBUFFERS_SIZE*FRAMEBUFFER_COUNT;
+	address_max = address_min + FRAMEBUFFER_SIZE*FRAMEBUFFER_COUNT;
 	if((hdmi_in1_dma_slot0_status_read() == DVISAMPLER_SLOT_PENDING)
 		&& ((hdmi_in1_dma_slot0_address_read() < address_min) || (hdmi_in1_dma_slot0_address_read() > address_max)))
 		wprintf("dvisampler1: slot0: stray DMA\r\n");
@@ -163,7 +159,7 @@ void hdmi_in1_clear_framebuffers(void)
 	int i;
 	flush_l2_cache();
 	volatile unsigned int *framebuffer = (unsigned int *)(MAIN_RAM_BASE + HDMI_IN1_FRAMEBUFFERS_BASE);
-	for(i=0; i<(HDMI_IN1_FRAMEBUFFERS_SIZE*FRAMEBUFFER_COUNT)/4; i++) {
+	for(i=0; i<(FRAMEBUFFER_SIZE*FRAMEBUFFER_COUNT)/4; i++) {
 		framebuffer[i] = 0x80108010; /* black in YCbCr 4:2:2*/
 	}
 }
