@@ -12,7 +12,7 @@ def main():
     parser = argparse.ArgumentParser(description="SPI Flash contents tool")
     make_args(parser)
 
-    parser.add_argument("--output-file", default="flash.bin")
+    parser.add_argument("--output-file", default='flash.bin')
     parser.add_argument("--override-gateware")
     parser.add_argument("--override-bios")
     parser.add_argument("--override-firmware")
@@ -22,6 +22,14 @@ def main():
     args = parser.parse_args()
 
     builddir = make_builddir(args)
+    if os.path.sep not in args.output_file:
+        args.output_file = os.path.join(builddir, args.output_file)
+
+    output_file = args.output_file
+    output_dir = os.path.dirname(output_file)
+    assert os.path.exists(output_dir), (
+        "Directory %r doesn't exist!" % output_dir)
+
     gateware = os.path.join(builddir, "gateware", "top.bin")
     if args.override_gateware:
         if args.override_gateware.lower() == "none":
@@ -61,9 +69,8 @@ def main():
     bios_pos = platform.gateware_size
     firmware_pos = platform.gateware_size + BIOS_SIZE
 
-    output = os.path.join(builddir, args.output_file)
     print()
-    with open(output, "wb") as f:
+    with open(output_file, "wb") as f:
         # FPGA gateware
         if gateware:
             gateware_data = open(gateware, "rb").read()
@@ -130,8 +137,8 @@ def main():
             f.write(b'\xff' * (flash_size - f.tell()))
 
     print()
-    print("Flash image: {}".format(output))
-    flash_image_data = open(output, "rb").read()
+    print("Flash image: {}".format(output_file))
+    flash_image_data = open(output_file, "rb").read()
     print(" ".join("{:02x}".format(i) for i in flash_image_data[:64]))
 
 

@@ -96,7 +96,8 @@ $(IMAGE_FILE): $(GATEWARE_FILEBASE).bin $(BIOS_FILE) $(FIRMWARE_FILEBASE).fbi
 		$(MISOC_EXTRA_CMDLINE) $(LITEX_EXTRA_CMDLINE) \
 		--override-gateware=$(GATEWARE_FILEBASE).bin \
 		--override-bios=$(BIOS_FILE) \
-		--override-firmware=$(FIRMWARE_FILEBASE).fbi
+		--override-firmware=$(FIRMWARE_FILEBASE).fbi \
+		--output-file=$(IMAGE_FILE)
 
 $(TARGET_BUILD_DIR)/image.bin: $(IMAGE_FILE)
 	cp $< $@
