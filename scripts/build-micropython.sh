@@ -28,6 +28,7 @@ fi
 
 # Imports TARGET, PLATFORM, CPU and TARGET_BUILD_DIR from Makefile
 eval $(make env)
+make info
 
 set -x
 set -e

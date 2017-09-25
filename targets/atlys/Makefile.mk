@@ -1,6 +1,7 @@
 # atlys loading
 
 DEFAULT_TARGET = video
+TARGET ?= $(DEFAULT_TARGET)
 
 gateware-load-atlys: tftp
 	atlys-mode-switch --verbose --load-gateware $(GATEWARE_FILEBASE).bit
