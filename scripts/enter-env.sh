@@ -284,10 +284,11 @@ export HDMI2USB_ENV=1
 # Set prompt
 ORIG_PS1="$PS1"
 hdmi2usb_prompt() {
-	PS1="(H2U $(cd $TOP_DIR; make prompt)) $ORIG_PS1"
+	P="$(cd $TOP_DIR; make prompt)"
+	PS1="(H2U $P) $ORIG_PS1"
 	case "$TERM" in
 	xterm*|rxvt*)
-		PS1="$PS1\[\033]0;$P) \w\007\]"
+		PS1="$PS1\[\033]0;($P) \w\007\]"
 		;;
 	*)
 		;;
