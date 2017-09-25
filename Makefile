@@ -96,7 +96,8 @@ $(IMAGE_FILE): $(GATEWARE_FILEBASE).bin $(BIOS_FILE) $(FIRMWARE_FILEBASE).fbi
 		$(MISOC_EXTRA_CMDLINE) $(LITEX_EXTRA_CMDLINE) \
 		--override-gateware=$(GATEWARE_FILEBASE).bin \
 		--override-bios=$(BIOS_FILE) \
-		--override-firmware=$(FIRMWARE_FILEBASE).fbi
+		--override-firmware=$(FIRMWARE_FILEBASE).fbi \
+		--output-file=$(IMAGE_FILE)
 
 $(TARGET_BUILD_DIR)/image.bin: $(IMAGE_FILE)
 	cp $< $@
@@ -122,16 +123,20 @@ gateware: gateware-submodules
 	mkdir -p $(TARGET_BUILD_DIR)
 ifneq ($(OS),Windows_NT)
 	$(MAKE_CMD) \
-	2>&1 | $(FILTER) $(LOGFILE); (exit $${PIPESTATUS[0]})
+		2>&1 | $(FILTER) $(LOGFILE); (exit $${PIPESTATUS[0]})
 else
 	$(MAKE_CMD)
 endif
 
+gateware-fake:
+	touch $(GATEWARE_FILEBASE).bit
+	touch $(GATEWARE_FILEBASE).bin
+
 $(GATEWARE_FILEBASE).bit:
-	@touch $<
+	make gateware
 
 $(GATEWARE_FILEBASE).bin:
-	@touch $<
+	make gateware
 
 gateware-load: $(GATEWARE_FILEBASE).bit gateware-load-$(PLATFORM)
 	@true
@@ -146,15 +151,17 @@ gateware-clean:
 
 # Firmware - the stuff which runs in the soft CPU inside the FPGA.
 # --------------------------------------
-$(BIOS_FILE):
-$(FIRMWARE_FILEBASE).bin:
+firmware-cmd:
 	mkdir -p $(TARGET_BUILD_DIR)
 ifneq ($(OS),Windows_NT)
 	$(MAKE_CMD) --no-compile-gateware \
-	2>&1 | $(FILTER) $(LOGFILE); (exit $${PIPESTATUS[0]})
+		2>&1 | $(FILTER) $(LOGFILE); (exit $${PIPESTATUS[0]})
 else
 	$(MAKE_CMD) --no-compile-gateware
 endif
+
+$(FIRMWARE_FILEBASE).bin: firmware-cmd
+	@true
 
 $(FIRMWARE_FILEBASE).fbi: $(FIRMWARE_FILEBASE).bin
 	$(PYTHON) -m litex.soc.tools.mkmscimg -f $< -o $@
@@ -174,10 +181,18 @@ firmware-connect: firmware-connect-$(PLATFORM)
 firmware-clean:
 	rm -rf $(TARGET_BUILD_DIR)/software
 
-.PHONY: firmware firmware-load firmware-flash firmware-connect firmware-clean
+.PHONY: firmware-cmd $(FIRMWARE_FILEBASE).bin firmware firmware-load firmware-flash firmware-connect firmware-clean
 
-bios-flash: firmware bios-flash-$(PLATFORM)
+$(BIOS_FILE): firmware-cmd
 	@true
+
+bios: $(BIOS_FILE)
+	@true
+
+bios-flash: $(BIOS_FILE) bios-flash-$(PLATFORM)
+	@true
+
+.PHONY: $(FIRMWARE_FILE) bios bios-flash
 
 # TFTP booting stuff
 # --------------------------------------
@@ -232,6 +247,9 @@ prompt:
 	@if [ x"$(CPU)" != x"$(DEFAULT_CPU)" ]; then echo -n " C=$(CPU)"; fi
 	@if [ x"$(FIRMWARE)" != x"firmware" ]; then \
 		echo -n " F=$(FIRMWARE)"; \
+	fi
+	@if [ x"$(JIMMO)" != x"" ]; then \
+		echo -n " JIMMO"; \
 	fi
 	@if [ x"$(PROG)" != x"" ]; then echo -n " P=$(PROG)"; fi
 	@BRANCH="$(shell git symbolic-ref --short HEAD 2> /dev/null)"; \

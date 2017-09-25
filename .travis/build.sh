@@ -111,6 +111,7 @@ function build() {
 	echo "---------------------------------------------"
 	if [ $HAVE_XILINX_ISE -eq 0 ]; then
 		echo "Skipping gateware"
+		make gateware-fake
 	else
 		FILTER=$PWD/.travis/run-make-gateware-filter.py \
 			make gateware || return 1
