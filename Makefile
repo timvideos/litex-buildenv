@@ -147,15 +147,17 @@ gateware-clean:
 
 # Firmware - the stuff which runs in the soft CPU inside the FPGA.
 # --------------------------------------
-$(BIOS_FILE):
-$(FIRMWARE_FILEBASE).bin:
+firmware-cmd:
 	mkdir -p $(TARGET_BUILD_DIR)
 ifneq ($(OS),Windows_NT)
 	$(MAKE_CMD) --no-compile-gateware \
-	2>&1 | $(FILTER) $(LOGFILE); (exit $${PIPESTATUS[0]})
+		2>&1 | $(FILTER) $(LOGFILE); (exit $${PIPESTATUS[0]})
 else
 	$(MAKE_CMD) --no-compile-gateware
 endif
+
+$(FIRMWARE_FILEBASE).bin: firmware-cmd
+	@true
 
 $(FIRMWARE_FILEBASE).fbi: $(FIRMWARE_FILEBASE).bin
 	$(PYTHON) -m litex.soc.tools.mkmscimg -f $< -o $@
@@ -175,10 +177,18 @@ firmware-connect: firmware-connect-$(PLATFORM)
 firmware-clean:
 	rm -rf $(TARGET_BUILD_DIR)/software
 
-.PHONY: firmware firmware-load firmware-flash firmware-connect firmware-clean
+.PHONY: firmware-cmd $(FIRMWARE_FILEBASE).bin firmware firmware-load firmware-flash firmware-connect firmware-clean
 
-bios-flash: firmware bios-flash-$(PLATFORM)
+$(BIOS_FILE): firmware-cmd
 	@true
+
+bios: $(BIOS_FILE)
+	@true
+
+bios-flash: $(BIOS_FILE) bios-flash-$(PLATFORM)
+	@true
+
+.PHONY: $(FIRMWARE_FILE) bios bios-flash
 
 # TFTP booting stuff
 # --------------------------------------
