@@ -69,7 +69,6 @@ all: firmware.bin firmware.fbi
 %.bin: %.elf
 	$(OBJCOPY) -O binary $< $@
 	chmod -x $@
-	$(PYTHON) -m litex.soc.tools.mkmscimg $<
 
 firmware.elf: $(FIRMWARE_DIRECTORY)/linker.ld $(OBJECTS)
 
