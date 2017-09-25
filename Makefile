@@ -234,6 +234,9 @@ prompt:
 	@if [ x"$(FIRMWARE)" != x"firmware" ]; then \
 		echo -n " F=$(FIRMWARE)"; \
 	fi
+	@if [ x"$(JIMMO)" != x"" ]; then \
+		echo -n " JIMMO"; \
+	fi
 	@if [ x"$(PROG)" != x"" ]; then echo -n " P=$(PROG)"; fi
 	@BRANCH="$(shell git symbolic-ref --short HEAD 2> /dev/null)"; \
 		if [ "$$BRANCH" != "master" ]; then \
