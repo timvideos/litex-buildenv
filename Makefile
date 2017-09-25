@@ -123,16 +123,16 @@ gateware: gateware-submodules
 	mkdir -p $(TARGET_BUILD_DIR)
 ifneq ($(OS),Windows_NT)
 	$(MAKE_CMD) \
-	2>&1 | $(FILTER) $(LOGFILE); (exit $${PIPESTATUS[0]})
+		2>&1 | $(FILTER) $(LOGFILE); (exit $${PIPESTATUS[0]})
 else
 	$(MAKE_CMD)
 endif
 
 $(GATEWARE_FILEBASE).bit:
-	@touch $<
+	make gateware
 
 $(GATEWARE_FILEBASE).bin:
-	@touch $<
+	make gateware
 
 gateware-load: $(GATEWARE_FILEBASE).bit gateware-load-$(PLATFORM)
 	@true
