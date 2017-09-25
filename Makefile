@@ -128,6 +128,10 @@ else
 	$(MAKE_CMD)
 endif
 
+gateware-fake:
+	touch $(GATEWARE_FILEBASE).bit
+	touch $(GATEWARE_FILEBASE).bin
+
 $(GATEWARE_FILEBASE).bit:
 	make gateware
 
