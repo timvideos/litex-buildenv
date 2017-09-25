@@ -78,7 +78,6 @@ firmware.elf: $(FIRMWARE_DIRECTORY)/linker.ld $(OBJECTS)
 		-N -o $@ \
                 ../libbase/crt0-$(CPU).o \
                 $(OBJECTS) \
-                -L../libnet \
                 -L../libbase \
 		-lbase-nofloat \
                 -L../libcompiler_rt \
