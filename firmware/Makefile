@@ -72,7 +72,7 @@ all: firmware.bin firmware.fbi
 
 firmware.elf: $(FIRMWARE_DIRECTORY)/linker.ld $(OBJECTS)
 
-%.elf:
+%.elf: ../libbase/crt0-$(CPU).o ../libbase/libbase-nofloat.a ../libcompiler_rt/libcompiler_rt.a ../uip/libuip.a
 	$(LD) $(LDFLAGS) \
 		-T $(FIRMWARE_DIRECTORY)/linker.ld \
 		-N -o $@ \
