@@ -91,12 +91,18 @@ third_party/%/.git: .gitmodules
 
 # Image - a combination of multiple parts (gateware+bios+firmware+more?)
 # --------------------------------------
+ifeq ($(FIRMWARE),none)
+OVERRIDE_FIRMWARE=--override-firmware=none
+else
+OVERRIDE_FIRMWARE=--override-firmware=$(FIRMWARE_FILEBASE).fbi
+endif
+
 $(IMAGE_FILE): $(GATEWARE_FILEBASE).bin $(BIOS_FILE) $(FIRMWARE_FILEBASE).fbi
 	$(PYTHON) mkimage.py \
 		$(MISOC_EXTRA_CMDLINE) $(LITEX_EXTRA_CMDLINE) \
 		--override-gateware=$(GATEWARE_FILEBASE).bin \
 		--override-bios=$(BIOS_FILE) \
-		--override-firmware=$(FIRMWARE_FILEBASE).fbi \
+		$(OVERRIDE_FIRMWARE) \
 		--output-file=$(IMAGE_FILE)
 
 $(TARGET_BUILD_DIR)/image.bin: $(IMAGE_FILE)
