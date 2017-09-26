@@ -28,6 +28,7 @@ fi
 
 # Imports TARGET, PLATFORM, CPU and TARGET_BUILD_DIR from Makefile
 eval $(make env)
+make info
 
 set -x
 set -e
@@ -85,7 +86,7 @@ cd $TARGET_QEMU_BUILD_DIR
 make -j8
 cd $OLD_DIR
 
-/usr/bin/env python mkimage.py $MISOC_EXTRA_CMDLINE $LITEX_EXTRA_CMDLINE --output-file=qemu.bin --override-gateware=none --force-image-size=true
+/usr/bin/env python mkimage.py $MISOC_EXTRA_CMDLINE $LITEX_EXTRA_CMDLINE --output-file=qemu.bin --override-gateware=none --force-image-size=true $OVERRIDE_FIRMWARE
 $TARGET_QEMU_BUILD_DIR/qemu-img convert -f raw $TARGET_BUILD_DIR/qemu.bin -O qcow2 -S 16M $TARGET_BUILD_DIR/qemu.qcow2
 
 # BIOS
