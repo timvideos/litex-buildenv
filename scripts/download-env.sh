@@ -157,7 +157,7 @@ echo ""
 echo "Initializing environment"
 echo "---------------------------------"
 # Install and setup conda for downloading packages
-export PATH=$CONDA_DIR/bin:$PATH
+export PATH=$CONDA_DIR/bin:$PATH:/sbin
 (
 	echo
 	echo "Installing conda (self contained Python environment with binary package support)"

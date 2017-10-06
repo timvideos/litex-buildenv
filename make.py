@@ -29,7 +29,11 @@ def get_builddir(args):
     assert args.platform is not None
     assert args.target is not None
     assert args.cpu_type is not None
-    return "build/{}_{}_{}/".format(args.platform, args.target.lower(), args.cpu_type)
+    full_platform = args.platform
+    for name, value in args.target_option:
+        if name == 'tofe_board':
+            full_platform = "{}.{}".format(full_platform, value)
+    return "build/{}_{}_{}/".format(full_platform.lower(), args.target.lower(), args.cpu_type)
 
 
 def get_testdir(args):

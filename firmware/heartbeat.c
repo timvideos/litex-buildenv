@@ -5,11 +5,12 @@
 #include <system.h>
 #include <time.h>
 
-#include "heartbeat.h"
-#include "processor.h"
 #include "hdmi_in0.h"
 #include "hdmi_in1.h"
+#include "heartbeat.h"
+#include "processor.h"
 #include "pattern.h"
+#include "stdio_wrap.h"
 
 static bool heartbeat_status = false;
 
@@ -21,16 +22,16 @@ void hb_status(bool val)
 	heartbeat_status = val;
 }
 
-void hb_service(int sink)
+void hb_service(fb_ptrdiff_t fb_offset)
 {
 	static int last_event;
 	static int counter;
 	static bool color_v;
 
 	if (heartbeat_status==1) {
+		hb_fill(color_v, fb_offset);
 		if(elapsed(&last_event, SYSTEM_CLOCK_FREQUENCY/FILL_RATE)) {
-			counter = counter+1;
-			hb_fill(color_v, sink);
+			counter = counter + 1;
 			if(counter > FILL_RATE/(HEARTBEAT_FREQUENCY*2)) {
 				color_v = !color_v;
 				counter = 0;
@@ -39,30 +40,12 @@ void hb_service(int sink)
 	}
 }
 
-void hb_fill(bool color_v, int sink)
+void hb_fill(bool color_v, fb_ptrdiff_t fb_offset)
 {
 	int addr, i, j;
 	unsigned int color;
 
-	volatile unsigned int *framebuffer = (unsigned int *)(MAIN_RAM_BASE + pattern_framebuffer_base());
-
-	/*
-#ifdef CSR_HDMI_OUT0_BASE
-	if (sink == VIDEO_OUT_HDMI_OUT0) {
-		framebuffer = (unsigned int *)(MAIN_RAM_BASE + HDMI_IN0_FRAMEBUFFERS_BASE);
-	}
-#endif
-#ifdef CSR_HDMI_OUT1_BASE
-	if (sink == VIDEO_OUT_HDMI_OUT1) {
-		framebuffer = (unsigned int *)(MAIN_RAM_BASE + HDMI_IN1_FRAMEBUFFERS_BASE);
-	}
-#endif
-#ifdef ENCODER_BASE
-	if (sink == VIDEO_OUT_ENCODER) {
-		framebuffer = (unsigned int *)(MAIN_RAM_BASE + encoder_reader_base_read());
-	}
-#endif
-	*/
+	unsigned int *framebuffer = fb_ptrdiff_to_main_ram(fb_offset);
 
 	/*
 	8x8 pixel square at right bottom corner

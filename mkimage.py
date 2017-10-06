@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+"""
+Flash image creation tool.
+"""
 
 import os
 import argparse
@@ -7,17 +10,26 @@ import make
 
 
 def main():
-    parser = argparse.ArgumentParser(description="SPI flash image creation tool")
+    parser = argparse.ArgumentParser(description=__doc__)
     make.get_args(parser)
 
     parser.add_argument("--output-file", default="image.bin")
     parser.add_argument("--override-gateware")
     parser.add_argument("--override-bios")
+    parser.add_argument("--firmware-name", default="HDMI2USB")
     parser.add_argument("--force-image-size")
 
     args = parser.parse_args()
 
     builddir = make.get_builddir(args)
+    if os.path.sep not in args.output_file:
+        args.output_file = os.path.join(builddir, args.output_file)
+
+    output_file = args.output_file
+    output_dir = os.path.dirname(output_file)
+    assert os.path.exists(output_dir), (
+        "Directory %r doesn't exist!" % output_dir)
+
     gateware = make.get_gateware(builddir, "flash")
     if args.override_gateware:
         if args.override_gateware.lower() == "none":
@@ -61,9 +73,8 @@ def main():
     bios_pos = platform.gateware_size
     firmware_pos = platform.gateware_size + make.BIOS_SIZE
 
-    output = os.path.join(builddir, args.output_file)
     print()
-    with open(output, "wb") as f:
+    with open(output_file, "wb") as f:
         # FPGA gateware
         if gateware:
             gateware_data = open(gateware, "rb").read()
@@ -102,8 +113,10 @@ def main():
 
         # SoftCPU firmware
         print(("Firmware @ 0x{:08x} ({:10} bytes) {:60}"
-               " - HDMI2USB Firmware in FBI format (loaded into DRAM)"
-               ).format(firmware_pos, len(firmware_data), firmware))
+               " - {} Firmware in FBI format (loaded into DRAM)"
+               ).format(
+                   firmware_pos, len(firmware_data), firmware,
+                   args.firmware_name))
         print(" ".join("{:02x}".format(i) for i in firmware_data[:64]))
         f.seek(firmware_pos)
         f.write(firmware_data)
@@ -128,8 +141,8 @@ def main():
             f.write(b'\xff' * (flash_size - f.tell()))
 
     print()
-    print("Flash image: {}".format(output))
-    flash_image_data = open(output, "rb").read()
+    print("Flash image: {}".format(output_file))
+    flash_image_data = open(output_file, "rb").read()
     print(" ".join("{:02x}".format(i) for i in flash_image_data[:64]))
 
 

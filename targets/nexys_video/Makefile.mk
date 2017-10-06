@@ -1,6 +1,6 @@
 # nexys_video loading
 
-TARGET ?= video
+DEFAULT_TARGET = video
 
 load-gateware-nexys_video:
 	echo "Not working yet."
@@ -10,4 +10,7 @@ load-firmware-nexys_video:
 	echo "Not working yet."
 	false
 
-.PHONY: load-gateware-nexys_video load-firmware-nexys_video
+help-nexys_video:
+	@true
+
+.PHONY: load-gateware-nexys_video load-firmware-nexys_video help-nexys_video

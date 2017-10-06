@@ -28,7 +28,7 @@ class AxiomSoC(BaseSoC):
     csr_map_update(BaseSoC.csr_map, csr_peripherals)
 
     def __init__(self, platform, *args, **kwargs):
-        BaseSoC.__init__(self, platform, *args, tofe_board='tofe2axiom', **kwargs)
+        BaseSoC.__init__(self, platform, *args, expansion='tofe2axiom', **kwargs)
 
         self.submodules.gpio = GPIO2TOFE(platform.request("tofe", 0))
 

@@ -1,18 +1,21 @@
 # atlys loading
 
-TARGET ?= video
+DEFAULT_TARGET = video
 
 gateware-load-atlys: tftp
-	atlys-mode-switch --verbose --load-gateware $(TARGET_BUILD_DIR)/gateware/top.bit
+	atlys-mode-switch --verbose --load-gateware $(GATEWARE_FILEBASE).bit
 
 firmware-load-atlys:
-	flterm --port=$$(atlys-mode-switch --get-serial-device) --kernel=$(TARGET_BUILD_DIR)/software/firmware/firmware.bin
+	flterm --port=$$(atlys-mode-switch --get-serial-device) --kernel=$(FIRMWARE_FILEBASE).bin
 
 reset-atlys:
 	atlys-mode-switch --verbose --mode=jtag
 
 flash-atlys:
-	atlys-mode-switch --verbose --flash-gateware=$(TARGET_BUILD_DIR)/gateware/top.bin
-	atlys-mode-switch --verbose --flash-lm32-firmware=$(TARGET_BUILD_DIR)/software/firmware/firmware.fbi
+	atlys-mode-switch --verbose --flash-gateware=$(GATEWARE_FILEBASE).bin
+	atlys-mode-switch --verbose --flash-softcpu-firmware=$(FIRMWARE_FILEBASE).fbi
 
-.PHONY: gateware-load-atlys firmware-load-atlys reset-atlys flash-opsis
+help-atlys:
+	@echo " make reset-atlys"
+
+.PHONY: gateware-load-atlys firmware-load-atlys reset-atlys flash-atlys help-atlys

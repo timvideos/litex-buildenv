@@ -26,18 +26,8 @@ if [ -z "$HDMI2USB_ENV" ]; then
         exit 1
 fi
 
-if [ -z "$PLATFORM" ]; then
-	echo "Please set PLATFORM"
-	exit 1
-fi
-if [ -z "$TARGET" ]; then
-	echo "Please set TARGET"
-	exit 1
-fi
-if [ -z "$CPU" ]; then
-	echo "Please set CPU"
-	exit 1
-fi
+# Imports TARGET, PLATFORM, CPU and TARGET_BUILD_DIR from Makefile
+eval $(make env)
 
 set -x
 set -e
@@ -59,7 +49,6 @@ if [ ! -d "$MPY_SRC_DIR" ]; then
 fi
 
 # Generate the bios and local firmware
-TARGET_BUILD_DIR=$(realpath build)/${PLATFORM}_${TARGET}_${CPU}/
 if [ ! -d $TARGET_BUILD_DIR/software/include/generated ]; then
 	make firmware
 fi
@@ -70,19 +59,20 @@ if [ ! -e "$TARGET_MPY_BUILD_DIR/generated" ]; then
 	mkdir -p $TARGET_MPY_BUILD_DIR
 	(
 		cd $TARGET_MPY_BUILD_DIR
-		ln -s $(realpath $PWD/../../software/include/generated) $TARGET_MPY_BUILD_DIR/generated
+		ln -s $(realpath $PWD/../../software/include/generated) generated
 	)
 fi
+TARGET_MPY_BUILD_DIR="$(realpath $TARGET_BUILD_DIR/software/micropython)"
 
 # Build micropython
+export CROSS_COMPILE=$CPU-elf-newlib-
+export BUILDINC_DIRECTORY="$(realpath $TARGET_BUILD_DIR/software/include)"
+export BUILD="$(realpath $TARGET_MPY_BUILD_DIR)"
 OLD_DIR=$PWD
 cd $TARGET_MPY_BUILD_DIR
-export CROSS_COMPILE=$CPU-elf-newlib-
-export BUILDINC_DIRECTORY=$TARGET_BUILD_DIR/software/include
-export BUILD=$TARGET_MPY_BUILD_DIR
-make -C ../../../../third_party/micropython/litex/
+make V=1 -C $(realpath ../../../../third_party/micropython/litex/)
 cd $OLD_DIR
 
 # Generate a firmware image suitable for flashing.
 python -m litex.soc.tools.mkmscimg -f $TARGET_MPY_BUILD_DIR/firmware.bin -o $TARGET_MPY_BUILD_DIR/firmware.fbi
-/usr/bin/env python mkimage.py --output-file=$TARGET_BUILD_DIR/micropython.bin --override-firmware=$TARGET_MPY_BUILD_DIR/firmware.fbi
+/usr/bin/env python mkimage.py $MISOC_EXTRA_CMDLINE $LITEX_EXTRA_CMDLINE --output-file=$TARGET_BUILD_DIR/micropython.bin --override-firmware=$TARGET_MPY_BUILD_DIR/firmware.fbi

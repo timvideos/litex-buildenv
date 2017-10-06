@@ -5,7 +5,6 @@ from litex.gen import *
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 from litex.gen.genlib.misc import WaitTimer
 
-from litex.soc.cores.flash import spi_flash
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.gpio import GPIOIn, GPIOOut
@@ -20,6 +19,7 @@ from gateware import info
 from gateware import opsis_i2c
 from gateware import shared_uart
 from gateware import tofe
+from gateware import spi_flash
 
 from targets.utils import csr_map_update
 
@@ -231,9 +231,9 @@ class BaseSoC(SoCSDRAM):
     def __init__(self, platform, **kwargs):
         clk_freq = 50*1000000
 
-        if 'tofe_board' in kwargs:
-            tofe_board_name = kwargs.get('tofe_board')
-            del kwargs['tofe_board']
+        if 'expansion' in kwargs:
+            tofe_board_name = kwargs.get('expansion')
+            del kwargs['expansion']
         else:
             tofe_board_name = None
 

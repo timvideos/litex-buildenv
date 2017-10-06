@@ -111,6 +111,7 @@ function build() {
 	echo "---------------------------------------------"
 	if [ $HAVE_XILINX_ISE -eq 0 ]; then
 		echo "Skipping gateware"
+		make gateware-fake
 	else
 		FILTER=$PWD/.travis/run-make-gateware-filter.py \
 			make gateware || return 1
@@ -196,15 +197,6 @@ function build() {
 		cp $TARGET_BUILD_DIR/software/firmware/version_data.c $COPY_DEST/logs/version_data.c
 		cp $TARGET_BUILD_DIR/output.*.log $COPY_DEST/logs/
 
-		# Only hdmi2usb + lm32 is considered usable at the moment
-		UNSTABLE_LINK="$PLATFORM/firmware/unstable"
-		if [ "$TARGET" = "hdmi2usb" -a "$CPU" = "lm32" ]; then
-			# Create link to latest unstable build
-			rm $UNSTABLE_LINK
-			ln -s ../../$COPY_DEST $UNSTABLE_LINK
-			echo ""
-			echo "- Added symlink of $UNSTABLE_LINK -> $COPY_DEST"
-		fi
 		(
 		cd $COPY_DEST
 		sha256sum $(find -type f) > sha256sum.txt
@@ -338,12 +330,56 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 	echo "============================================="
 	(
 	cd $PREBUILT_DIR
-	git diff origin/master --stat=1000,1000
-	while true; do
-		git push --quiet origin master > /dev/null 2>&1 && break
+	for i in 1 2 3 4 5 6 7 8 9 10; do	# Try 10 times.
+		if [ "$TRAVIS_BRANCH" = "master" ]; then
+			for PLATFORM in $PLATFORMS; do
+				(
+				if [ ! -d "$PLATFORM/firmware" ]; then
+					continue
+				fi
+				echo
+				echo "Updating unstable link (Try $i)"
+				echo "---------------------------------------------"
+				cd $PLATFORM/firmware
+				LATEST="$(ls ../../archive/master/ | tail -n 1)"
+				HDMI2USB_FIRMWARE="../../archive/master/$LATEST/$PLATFORM/hdmi2usb/lm32"
+				echo "Checking for '$HDMI2USB_FIRMWARE'"
+				if [ -d "$HDMI2USB_FIRMWARE" -a "$(readlink unstable)" != "$HDMI2USB_FIRMWARE" ]; then
+					echo "Changing $PLATFORM from '$(readlink unstable)' to '$HDMI2USB_FIRMWARE'"
+					ln -sfT "$HDMI2USB_FIRMWARE" unstable
+					git add unstable
+					git commit -a \
+						-m "Updating unstable link (Travis build #$TRAVIS_BUILD_NUMBER of $GIT_REVISION for PLATFORM=$PLATFORM TARGET=$TARGET CPU=$CPU)" \
+						-m "" \
+						-m "From https://github.com/$TRAVIS_REPO_SLUG/tree/$TRAVIS_COMMIT" \
+						-m "$TRAVIS_COMIT_MESSAGE"
+				else
+					echo "Not updating $PLATFORM"
+				fi
+				)
+			done
+		fi
+		echo
+		echo "Merging (Try $i)"
+		echo "---------------------------------------------"
 		git fetch
-		git merge origin/master -m "Merging #$TRAVIS_JOB_NUMBER of $GIT_REVISION"
+		git merge origin/master --stat --commit -m "Merging #$TRAVIS_JOB_NUMBER of $GIT_REVISION"
+		echo
+		echo "Changes to be pushed (Try $i)"
+		echo "---------------------------------------------"
+		git diff origin/master --stat=1000,1000
+		git diff origin/master --quiet --exit-code && break
+		echo
+		echo "Pushing (Try $i)"
+		echo "---------------------------------------------"
+		if git push --quiet origin master > /dev/null 2>&1 ; then
+			echo "Push success!"
+		else
+			echo "Push failed :-("
+		fi
 	done
+	echo
+	echo "Push finished!"
 	)
 fi
 

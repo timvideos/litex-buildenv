@@ -42,7 +42,7 @@ if [ -d /lib/firmware/ixo-usb-jtag/ ]; then
 	return 1
 fi
 
-if [ -f /etc/udev/rules.d/99-hdmi2usb-permissions.rules -o -f /lib/udev/rules.d/99-hdmi2usb-permissions.rules -o ! -z "$HDMI2USB_UDEV_IGNORE" ]; then
+if [ -f /etc/udev/rules.d/99-hdmi2usb-permissions.rules -o -f /lib/udev/rules.d/99-hdmi2usb-permissions.rules -o -f /lib/udev/rules.d/60-hdmi2usb-udev.rules -o ! -z "$HDMI2USB_UDEV_IGNORE" ]; then
 	true
 else
 	echo "Please install the HDMI2USB udev rules."
@@ -165,7 +165,8 @@ echo "---------------------------------"
 
 # fxload
 
-
+# check sbin for fxload as well
+export PATH=$PATH:/sbin
 
 check_exists fxload || return 1
 
@@ -283,28 +284,11 @@ export HDMI2USB_ENV=1
 # Set prompt
 ORIG_PS1="$PS1"
 hdmi2usb_prompt() {
-	P="(H2U P=$PLATFORM"
-
-	if [ ! -z "$TARGET" ]; then
-		P="$P T=$TARGET"
-	fi
-	if [ ! -z "$PROG" ]; then
-		P="$P P=$PROG"
-	fi
-
-	BRANCH="$(git symbolic-ref --short HEAD 2> /dev/null)"
-	if [ "$BRANCH" != "master" ]; then
-		if [ x"$BRANCH" = x ]; then
-			BRANCH="???"
-		fi
-		P="$P R=$BRANCH"
-	fi
-
-	PS1="$P) $ORIG_PS1"
-
+	P="$(cd $TOP_DIR; make prompt)"
+	PS1="(H2U $P) $ORIG_PS1"
 	case "$TERM" in
 	xterm*|rxvt*)
-		PS1="$PS1\[\033]0;$P) \w\007\]"
+		PS1="$PS1\[\033]0;($P) \w\007\]"
 		;;
 	*)
 		;;
