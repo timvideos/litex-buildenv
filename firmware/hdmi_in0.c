@@ -113,7 +113,11 @@ void hdmi_in0_init_video(int hres, int vres)
 void hdmi_in0_enable(void)
 {
 	unsigned int mask;
+#ifdef CSR_HDMI_IN0_CLOCKING_PLL_RESET_ADDR
 	hdmi_in0_clocking_pll_reset_write(1);
+#elif CSR_HDMI_IN0_CLOCKING_MMCM_RESET_ADDR
+	hdmi_in0_clocking_mmcm_reset_write(1);
+#endif
 	hdmi_in0_connected = hdmi_in0_locked = 0;
 
 	hdmi_in0_dma_frame_size_write(hdmi_in0_hres*hdmi_in0_vres*2);
@@ -151,7 +155,11 @@ void hdmi_in0_disable(void)
 
 	hdmi_in0_dma_slot0_status_write(DVISAMPLER_SLOT_EMPTY);
 	hdmi_in0_dma_slot1_status_write(DVISAMPLER_SLOT_EMPTY);
+#ifdef CSR_HDMI_IN0_CLOCKING_PLL_RESET_ADDR
 	hdmi_in0_clocking_pll_reset_write(1);
+#elif CSR_HDMI_IN0_CLOCKING_MMCM_RESET_ADDR
+	hdmi_in0_clocking_mmcm_reset_write(1);
+#endif
 }
 
 void hdmi_in0_clear_framebuffers(void)
@@ -207,8 +215,9 @@ static int wait_idelays(void)
 	return 1;
 }
 
-int hdmi_in0_calibrate_delays(void)
+int hdmi_in0_calibrate_delays(int freq)
 {
+#ifdef CSR_HDMI_IN0_CLOCKING_PLL_RESET_ADDR
 	hdmi_in0_data0_cap_dly_ctl_write(DVISAMPLER_DELAY_MASTER_CAL|DVISAMPLER_DELAY_SLAVE_CAL);
 	hdmi_in0_data1_cap_dly_ctl_write(DVISAMPLER_DELAY_MASTER_CAL|DVISAMPLER_DELAY_SLAVE_CAL);
 	hdmi_in0_data2_cap_dly_ctl_write(DVISAMPLER_DELAY_MASTER_CAL|DVISAMPLER_DELAY_SLAVE_CAL);
@@ -217,10 +226,25 @@ int hdmi_in0_calibrate_delays(void)
 	hdmi_in0_data0_cap_dly_ctl_write(DVISAMPLER_DELAY_MASTER_RST|DVISAMPLER_DELAY_SLAVE_RST);
 	hdmi_in0_data1_cap_dly_ctl_write(DVISAMPLER_DELAY_MASTER_RST|DVISAMPLER_DELAY_SLAVE_RST);
 	hdmi_in0_data2_cap_dly_ctl_write(DVISAMPLER_DELAY_MASTER_RST|DVISAMPLER_DELAY_SLAVE_RST);
+#elif CSR_HDMI_IN0_CLOCKING_MMCM_RESET_ADDR
+	int i, phase_detector_delay;
+	hdmi_in0_data0_cap_dly_ctl_write(DVISAMPLER_DELAY_RST);
+	hdmi_in0_data1_cap_dly_ctl_write(DVISAMPLER_DELAY_RST);
+	hdmi_in0_data2_cap_dly_ctl_write(DVISAMPLER_DELAY_RST);
 	hdmi_in0_data0_cap_phase_reset_write(1);
 	hdmi_in0_data1_cap_phase_reset_write(1);
 	hdmi_in0_data2_cap_phase_reset_write(1);
 	hdmi_in0_d0 = hdmi_in0_d1 = hdmi_in0_d2 = 0;
+
+	/* preload slave phase detector idelay with 90° phase shift
+	  (78 ps taps on 7-series) */
+	phase_detector_delay = 10000000/(4*freq*78);
+	for(i=0; i<phase_detector_delay; i++) {
+		hdmi_in0_data0_cap_dly_ctl_write(DVISAMPLER_DELAY_SLAVE_INC);
+		hdmi_in0_data1_cap_dly_ctl_write(DVISAMPLER_DELAY_SLAVE_INC);
+		hdmi_in0_data2_cap_dly_ctl_write(DVISAMPLER_DELAY_SLAVE_INC);
+	}
+#endif
 	return 1;
 }
 
@@ -228,48 +252,78 @@ int hdmi_in0_adjust_phase(void)
 {
 	switch(hdmi_in0_data0_cap_phase_read()) {
 		case DVISAMPLER_TOO_LATE:
+#ifdef CSR_HDMI_IN0_CLOCKING_PLL_RESET_ADDR
 			hdmi_in0_data0_cap_dly_ctl_write(DVISAMPLER_DELAY_DEC);
 			if(!wait_idelays())
 				return 0;
+#elif CSR_HDMI_IN0_CLOCKING_MMCM_RESET_ADDR
+			hdmi_in0_data0_cap_dly_ctl_write(DVISAMPLER_DELAY_MASTER_DEC |
+				                             DVISAMPLER_DELAY_SLAVE_DEC);
+#endif
 			hdmi_in0_d0--;
 			hdmi_in0_data0_cap_phase_reset_write(1);
 			break;
 		case DVISAMPLER_TOO_EARLY:
+#ifdef CSR_HDMI_IN0_CLOCKING_PLL_RESET_ADDR
 			hdmi_in0_data0_cap_dly_ctl_write(DVISAMPLER_DELAY_INC);
 			if(!wait_idelays())
 				return 0;
+#elif CSR_HDMI_IN0_CLOCKING_MMCM_RESET_ADDR
+			hdmi_in0_data0_cap_dly_ctl_write(DVISAMPLER_DELAY_MASTER_INC |
+				                             DVISAMPLER_DELAY_SLAVE_INC);
+#endif
 			hdmi_in0_d0++;
 			hdmi_in0_data0_cap_phase_reset_write(1);
 			break;
 	}
 	switch(hdmi_in0_data1_cap_phase_read()) {
 		case DVISAMPLER_TOO_LATE:
+#ifdef CSR_HDMI_IN0_CLOCKING_PLL_RESET_ADDR
 			hdmi_in0_data1_cap_dly_ctl_write(DVISAMPLER_DELAY_DEC);
 			if(!wait_idelays())
 				return 0;
+#elif CSR_HDMI_IN0_CLOCKING_MMCM_RESET_ADDR
+			hdmi_in0_data1_cap_dly_ctl_write(DVISAMPLER_DELAY_MASTER_DEC |
+				                             DVISAMPLER_DELAY_SLAVE_DEC);
+#endif
 			hdmi_in0_d1--;
 			hdmi_in0_data1_cap_phase_reset_write(1);
 			break;
 		case DVISAMPLER_TOO_EARLY:
+#ifdef CSR_HDMI_IN0_CLOCKING_PLL_RESET_ADDR
 			hdmi_in0_data1_cap_dly_ctl_write(DVISAMPLER_DELAY_INC);
 			if(!wait_idelays())
 				return 0;
+#elif CSR_HDMI_IN0_CLOCKING_MMCM_RESET_ADDR
+			hdmi_in0_data1_cap_dly_ctl_write(DVISAMPLER_DELAY_MASTER_INC |
+				                             DVISAMPLER_DELAY_SLAVE_INC);
+#endif
 			hdmi_in0_d1++;
 			hdmi_in0_data1_cap_phase_reset_write(1);
 			break;
 	}
 	switch(hdmi_in0_data2_cap_phase_read()) {
 		case DVISAMPLER_TOO_LATE:
+#ifdef CSR_HDMI_IN0_CLOCKING_PLL_RESET_ADDR
 			hdmi_in0_data2_cap_dly_ctl_write(DVISAMPLER_DELAY_DEC);
 			if(!wait_idelays())
 				return 0;
+#elif CSR_HDMI_IN0_CLOCKING_MMCM_RESET_ADDR
+			hdmi_in0_data2_cap_dly_ctl_write(DVISAMPLER_DELAY_MASTER_DEC |
+				                             DVISAMPLER_DELAY_SLAVE_DEC);
+#endif
 			hdmi_in0_d2--;
 			hdmi_in0_data2_cap_phase_reset_write(1);
 			break;
 		case DVISAMPLER_TOO_EARLY:
+#ifdef CSR_HDMI_IN0_CLOCKING_PLL_RESET_ADDR
 			hdmi_in0_data2_cap_dly_ctl_write(DVISAMPLER_DELAY_INC);
 			if(!wait_idelays())
 				return 0;
+#elif CSR_HDMI_IN0_CLOCKING_MMCM_RESET_ADDR
+			hdmi_in0_data2_cap_dly_ctl_write(DVISAMPLER_DELAY_MASTER_INC |
+				                             DVISAMPLER_DELAY_SLAVE_INC);
+#endif
 			hdmi_in0_d2++;
 			hdmi_in0_data2_cap_phase_reset_write(1);
 			break;
@@ -296,7 +350,7 @@ int hdmi_in0_init_phase(void)
 	return 0;
 }
 
-int hdmi_in0_phase_startup(void)
+int hdmi_in0_phase_startup(int freq)
 {
 	int ret;
 	int attempts;
@@ -304,7 +358,7 @@ int hdmi_in0_phase_startup(void)
 	attempts = 0;
 	while(1) {
 		attempts++;
-		hdmi_in0_calibrate_delays();
+		hdmi_in0_calibrate_delays(freq);
 		if(hdmi_in0_debug)
 			wprintf("dvisampler0: delays calibrated\r\n");
 		ret = hdmi_in0_init_phase();
@@ -316,7 +370,7 @@ int hdmi_in0_phase_startup(void)
 			wprintf("dvisampler0: phase init failed\r\n");
 			if(attempts > 3) {
 				wprintf("dvisampler0: giving up\r\n");
-				hdmi_in0_calibrate_delays();
+				hdmi_in0_calibrate_delays(freq);
 				return 0;
 			}
 		}
@@ -354,7 +408,7 @@ static int hdmi_in0_clocking_locked_filtered(void)
 	return 0;
 }
 
-void hdmi_in0_service(void)
+void hdmi_in0_service(int freq)
 {
 	static int last_event;
 
@@ -364,7 +418,11 @@ void hdmi_in0_service(void)
 				wprintf("dvisampler0: disconnected\r\n");
 			hdmi_in0_connected = 0;
 			hdmi_in0_locked = 0;
+#ifdef CSR_HDMI_IN0_CLOCKING_PLL_RESET_ADDR
 			hdmi_in0_clocking_pll_reset_write(1);
+#elif CSR_HDMI_IN0_CLOCKING_MMCM_RESET_ADDR
+			hdmi_in0_clocking_mmcm_reset_write(1);
+#endif
 			hdmi_in0_clear_framebuffers();
 		} else {
 			if(hdmi_in0_locked) {
@@ -384,7 +442,7 @@ void hdmi_in0_service(void)
 				if(hdmi_in0_clocking_locked_filtered()) {
 					if(hdmi_in0_debug)
 						wprintf("dvisampler0: PLL locked\r\n");
-					hdmi_in0_phase_startup();
+					hdmi_in0_phase_startup(freq);
 					if(hdmi_in0_debug)
 						hdmi_in0_print_status();
 					hdmi_in0_locked = 1;
@@ -396,7 +454,11 @@ void hdmi_in0_service(void)
 			if(hdmi_in0_debug)
 				wprintf("dvisampler0: connected\r\n");
 			hdmi_in0_connected = 1;
+#ifdef CSR_HDMI_IN0_CLOCKING_PLL_RESET_ADDR
 			hdmi_in0_clocking_pll_reset_write(0);
+#elif CSR_HDMI_IN0_CLOCKING_MMCM_RESET_ADDR
+			hdmi_in0_clocking_mmcm_reset_write(0);
+#endif
 		}
 	}
 	hdmi_in0_check_overflow();

@@ -53,28 +53,34 @@ _io = [
     ),
 
     ("hdmi_in", 0,
-        Subsignal("clk_p", Pins("P4")),
-        Subsignal("clk_n", Pins("P3")),
-        Subsignal("data0_p", Pins("U4")),
-        Subsignal("data0_n", Pins("V4")),
-        Subsignal("data1_p", Pins("P6")),
-        Subsignal("data1_n", Pins("P5")),
-        Subsignal("data2_p", Pins("R7")),
-        Subsignal("data2_n", Pins("T7")),
-        IOStandard("TDMS_33")
+        Subsignal("clk_p", Pins("P4"), IOStandard("TMDS_33")),
+        Subsignal("clk_n", Pins("P3"), IOStandard("TMDS_33")),
+        Subsignal("data0_p", Pins("U4"), IOStandard("TMDS_33")),
+        Subsignal("data0_n", Pins("V4"), IOStandard("TMDS_33")),
+        Subsignal("data1_p", Pins("P6"), IOStandard("TMDS_33")),
+        Subsignal("data1_n", Pins("P5"), IOStandard("TMDS_33")),
+        Subsignal("data2_p", Pins("R7"), IOStandard("TMDS_33")),
+        Subsignal("data2_n", Pins("T7"), IOStandard("TMDS_33")),
+        Subsignal("scl", Pins("K5"), IOStandard("LVCMOS33")), # FPIO5 (not connected)
+        Subsignal("sda", Pins("J5"), IOStandard("LVCMOS33")), # FPIO4 (not connected)
     ),
 
     ("hdmi_out", 0,
-        Subsignal("clk_p", Pins("R3")),
-        Subsignal("clk_n", Pins("T2")),
-        Subsignal("data0_p", Pins("T4")),
-        Subsignal("data0_n", Pins("T3")),
-        Subsignal("data1_p", Pins("U6")),
-        Subsignal("data1_n", Pins("U5")),
-        Subsignal("data2_p", Pins("V7")),
-        Subsignal("data2_n", Pins("V6")),
+        Subsignal("clk_p", Pins("R3"), IOStandard("TMDS_33")),
+        Subsignal("clk_n", Pins("T2"), IOStandard("TMDS_33")),
+        Subsignal("data0_p", Pins("T4"), IOStandard("TMDS_33")),
+        Subsignal("data0_n", Pins("T3"), IOStandard("TMDS_33")),
+        Subsignal("data1_p", Pins("U6"), IOStandard("TMDS_33")),
+        Subsignal("data1_n", Pins("U5"), IOStandard("TMDS_33")),
+        Subsignal("data2_p", Pins("V7"), IOStandard("TMDS_33")),
+        Subsignal("data2_n", Pins("V6"), IOStandard("TMDS_33")),
         IOStandard("TMDS_33")
     ),
+
+    ("hdmi_sda_over_up", 0, Pins("V7"), IOStandard("LVCMOS33")),
+    ("hdmi_sda_over_dn", 0, Pins("R6"), IOStandard("LVCMOS33")),
+    ("hdmi_hdp_over", 0, Pins("V8"), IOStandard("LVCMOS33")),
+
 ]
 
 
@@ -119,8 +125,10 @@ class Platform(XilinxPlatform):
             ["write_cfgmem -verbose -force -format bin -interface spix1 -size 64 "
              "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
         self.programmer = programmer
-        self.add_platform_command("set_property INTERNAL_VREF 0.750 [get_iobanks 35]")
 
+        self.add_platform_command("""
+create_clock -name pcie_phy_clk -period 10.0 [get_pins {{pcie_phy/pcie_support_i/pcie_i/inst/inst/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtp_channel.gtpe2_channel_i/TXOUTCLK}}]
+""")
 
     def create_programmer(self):
         if self.programmer == "vivado":

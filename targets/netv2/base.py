@@ -8,25 +8,30 @@ from litex.soc.integration.builder import *
 from litedram.modules import MT41J128M16
 from litedram.phy import a7ddrphy
 from litedram.core import ControllerSettings
-from litedram.frontend.bist import LiteDRAMBISTGenerator
-from litedram.frontend.bist import LiteDRAMBISTChecker
 
 from gateware import info
 
 
-class _CRG(Module):
+def csr_map_update(csr_map, csr_peripherals):
+    csr_map.update(dict((n, v)
+        for v, n in enumerate(csr_peripherals, start=max(csr_map.values()) + 1)))
+
+def period_ns(freq):
+    return 1e9/freq
+
+
+class CRG(Module):
     def __init__(self, platform):
         self.clock_domains.cd_sys = ClockDomain()
         self.clock_domains.cd_sys4x = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
         self.clock_domains.cd_clk200 = ClockDomain()
         self.clock_domains.cd_clk100 = ClockDomain()
-        self.clock_domains.cd_clk50 = ClockDomain()
-
-        self.clock_domains.cd_clk125 = ClockDomain("clk125") # pcie
 
         clk50 = platform.request("clk50")
-        rst = Signal(reset=1) # FIXME
+        clk50.attr.add("keep")
+        platform.add_period_constraint(clk50, period_ns(50e6))
+        self.rst = Signal()
 
         pll_locked = Signal()
         pll_fb = Signal()
@@ -57,22 +62,16 @@ class _CRG(Module):
 
                      # 200 MHz
                      p_CLKOUT3_DIVIDE=8, p_CLKOUT3_PHASE=0.0,
-                     o_CLKOUT3=pll_clk200,
-
-                     # 400MHz
-                     p_CLKOUT4_DIVIDE=4, p_CLKOUT4_PHASE=0.0,
-                     #o_CLKOUT4=
+                     o_CLKOUT3=pll_clk200
             ),
             Instance("BUFG", i_I=self.pll_sys, o_O=self.cd_sys.clk),
             Instance("BUFG", i_I=self.pll_sys, o_O=self.cd_clk100.clk),
+            Instance("BUFG", i_I=pll_clk200, o_O=self.cd_clk200.clk),
             Instance("BUFG", i_I=pll_sys4x, o_O=self.cd_sys4x.clk),
             Instance("BUFG", i_I=pll_sys4x_dqs, o_O=self.cd_sys4x_dqs.clk),
-            Instance("BUFG", i_I=pll_clk200, o_O=self.cd_clk200.clk),
-            Instance("BUFG", i_I=clk50, o_O=self.cd_clk50.clk),
-            AsyncResetSynchronizer(self.cd_sys, ~pll_locked | ~rst),
-            AsyncResetSynchronizer(self.cd_clk200, ~pll_locked | rst),
-            AsyncResetSynchronizer(self.cd_clk100, ~pll_locked | rst),
-            AsyncResetSynchronizer(self.cd_clk50, ~pll_locked | rst),
+            AsyncResetSynchronizer(self.cd_sys, ~pll_locked | self.rst),
+            AsyncResetSynchronizer(self.cd_clk200, ~pll_locked | 1), # FIXME
+            AsyncResetSynchronizer(self.cd_clk100, ~pll_locked | self.rst)
         ]
 
         reset_counter = Signal(4, reset=15)
@@ -93,10 +92,10 @@ class BaseSoC(SoCSDRAM):
         "checker":       19,
         "info":          20,
     }
-    csr_map.update(SoCSDRAM.csr_map)
+    csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
     def __init__(self, platform, **kwargs):
-        clk_freq = 100*1000000
+        clk_freq = int(100e6)
         SoCSDRAM.__init__(self, platform, clk_freq,
             integrated_rom_size=0x8000,
             integrated_sram_size=0x8000,
@@ -105,6 +104,9 @@ class BaseSoC(SoCSDRAM):
 
         self.submodules.crg = _CRG(platform)
         self.submodules.info = info.Info()
+
+        self.crg.cd_sys.clk.attr.add("keep")
+        self.platform.add_period_constraint(self.crg.cd_sys.clk, period_ns(100e6))
 
         # sdram
         self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
@@ -118,9 +120,10 @@ class BaseSoC(SoCSDRAM):
                                                                    cmd_buffer_depth=8,
                                                                    with_refresh=True))
 
-        # sdram bist
-        generator_port = self.sdram.crossbar.get_port(mode="write")
-        self.submodules.generator = LiteDRAMBISTGenerator(generator_port)
+        # common led
+        self.sys_led = Signal()
+        self.pcie_led = Signal()
+        self.comb += platform.request("user_led", 0).eq(self.sys_led ^ self.pcie_led)
 
         checker_port = self.sdram.crossbar.get_port(mode="read")
         self.submodules.checker = LiteDRAMBISTChecker(checker_port)
@@ -130,5 +133,9 @@ class BaseSoC(SoCSDRAM):
         #self.sync.clk125 += counter.eq(counter + 1)
         #self.comb += platform.request("user_led", 0).eq(counter[26])
 
+        # sys led
+        sys_counter = Signal(32)
+        self.sync += sys_counter.eq(sys_counter + 1)
+        self.comb += self.sys_led.eq(sys_counter[26])
 
 SoC = BaseSoC

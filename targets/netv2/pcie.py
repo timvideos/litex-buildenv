@@ -29,10 +29,13 @@ class PCIeDMASoC(BaseSoC):
     BaseSoC.mem_map["rom"] = 0x20000000
 
     def __init__(self, platform, **kwargs):
-        BaseSoC.__init__(self, platform, **kwargs)
+        BaseSoC.__init__(self, platform, csr_data_width=32, **kwargs)
 
         # pcie phy
-        self.submodules.pcie_phy = S7PCIEPHY(platform, link_width=1, cd="sys")
+        self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x1"))
+        self.platform.add_false_path_constraints(
+            self.crg.cd_sys.clk,
+            self.pcie_phy.cd_pcie.clk)
 
         # pcie endpoint
         self.submodules.pcie_endpoint = LitePCIeEndpoint(self.pcie_phy, with_reordering=True)
@@ -47,7 +50,7 @@ class PCIeDMASoC(BaseSoC):
 
         # pcie msi
         self.submodules.msi = LitePCIeMSI()
-        self.comb += self.msi.source.connect(self.pcie_phy.interrupt)
+        self.comb += self.msi.source.connect(self.pcie_phy.msi)
         self.interrupts = {
             "dma_writer":    self.dma.writer.irq,
             "dma_reader":    self.dma.reader.irq
@@ -59,6 +62,10 @@ class PCIeDMASoC(BaseSoC):
         counter = Signal(32)
         self.sync.clk125 += counter.eq(counter + 1)
         self.comb += platform.request("user_led", 0).eq(counter[26])
+        ## pcie led
+        #pcie_counter = Signal(32)
+        #self.sync.pcie += pcie_counter.eq(pcie_counter + 1)
+        #self.comb += self.pcie_led.eq(pcie_counter[26])
 
 
 SoC = PCIeDMASoC

@@ -18,8 +18,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <generated/sdram_phy.h>
 #include <generated/csr.h>
 #include <generated/mem.h>
+
 #include <hw/flags.h>
 #include <time.h>
 #include <console.h>
@@ -156,16 +158,17 @@ static void help_encoder(void)
 
 static void help_debug(void)
 {
-    wputs("debug commands (alias 'd')");
+	wputs("debug commands (alias 'd')");
 #ifdef CSR_GENERATOR_BASE
 	wputs("  debug sdram_test               - run a memory test");
 #endif
 	wputs("  debug pll                      - dump pll configuration");
+	wputs("  debug mmcm                     - dump mmcm configuration");
 #ifdef CSR_HDMI_IN0_BASE
-    wputs("  debug input0 <on/off>          - debug dvisampler0");
+	wputs("  debug input0 <on/off>          - debug dvisampler0");
 #endif
 #ifdef CSR_HDMI_IN1_BASE
-    wputs("  debug input1 <on/off>          - debug dvisampler1");
+	wputs("  debug input1 <on/off>          - debug dvisampler1");
 #endif
 #ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
 	wputs("  debug ddr                      - show DDR bandwidth");
@@ -961,7 +964,7 @@ static void debug_ddr(void)
 	burstbits = (2*DFII_NPHASES) << DFII_PIX_DATA_SIZE;
 	rdb = (nr*f >> (24 - log2(burstbits)))/1000000ULL;
 	wrb = (nw*f >> (24 - log2(burstbits)))/1000000ULL;
-	wprintf("read:%5dMbps write:%5dMbps all:%5dMbps", rdb, wrb, rdb + wrb);
+	wprintf("read:%5dMbps  write:%5dMbps  all:%5dMbps\r\n", rdb, wrb, rdb + wrb);
 	*/
 }
 #endif

@@ -33,6 +33,7 @@ OBJECTS=\
 	isr.o \
 	main.o \
 	mdio.o \
+	mmcm.o \
 	opsis_eeprom.o \
 	pattern.o \
 	pll.o \
