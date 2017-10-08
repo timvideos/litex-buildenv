@@ -14,6 +14,10 @@ from gateware import info
 from gateware import oled
 
 
+def period_ns(freq):
+    return 1e9/freq
+
+
 class _CRG(Module):
     def __init__(self, platform):
         self.clock_domains.cd_sys = ClockDomain()
@@ -23,7 +27,7 @@ class _CRG(Module):
         self.clock_domains.cd_clk100 = ClockDomain()
 
         clk100 = platform.request("clk100")
-        rst = platform.request("cpu_reset")
+        rst = ~platform.request("cpu_reset")
 
         pll_locked = Signal()
         pll_fb = Signal()
@@ -54,18 +58,14 @@ class _CRG(Module):
 
                      # 200 MHz
                      p_CLKOUT3_DIVIDE=8, p_CLKOUT3_PHASE=0.0,
-                     o_CLKOUT3=pll_clk200,
-
-                     # 400MHz
-                     p_CLKOUT4_DIVIDE=4, p_CLKOUT4_PHASE=0.0,
-                     #o_CLKOUT4=
+                     o_CLKOUT3=pll_clk200
             ),
             Instance("BUFG", i_I=self.pll_sys, o_O=self.cd_sys.clk),
             Instance("BUFG", i_I=pll_sys4x, o_O=self.cd_sys4x.clk),
             Instance("BUFG", i_I=pll_sys4x_dqs, o_O=self.cd_sys4x_dqs.clk),
             Instance("BUFG", i_I=pll_clk200, o_O=self.cd_clk200.clk),
             Instance("BUFG", i_I=clk100, o_O=self.cd_clk100.clk),
-            AsyncResetSynchronizer(self.cd_sys, ~pll_locked | ~rst),
+            AsyncResetSynchronizer(self.cd_sys, ~pll_locked | rst),
             AsyncResetSynchronizer(self.cd_clk200, ~pll_locked | rst),
             AsyncResetSynchronizer(self.cd_clk100, ~pll_locked | rst),
         ]
@@ -100,9 +100,21 @@ class BaseSoC(SoCSDRAM):
         SoCSDRAM.__init__(self, platform, clk_freq,
             integrated_rom_size=0x8000,
             integrated_sram_size=0x8000,
+            with_uart=False,
             **kwargs)
 
         self.submodules.crg = _CRG(platform)
+        self.crg.cd_sys.clk.attr.add("keep")
+        self.platform.add_period_constraint(self.crg.cd_sys.clk, period_ns(100e6))
+
+        uart_interfaces = [RS232PHYInterface() for i in range(2)]
+        self.submodules.uart = UART(uart_interfaces[0])
+        self.submodules.bridge = WishboneStreamingBridge(uart_interfaces[1], self.clk_freq)
+        self.add_wb_master(self.bridge.wishbone)
+
+        self.submodules.uart_phy = RS232PHY(platform.request("serial"), self.clk_freq, 115200)
+        self.submodules.uart_multiplexer = UARTMultiplexer(uart_interfaces, self.uart_phy)
+        self.comb += self.uart_multiplexer.sel.eq(platform.request("user_sw", 0))
 
         # Basic peripherals
         self.submodules.info = info.Info(platform, self.__class__.__name__)
@@ -110,8 +122,8 @@ class BaseSoC(SoCSDRAM):
 
         # sdram
         self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
-        self.add_constant("A7DDRPHY_BITSLIP", 2)
-        self.add_constant("A7DDRPHY_DELAY", 8)
+        self.add_constant("A7DDRPHY_BITSLIP", 3)
+        self.add_constant("A7DDRPHY_DELAY", 14)
         sdram_module = MT41K256M16(self.clk_freq, "1:4")
         self.register_sdram(self.ddrphy,
                             sdram_module.geom_settings,

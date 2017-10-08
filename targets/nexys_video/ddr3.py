@@ -8,6 +8,7 @@ from litex.soc.cores.uart import UARTWishboneBridge
 
 from litedram.modules import MT41K256M16
 from litedram.phy import a7ddrphy
+
 from litedram.frontend.bist import LiteDRAMBISTGenerator
 from litedram.frontend.bist import LiteDRAMBISTChecker
 
@@ -81,21 +82,19 @@ class _CRG(Module):
 
 
 class BaseSoC(SoCSDRAM):
-    default_platform = "nexys_video"
-
-    csr_map = {
-        "ddrphy":    17,
-        "dna":       18,
-        "xadc":      19,
-        "generator": 20,
-        "checker":   21,
-        "analyzer":  22
+    csr_peripherals = {
+        "ddrphy",
+        "dna",
+        "xadc",
+        "generator",
+        "checker",
+        "analyzer",
     }
-    csr_map.update(SoCSDRAM.csr_map)
+    csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
     def __init__(self, platform,
-                 with_sdram_bist=True, bist_async=True, bist_random=False):
-        clk_freq = 100*1000000
+                 with_sdram_bist=True, bist_async=True, bist_random=False, **kwargs):
+        clk_freq = int(100e6)
         SoCSDRAM.__init__(self, platform, clk_freq,
             cpu_type=None,
             l2_size=32,
@@ -103,7 +102,7 @@ class BaseSoC(SoCSDRAM):
             with_uart=False,
             with_timer=False)
 
-        self.submodules.crg = _CRG(platform)
+        self.submodules.crg = CRG(platform)
         self.submodules.dna = dna.DNA()
         self.submodules.xadc = xadc.XADC()
 
@@ -169,6 +168,9 @@ class BaseSoC(SoCSDRAM):
             ]
 
         self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 512)
+
+        self.crg.cd_sys.clk.attr.add("keep")
+        self.platform.add_period_constraint(self.crg.cd_sys.clk, period_ns(100e6))
 
     def do_exit(self, vns):
         self.analyzer.export_csv(vns, "test/analyzer.csv")
