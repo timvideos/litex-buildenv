@@ -37,10 +37,9 @@ class NetSoC(BaseSoC):
         self.add_memory_region("ethmac",
             self.mem_map["ethmac"] | self.shadow_base, 0x2000)
 
-
         self.ethphy.crg.cd_eth_rx.clk.attr.add("keep")
         self.ethphy.crg.cd_eth_tx.clk.attr.add("keep")
-        self.platform.add_period_constraint(self.crg.cd_sys.clk, 10.0)
+        #self.platform.add_period_constraint(self.crg.cd_sys.clk, 10.0)
         self.platform.add_period_constraint(self.ethphy.crg.cd_eth_rx.clk, 40.0)
         self.platform.add_period_constraint(self.ethphy.crg.cd_eth_tx.clk, 40.0)
         self.platform.add_false_path_constraints(

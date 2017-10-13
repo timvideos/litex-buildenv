@@ -18,7 +18,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <generated/sdram_phy.h>
 #include <generated/csr.h>
 #include <generated/mem.h>
 

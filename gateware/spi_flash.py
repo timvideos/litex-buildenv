@@ -257,4 +257,4 @@ def SpiFlash(pads, *args, **kw):
     if hasattr(pads, "mosi"):
         return SpiFlashSingle(pads, *args, **kw)
     else:
-return SpiFlashDualQuad(pads, *args, **kw)
+        return SpiFlashDualQuad(pads, *args, **kw)

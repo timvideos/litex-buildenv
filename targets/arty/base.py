@@ -1,9 +1,9 @@
+# Support for the Digilent Arty Board
 from litex.gen import *
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
-from litex.soc.cores.flash import spi_flash
 from litex.soc.integration.builder import *
 
 from litedram.modules import MT41K128M16
@@ -12,6 +12,9 @@ from litedram.core import ControllerSettings
 
 from gateware import info
 from gateware import led
+from gateware import spi_flash
+
+from targets.utils import csr_map_update
 
 
 class _CRG(Module):
@@ -90,14 +93,14 @@ class _CRG(Module):
 
 
 class BaseSoC(SoCSDRAM):
-    csr_map = {
-        "spiflash": 16,
-        "ddrphy":   17,
-        "info":     18,
-        "leds":     20,
-        "rgb_leds": 21,
-    }
-    csr_map.update(SoCSDRAM.csr_map)
+    csr_peripherals = (
+        "spiflash",
+        "ddrphy",
+        "info",
+        "leds",
+        "rgb_leds",
+    )
+    csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
     mem_map = {
         "spiflash": 0x20000000,  # (default shadow @0xa0000000)
@@ -112,24 +115,12 @@ class BaseSoC(SoCSDRAM):
             **kwargs)
 
         self.submodules.crg = _CRG(platform)
+        self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
 
         # Basic peripherals
         self.submodules.info = info.Info(platform, self.__class__.__name__)
         self.submodules.leds = led.ClassicLed(Cat(platform.request("user_led", i) for i in range(4)))
         self.submodules.rgb_leds = led.RGBLed(platform.request("rgb_leds"))
-
-        # sdram
-        self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
-        self.add_constant("A7DDRPHY_BITSLIP", 2)
-        self.add_constant("A7DDRPHY_DELAY", 6)
-        sdram_module = MT41K128M16(self.clk_freq, "1:4")
-        self.register_sdram(self.ddrphy,
-                            sdram_module.geom_settings,
-                            sdram_module.timing_settings,
-                            controller_settings=ControllerSettings(
-                                with_bandwidth=True,
-                                cmd_buffer_depth=8,
-                                with_refresh=True))
 
         # spi flash
         spiflash_pads = platform.request(spiflash)
@@ -141,12 +132,30 @@ class BaseSoC(SoCSDRAM):
             "spiflash_1x": 9,
             "spiflash_4x": 11,
         }
-        self.submodules.spiflash = spi_flash.SpiFlash(spiflash_pads, dummy=spiflash_dummy[spiflash], div=2)
+        self.submodules.spiflash = spi_flash.SpiFlash(
+                spiflash_pads,
+                dummy=spiflash_dummy[spiflash],
+                div=2)
         self.add_constant("SPIFLASH_PAGE_SIZE", 256)
         self.add_constant("SPIFLASH_SECTOR_SIZE", 0x10000)
         self.add_wb_slave(mem_decoder(self.mem_map["spiflash"]), self.spiflash.bus)
         self.add_memory_region(
             "spiflash", self.mem_map["spiflash"] | self.shadow_base, 16*1024*1024)
 
+
+        # sdram
+        sdram_module = MT41K128M16(self.clk_freq, "1:4")
+        self.submodules.ddrphy = a7ddrphy.A7DDRPHY(
+            platform.request("ddram"))
+        self.add_constant("A7DDRPHY_BITSLIP", 2)
+        self.add_constant("A7DDRPHY_DELAY", 6)
+        controller_settings = ControllerSettings(
+            with_bandwidth=True,
+            cmd_buffer_depth=8,
+            with_refresh=True)
+        self.register_sdram(self.ddrphy,
+                            sdram_module.geom_settings,
+                            sdram_module.timing_settings,
+                            controller_settings=controller_settings)
 
 SoC = BaseSoC

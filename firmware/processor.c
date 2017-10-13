@@ -13,6 +13,7 @@
  *    and/or other materials provided with the distribution.
  */
 
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include "stdio_wrap.h"
@@ -459,20 +460,20 @@ static void fb_get_clock_md(unsigned int pixel_clock, unsigned int *best_m, unsi
 #ifdef CSR_HDMI_OUT0_DRIVER_CLOCKING_PLL_RESET_ADDR
 	// Spartan 6
 	ideal_d = 5000;
-	d_max = 256;
-	m_max = 256;
+	max_d = 256;
+	max_m = 256;
 #elif CSR_HDMI_OUT0_DRIVER_CLOCKING_DRP_DWE_ADDR
 	// Artix 7
 	ideal_d = 10000;
-	d_max = 128;
-	m_max = 128;
+	max_d = 128;
+	max_m = 128;
 #else
 	assert(false);
 	return;
 #endif
 
-	for(d=1;d<=d_max;d++)
-		for(m=2;m<=m_max;m++) {
+	for(d=1;d<=max_d;d++)
+		for(m=2;m<=max_m;m++) {
 			/* common denominator is d*bd*ideal_d */
 			diff_current = abs(d*ideal_d*bm - d*bd*ideal_m);
 			diff_tested = abs(bd*ideal_d*m - d*bd*ideal_m);
@@ -485,6 +486,7 @@ static void fb_get_clock_md(unsigned int pixel_clock, unsigned int *best_m, unsi
 	*best_d = bd;
 
 	/* Check the resultant frequency */
+#ifdef CSR_HDMI_OUT0_DRIVER_CLOCKING_PLL_RESET_ADDR
 	unsigned int md1000 = (bm * 1000) / bd;
 	if (md1000 > hdmi_out0_driver_clocking_clkfx_md_max_1000_read()) {
 		wprintf(
@@ -492,6 +494,7 @@ static void fb_get_clock_md(unsigned int pixel_clock, unsigned int *best_m, unsi
 			md1000,
 			hdmi_out0_driver_clocking_clkfx_md_max_1000_read());
 	}
+#endif
 }
 
 static void fb_set_clock(unsigned int pixel_clock)
@@ -502,9 +505,11 @@ static void fb_set_clock(unsigned int pixel_clock)
 	fb_clkgen_write(0x1, clock_d-1);
 	fb_clkgen_write(0x3, clock_m-1);
 
+#ifdef CSR_HDMI_OUT0_BASE
 	hdmi_out0_driver_clocking_send_go_write(1);
 	while(!(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_PROGDONE));
 	while(!(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_LOCKED));
+#endif
 }
 
 

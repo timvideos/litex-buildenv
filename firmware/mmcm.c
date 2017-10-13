@@ -7,7 +7,8 @@
  * Despite varying pixel clocks, we must keep the PLL VCO operating
  * in the specified range of 600MHz - 1200MHz.
  */
-#if defined(CSR_HDMI_OUT0_BASE)
+#ifdef CSR_HDMI_OUT0_BASE
+#ifdef CSR_HDMI_OUT0_DRIVER_CLOCKING_DRP_DWE_ADDR
 void hdmi_out0_mmcm_write(int adr, int data) {
 	hdmi_out0_driver_clocking_mmcm_adr_write(adr);
 	hdmi_out0_driver_clocking_mmcm_dat_w_write(data);
@@ -22,8 +23,10 @@ int hdmi_out0_mmcm_read(int adr) {
 	return hdmi_out0_driver_clocking_mmcm_dat_r_read();
 }
 #endif
+#endif
 
 #ifdef CSR_HDMI_IN0_BASE
+#ifdef CSR_HDMI_IN0_DRIVER_CLOCKING_DRP_DWE_ADDR
 void hdmi_in0_clocking_mmcm_write(int adr, int data) {
 	hdmi_in0_clocking_mmcm_adr_write(adr);
 	hdmi_in0_clocking_mmcm_dat_w_write(data);
@@ -61,7 +64,6 @@ static void hdmi_in_0_config_120_240mhz(void) {
 	hdmi_in0_clocking_mmcm_write(0x0c, 0x1000 |  (0<<6) | 0);  /* clkout2_divide = 1 */
 	hdmi_in0_clocking_mmcm_write(0x0d, (1<<6));                /* clkout2_divide = 1 */
 }
-#endif
 
 void mmcm_config_for_clock(int freq)
 {
@@ -79,6 +81,8 @@ void mmcm_config_for_clock(int freq)
 	else
 		printf("Frequency too high for input MMCMs\r\n");
 }
+#endif
+#endif
 
 void mmcm_dump(void)
 {

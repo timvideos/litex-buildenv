@@ -226,6 +226,10 @@ int hdmi_in0_calibrate_delays(int freq)
 	hdmi_in0_data0_cap_dly_ctl_write(DVISAMPLER_DELAY_MASTER_RST|DVISAMPLER_DELAY_SLAVE_RST);
 	hdmi_in0_data1_cap_dly_ctl_write(DVISAMPLER_DELAY_MASTER_RST|DVISAMPLER_DELAY_SLAVE_RST);
 	hdmi_in0_data2_cap_dly_ctl_write(DVISAMPLER_DELAY_MASTER_RST|DVISAMPLER_DELAY_SLAVE_RST);
+	hdmi_in0_data0_cap_phase_reset_write(1);
+	hdmi_in0_data1_cap_phase_reset_write(1);
+	hdmi_in0_data2_cap_phase_reset_write(1);
+	hdmi_in0_d0 = hdmi_in0_d1 = hdmi_in0_d2 = 0;
 #elif CSR_HDMI_IN0_CLOCKING_MMCM_RESET_ADDR
 	int i, phase_detector_delay;
 	hdmi_in0_data0_cap_dly_ctl_write(DVISAMPLER_DELAY_RST);

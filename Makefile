@@ -206,9 +206,9 @@ bios-flash: $(BIOS_FILE) bios-flash-$(PLATFORM)
 # TFTP booting stuff
 # --------------------------------------
 # TFTP server for minisoc to load firmware from
-tftp: firmware
+tftp: $(FIRMWARE_FILEBASE).bin
 	mkdir -p $(TFTPD_DIR)
-	cp $(TARGET_BUILD_DIR)/software/firmware/firmware.bin $(TFTPD_DIR)/boot.bin
+	cp $(FIRMWARE_FILEBASE).bin $(TFTPD_DIR)/boot.bin
 
 tftpd_stop:
 	sudo true

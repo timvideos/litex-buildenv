@@ -6,13 +6,17 @@ $(error PLATFORM not defined.)
 endif
 UPLATFORM = $(shell echo $(PLATFORM) | tr a-z A-Z)
 
+ifeq ($(TARGET),)
+$(error TARGET not defined.)
+endif
+UTARGET = $(shell echo $(TARGET) | tr a-z A-Z)
+
 CFLAGS += -DPLATFORM_$(UPLATFORM) -DTARGET_$(UTARGET)
 
 BUILD_DIRECTORY=$(BUILDINC_DIRECTORY)/../../
 
 OBJECTS=\
 	bist.o \
-	boot-helper-$(CPU).o
 	ci.o \
 	config.o \
 	edid.o \
@@ -42,6 +46,7 @@ OBJECTS=\
 	uptime.o \
 	version.o \
 	version_data.o \
+	boot-helper-$(CPU).o
 
 
 CFLAGS += \
