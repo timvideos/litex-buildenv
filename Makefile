@@ -308,6 +308,7 @@ help:
 	@echo " make bios              - Build the bios"
 	@echo " make bios-flash        - *Permanently* flash the bios onto a device"
 	@echo "                          (Only needed on low resource boards.)"
+	@echo " make reset             - Reset the device."
 	@echo ""
 	@echo "Firmware make commands avaliable:"
 	@echo " make firmware          - Build the firmware"

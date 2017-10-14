@@ -58,5 +58,4 @@ reset-$(PLATFORM):
 	@echo "Unsupported."
 	@false
 
-
 .PHONY: help-$(PLATFORM) reset-$(PLATFORM)
