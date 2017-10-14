@@ -21,11 +21,12 @@ if [ z"$TRAVIS_PULL_REQUEST_SLUG" != z ]; then
 	echo ""
 	echo ""
 	echo ""
-	echo "- Fetching from pull request source"
+	echo "- Fetching the actual pull request"
 	echo "---------------------------------------------"
 	git fetch origin pull/$TRAVIS_PULL_REQUEST/head:pull-$TRAVIS_PULL_REQUEST-head
+	git fetch origin pull/$TRAVIS_PULL_REQUEST/merge:pull-$TRAVIS_PULL_REQUEST-merge
 	echo "---------------------------------------------"
-	git log -n 5 --graph pull-$TRAVIS_PULL_REQUEST-head
+	git log -n 5 --graph pull-$TRAVIS_PULL_REQUEST-merge
 	echo "---------------------------------------------"
 fi
 
