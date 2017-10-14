@@ -1,10 +1,11 @@
+# Support for Digilent Nexys Video board
 from litex.gen import *
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
-from litex.soc.cores.flash import spi_flash
 from litex.soc.integration.builder import *
+from litex.soc.cores.uart import *
 
 from litedram.modules import MT41K256M16
 from litedram.phy import a7ddrphy
@@ -12,10 +13,9 @@ from litedram.core import ControllerSettings
 
 from gateware import info
 from gateware import oled
+from gateware import spi_flash
 
-
-def period_ns(freq):
-    return 1e9/freq
+from targets.utils import csr_map_update, period_ns
 
 
 class _CRG(Module):
@@ -82,13 +82,13 @@ class _CRG(Module):
 
 
 class BaseSoC(SoCSDRAM):
-    csr_map = {
-        "spiflash": 16,
-        "ddrphy":   17,
-        "info":     18,
-        "oled":     20,
-    }
-    csr_map.update(SoCSDRAM.csr_map)
+    csr_peripherals = (
+        "spiflash",
+        "ddrphy",
+        "info",
+        "oled",
+    )
+    csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
     mem_map = {
         "spiflash": 0x20000000,  # (default shadow @0xa0000000)
@@ -96,7 +96,7 @@ class BaseSoC(SoCSDRAM):
     mem_map.update(SoCSDRAM.mem_map)
 
     def __init__(self, platform, spiflash="spiflash_1x", **kwargs):
-        clk_freq = 100*1000000
+        clk_freq = int(100e6)
         SoCSDRAM.__init__(self, platform, clk_freq,
             integrated_rom_size=0x8000,
             integrated_sram_size=0x8000,
@@ -105,7 +105,7 @@ class BaseSoC(SoCSDRAM):
 
         self.submodules.crg = _CRG(platform)
         self.crg.cd_sys.clk.attr.add("keep")
-        self.platform.add_period_constraint(self.crg.cd_sys.clk, period_ns(100e6))
+        self.platform.add_period_constraint(self.crg.cd_sys.clk, period_ns(clk_freq))
 
         uart_interfaces = [RS232PHYInterface() for i in range(2)]
         self.submodules.uart = UART(uart_interfaces[0])
@@ -143,7 +143,10 @@ class BaseSoC(SoCSDRAM):
             "spiflash_1x": 9,
             "spiflash_4x": 11,
         }
-        self.submodules.spiflash = spi_flash.SpiFlash(spiflash_pads, dummy=spiflash_dummy[spiflash], div=2)
+        self.submodules.spiflash = spi_flash.SpiFlash(
+                spiflash_pads,
+                dummy=spiflash_dummy[spiflash],
+                div=2)
         self.add_constant("SPIFLASH_PAGE_SIZE", 256)
         self.add_constant("SPIFLASH_SECTOR_SIZE", 0x10000)
         self.add_wb_slave(mem_decoder(self.mem_map["spiflash"]), self.spiflash.bus)
