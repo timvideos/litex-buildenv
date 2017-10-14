@@ -620,8 +620,10 @@ void processor_start(int mode)
 #ifdef CSR_HDMI_OUT1_BASE
 	hdmi_out1_core_initiator_enable_write(0);
 #endif
-#ifdef CSR_HDMI_OUT0_DRIVER_CLOCKING_PLL_RESET_ADDR
+#ifdef CSR_HDMI_IN0_CLOCKING_MMCM_RESET_ADDR
 	hdmi_out0_driver_clocking_mmcm_reset_write(1);
+#endif
+#ifdef CSR_HDMI_OUT0_DRIVER_CLOCKING_PLL_RESET_ADDR
 	hdmi_out0_driver_clocking_pll_reset_write(1);
 #endif
 #ifdef CSR_HDMI_IN0_BASE

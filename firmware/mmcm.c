@@ -87,13 +87,13 @@ void mmcm_config_for_clock(int freq)
 void mmcm_dump(void)
 {
 	int i;
-#ifdef CSR_HDMI_OUT0_BASE
+#ifdef CSR_HDMI_OUT0_CLOCKING_MMCM_RESET_ADDR
 	printf("framebuffer MMCM:\r\n");
 	for(i=0;i<128;i++)
 		printf("%04x ", hdmi_out0_mmcm_read(i));
 	printf("\r\n");
 #endif
-#ifdef CSR_HDMI_IN0_BASE
+#ifdef CSR_HDMI_IN0_CLOCKING_MMCM_RESET_ADDR
 	printf("dvisampler MMCM:\r\n");
 	for(i=0;i<128;i++)
 		printf("%04x ", hdmi_in0_clocking_mmcm_read(i));

@@ -16,10 +16,10 @@ bool hdmi_in0_status(void);
 void hdmi_in0_disable(void);
 void hdmi_in0_clear_framebuffers(void);
 void hdmi_in0_print_status(void);
-int hdmi_in0_calibrate_delays(void);
+int hdmi_in0_calibrate_delays(int freq);
 int hdmi_in0_adjust_phase(void);
 int hdmi_in0_init_phase(void);
-int hdmi_in0_phase_startup(void);
-void hdmi_in0_service(void);
+int hdmi_in0_phase_startup(int freq);
+void hdmi_in0_service(int freq);
 
 #endif
