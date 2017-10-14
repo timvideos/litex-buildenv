@@ -233,21 +233,27 @@ flash: image-flash
 	@true
 
 env:
-	@echo "PLATFORM='$(PLATFORM)'"
-	@echo "PLATFORM_EXPANSION='$(PLATFORM_EXPANSION)'"
-	@echo "FULL_PLATFORM='$(FULL_PLATFORM)'"
-	@echo "TARGET='$(TARGET)'"
-	@echo "DEFAULT_TARGET='$(DEFAULT_TARGET)'"
-	@echo "CPU='$(CPU)'"
-	@echo "FIRMWARE='$(FIRMWARE)'"
-	@echo "OVERRIDE_FIRMWARE='$(OVERRIDE_FIRMWARE)'"
-	@echo "PROG='$(PROG)'"
-	@echo "TARGET_BUILD_DIR='$(TARGET_BUILD_DIR)'"
-	@echo "MISOC_EXTRA_CMDLINE='$(MISOC_EXTRA_CMDLINE)'"
-	@echo "LITEX_EXTRA_CMDLINE='$(LITEX_EXTRA_CMDLINE)'"
-	# Hardcoded values
-	@echo "CLANG=$(CLANG)"
-	@echo "PYTHONHASHSEED=$(PYTHONHASHSEED)"
+	@echo "export PLATFORM='$(PLATFORM)'"
+	@echo "export PLATFORM_EXPANSION='$(PLATFORM_EXPANSION)'"
+	@echo "export FULL_PLATFORM='$(FULL_PLATFORM)'"
+	@echo "export TARGET='$(TARGET)'"
+	@echo "export DEFAULT_TARGET='$(DEFAULT_TARGET)'"
+	@echo "export CPU='$(CPU)'"
+	@echo "export FIRMWARE='$(FIRMWARE)'"
+	@echo "export OVERRIDE_FIRMWARE='$(OVERRIDE_FIRMWARE)'"
+	@echo "export PROG='$(PROG)'"
+	@echo "export TARGET_BUILD_DIR='$(TARGET_BUILD_DIR)'"
+	@echo "export TFTP_DIR='$(TFTPD_DIR)'"
+	@echo "export MISOC_EXTRA_CMDLINE='$(MISOC_EXTRA_CMDLINE)'"
+	@echo "export LITEX_EXTRA_CMDLINE='$(LITEX_EXTRA_CMDLINE)'"
+	@# Hardcoded values
+	@echo "export CLANG=$(CLANG)"
+	@echo "export PYTHONHASHSEED=$(PYTHONHASHSEED)"
+	@# Files
+	@echo "export IMAGE_FILE='$(IMAGE_FILE)'"
+	@echo "export GATEWARE_FILEBASE='$(GATEWARE_FILEBASE)'"
+	@echo "export FIRMWARE_FILEBASE='$(FIRMWARE_FILEBASE)'"
+	@echo "export BIOS_FILE='$(BIOS_FILE)'"
 
 info:
 	@echo "              Platform: $(FULL_PLATFORM)"

@@ -86,20 +86,28 @@ cd $TARGET_QEMU_BUILD_DIR
 make -j8
 cd $OLD_DIR
 
-/usr/bin/env python mkimage.py $MISOC_EXTRA_CMDLINE $LITEX_EXTRA_CMDLINE --output-file=qemu.bin --override-gateware=none --force-image-size=true $OVERRIDE_FIRMWARE
-$TARGET_QEMU_BUILD_DIR/qemu-img convert -f raw $TARGET_BUILD_DIR/qemu.bin -O qcow2 -S 16M $TARGET_BUILD_DIR/qemu.qcow2
+# Need the .fbi for mkimage below...
+if [ ! -d $FIRMWARE_FILEBASE.fbi ]; then
+	make $FIRMWARE_FILEBASE.fbi
+fi
+
+QEMU_IMAGE_FILE=$IMAGE_FILE.4qemu
+/usr/bin/env python mkimage.py $MISOC_EXTRA_CMDLINE $LITEX_EXTRA_CMDLINE --output-file=$QEMU_IMAGE_FILE --override-gateware=none --force-image-size=true $OVERRIDE_FIRMWARE
+$TARGET_QEMU_BUILD_DIR/qemu-img convert -f raw $QEMU_IMAGE_FILE -O qcow2 -S 16M $TARGET_BUILD_DIR/qemu.qcow2
 
 # BIOS
 if grep -q 'ROM_BASE 0x00000000' $TARGET_BUILD_DIR/software/include/generated/mem.h; then
 	echo "Platform has BIOS ROM, adding BIOS"
-	EXTRA_ARGS+=("-bios $TARGET_BUILD_DIR/software/bios/bios.bin")
+	EXTRA_ARGS+=("-bios $BIOS_FILE")
 fi
 
 # SPI Flash
 if grep -q 'SPIFLASH_BASE' $TARGET_BUILD_DIR/software/include/generated/mem.h; then
 	SPIFLASH_MODEL=$(grep spiflash_model platforms/$PLATFORM.py | sed -e's/[^"]*"//' -e's/".*$//')
-
-	echo "Platform has SPI flash - assuming n25q16!"
+	if [ -z "$SPIFLASH_MODEL" ]; then
+		echo "Platform has unknown SPI flash - assuming m25p16!"
+		SPIFLASH_MODEL=m25p16
+	fi
 	EXTRA_ARGS+=("-drive if=mtd,format=qcow2,file=$TARGET_BUILD_DIR/qemu.qcow2,serial=$SPIFLASH_MODEL")
 fi
 
