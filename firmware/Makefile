@@ -110,10 +110,11 @@ ci.o: $(FIRMBUILD_DIRECTORY)/hdmi_in1.h
 hdmi_in1.o: $(FIRMBUILD_DIRECTORY)/hdmi_in1.h $(FIRMBUILD_DIRECTORY)/hdmi_in1.c
 pattern.o: $(FIRMBUILD_DIRECTORY)/version_data.h $(FIRMBUILD_DIRECTORY)/version_data.c
 version.o: $(FIRMBUILD_DIRECTORY)/version_data.h $(FIRMBUILD_DIRECTORY)/version_data.c
+version_data.o: $(FIRMBUILD_DIRECTORY)/version_data.h $(FIRMBUILD_DIRECTORY)/version_data.c
 
 # Generated version info
-version_data.h: version_data
-version_data.c: version_data
+$(FIRMBUILD_DIRECTORY)/version_data.h: version_data
+$(FIRMBUILD_DIRECTORY)/version_data.c: version_data
 version_data:
 	bash $(FIRMWARE_DIRECTORY)/version_data.sh
 	# Check the version files exist
