@@ -9,11 +9,11 @@ from targets.arty.base import SoC as BaseSoC
 
 
 class NetSoC(BaseSoC):
-    csr_map = {
-        "ethphy": 30,
-        "ethmac": 31
-    }
-    csr_map.update(BaseSoC.csr_map)
+    csr_peripherals = (
+        "ethphy",
+        "ethmac",
+    )
+    csr_map_update(BaseSoC.csr_map, csr_peripherals)
 
     interrupt_map = {
         "ethmac": 2,
