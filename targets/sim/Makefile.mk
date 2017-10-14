@@ -1,55 +1,59 @@
 # Sim targets
 
+ifneq ($(PLATFORM),sim)
+	$(error "Platform should be sim when using this file!?")
+endif
+
 # Settings
 DEFAULT_TARGET = base
 TARGET ?= $(DEFAULT_TARGET)
 
 # Image
-image-flash-sim:
+image-flash-$(PLATFORM):
 	@echo "Unsupported."
 	@false
 
-.PHONY: image-flash-sim
+.PHONY: image-flash-$(PLATFORM)
 
 # Gateware
-gateware-load-sim:
+gateware-load-$(PLATFORM):
 	@echo "Unsupported."
 	@false
 
-gateware-flash-sim:
+gateware-flash-$(PLATFORM):
 	@echo "Unsupported."
 	@false
 
-.PHONY: gateware-load-sim gateware-flash-sim
+.PHONY: gateware-load-$(PLATFORM) gateware-flash-$(PLATFORM)
 
 # Firmware
-firmware-load-sim:
+firmware-load-$(PLATFORM):
 	@echo "Unsupported."
 	@false
 
-firmware-flash-sim:
+firmware-flash-$(PLATFORM):
 	@echo "Unsupported."
 	@false
 
-firmware-connect-sim:
+firmware-connect-$(PLATFORM):
 	@echo "Unsupported."
 	@false
 
-.PHONY: firmware-load-sim firmware-flash-sim firmware-connect-sim
+.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM)
 
 # Bios
-bios-flash-sim:
+bios-flash-$(PLATFORM):
 	@echo "Unsupported."
 	@false
 
-.PHONY: bios-flash-sim
+.PHONY: bios-flash-$(PLATFORM)
 
 # Extra Commands
-help-sim:
-	@echo " make sim-setup"
-	@echo " make sim-teardown"
+help-$(PLATFORM):
+	@echo " make $(PLATFORM)-setup"
+	@echo " make $(PLATFORM)-teardown"
 
-sim-setup:
+$(PLATFORM)-setup:
 	sudo true
 	sudo openvpn --mktun --dev tap0
 	sudo ifconfig tap0 $(IPRANGE).100 up
@@ -57,12 +61,12 @@ sim-setup:
 	sudo chown $(shell whoami) /dev/net/tap0
 	make tftpd_start
 
-sim-teardown:
+$(PLATFORM)-teardown:
 	sudo true
 	make tftpd_stop
 	sudo rm -f /dev/net/tap0
 	sudo ifconfig tap0 down
 	sudo openvpn --rmtun --dev tap0
 
-.PHONY: help-sim
-.PHONY: sim-setup sim-teardown
+.PHONY: help-$(PLATFORM)
+.PHONY: $(PLATFORM)-setup $(PLATFORM)-teardown

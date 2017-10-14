@@ -1,52 +1,56 @@
 # atlys loading
 
+ifneq ($(PLATFORM),atlys)
+	$(error "Platform should be atlys when using this file!?")
+endif
+
 # Settings
 DEFAULT_TARGET = video
 TARGET ?= $(DEFAULT_TARGET)
 
 # Image
-image-flash-atlys:
-	atlys-mode-switch --verbose --flash-gateware=$(IMAGE_FILE)
-	atlys-mode-switch --verbose --reset-gateware
+image-flash-$(PLATFORM):
+	$(PLATFORM)-mode-switch --verbose --flash-gateware=$(IMAGE_FILE)
+	$(PLATFORM)-mode-switch --verbose --reset-gateware
 
-.PHONY: image-flash-atlys
+.PHONY: image-flash-$(PLATFORM)
 
 # Gateware
-gateware-load-atlys:
-	atlys-mode-switch --verbose --load-gateware $(GATEWARE_FILEBASE).bit
+gateware-load-$(PLATFORM):
+	$(PLATFORM)-mode-switch --verbose --load-gateware $(GATEWARE_FILEBASE).bit
 
-gateware-flash-atlys:
-	atlys-mode-switch --verbose --flash-gateware=$(GATEWARE_FILEBASE).bin
-	atlys-mode-switch --verbose --reset-gateware
+gateware-flash-$(PLATFORM):
+	$(PLATFORM)-mode-switch --verbose --flash-gateware=$(GATEWARE_FILEBASE).bin
+	$(PLATFORM)-mode-switch --verbose --reset-gateware
 
-.PHONY: gateware-load-atlys gateware-flash-atlys
+.PHONY: gateware-load-$(PLATFORM) gateware-flash-$(PLATFORM)
 
 # Firmware
-firmware-load-atlys:
-	flterm --port=$$(atlys-mode-switch --get-serial-device) --kernel=$(FIRMWARE_FILEBASE).bin
+firmware-load-$(PLATFORM):
+	flterm --port=$$($(PLATFORM)-mode-switch --get-serial-device) --kernel=$(FIRMWARE_FILEBASE).bin
 
-firmware-flash-atlys:
-	atlys-mode-switch --verbose --flash-softcpu-firmware=$(FIRMWARE_FILEBASE).fbi
-	atlys-mode-switch --verbose --reset-gateware
+firmware-flash-$(PLATFORM):
+	$(PLATFORM)-mode-switch --verbose --flash-softcpu-firmware=$(FIRMWARE_FILEBASE).fbi
+	$(PLATFORM)-mode-switch --verbose --reset-gateware
 
-firmware-connect-atlys:
-	flterm --port=$$(atlys-mode-switch --get-serial-dev)
+firmware-connect-$(PLATFORM):
+	flterm --port=$$($(PLATFORM)-mode-switch --get-serial-dev)
 
-.PHONY: firmware-load-atlys firmware-flash-atlys firmware-connect-atlys
+.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM)
 
 # Bios
-bios-flash-atlys:
-	atlys-mode-switch --verbose --flash-softcpu-bios=$(BIOS_FILE)
-	atlys-mode-switch --verbose --reset-gateware
+bios-flash-$(PLATFORM):
+	$(PLATFORM)-mode-switch --verbose --flash-softcpu-bios=$(BIOS_FILE)
+	$(PLATFORM)-mode-switch --verbose --reset-gateware
 
-.PHONY: bios-flash-atlys
+.PHONY: bios-flash-$(PLATFORM)
 
 # Extra commands
-help-atlys:
-	@echo " make reset-atlys"
+help-$(PLATFORM):
+	@echo " make reset-$(PLATFORM)"
 
-reset-atlys:
-	atlys-mode-switch --verbose --mode=jtag
+reset-$(PLATFORM):
+	$(PLATFORM)-mode-switch --verbose --mode=jtag
 
-.PHONY: help-atlys
-.PHONY: reset-atlys
+.PHONY: help-$(PLATFORM)
+.PHONY: reset-$(PLATFORM)

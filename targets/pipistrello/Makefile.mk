@@ -1,5 +1,9 @@
 # pipistrello loading
 
+ifneq ($(PLATFORM),pipistrello)
+	$(error "Platform should be pipistrello when using this file!?")
+endif
+
 # Settings
 DEFAULT_TARGET = base
 TARGET ?= $(DEFAULT_TARGET)
@@ -9,47 +13,47 @@ COMM_PORT ?= /dev/ttyUSB1
 BAUD ?= 115200
 
 # Image
-image-flash-pipistrello:
+image-flash-$(PLATFORM):
 	@echo "Unsupported"
 	@false
 
-.PHONY: image-flash-pipistrello
+.PHONY: image-flash-$(PLATFORM)
 
 # Gateware
-gateware-load-pipistrello:
+gateware-load-$(PLATFORM):
 	@echo "Not working yet."
 	@false
 
-gateware-flash-pipistrello:
+gateware-flash-$(PLATFORM):
 	@echo "Unsupported"
 	@false
 
-.PHONY: gateware-load-pipistrello gateware-flash-pipistrello
+.PHONY: gateware-load-$(PLATFORM) gateware-flash-$(PLATFORM)
 
 # Firmware
-firmware-load-pipistrello:
+firmware-load-$(PLATFORM):
 	@echo "Not working yet."
 	@false
 
-firmware-flash-pipistrello:
+firmware-flash-$(PLATFORM):
 	@echo "Unsupported."
 	@false
 
-firmware-connect-pipistrello:
+firmware-connect-$(PLATFORM):
 	@echo "Unsupported."
 	@false
 
-.PHONY: firmware-load-pipistrello firmware-flash-sim firmware-connect-pipistrello
+.PHONY: firmware-load-$(PLATFORM) firmware-flash-sim firmware-connect-$(PLATFORM)
 
 # Bios
-bios-flash-pipistrello:
+bios-flash-$(PLATFORM):
 	@echo "Unsupported."
 	@false
 
-.PHONY: bios-flash-pipistrello
+.PHONY: bios-flash-$(PLATFORM)
 
 # Extra commands
-help-pipistrello:
+help-$(PLATFORM):
 	@true
 
-.PHONY: help-pipistrello
+.PHONY: help-$(PLATFORM)

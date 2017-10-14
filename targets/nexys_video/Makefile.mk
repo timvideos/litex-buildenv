@@ -1,46 +1,50 @@
 # nexys_video loading
 
+ifneq ($(PLATFORM),nexys_video)
+	$(error "Platform should be nexys_video when using this file!?")
+endif
+
 # Settings
 DEFAULT_TARGET = video
 TARGET ?= $(DEFAULT_TARGET)
 
 # Image
-image-flash-nexys_video: image-flash-py
+image-flash-$(PLATFORM): image-flash-py
 	@true
 
-.PHONY: image-flash-nexys_video
+.PHONY: image-flash-$(PLATFORM)
 
 # Gateware
-gateware-load-nexys_video:
+gateware-load-$(PLATFORM):
 	@echo "Not working yet."
 	@false
 
-gateware-flash-nexys_video: gateware-flash-py
+gateware-flash-$(PLATFORM): gateware-flash-py
 	@true
 
-.PHONY: gateware-load-nexys_video gateware-flash-nexys_video
+.PHONY: gateware-load-$(PLATFORM) gateware-flash-$(PLATFORM)
 # Firmware
-firmware-load-nexys_video:
+firmware-load-$(PLATFORM):
 	@echo "Not working yet."
 	@false
 
-firmware-flash-nexys_video: firmwage-flash-py
+firmware-flash-$(PLATFORM): firmwage-flash-py
 	@true
 
-firmware-connect-nexys_video:
+firmware-connect-$(PLATFORM):
 	flterm --port=$(COMM_PORT) --speed=$(BAUD)
 
-.PHONY: firmware-load-nexys_video firmware-flash-nexys_video firmware-connect-nexys_video
+.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM)
 
 # Bios
-bios-flash-nexys_video:
+bios-flash-$(PLATFORM):
 	@echo "Not working yet"
 	@false
 
-.PHONY: bios-flash-nexys_video
+.PHONY: bios-flash-$(PLATFORM)
 
 # Extra commands
-help-nexys_video:
+help-$(PLATFORM):
 	@true
 
-.PHONY: help-nexys_video
+.PHONY: help-$(PLATFORM)

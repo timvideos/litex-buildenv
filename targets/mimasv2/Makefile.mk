@@ -1,5 +1,9 @@
 # mimasv2 loading
 
+ifneq ($(PLATFORM),mimasv2)
+	$(error "Platform should be mimasv2 when using this file!?")
+endif
+
 # Settings
 DEFAULT_TARGET = base
 TARGET ?= $(DEFAULT_TARGET)
@@ -17,44 +21,44 @@ BAUD ?= 115200
 endif
 
 # Image
-image-flash-mimasv2:
+image-flash-$(PLATFORM):
 	$(PYTHON) $$(which MimasV2Config.py) $(PROG_PORT) $(IMAGE_FILE)
 
-.PHONY: image-flash-mimasv2
+.PHONY: image-flash-$(PLATFORM)
 
 # Gateware
-gateware-load-mimasv2:
+gateware-load-$(PLATFORM):
 	@echo "MimasV2 doesn't support loading, use the flash target instead."
 	@echo "make gateware-flash"
 	@false
 
-gateware-flash-mimasv2:
+gateware-flash-$(PLATFORM):
 	$(PYTHON) $$(which MimasV2Config.py) $(PROG_PORT) $(GATEWARE_FILEBASE).bin
 
-.PHONY: gateware-load-mimasv2 gateware-flash-mimasv2
+.PHONY: gateware-load-$(PLATFORM) gateware-flash-$(PLATFORM)
 # Firmware
-firmware-load-mimasv2:
+firmware-load-$(PLATFORM):
 	flterm --port=$(COMM_PORT) --kernel=$(FIRMWARE_FILEBASE).bin --speed=$(BAUD)
 
-firmware-flash-mimasv2:
+firmware-flash-$(PLATFORM):
 	@echo "MimasV2 doesn't support just flashing firmware, use image target instead."
 	@echo "make image-flash"
 	@false
 
-firmware-connect-mimasv2:
+firmware-connect-$(PLATFORM):
 	flterm --port=$(COMM_PORT) --speed=$(BAUD)
 
-.PHONY: firmware-load-mimasv2 firmware-flash-mimasv2 firmware-connect-mimasv2
+.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM)
 
 # Bios
-bios-flash-mimasv2:
+bios-flash-$(PLATFORM):
 	@echo "Unsupported."
 	@false
 
-.PHONY: bios-flash-mimasv2
+.PHONY: bios-flash-$(PLATFORM)
 
 # Extra commands
-help-mimasv2:
+help-$(PLATFORM):
 	@true
 
-.PHONY: help-mimasv2
+.PHONY: help-$(PLATFORM)
