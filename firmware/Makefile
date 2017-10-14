@@ -104,6 +104,8 @@ boot-helper-$(CPU).S: $(BIOS_DIRECTORY)/boot-helper-$(CPU).S
 clean:
 	$(RM) $(OBJECTS) $(OBJECTS:.o=.d) firmware.elf firmware.bin .*~ *~
 
+ci.o: hdmi_in1.h
+
 pattern.o: version_data.h version_data.c
 version.o: version_data.h version_data.c
 
@@ -111,5 +113,15 @@ version_data.h: version_data
 version_data.c: version_data
 version_data:
 	bash $(FIRMWARE_DIRECTORY)/version_data.sh
+
+hdmi_in1.o: hdmi_in1.h hdmi_in1.c
+
+hdmi_in1.h: $(FIRMWARE_DIRECTORY)/hdmi_in0.h $(FIRMWARE_DIRECTORY)/hdmi_in.sh
+	bash $(FIRMWARE_DIRECTORY)/hdmi_in.sh 1
+	[ -e hdmi_in1.h ]
+
+hdmi_in1.c: $(FIRMWARE_DIRECTORY)/hdmi_in0.c $(FIRMWARE_DIRECTORY)/hdmi_in.sh
+	bash $(FIRMWARE_DIRECTORY)/hdmi_in.sh 1
+	[ -e hdmi_in1.c ]
 
 .PHONY: all clean libs version_data
