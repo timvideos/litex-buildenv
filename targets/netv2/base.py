@@ -1,3 +1,4 @@
+# Support for netv2
 from litex.gen import *
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 
@@ -11,16 +12,10 @@ from litedram.core import ControllerSettings
 
 from gateware import info
 
-
-def csr_map_update(csr_map, csr_peripherals):
-    csr_map.update(dict((n, v)
-        for v, n in enumerate(csr_peripherals, start=max(csr_map.values()) + 1)))
-
-def period_ns(freq):
-    return 1e9/freq
+from targets.utils import csr_map_update, period_ns
 
 
-class CRG(Module):
+class _CRG(Module):
     def __init__(self, platform):
         self.clock_domains.cd_sys = ClockDomain()
         self.clock_domains.cd_sys4x = ClockDomain(reset_less=True)
@@ -30,7 +25,7 @@ class CRG(Module):
 
         clk50 = platform.request("clk50")
         clk50.attr.add("keep")
-        platform.add_period_constraint(clk50, period_ns(50e6))
+        #platform.add_period_constraint(clk50, period_ns(50e6))
         self.rst = Signal()
 
         pll_locked = Signal()
@@ -86,12 +81,12 @@ class CRG(Module):
 
 
 class BaseSoC(SoCSDRAM):
-    csr_map = {
-        "ddrphy":        17,
-        "generator":     18,
-        "checker":       19,
-        "info":          20,
-    }
+    csr_peripherals = (
+        "ddrphy",
+        "generator",
+        "checker",
+        "info",
+    )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
     def __init__(self, platform, **kwargs):
@@ -103,30 +98,34 @@ class BaseSoC(SoCSDRAM):
             **kwargs)
 
         self.submodules.crg = _CRG(platform)
-        self.submodules.info = info.Info()
-
         self.crg.cd_sys.clk.attr.add("keep")
-        self.platform.add_period_constraint(self.crg.cd_sys.clk, period_ns(100e6))
+        #self.platform.add_period_constraint(self.crg.cd_sys.clk, period_ns(clk_freq))
+
+        # Basic peripherals
+        self.submodules.info = info.Info(platform, self.__class__.__name__)
 
         # sdram
-        self.submodules.ddrphy = a7ddrphy.A7DDRPHY(platform.request("ddram"))
+        sdram_module = MT41J128M16(self.clk_freq, "1:4")
+        self.submodules.ddrphy = a7ddrphy.A7DDRPHY(
+            platform.request("ddram"))
         self.add_constant("A7DDRPHY_BITSLIP", 2)
         self.add_constant("A7DDRPHY_DELAY", 8)
-        sdram_module = MT41J128M16(self.clk_freq, "1:4")
+        controller_settings = ControllerSettings(
+            with_bandwidth=True,
+            cmd_buffer_depth=8,
+            with_refresh=True)
         self.register_sdram(self.ddrphy,
                             sdram_module.geom_settings,
                             sdram_module.timing_settings,
-                            controller_settings=ControllerSettings(with_bandwidth=True,
-                                                                   cmd_buffer_depth=8,
-                                                                   with_refresh=True))
+                            controller_settings=controller_settings)
 
         # common led
         self.sys_led = Signal()
         self.pcie_led = Signal()
         self.comb += platform.request("user_led", 0).eq(self.sys_led ^ self.pcie_led)
 
-        checker_port = self.sdram.crossbar.get_port(mode="read")
-        self.submodules.checker = LiteDRAMBISTChecker(checker_port)
+        #checker_port = self.sdram.crossbar.get_port(mode="read")
+        #self.submodules.checker = LiteDRAMBISTChecker(checker_port)
 
         # led blink
         #counter = Signal(32)
@@ -137,5 +136,6 @@ class BaseSoC(SoCSDRAM):
         sys_counter = Signal(32)
         self.sync += sys_counter.eq(sys_counter + 1)
         self.comb += self.sys_led.eq(sys_counter[26])
+
 
 SoC = BaseSoC

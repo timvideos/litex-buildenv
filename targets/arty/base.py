@@ -108,14 +108,15 @@ class BaseSoC(SoCSDRAM):
     mem_map.update(SoCSDRAM.mem_map)
 
     def __init__(self, platform, spiflash="spiflash_1x", **kwargs):
-        clk_freq = 100*1000000
+        clk_freq = int(100e6)
         SoCSDRAM.__init__(self, platform, clk_freq,
             integrated_rom_size=0x8000,
             integrated_sram_size=0x8000,
             **kwargs)
 
         self.submodules.crg = _CRG(platform)
-        self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
+        self.crg.cd_sys.clk.attr.add("keep")
+        #self.platform.add_period_constraint(self.crg.cd_sys.clk, period_ns(clk_freq))
 
         # Basic peripherals
         self.submodules.info = info.Info(platform, self.__class__.__name__)
