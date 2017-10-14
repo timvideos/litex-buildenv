@@ -14,7 +14,7 @@ from gateware import info
 from gateware import led
 from gateware import spi_flash
 
-from targets.utils import csr_map_update
+from targets.utils import csr_map_update, period_ns
 
 
 class _CRG(Module):
@@ -116,7 +116,7 @@ class BaseSoC(SoCSDRAM):
 
         self.submodules.crg = _CRG(platform)
         self.crg.cd_sys.clk.attr.add("keep")
-        #self.platform.add_period_constraint(self.crg.cd_sys.clk, period_ns(clk_freq))
+        self.platform.add_period_constraint(self.crg.cd_sys.clk, period_ns(clk_freq))
 
         # Basic peripherals
         self.submodules.info = info.Info(platform, self.__class__.__name__)
