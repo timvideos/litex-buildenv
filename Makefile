@@ -251,10 +251,10 @@ env:
 
 info:
 	@echo "              Platform: $(FULL_PLATFORM)"
-	@echo "                Target: $(TARGET)"
+	@echo "                Target: $(TARGET) (default: $(DEFAULT_TARGET))"
 	@echo "                   CPU: $(CPU)"
 	@if [ x"$(FIRMWARE)" != x"firmware" ]; then \
-		echo "               Firmare: $(FIRMWARE)"; \
+		echo "               Firmare: $(FIRMWARE) (default: firmware)"; \
 	fi
 
 prompt:

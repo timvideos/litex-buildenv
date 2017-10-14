@@ -1,4 +1,4 @@
-# mimasv2 loading
+# mimasv2 targets
 
 ifneq ($(PLATFORM),mimasv2)
 	$(error "Platform should be mimasv2 when using this file!?")
@@ -61,4 +61,9 @@ bios-flash-$(PLATFORM):
 help-$(PLATFORM):
 	@true
 
-.PHONY: help-$(PLATFORM)
+reset-$(PLATFORM):
+	@echo "Unsupported."
+	@false
+
+
+.PHONY: help-$(PLATFORM) reset-$(PLATFORM)

@@ -1,4 +1,4 @@
-# atlys loading
+# atlys targets
 
 ifneq ($(PLATFORM),atlys)
 	$(error "Platform should be atlys when using this file!?")
@@ -47,10 +47,9 @@ bios-flash-$(PLATFORM):
 
 # Extra commands
 help-$(PLATFORM):
-	@echo " make reset-$(PLATFORM)"
+	@true
 
 reset-$(PLATFORM):
 	$(PLATFORM)-mode-switch --verbose --mode=jtag
 
-.PHONY: help-$(PLATFORM)
-.PHONY: reset-$(PLATFORM)
+.PHONY: help-$(PLATFORM) reset-$(PLATFORM)

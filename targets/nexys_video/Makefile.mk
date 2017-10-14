@@ -1,4 +1,4 @@
-# nexys_video loading
+# nexys_video targets
 
 ifneq ($(PLATFORM),nexys_video)
 	$(error "Platform should be nexys_video when using this file!?")
@@ -16,7 +16,7 @@ image-flash-$(PLATFORM): image-flash-py
 
 # Gateware
 gateware-load-$(PLATFORM):
-	@echo "Not working yet."
+	@echo "Unsupported."
 	@false
 
 gateware-flash-$(PLATFORM): gateware-flash-py
@@ -25,7 +25,7 @@ gateware-flash-$(PLATFORM): gateware-flash-py
 .PHONY: gateware-load-$(PLATFORM) gateware-flash-$(PLATFORM)
 # Firmware
 firmware-load-$(PLATFORM):
-	@echo "Not working yet."
+	@echo "Unsupported."
 	@false
 
 firmware-flash-$(PLATFORM): firmwage-flash-py
@@ -38,7 +38,7 @@ firmware-connect-$(PLATFORM):
 
 # Bios
 bios-flash-$(PLATFORM):
-	@echo "Not working yet"
+	@echo "Unsupported."
 	@false
 
 .PHONY: bios-flash-$(PLATFORM)
@@ -47,4 +47,8 @@ bios-flash-$(PLATFORM):
 help-$(PLATFORM):
 	@true
 
-.PHONY: help-$(PLATFORM)
+reset-$(PLATFORM):
+	@echo "Unsupported."
+	@false
+
+.PHONY: help-$(PLATFORM) reset-$(PLATFORM)

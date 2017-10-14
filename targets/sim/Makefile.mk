@@ -48,10 +48,16 @@ bios-flash-$(PLATFORM):
 
 .PHONY: bios-flash-$(PLATFORM)
 
-# Extra Commands
+# Extra commands
 help-$(PLATFORM):
 	@echo " make $(PLATFORM)-setup"
 	@echo " make $(PLATFORM)-teardown"
+
+reset-$(PLATFORM):
+	@echo "Unsupported."
+	@false
+
+.PHONY: help-$(PLATFORM) reset-$(PLATFORM)
 
 $(PLATFORM)-setup:
 	sudo true
@@ -68,5 +74,4 @@ $(PLATFORM)-teardown:
 	sudo ifconfig tap0 down
 	sudo openvpn --rmtun --dev tap0
 
-.PHONY: help-$(PLATFORM)
 .PHONY: $(PLATFORM)-setup $(PLATFORM)-teardown

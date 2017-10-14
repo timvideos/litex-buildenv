@@ -1,4 +1,4 @@
-# opsis loading
+# opsis targets
 
 ifneq ($(PLATFORM),opsis)
 	$(error "Platform should be opsis when using this file!?")
@@ -50,12 +50,11 @@ bios-flash-$(PLATFORM):
 
 # Extra commands
 help-$(PLATFORM):
-	@echo " make reset-$(PLATFORM)"
+	@true
 
 reset-$(PLATFORM):
 	$(PLATFORM)-mode-switch --verbose --mode=serial
 	$(PLATFORM)-mode-switch --verbose --mode=jtag
 	$(PLATFORM)-mode-switch --verbose --mode=serial
 
-.PHONY: help-$(PLATFORM)
-.PHONY: reset-$(PLATFORM)
+.PHONY: help-$(PLATFORM) reset-$(PLATFORM)

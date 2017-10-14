@@ -1,4 +1,4 @@
-# minispartan6 loading
+# minispartan6 targets
 
 ifneq ($(PLATFORM),minispartan6)
 	$(error "Platform should be minispartan6 when using this file!?")
@@ -41,7 +41,7 @@ firmware-connect-$(PLATFORM):
 	@echo "Unsupported."
 	@false
 
-.PHONY: firmware-load-$(PLATFORM) firmware-flash-sim firmware-connect-$(PLATFORM)
+.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM)
 
 # Bios
 bios-flash-$(PLATFORM):
@@ -54,4 +54,9 @@ bios-flash-$(PLATFORM):
 help-$(PLATFORM):
 	@true
 
-.PHONY: help-$(PLATFORM)
+reset-$(PLATFORM):
+	@echo "Unsupported."
+	@false
+
+
+.PHONY: help-$(PLATFORM) reset-$(PLATFORM)

@@ -1,4 +1,4 @@
-# arty loading
+# arty targets
 
 ifneq ($(PLATFORM),arty)
 	$(error "Platform should be arty when using this file!?")
@@ -41,7 +41,7 @@ firmware-connect-$(PLATFORM):
 
 # Bios
 bios-flash-$(PLATFORM):
-	@echo "Not working yet"
+	@echo "Unsupported."
 	@false
 
 .PHONY: bios-flash-$(PLATFORM)
@@ -50,4 +50,8 @@ bios-flash-$(PLATFORM):
 help-$(PLATFORM):
 	@true
 
-.PHONY: help-$(PLATFORM)
+reset-$(PLATFORM):
+	@echo "Unsupported."
+	@false
+
+.PHONY: help-$(PLATFORM) reset-$(PLATFORM)

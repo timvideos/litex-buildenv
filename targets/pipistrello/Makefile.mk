@@ -1,4 +1,4 @@
-# pipistrello loading
+# pipistrello targets
 
 ifneq ($(PLATFORM),pipistrello)
 	$(error "Platform should be pipistrello when using this file!?")
@@ -21,7 +21,7 @@ image-flash-$(PLATFORM):
 
 # Gateware
 gateware-load-$(PLATFORM):
-	@echo "Not working yet."
+	@echo "Unsupported."
 	@false
 
 gateware-flash-$(PLATFORM):
@@ -32,7 +32,7 @@ gateware-flash-$(PLATFORM):
 
 # Firmware
 firmware-load-$(PLATFORM):
-	@echo "Not working yet."
+	@echo "Unsupported."
 	@false
 
 firmware-flash-$(PLATFORM):
@@ -43,7 +43,7 @@ firmware-connect-$(PLATFORM):
 	@echo "Unsupported."
 	@false
 
-.PHONY: firmware-load-$(PLATFORM) firmware-flash-sim firmware-connect-$(PLATFORM)
+.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM)
 
 # Bios
 bios-flash-$(PLATFORM):
@@ -56,4 +56,9 @@ bios-flash-$(PLATFORM):
 help-$(PLATFORM):
 	@true
 
-.PHONY: help-$(PLATFORM)
+reset-$(PLATFORM):
+	@echo "Unsupported."
+	@false
+
+
+.PHONY: help-$(PLATFORM) reset-$(PLATFORM)

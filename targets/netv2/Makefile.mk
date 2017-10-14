@@ -1,4 +1,4 @@
-# netv2 loading
+# netv2 targets
 
 ifneq ($(PLATFORM),netv2)
 	$(error "Platform should be netv2 when using this file!?")
@@ -17,7 +17,7 @@ image-flash-$(PLATFORM):
 
 # Gateware
 gateware-load-$(PLATFORM):
-	@echo "Not working yet."
+	@echo "Unsupported."
 	@false
 
 gateware-flash-$(PLATFORM):
@@ -26,8 +26,8 @@ gateware-flash-$(PLATFORM):
 
 .PHONY: gateware-load-$(PLATFORM) gateware-flash-$(PLATFORM)
 # Firmware
-load-firmware-$(PLATFORM):
-	@echo "Not working yet."
+firmware-load-$(PLATFORM):
+	@echo "Unsupported."
 	@false
 
 firmware-flash-$(PLATFORM):
@@ -38,7 +38,7 @@ firmware-connect-$(PLATFORM):
 	@echo "Unsupported."
 	@false
 
-.PHONY: firmware-load-$(PLATFORM) firmware-flash-sim firmware-connect-$(PLATFORM)
+.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM)
 
 # Bios
 bios-flash-$(PLATFORM):
@@ -51,4 +51,9 @@ bios-flash-$(PLATFORM):
 help-$(PLATFORM):
 	@true
 
-.PHONY: help-$(PLATFORM)
+reset-$(PLATFORM):
+	@echo "Unsupported."
+	@false
+
+
+.PHONY: help-$(PLATFORM) reset-$(PLATFORM)
