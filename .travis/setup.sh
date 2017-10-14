@@ -16,7 +16,7 @@ if [ z"$TRAVIS_PULL_REQUEST_SLUG" != z ]; then
 	echo "- Fetching from pull request source"
 	echo "---------------------------------------------"
 	git remote add source https://github.com/$TRAVIS_PULL_REQUEST_SLUG.git
-	git fetch source --unshallow && git fetch source --tags
+	git fetch source && git fetch --tags
 
 	echo ""
 	echo ""
