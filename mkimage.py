@@ -38,8 +38,8 @@ def main():
             gateware = args.override_gateware
     if gateware:
         assert os.path.exists(gateware), (
-            "Gateware file not found! "
-            "Use --override-gateware=none for no gateware.")
+            "Gateware file %r not found! "
+            "Use --override-gateware=none for no gateware." % gateware)
         assert gateware.endswith('.bin'), (
             "Gateware must be a .bin for flashing (not %s)." % gateware)
 
@@ -51,8 +51,8 @@ def main():
             bios = args.override_bios
     if bios:
         assert os.path.exists(bios), (
-            "BIOS file not found! "
-            "Use --override-bios=none for no BIOS.")
+            "BIOS file %r not found! "
+            "Use --override-bios=none for no BIOS." % bios)
 
     firmware = make.get_firmware(builddir, "flash")
     if args.override_firmware:
@@ -62,8 +62,8 @@ def main():
             firmware = args.override_firmware
     if firmware:
         assert os.path.exists(firmware), (
-            "Firmware file not found! "
-            "Use --override-firmware=none for no firmware.")
+            "Firmware file %r not found! "
+            "Use --override-firmware=none for no firmware." % firmware)
         assert firmware.endswith('.fbi'), (
             "Firmware must be a MiSoC .fbi image.")
 

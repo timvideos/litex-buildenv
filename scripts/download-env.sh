@@ -177,6 +177,7 @@ echo
 echo "Installing python3.5"
 conda install python=3.5
 check_version python 3.5
+echo "python ==3.5.4" > build/conda/conda-meta/pinned # Make sure it stays at version 3.5
 
 echo ""
 echo "Installing binaries into environment"

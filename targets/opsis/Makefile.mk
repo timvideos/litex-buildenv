@@ -1,6 +1,7 @@
 # opsis loading
 
 DEFAULT_TARGET = video
+TARGET ?= $(DEFAULT_TARGET)
 
 gateware-load-opsis:
 	opsis-mode-switch --verbose --load-gateware $(GATEWARE_FILEBASE).bit
