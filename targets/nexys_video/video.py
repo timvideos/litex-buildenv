@@ -1,7 +1,3 @@
-#!/usr/bin/env python3
-
-from nexys_base import *
-
 from litevideo.input import HDMIIn
 from litevideo.output import VideoOut
 
@@ -9,15 +5,18 @@ from litex.soc.cores.frequency_meter import FrequencyMeter
 
 from litescope import LiteScopeAnalyzer
 
+from targets.utils import csr_map_update, period_ns
+from targets.nexys_video.net import NetSoC as BaseSoC
+
 
 class VideoSoC(BaseSoC):
-    csr_peripherals = {
+    csr_peripherals = (
         "hdmi_out0",
         "hdmi_in0",
         "hdmi_in0_freq",
         "hdmi_in0_edid_mem",
-    }
-    csr_map_update(base_cls.csr_map, csr_peripherals)
+    )
+    csr_map_update(BaseSoC.csr_map, csr_peripherals)
 
     interrupt_map = {
         "hdmi_in0": 3,
@@ -27,16 +26,27 @@ class VideoSoC(BaseSoC):
     def __init__(self, platform, *args, **kwargs):
         BaseSoC.__init__(self, platform, *args, **kwargs)
 
+        mode = "ycbcr422"
+        if mode == "ycbcr422":
+            dw = 16
+        elif mode == "rgb":
+            dw = 32
+        else:
+            raise SystemError("Unknown pixel mode.")
 
         pix_freq = 148.50e6
 
-        # hdmi in
+        # hdmi in 0
         hdmi_in0_pads = platform.request("hdmi_in")
+
+        self.submodules.hdmi_in0 = HDMIIn(
+            hdmi_in0_pads,
+            self.sdram.crossbar.get_port(mode="write"),
+            fifo_depth=512,
+            device="xc7")
+
         self.submodules.hdmi_in0_freq = FrequencyMeter(period=self.clk_freq)
-        self.submodules.hdmi_in0 = HDMIIn(hdmi_in0_pads,
-                                          self.sdram.crossbar.get_port(mode="write"),
-                                          fifo_depth=512,
-                                          device="xc7")
+
         self.comb += [
             self.hdmi_in0_freq.clk.eq(self.hdmi_in0.clocking.cd_pix.clk),
             hdmi_in0_pads.txen.eq(1)
@@ -51,22 +61,21 @@ class VideoSoC(BaseSoC):
             self.hdmi_in0.clocking.cd_pix1p25x.clk,
             self.hdmi_in0.clocking.cd_pix5x.clk)
 
-        # hdmi out
-        mode = "ycbcr422"
-        if mode == "ycbcr422":
-            hdmi_out0_dram_port = self.sdram.crossbar.get_port(mode="read", dw=16, cd="hdmi_out0_pix", reverse=True)
-            self.submodules.hdmi_out0 = VideoOut(platform.device,
-                                                 platform.request("hdmi_out"),
-                                                 hdmi_out0_dram_port,
-                                                 "ycbcr422",
-                                                 fifo_depth=4096)
-        elif mode == "rgb":
-            hdmi_out0_dram_port = self.sdram.crossbar.get_port(mode="read", dw=32, cd="hdmi_out0_pix", reverse=True)
-            self.submodules.hdmi_out0 = VideoOut(platform.device,
-                                                 platform.request("hdmi_out"),
-                                                 hdmi_out0_dram_port,
-                                                 "rgb",
-                                                 fifo_depth=4096)
+        # hdmi out 0
+        hdmi_out0_pads = platform.request("hdmi_out")
+
+        hdmi_out0_dram_port = self.sdram.crossbar.get_port(
+            mode="read",
+            dw=dw,
+            cd="hdmi_out0_pix",
+            reverse=True)
+
+        self.submodules.hdmi_out0 = VideoOut(
+            platform.device,
+            hdmi_out0_pads,
+            hdmi_out0_dram_port,
+            mode=mode,
+            fifo_depth=4096)
 
         self.platform.add_false_path_constraints(
             self.crg.cd_sys.clk,
@@ -80,18 +89,11 @@ class VideoSoC(BaseSoC):
             self.hdmi_out0.driver.clocking.cd_pix.clk,
             self.hdmi_out0.driver.clocking.cd_pix5x.clk)
 
-        # hdmi over
-        self.comb += [
-            platform.request("hdmi_sda_over_up").eq(0),
-            platform.request("hdmi_sda_over_dn").eq(0),
-            platform.request("hdmi_hdp_over").eq(0),
-        ]
-
 
 class VideoSoCDebug(VideoSoC):
-    csr_peripherals = {
+    csr_peripherals = (
         "analyzer",
-    }
+    )
     csr_map_update(VideoSoC.csr_map, csr_peripherals)
 
     def __init__(self, platform, *args, **kwargs):

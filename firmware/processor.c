@@ -464,6 +464,7 @@ static void fb_get_clock_md(unsigned int pixel_clock, unsigned int *best_m, unsi
 	max_m = 256;
 #elif CSR_HDMI_OUT0_DRIVER_CLOCKING_DRP_DWE_ADDR
 	// Artix 7
+	pixel_clock = pixel_clock * 10;
 	ideal_d = 10000;
 	max_d = 128;
 	max_m = 128;
@@ -502,24 +503,25 @@ static void fb_set_clock(unsigned int pixel_clock)
 	unsigned int clock_m, clock_d;
 
 	fb_get_clock_md(pixel_clock, &clock_m, &clock_d);
+
+#ifdef CSR_HDMI_OUT0_DRIVER_CLOCKING_PLL_RESET_ADDR
 	fb_clkgen_write(0x1, clock_d-1);
 	fb_clkgen_write(0x3, clock_m-1);
-
-#ifdef CSR_HDMI_OUT0_BASE
 	hdmi_out0_driver_clocking_send_go_write(1);
 	while(!(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_PROGDONE));
 	while(!(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_LOCKED));
+#elif CSR_HDMI_OUT0_CLOCKING_MMCM_RESET_ADDR
+	fb_clkgen_write(clock_m, clock_d);
 #endif
 }
 
 
 static void fb_set_mode(const struct video_timing *mode)
 {
-	unsigned int clock_m, clock_d;
 	unsigned int hdmi_out0_enabled;
 	unsigned int hdmi_out1_enabled;
 
-	fb_get_clock_md(10*(mode->pixel_clock), &clock_m, &clock_d);
+	fb_set_clock(mode->pixel_clock);
 
 #ifdef CSR_HDMI_OUT0_BASE
 	if (hdmi_out0_core_initiator_enable_read()) {

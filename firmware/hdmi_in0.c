@@ -8,6 +8,7 @@
 #include <generated/csr.h>
 #include <generated/mem.h>
 #include <hw/flags.h>
+#include "extra-flags.h"
 
 #include "stdio_wrap.h"
 
@@ -195,6 +196,7 @@ void hdmi_in0_print_status(void)
 		hdmi_in0_resdetection_vres_read());
 }
 
+#ifdef CSR_HDMI_IN0_CLOCKING_PLL_RESET_ADDR
 static int wait_idelays(void)
 {
 	int ev;
@@ -214,6 +216,7 @@ static int wait_idelays(void)
 	}
 	return 1;
 }
+#endif
 
 int hdmi_in0_calibrate_delays(int freq)
 {
