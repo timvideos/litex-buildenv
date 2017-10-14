@@ -1,17 +1,55 @@
 # pipistrello loading
 
+# Settings
 DEFAULT_TARGET = base
+TARGET ?= $(DEFAULT_TARGET)
 
-load-gateware-pipistrello:
-	echo "Not working yet."
-	false
+PROG_PORT ?= /dev/ttyUSB0
+COMM_PORT ?= /dev/ttyUSB1
+BAUD ?= 115200
 
-load-firmware-pipistrello:
-	echo "Not working yet."
-	false
+# Image
+image-flash-pipistrello:
+	@echo "Unsupported"
+	@false
 
+.PHONY: image-flash-pipistrello
+
+# Gateware
+gateware-load-pipistrello:
+	@echo "Not working yet."
+	@false
+
+gateware-flash-pipistrello:
+	@echo "Unsupported"
+	@false
+
+.PHONY: gateware-load-pipistrello gateware-flash-pipistrello
+
+# Firmware
+firmware-load-pipistrello:
+	@echo "Not working yet."
+	@false
+
+firmware-flash-pipistrello:
+	@echo "Unsupported."
+	@false
+
+firmware-connect-pipistrello:
+	@echo "Unsupported."
+	@false
+
+.PHONY: firmware-load-pipistrello firmware-flash-sim firmware-connect-pipistrello
+
+# Bios
+bios-flash-pipistrello:
+	@echo "Unsupported."
+	@false
+
+.PHONY: bios-flash-pipistrello
+
+# Extra commands
 help-pipistrello:
 	@true
 
-.PHONY: load-gateware-pipistrello load-firmware-pipistrello help-pipistrello
-
+.PHONY: help-pipistrello

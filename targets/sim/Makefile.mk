@@ -1,6 +1,53 @@
 # Sim targets
 
+# Settings
 DEFAULT_TARGET = base
+TARGET ?= $(DEFAULT_TARGET)
+
+# Image
+image-flash-sim:
+	@echo "Unsupported."
+	@false
+
+.PHONY: image-flash-sim
+
+# Gateware
+gateware-load-sim:
+	@echo "Unsupported."
+	@false
+
+gateware-flash-sim:
+	@echo "Unsupported."
+	@false
+
+.PHONY: gateware-load-sim gateware-flash-sim
+
+# Firmware
+firmware-load-sim:
+	@echo "Unsupported."
+	@false
+
+firmware-flash-sim:
+	@echo "Unsupported."
+	@false
+
+firmware-connect-sim:
+	@echo "Unsupported."
+	@false
+
+.PHONY: firmware-load-sim firmware-flash-sim firmware-connect-sim
+
+# Bios
+bios-flash-sim:
+	@echo "Unsupported."
+	@false
+
+.PHONY: bios-flash-sim
+
+# Extra Commands
+help-sim:
+	@echo " make sim-setup"
+	@echo " make sim-teardown"
 
 sim-setup:
 	sudo true
@@ -17,8 +64,5 @@ sim-teardown:
 	sudo ifconfig tap0 down
 	sudo openvpn --rmtun --dev tap0
 
-help-sim:
-	@echo " make sim-setup"
-	@echo " make sim-teardown"
-
-.PHONY: sim-setup sim-teardown help-sim
+.PHONY: help-sim
+.PHONY: sim-setup sim-teardown
