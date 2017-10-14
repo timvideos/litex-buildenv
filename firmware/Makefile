@@ -26,7 +26,6 @@ OBJECTS=\
 	ethernet.o \
 	fx2.o \
 	hdmi_in0.o \
-	hdmi_in1.o \
 	hdmi_out0.o \
 	hdmi_out1.o \
 	heartbeat.o \
@@ -46,7 +45,8 @@ OBJECTS=\
 	tofe_eeprom.o \
 	uptime.o \
 	version.o \
-	version_data.o \
+	$(FIRMBUILD_DIRECTORY)/version_data.o \
+	$(FIRMBUILD_DIRECTORY)/hdmi_in1.o \
 	boot-helper-$(CPU).o
 
 
