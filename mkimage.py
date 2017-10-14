@@ -38,8 +38,8 @@ def main():
             gateware = args.override_gateware
     if gateware:
         assert os.path.exists(gateware), (
-            "Gateware file not found! "
-            "Use --override-gateware=none for no gateware.")
+            "Gateware file %r not found! "
+            "Use --override-gateware=none for no gateware." % gateware)
 
     bios = os.path.join(builddir, "software", "bios", "bios.bin")
     if args.override_bios:
@@ -49,8 +49,8 @@ def main():
             bios = args.override_bios
     if bios:
         assert os.path.exists(bios), (
-            "BIOS file not found! "
-            "Use --override-bios=none for no BIOS.")
+            "BIOS file %r not found! "
+            "Use --override-bios=none for no BIOS." % bios)
 
     firmware = os.path.join(builddir, "software", "firmware", "firmware.fbi")
     if args.override_firmware:
@@ -60,8 +60,8 @@ def main():
             firmware = args.override_firmware
     if firmware:
         assert os.path.exists(firmware), (
-            "Firmware file not found! "
-            "Use --override-firmware=none for no firmware.")
+            "Firmware file %r not found! "
+            "Use --override-firmware=none for no firmware." % firmware)
 
     platform = make_platform(args)
 
