@@ -14,6 +14,7 @@ UTARGET = $(shell echo $(TARGET) | tr a-z A-Z)
 CFLAGS += -DPLATFORM_$(UPLATFORM) -DTARGET_$(UTARGET)
 
 BUILD_DIRECTORY=$(BUILDINC_DIRECTORY)/../../
+FIRMBUILD_DIRECTORY=$(BUILD_DIRECTORY)/software/firmware
 
 OBJECTS=\
 	bist.o \
@@ -104,24 +105,30 @@ boot-helper-$(CPU).S: $(BIOS_DIRECTORY)/boot-helper-$(CPU).S
 clean:
 	$(RM) $(OBJECTS) $(OBJECTS:.o=.d) firmware.elf firmware.bin .*~ *~
 
-ci.o: hdmi_in1.h
+# Dependencies on generated files
+ci.o: $(FIRMBUILD_DIRECTORY)/hdmi_in1.h
+hdmi_in1.o: $(FIRMBUILD_DIRECTORY)/hdmi_in1.h $(FIRMBUILD_DIRECTORY)/hdmi_in1.c
+pattern.o: $(FIRMBUILD_DIRECTORY)/version_data.h $(FIRMBUILD_DIRECTORY)/version_data.c
+version.o: $(FIRMBUILD_DIRECTORY)/version_data.h $(FIRMBUILD_DIRECTORY)/version_data.c
 
-pattern.o: version_data.h version_data.c
-version.o: version_data.h version_data.c
-
+# Generated version info
 version_data.h: version_data
 version_data.c: version_data
 version_data:
 	bash $(FIRMWARE_DIRECTORY)/version_data.sh
+	# Check the version files exist
+	[ -e $(FIRMBUILD_DIRECTORY)/version_data.h ]
+	[ -e $(FIRMBUILD_DIRECTORY)/version_data.c ]
 
-hdmi_in1.o: hdmi_in1.h hdmi_in1.c
-
-hdmi_in1.h: $(FIRMWARE_DIRECTORY)/hdmi_in0.h $(FIRMWARE_DIRECTORY)/hdmi_in.sh
+# Generated hdmi_in1 from hdmi_in0
+$(FIRMBUILD_DIRECTORY)/hdmi_in1.h: $(FIRMWARE_DIRECTORY)/hdmi_in0.h $(FIRMWARE_DIRECTORY)/hdmi_in.sh
 	bash $(FIRMWARE_DIRECTORY)/hdmi_in.sh 1
-	[ -e hdmi_in1.h ]
+	# Check the files exist
+	[ -e $(FIRMBUILD_DIRECTORY)/hdmi_in1.h ]
 
-hdmi_in1.c: $(FIRMWARE_DIRECTORY)/hdmi_in0.c $(FIRMWARE_DIRECTORY)/hdmi_in.sh
+$(FIRMBUILD_DIRECTORY)/hdmi_in1.c: $(FIRMWARE_DIRECTORY)/hdmi_in0.c $(FIRMWARE_DIRECTORY)/hdmi_in.sh
 	bash $(FIRMWARE_DIRECTORY)/hdmi_in.sh 1
-	[ -e hdmi_in1.c ]
+	# Check the files exist
+	[ -e $(FIRMBUILD_DIRECTORY)/hdmi_in1.c ]
 
 .PHONY: all clean libs version_data
