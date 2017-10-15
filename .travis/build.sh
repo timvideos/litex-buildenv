@@ -14,6 +14,17 @@ echo "Running with PLATFORMS='$PLATFORMS'"
 
 source scripts/enter-env.sh || exit 1
 
+# How long to wait for "make gateware" to finish.
+# Normal LiteX targets should take no longer than 20ish minutes on a modern
+# machine. We round up to 40mins.
+export GATEWARE_TIMEOUT=${GATEWARE_TIMEOUT:-2700}
+export GATEWARE_KILLOUT=$((GATEWARE_TIMEOUT+60))
+if [ -x /usr/bin/timeout ]; then
+	export GATEWARE_TIMEOUT_CMD="/usr/bin/timeout --preserve-status --kill-after=$GATEWARE_KILLOUT $GATEWARE_TIMEOUT"
+elif [ -x /usr/bin/timelimit ]; then
+	export GATEWARE_TIMEOUT_CMD="/usr/bin/timelimit -p -T $GATEWARE_KILLOUT -t $GATEWARE_TIMEOUT"
+fi
+
 ls -l $XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/xreport
 if [ -f $XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/xreport ]; then
 	HAVE_XILINX_ISE=1
@@ -113,8 +124,12 @@ function build() {
 		echo "Skipping gateware"
 		make gateware-fake
 	else
-		FILTER=$PWD/.travis/run-make-gateware-filter.py \
-			make gateware || return 1
+		# Sometimes Xilinx ISE gets stuck and will never complete, we
+		# use timeout to prevent waiting here forever.
+		# FIXME: Should this be in the Makefile instead?
+		echo "Using $GATEWARE_TIMEOUT timeout (with '$GATEWARE_TIMEOUT_CMD')."
+		export FILTER=$PWD/.travis/run-make-gateware-filter.py
+		$GATEWARE_TIMEOUT_CMD make gateware || return 1
 	fi
 	echo "============================================="
 
