@@ -41,7 +41,7 @@ fi
 
 mkdir -p $XILINX_DIR
 cat $STRACE_FILES | xargs -d '\n' \
-	cp --parents --no-dereference --preserve=all -t $XILINX_DIR
+	cp -v --parents --no-dereference --preserve=all -t $XILINX_DIR
 
 FILENAME="$BASE/xilinx-tools-$(git describe).tar.bz2"
 echo $FILENAME

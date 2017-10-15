@@ -25,14 +25,14 @@ with open(sys.argv[1]) as csvfile:
     paths = set()
     for l in reader:
         #print(l)
-        if l['type'] != 'file':
-            continue
+        #if l['type'] != 'file':
+        #    continue
         if not l['path'].startswith('/opt/Xilinx'):
             continue
         if not os.path.exists(l['path']):
             continue
-        if os.path.isdir(l['path']):
-            continue
+        #if os.path.isdir(l['path']):
+        #    continue
 
         src = l['path']
         dst = l['path'].replace('/opt/Xilinx.real/', '/opt/Xilinx/')
