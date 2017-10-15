@@ -68,17 +68,16 @@ if [ ! -z "$XILINX_PASSPHRASE" ]; then
 			XILINX_TAR_MD5=$(echo $XILINX_TAR_INFO | sed -e's/ .*//')
 
 			# This setup was taken from https://github.com/m-labs/artiq/blob/master/.travis/get-xilinx.sh
-			wget -c http://xilinx.timvideos.us/${XILINX_TAR_FILE}.gpg
+			wget --no-verbose http://xilinx.timvideos.us/${XILINX_TAR_FILE}.gpg
 			cat $XILINX_PASSPHRASE_FILE | gpg --batch --passphrase-fd 0 ${XILINX_TAR_FILE}.gpg
-			tar -xjf $XILINX_TAR_FILE
+			tar -xjvf $XILINX_TAR_FILE
 
 			# Relocate ISE from /opt to $XILINX_DIR
 			for i in $(grep -Rsn "/opt/Xilinx" $XILINX_DIR/opt | cut -d':' -f1)
 			do
 				sed -i -e "s!/opt/Xilinx!$XILINX_DIR/opt/Xilinx!g" $i
 			done
-
-			wget -c http://xilinx.timvideos.us/Xilinx.lic.gpg
+			wget --no-verbose http://xilinx.timvideos.us/Xilinx.lic.gpg
 			cat $XILINX_PASSPHRASE_FILE | gpg --batch --passphrase-fd 0 Xilinx.lic.gpg
 
 			#git clone https://github.com/mithro/impersonate_macaddress
@@ -163,7 +162,7 @@ export PATH=$CONDA_DIR/bin:$PATH:/sbin
 	echo "Installing conda (self contained Python environment with binary package support)"
 	if [ ! -d $CONDA_DIR ]; then
 		cd $BUILD_DIR
-		wget -c https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+		wget --no-verbose -c https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 		chmod a+x Miniconda3-latest-Linux-x86_64.sh
 		./Miniconda3-latest-Linux-x86_64.sh -p $CONDA_DIR -b
 		conda config --set always_yes yes --set changeps1 no
