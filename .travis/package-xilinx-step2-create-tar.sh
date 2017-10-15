@@ -25,7 +25,9 @@ export PREFIX="/opt/Xilinx/"
 # This is based on https://github.com/m-labs/migen/blob/master/tools/strace_tailor.sh
 STRACE_LOG=$BASE/strace.log
 if [ ! -f $STRACE_LOG ]; then
-	strace -e trace=file,process -f -o ${STRACE_LOG} bash $SETUP_DIR/build.sh
+	echo "No strace log found at $STRACE_LOG"
+	echo "Please run ./.travis/package-xilinx-step1-trace.sh"
+	exit 1
 fi
 
 STRACE_FILES=$BASE/strace.files.log
@@ -47,6 +49,8 @@ echo $FILENAME
 	tar --preserve-permissions -jcvf $FILENAME opt
 )
 echo $XILINX_PASSPHRASE_IN | gpg --passphrase-fd 0 --cipher-algo AES256 -c $FILENAME
+
+return 0
 
 (
 	cd $BASE
