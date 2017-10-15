@@ -31,7 +31,8 @@ if [ ! -f $STRACE_LOG ]; then
 fi
 
 STRACE_FILES=$BASE/strace.files.log
-cat $STRACE_LOG | python $SETUP_DIR/package-xilinx-filter-strace.py $PREFIX > $STRACE_FILES
+#cat $STRACE_LOG | python $SETUP_DIR/package-xilinx-filter-strace.py $PREFIX > $STRACE_FILES
+$SETUP_DIR/package-xilinx-cluefs-filter.py $STRACE_LOG > $STRACE_FILES
 
 XILINX_DIR=$BASE/xilinx-stripped
 if [ -d $XILINX_DIR ]; then
@@ -42,7 +43,7 @@ mkdir -p $XILINX_DIR
 cat $STRACE_FILES | xargs -d '\n' \
 	cp --parents --no-dereference --preserve=all -t $XILINX_DIR
 
-FILENAME="$BASE/xilinx-ise-$(git describe).tar.bz2"
+FILENAME="$BASE/xilinx-tools-$(git describe).tar.bz2"
 echo $FILENAME
 (
 	cd $XILINX_DIR
@@ -50,7 +51,7 @@ echo $FILENAME
 )
 echo $XILINX_PASSPHRASE_IN | gpg --passphrase-fd 0 --cipher-algo AES256 -c $FILENAME
 
-return 0
+exit
 
 (
 	cd $BASE

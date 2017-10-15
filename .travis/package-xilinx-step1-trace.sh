@@ -14,7 +14,6 @@ mkdir -p $BASE
 export PREFIX="/opt/Xilinx/"
 
 # This is based on https://github.com/m-labs/migen/blob/master/tools/strace_tailor.sh
-STRACE_LOG=$BASE/strace.log
 if [ ! -z $PLATFORMS ]; then
 	echo "\$PLATFORMS is set to '$PLATFORMS', please unset it."
 	exit 1
@@ -31,4 +30,9 @@ fi
 	rm -rf *_*_*
 )
 
-exec strace -e trace=file,process -f -o ${STRACE_LOG} bash $SETUP_DIR/build.sh
+# curl -L https://github.com/airnandez/cluefs/releases/download/v0.5/cluefs-v0.5-linux-x86_64.tar.gz | tar -xz
+# https://github.com/airnandez/cluefs
+# cluefs --mount=/opt/Xilinx --shadow=/opt/Xilinx.real --out=/tmp/Xilinx.log --ro --csv
+
+#exec strace -e trace=file,process -E LD_LIBRARY_PATH=/opt/Xilinx/Vivado/2017.3/lib/lnx64.o -f -o ${STRACE_LOG} 
+bash $SETUP_DIR/build.sh
