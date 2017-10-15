@@ -93,7 +93,7 @@ if [ -z "$XILINX_DIR" ]; then
 	fi
 fi
 if [ ! -z "$XILINX_DIR" ]; then
-	export MISOC_EXTRA_CMDLINE="-Ob toolchain_path $XILINX_DIR"
+	export MISOC_EXTRA_CMDLINE="-Ob toolchain_path $XILINX_DIR/opt/Xilinx/"
 fi
 echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
 

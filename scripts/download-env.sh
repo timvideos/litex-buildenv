@@ -56,10 +56,10 @@ if [ ! -z "$XILINX_PASSPHRASE" ]; then
 
 	# Need gpg to do the unencryption
 	XILINX_DIR=$BUILD_DIR/Xilinx
-	if [ ! -d "$XILINX_DIR" ]; then
+	if [ ! -d "$XILINX_DIR" -o ! -d "$XILINX_DIR/opt" ]; then
 		(
 			cd $BUILD_DIR
-			mkdir Xilinx
+			mkdir -p Xilinx
 			cd Xilinx
 
 			wget -q http://xilinx.timvideos.us/index.txt -O xilinx-details.txt
@@ -68,12 +68,12 @@ if [ ! -z "$XILINX_PASSPHRASE" ]; then
 			XILINX_TAR_MD5=$(echo $XILINX_TAR_INFO | sed -e's/ .*//')
 
 			# This setup was taken from https://github.com/m-labs/artiq/blob/master/.travis/get-xilinx.sh
-			wget --no-verbose http://xilinx.timvideos.us/${XILINX_TAR_FILE}.gpg
+			wget --no-verbose -c http://xilinx.timvideos.us/${XILINX_TAR_FILE}.gpg
 			cat $XILINX_PASSPHRASE_FILE | gpg --batch --passphrase-fd 0 ${XILINX_TAR_FILE}.gpg
 			tar -xjvf $XILINX_TAR_FILE
 
 			# Relocate ISE from /opt to $XILINX_DIR
-			for i in $(grep -Rsn "/opt/Xilinx" $XILINX_DIR/opt | cut -d':' -f1)
+			for i in $(grep -l -Rsn "/opt/Xilinx" $XILINX_DIR/opt)
 			do
 				sed -i -e "s!/opt/Xilinx!$XILINX_DIR/opt/Xilinx!g" $i
 			done
