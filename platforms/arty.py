@@ -113,6 +113,7 @@ class Platform(XilinxPlatform):
     # Micron N25Q128A13ESF40 (ID 0x0018ba20)
     # FIXME: Create a "spi flash module" object in the same way we have SDRAM
     # module objects.
+    spiflash_model = "n25q128a13"
     spiflash_read_dummy_bits = 10
     spiflash_clock_div = 4
     spiflash_total_size = int((128/8)*1024*1024) # 128Mbit
