@@ -129,7 +129,7 @@ function build() {
 		# FIXME: Should this be in the Makefile instead?
 		echo "Using $GATEWARE_TIMEOUT timeout (with '$GATEWARE_TIMEOUT_CMD')."
 		#export FILTER=$PWD/.travis/run-make-gateware-filter.py
-		$GATEWARE_TIMEOUT_CMD make gateware || return 1
+		$GATEWARE_TIMEOUT_CMD time --verbose make gateware || return 1
 	fi
 	echo "============================================="
 
