@@ -299,27 +299,31 @@ else
 	echo "============================================="
 fi
 
+if [ -z "$CPUS" ]; then
+	if [ -z "$CPU" ]; then
+		#CPUS="lm32 or1k riscv32"
+		CPUS="lm32 or1k"
+	else
+		CPUS="$CPU"
+	fi
+fi
 
+START_TARGET="$TARGET"
+START_TARGETS="$TARGETS"
 for PLATFORM in $PLATFORMS; do
-	if [ -z "$TARGETS" ]; then
+	if [ -z "$START_TARGETS" ]; then
 		if [ -z "$SKIP_TARGETS" ]; then
 			SKIP_TARGETS="__"
 		fi
-		if [ -z "$TARGET" -a -z "$TARGETS" ]; then
-			TARGETS=$(ls targets/${PLATFORM}/*.py | grep -v "__" | grep -v "$SKIP_TARGETS" | sed -e"s+targets/${PLATFORM}/++" -e"s/.py//")
+		if [ ! -z "$START_TARGETS" ]; then
+			TARGETS="$START_TARGETS"
+		elif [ ! -z "$START_TARGET" ]; then
+			TARGETS="$START_TARGET"
 		else
-			TARGETS="$TARGET"
+			TARGETS=$(ls targets/${PLATFORM}/*.py | grep -v "__" | grep -v "$SKIP_TARGETS" | sed -e"s+targets/${PLATFORM}/++" -e"s/.py//")
 		fi
 	fi
 
-	if [ -z "$CPUS" ]; then
-		if [ -z "$CPU" ]; then
-			#CPUS="lm32 or1k riscv32"
-			CPUS="lm32"
-		else
-			CPUS="$CPU"
-		fi
-	fi
 	echo ""
 	echo ""
 	echo ""

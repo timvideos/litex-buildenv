@@ -14,11 +14,11 @@ mkdir -p $BASE
 export PREFIX="/opt/Xilinx/"
 
 # This is based on https://github.com/m-labs/migen/blob/master/tools/strace_tailor.sh
-if [ ! -z $PLATFORMS ]; then
+if [ ! -z "$PLATFORMS" ]; then
 	echo "\$PLATFORMS is set to '$PLATFORMS', please unset it."
 	exit 1
 fi
-if [ ! -z $TARGETS ]; then
+if [ ! -z "$TARGETS" ]; then
 	echo "\$TARGETS is set to '$TARGETS', please unset it."
 	exit 1
 fi
