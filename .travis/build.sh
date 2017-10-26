@@ -20,9 +20,9 @@ source scripts/enter-env.sh || exit 1
 export GATEWARE_TIMEOUT=${GATEWARE_TIMEOUT:-2700}
 export GATEWARE_KILLOUT=$((GATEWARE_TIMEOUT+60))
 if [ -x /usr/bin/timeout ]; then
-	export GATEWARE_TIMEOUT_CMD="/usr/bin/timeout --preserve-status --kill-after=$GATEWARE_KILLOUT $GATEWARE_TIMEOUT"
+	export GATEWARE_TIMEOUT_CMD="/usr/bin/timeout --kill-after=${GATEWARE_KILLOUT}s ${GATEWARE_TIMEOUT}s"
 elif [ -x /usr/bin/timelimit ]; then
-	export GATEWARE_TIMEOUT_CMD="/usr/bin/timelimit -p -T $GATEWARE_KILLOUT -t $GATEWARE_TIMEOUT"
+	export GATEWARE_TIMEOUT_CMD="/usr/bin/timelimit -T $GATEWARE_KILLOUT -t $GATEWARE_TIMEOUT"
 fi
 
 ls -l $XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/xreport
