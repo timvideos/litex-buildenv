@@ -39,14 +39,22 @@ if [ -d $XILINX_DIR ]; then
   rm -rf $XILINX_DIR
 fi
 
+echo ""
+echo "Creating directories"
+echo "--------------------------------------"
 mkdir -p $XILINX_DIR
 cat $STRACE_FILES | xargs -d '\n' \
-	cp -v --parents --no-dereference --preserve=all -t $XILINX_DIR
+	cp -v --parents --no-dereference --preserve=all -t $XILINX_DIR || true
+echo "--------------------------------------"
 
 FILENAME="$BASE/xilinx-tools-$(git describe).tar.bz2"
 echo $FILENAME
 (
 	cd $XILINX_DIR
-	tar --preserve-permissions -jcvf $FILENAME opt
+	echo ""
+	echo "Creating tar file"
+	echo "--------------------------------------"
+	tar --preserve-permissions -jcvlf $FILENAME opt
+	echo "--------------------------------------"
 )
 echo $XILINX_PASSPHRASE_IN | gpg --passphrase-fd 0 --cipher-algo AES256 -c $FILENAME
