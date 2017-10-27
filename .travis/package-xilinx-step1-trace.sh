@@ -30,6 +30,12 @@ fi
 	rm -rf *_*_*
 )
 
+STRACE_LOG=$BASE/strace.log
+if [ -f $STRACE_LOG ]; then
+	echo "Deleting old strace log."
+	rm -v $STRACE_LOG
+fi
+
 # curl -L https://github.com/airnandez/cluefs/releases/download/v0.5/cluefs-v0.5-linux-x86_64.tar.gz | tar -xz
 # https://github.com/airnandez/cluefs
 # cluefs --mount=/opt/Xilinx --shadow=/opt/Xilinx.real --out=/tmp/Xilinx.log --ro --csv
