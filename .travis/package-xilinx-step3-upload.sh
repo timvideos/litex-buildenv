@@ -22,11 +22,12 @@ mkdir -p $BASE
 
 (
 	cd $BASE
-	TB_COMMAND="turbolift -u $RACKSPACE_USER -a $RACKSPACE_API --os-rax-auth iad upload -c xilinx"
+	TB_COMMAND="turbolift --verbose --colorized -u $RACKSPACE_USER -a $RACKSPACE_API --os-rax-auth iad upload -c xilinx"
 
 	# Upload the tar bz
 	$TB_COMMAND -s . --sync --pattern-match ".*\.gpg"
 	# Upload the index file
-	md5sum *.gpg | sort -k2 > index.txt
+	md5sum *.gpg | sort -t- -k4,5n > index.txt
+	cat index.txt
 	$TB_COMMAND -s . --sync --pattern-match "index.txt"
 )
