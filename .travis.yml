@@ -24,34 +24,44 @@ env:
    - HDMI2USB_UDEV_IGNORE=1
    - CLEAN_CHECK=1
   matrix:
-   - CPU=lm32 PLATFORM=arty TARGETS="base net"
-   - CPU=or1k PLATFORM=arty TARGETS="base net"
-   - CPU=lm32 PLATFORM=atlys SKIP_TARGETS="hdmi2usb\|video.*"
-   - CPU=or1k PLATFORM=atlys TARGETS="base net"
-   - PLATFORM=atlys TARGET=video
-   - PLATFORM=atlys TARGET=hdmi2usb
-   - PLATFORM=minispartan6
-   - PLATFORM=netv2 TARGETS="base video"
-   - PLATFORM=nexys_video TARGETS="base net video"
-#   - PLATFORM=pipistrello
-   - CPU=lm32 PLATFORM=opsis SKIP_TARGETS="hdmi2usb\|video.*\|memtest"
-   - CPU=or1k PLATFORM=opsis TARGETS="base net"
-   - PLATFORM=opsis TARGET=video
-   - PLATFORM=opsis TARGET=hdmi2usb
+   # Base targets
+   - C=lm32 P=arty         T="base net"
+   - C=lm32 P=atlys        T="base net"
+   - C=lm32 P=mimasv2      T="base"
+   - C=lm32 P=minispartan6 T="base"
+   - C=lm32 P=netv2        T="base"
+   - C=lm32 P=nexys_video  T="base net"
+   - C=lm32 P=opsis        T="base net"
+   - C=lm32 P=pipistrello  T="base"
+   # Video targets
+   - C=lm32 P=atlys        T="video"
+   - C=lm32 P=netv2        T="video"
+   - C=lm32 P=nexys_video  T="video"
+   - C=lm32 P=opsis        T="video"
+   # HDMI2USB targets
+   - C=lm32 P=atlys        T="hdmi2usb"
+   - C=lm32 P=opsis        T="hdmi2usb"
+   # Only compile or1k for some platforms
+   - C=or1k P=arty         T="base net"
+   - C=or1k P=atlys        T="base net"
+   - C=or1k P=opsis        T="base net"
 #   - PLATFORM=sim
-   - CPU=lm32 PLATFORM=mimasv2 TARGETS="base"
-   - CPU=or1k PLATFORM=mimasv2 TARGETS="base" # or1k and memtest don't fit on mimasv2
 
 matrix:
   allow_failures:
-   # or1k on mimasv2 occasionally fails
-   - env: CPU=or1k PLATFORM=mimasv2 TARGETS="base"
+   # These builds need fixing
+   - env: C=lm32 P=pipistrello  T="base"
    # The HDMI2USB targets sometimes timeout
-   - env: PLATFORM=opsis TARGET=hdmi2usb
-   - env: PLATFORM=atlys TARGET=hdmi2usb
+   - env: C=lm32 P=opsis        T="hdmi2usb"
+   - env: C=lm32 P=atlys        T="hdmi2usb"
+   # or1k on mimasv2 occasionally fails
+   - env: C=or1k P=mimasv2      T="base"
   fast_finish: true
 
 install:
+ - export CPU="$C"
+ - export PLATFORMS="$P"
+ - export TARGETS="$T"
  - $PWD/.travis/setup.sh
 
 script:
