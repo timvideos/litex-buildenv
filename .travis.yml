@@ -42,6 +42,15 @@ env:
    - CPU=lm32 PLATFORM=mimasv2 TARGETS="base"
    - CPU=or1k PLATFORM=mimasv2 TARGETS="base" # or1k and memtest don't fit on mimasv2
 
+matrix:
+  allow_failures:
+   # or1k on mimasv2 occasionally fails
+   - env: CPU=or1k PLATFORM=mimasv2 TARGETS="base"
+   # The HDMI2USB targets sometimes timeout
+   - env: PLATFORM=opsis TARGET=hdmi2usb
+   - env: PLATFORM=atlys TARGET=hdmi2usb
+  fast_finish: true
+
 install:
  - $PWD/.travis/setup.sh
 
