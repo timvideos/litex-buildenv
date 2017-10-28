@@ -1,6 +1,12 @@
-# mimasv2 loading
+# mimasv2 targets
 
+ifneq ($(PLATFORM),mimasv2)
+	$(error "Platform should be mimasv2 when using this file!?")
+endif
+
+# Settings
 DEFAULT_TARGET = base
+TARGET ?= $(DEFAULT_TARGET)
 
 # FIXME(mithro): Detect the real serial port/add see udev rules to HDMI2USB-mode-switch...
 ifeq ($(JIMMO),)
@@ -14,34 +20,49 @@ COMM_PORT ?= /dev/ttyACM1
 BAUD ?= 115200
 endif
 
-gateware-load-mimasv2:
+# Image
+image-flash-$(PLATFORM):
+	$(PYTHON) $$(which MimasV2Config.py) $(PROG_PORT) $(IMAGE_FILE)
+
+.PHONY: image-flash-$(PLATFORM)
+
+# Gateware
+gateware-load-$(PLATFORM):
 	@echo "MimasV2 doesn't support loading, use the flash target instead."
 	@echo "make gateware-flash"
 	@false
 
-gateware-flash-mimasv2:
+gateware-flash-$(PLATFORM):
 	$(PYTHON) $$(which MimasV2Config.py) $(PROG_PORT) $(GATEWARE_FILEBASE).bin
 
-image-load-mimasv2:
-	@echo "MimasV2 doesn't support loading, use the flash target instead."
-	@echo "make image-flash"
-	@false
-
-image-flash-mimasv2:
-	$(PYTHON) $$(which MimasV2Config.py) $(PROG_PORT) $(IMAGE_FILE)
-
-firmware-load-mimasv2:
+.PHONY: gateware-load-$(PLATFORM) gateware-flash-$(PLATFORM)
+# Firmware
+firmware-load-$(PLATFORM):
 	flterm --port=$(COMM_PORT) --kernel=$(FIRMWARE_FILEBASE).bin --speed=$(BAUD)
 
-firmware-flash-mimasv2:
+firmware-flash-$(PLATFORM):
 	@echo "MimasV2 doesn't support just flashing firmware, use image target instead."
 	@echo "make image-flash"
 	@false
 
-firmware-connect-mimasv2:
+firmware-connect-$(PLATFORM):
 	flterm --port=$(COMM_PORT) --speed=$(BAUD)
 
-help-mimasv2:
+.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM)
+
+# Bios
+bios-flash-$(PLATFORM):
+	@echo "Unsupported."
+	@false
+
+.PHONY: bios-flash-$(PLATFORM)
+
+# Extra commands
+help-$(PLATFORM):
 	@true
 
-.PHONY: gateware-load-mimasv2 firmware-load-mimasv2 help-mimasv2
+reset-$(PLATFORM):
+	@echo "Unsupported."
+	@false
+
+.PHONY: help-$(PLATFORM) reset-$(PLATFORM)

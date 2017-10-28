@@ -20,6 +20,7 @@
 #include "hdmi_out0.h"
 #include "hdmi_out1.h"
 #include "mdio.h"
+#include "oled.h"
 #include "opsis_eeprom.h"
 #include "pattern.h"
 #include "processor.h"
@@ -74,6 +75,11 @@ int main(void)
 
 #ifdef CSR_ETHPHY_MDIO_W_ADDR
 	mdio_status();
+#endif
+
+#ifdef CSR_OLED_BASE
+	oled_init();
+	oled_refresh();
 #endif
 
 #ifdef ETHMAC_BASE
@@ -164,6 +170,9 @@ int main(void)
 #endif
 #ifdef CSR_FRONT_PANEL_BASE
 		front_panel_service();
+#endif
+#ifdef CSR_OLED_BASE
+		oled_refresh();
 #endif
 
 		pattern_service();

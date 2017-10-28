@@ -94,7 +94,7 @@ class BaseSoC(SoCSDRAM):
 
         self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
 
-        self.submodules.info = info.Info(platform, "opsis", self.__class__.__name__[:8])
+        self.submodules.info = info.Info(platform, self.__class__.__name__)
 
 
         self.submodules.spiflash = spi_flash.SpiFlash(

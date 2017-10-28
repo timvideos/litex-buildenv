@@ -7,7 +7,7 @@ SETUP_SRC=$(realpath ${BASH_SOURCE[0]})
 SETUP_DIR=$(dirname $SETUP_SRC)
 TOP_DIR=$(realpath $SETUP_DIR/..)
 
-for ARG in XILINX_PASSPHRASE_IN RACKSPACE_USER RACKSPACE_API; do
+for ARG in XILINX_PASSPHRASE_IN; do
 	if [ -z "${!ARG}" ]; then
 		echo "$ARG not set"
 		exit 1
@@ -25,36 +25,36 @@ export PREFIX="/opt/Xilinx/"
 # This is based on https://github.com/m-labs/migen/blob/master/tools/strace_tailor.sh
 STRACE_LOG=$BASE/strace.log
 if [ ! -f $STRACE_LOG ]; then
-	strace -e trace=file,process -f -o ${STRACE_LOG} bash $SETUP_DIR/build.sh
+	echo "No strace log found at $STRACE_LOG"
+	echo "Please run ./.travis/package-xilinx-step1-trace.sh"
+	exit 1
 fi
 
 STRACE_FILES=$BASE/strace.files.log
-cat $STRACE_LOG | python $SETUP_DIR/package-xilinx-filter-strace.py $PREFIX > $STRACE_FILES
+#cat $STRACE_LOG | python $SETUP_DIR/package-xilinx-filter-strace.py $PREFIX > $STRACE_FILES
+$SETUP_DIR/package-xilinx-cluefs-filter.py $STRACE_LOG > $STRACE_FILES
 
 XILINX_DIR=$BASE/xilinx-stripped
 if [ -d $XILINX_DIR ]; then
   rm -rf $XILINX_DIR
 fi
 
+echo ""
+echo "Creating directories"
+echo "--------------------------------------"
 mkdir -p $XILINX_DIR
 cat $STRACE_FILES | xargs -d '\n' \
-	cp --parents --no-dereference --preserve=all -t $XILINX_DIR
+	cp -v --parents --no-dereference --preserve=all -t $XILINX_DIR || true
+echo "--------------------------------------"
 
-FILENAME="$BASE/xilinx-ise-$(git describe).tar.bz2"
+FILENAME="$BASE/xilinx-tools-$(git describe).tar.bz2"
 echo $FILENAME
 (
 	cd $XILINX_DIR
-	tar --preserve-permissions -jcvf $FILENAME opt
+	echo ""
+	echo "Creating tar file"
+	echo "--------------------------------------"
+	tar --preserve-permissions -jcvlf $FILENAME opt
+	echo "--------------------------------------"
 )
 echo $XILINX_PASSPHRASE_IN | gpg --passphrase-fd 0 --cipher-algo AES256 -c $FILENAME
-
-(
-	cd $BASE
-	TB_COMMAND="turbolift -u $RACKSPACE_USER -a $RACKSPACE_API --os-rax-auth iad upload -c xilinx"
-
-	# Upload the tar bz
-	$TB_COMMAND -s . --sync --pattern-match ".*\.gpg"
-	# Upload the index file
-	md5sum *.gpg | sort -k2 > index.txt
-	$TB_COMMAND -s index.txt
-)

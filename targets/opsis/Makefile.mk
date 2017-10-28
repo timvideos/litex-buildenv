@@ -1,42 +1,60 @@
-# opsis loading
+# opsis targets
 
+ifneq ($(PLATFORM),opsis)
+	$(error "Platform should be opsis when using this file!?")
+endif
+
+# Settings
 DEFAULT_TARGET = video
 TARGET ?= $(DEFAULT_TARGET)
 
-gateware-load-opsis:
-	opsis-mode-switch --verbose --load-gateware $(GATEWARE_FILEBASE).bit
-	opsis-mode-switch --verbose --reset-gateware
+# Image
+image-flash-$(PLATFORM):
+	$(PLATFORM)-mode-switch --verbose --flash-gateware=$(IMAGE_FILE)
+	$(PLATFORM)-mode-switch --verbose --reset-gateware
 
-gateware-flash-opsis:
-	opsis-mode-switch --verbose --flash-gateware=$(GATEWARE_FILEBASE).bin
-	opsis-mode-switch --verbose --reset-gateware
+.PHONY: image-flash-$(PLATFORM)
 
-firmware-load-opsis:
-	opsis-mode-switch --verbose --mode=serial
-	flterm --port=$$(opsis-mode-switch --get-serial-dev) --kernel=$(FIRMWARE_FILEBASE).bin
+# Gateware
+gateware-load-$(PLATFORM):
+	$(PLATFORM)-mode-switch --verbose --load-gateware $(GATEWARE_FILEBASE).bit
+	$(PLATFORM)-mode-switch --verbose --reset-gateware
 
-firmware-flash-opsis:
-	opsis-mode-switch --verbose --flash-softcpu-firmware=$(FIRMWARE_FILEBASE).fbi
-	opsis-mode-switch --verbose --reset-gateware
+gateware-flash-$(PLATFORM):
+	$(PLATFORM)-mode-switch --verbose --flash-gateware=$(GATEWARE_FILEBASE).bin
+	$(PLATFORM)-mode-switch --verbose --reset-gateware
 
-firmware-connect-opsis:
-	opsis-mode-switch --verbose --mode=serial
-	flterm --port=$$(opsis-mode-switch --get-serial-dev)
+.PHONY: gateware-load-$(PLATFORM) gateware-flash-$(PLATFORM)
 
-image-flash-opsis:
-	opsis-mode-switch --verbose --flash-gateware=$(IMAGE_FILE)
-	opsis-mode-switch --verbose --reset-gateware
+# Firmware
+firmware-load-$(PLATFORM):
+	$(PLATFORM)-mode-switch --verbose --mode=serial
+	flterm --port=$$($(PLATFORM)-mode-switch --get-serial-dev) --kernel=$(FIRMWARE_FILEBASE).bin
 
-bios-flash-opsis:
-	opsis-mode-switch --verbose --flash-softcpu-bios=$(BIOS_FILE)
-	opsis-mode-switch --verbose --reset-gateware
+firmware-flash-$(PLATFORM):
+	$(PLATFORM)-mode-switch --verbose --flash-softcpu-firmware=$(FIRMWARE_FILEBASE).fbi
+	$(PLATFORM)-mode-switch --verbose --reset-gateware
 
-reset-opsis:
-	opsis-mode-switch --verbose --mode=serial
-	opsis-mode-switch --verbose --mode=jtag
-	opsis-mode-switch --verbose --mode=serial
+firmware-connect-$(PLATFORM):
+	$(PLATFORM)-mode-switch --verbose --mode=serial
+	flterm --port=$$($(PLATFORM)-mode-switch --get-serial-dev)
 
-help-opsis:
-	@echo " make reset-opsis"
+.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM)
 
-.PHONY: gateware-load-opsis firmware-load-opsis reset-opsis flash-opsis
+# Bios
+bios-flash-$(PLATFORM):
+	$(PLATFORM)-mode-switch --verbose --flash-softcpu-bios=$(BIOS_FILE)
+	$(PLATFORM)-mode-switch --verbose --reset-gateware
+
+.PHONY: bios-flash-$(PLATFORM)
+
+# Extra commands
+help-$(PLATFORM):
+	@true
+
+reset-$(PLATFORM):
+	$(PLATFORM)-mode-switch --verbose --mode=serial
+	$(PLATFORM)-mode-switch --verbose --mode=jtag
+	$(PLATFORM)-mode-switch --verbose --mode=serial
+
+.PHONY: help-$(PLATFORM) reset-$(PLATFORM)

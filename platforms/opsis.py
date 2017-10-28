@@ -497,7 +497,9 @@ _hdmi_infos = {
     ),
 }
 
+
 class Platform(XilinxPlatform):
+    name = "opsis"
     default_clk_name = "clk100"
     default_clk_period = 10.0
     hdmi_infos = _hdmi_infos
@@ -514,11 +516,9 @@ class Platform(XilinxPlatform):
     spiflash_page_size = 256
     spiflash_sector_size = 0x10000
 
-
     # The Opsis has a XC6SLX45 which bitstream takes up ~12Mbit (1484472 bytes)
     # 0x200000 offset (16Mbit) gives plenty of space
     gateware_size = 0x200000
-
 
     def __init__(self, programmer="openocd"):
         # XC6SLX45T-3FGG484C

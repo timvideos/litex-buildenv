@@ -121,8 +121,13 @@ _connectors = [
 
 
 class Platform(XilinxPlatform):
+    name = "mimasv2"
     default_clk_name = "clk100"
     default_clk_period = 10
+
+    # The MimasV2 has a XC6SLX9 which bitstream takes up ~2.6Mbit (1484472 bytes)
+    # 0x80000 offset (4Mbit) gives plenty of space
+    gateware_size = 0x80000
 
     # M25P16 - component U1
     # 16Mb - 75 MHz clock frequency
@@ -136,10 +141,6 @@ class Platform(XilinxPlatform):
     spiflash_total_size = int((16/8)*1024*1024) # 16Mbit
     spiflash_page_size = 256
     spiflash_sector_size = 0x10000
-
-    # The MimasV2 has a XC6SLX9 which bitstream takes up ~2.6Mbit (1484472 bytes)
-    # 0x80000 offset (4Mbit) gives plenty of space
-    gateware_size = 0x80000
 
     def __init__(self):
         XilinxPlatform.__init__(self, "xc6slx9-csg324-2", _io, _connectors)

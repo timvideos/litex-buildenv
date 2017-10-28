@@ -117,7 +117,10 @@ image-load: image image-load-$(PLATFORM)
 image-flash: image image-flash-$(PLATFORM)
 	@true
 
-.PHONY: image image-load image-flash
+image-flash-py: image
+	$(PYTHON) flash.py --mode=image
+
+.PHONY: image image-load image-flash image-flash-py
 
 # Gateware - the stuff which configures the FPGA.
 # --------------------------------------
@@ -150,10 +153,13 @@ gateware-load: $(GATEWARE_FILEBASE).bit gateware-load-$(PLATFORM)
 gateware-flash: $(GATEWARE_FILEBASE).bin gateware-flash-$(PLATFORM)
 	@true
 
+gateware-flash-py:
+	$(PYTHON) flash.py --mode=gateware
+
 gateware-clean:
 	rm -rf $(TARGET_BUILD_DIR)/gateware
 
-.PHONY: gateware gateware-load gateware-flash gateware-clean
+.PHONY: gateware gateware-load gateware-flash gateware-flash-py gateware-clean
 
 # Firmware - the stuff which runs in the soft CPU inside the FPGA.
 # --------------------------------------
@@ -181,6 +187,9 @@ firmware-load: firmware firmware-load-$(PLATFORM)
 firmware-flash: firmware firmware-flash-$(PLATFORM)
 	@true
 
+firmware-flash-py: firmware
+	$(PYTHON) flash.py --mode=firmware
+
 firmware-connect: firmware-connect-$(PLATFORM)
 	@true
 
@@ -203,9 +212,9 @@ bios-flash: $(BIOS_FILE) bios-flash-$(PLATFORM)
 # TFTP booting stuff
 # --------------------------------------
 # TFTP server for minisoc to load firmware from
-tftp: firmware
+tftp: $(FIRMWARE_FILEBASE).bin
 	mkdir -p $(TFTPD_DIR)
-	cp $(TARGET_BUILD_DIR)/software/firmware/firmware.bin $(TFTPD_DIR)/boot.bin
+	cp $(FIRMWARE_FILEBASE).bin $(TFTPD_DIR)/boot.bin
 
 tftpd_stop:
 	sudo true
@@ -224,28 +233,34 @@ flash: image-flash
 	@true
 
 env:
-	@echo "PLATFORM='$(PLATFORM)'"
-	@echo "PLATFORM_EXPANSION='$(PLATFORM_EXPANSION)'"
-	@echo "FULL_PLATFORM='$(FULL_PLATFORM)'"
-	@echo "TARGET='$(TARGET)'"
-	@echo "DEFAULT_TARGET='$(DEFAULT_TARGET)'"
-	@echo "CPU='$(CPU)'"
-	@echo "FIRMWARE='$(FIRMWARE)'"
-	@echo "OVERRIDE_FIRMWARE='$(OVERRIDE_FIRMWARE)'"
-	@echo "PROG='$(PROG)'"
-	@echo "TARGET_BUILD_DIR='$(TARGET_BUILD_DIR)'"
-	@echo "MISOC_EXTRA_CMDLINE='$(MISOC_EXTRA_CMDLINE)'"
-	@echo "LITEX_EXTRA_CMDLINE='$(LITEX_EXTRA_CMDLINE)'"
-	# Hardcoded values
-	@echo "CLANG=$(CLANG)"
-	@echo "PYTHONHASHSEED=$(PYTHONHASHSEED)"
+	@echo "export PLATFORM='$(PLATFORM)'"
+	@echo "export PLATFORM_EXPANSION='$(PLATFORM_EXPANSION)'"
+	@echo "export FULL_PLATFORM='$(FULL_PLATFORM)'"
+	@echo "export TARGET='$(TARGET)'"
+	@echo "export DEFAULT_TARGET='$(DEFAULT_TARGET)'"
+	@echo "export CPU='$(CPU)'"
+	@echo "export FIRMWARE='$(FIRMWARE)'"
+	@echo "export OVERRIDE_FIRMWARE='$(OVERRIDE_FIRMWARE)'"
+	@echo "export PROG='$(PROG)'"
+	@echo "export TARGET_BUILD_DIR='$(TARGET_BUILD_DIR)'"
+	@echo "export TFTP_DIR='$(TFTPD_DIR)'"
+	@echo "export MISOC_EXTRA_CMDLINE='$(MISOC_EXTRA_CMDLINE)'"
+	@echo "export LITEX_EXTRA_CMDLINE='$(LITEX_EXTRA_CMDLINE)'"
+	@# Hardcoded values
+	@echo "export CLANG=$(CLANG)"
+	@echo "export PYTHONHASHSEED=$(PYTHONHASHSEED)"
+	@# Files
+	@echo "export IMAGE_FILE='$(IMAGE_FILE)'"
+	@echo "export GATEWARE_FILEBASE='$(GATEWARE_FILEBASE)'"
+	@echo "export FIRMWARE_FILEBASE='$(FIRMWARE_FILEBASE)'"
+	@echo "export BIOS_FILE='$(BIOS_FILE)'"
 
 info:
 	@echo "              Platform: $(FULL_PLATFORM)"
-	@echo "                Target: $(TARGET)"
+	@echo "                Target: $(TARGET) (default: $(DEFAULT_TARGET))"
 	@echo "                   CPU: $(CPU)"
 	@if [ x"$(FIRMWARE)" != x"firmware" ]; then \
-		echo "               Firmare: $(FIRMWARE)"; \
+		echo "               Firmare: $(FIRMWARE) (default: firmware)"; \
 	fi
 
 prompt:
@@ -299,6 +314,7 @@ help:
 	@echo " make bios              - Build the bios"
 	@echo " make bios-flash        - *Permanently* flash the bios onto a device"
 	@echo "                          (Only needed on low resource boards.)"
+	@echo " make reset             - Reset the device."
 	@echo ""
 	@echo "Firmware make commands avaliable:"
 	@echo " make firmware          - Build the firmware"

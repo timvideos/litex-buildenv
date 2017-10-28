@@ -1,16 +1,58 @@
-# netv2 loading
+# netv2 targets
 
+ifneq ($(PLATFORM),netv2)
+	$(error "Platform should be netv2 when using this file!?")
+endif
+
+# Settings
 DEFAULT_TARGET = pcie
+TARGET ?= $(DEFAULT_TARGET)
 
-load-gateware-netv2:
-	echo "Not working yet."
-	false
+# Image
+image-flash-$(PLATFORM):
+	@echo "Unsupported"
+	@false
 
-load-firmware-netv2:
-	echo "Not working yet."
-	false
+.PHONY: image-flash-$(PLATFORM)
 
-help-netv2:
+# Gateware
+gateware-load-$(PLATFORM):
+	@echo "Unsupported."
+	@false
+
+gateware-flash-$(PLATFORM):
+	@echo "Unsupported"
+	@false
+
+.PHONY: gateware-load-$(PLATFORM) gateware-flash-$(PLATFORM)
+# Firmware
+firmware-load-$(PLATFORM):
+	@echo "Unsupported."
+	@false
+
+firmware-flash-$(PLATFORM):
+	@echo "Unsupported."
+	@false
+
+firmware-connect-$(PLATFORM):
+	@echo "Unsupported."
+	@false
+
+.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM)
+
+# Bios
+bios-flash-$(PLATFORM):
+	@echo "Unsupported."
+	@false
+
+.PHONY: bios-flash-$(PLATFORM)
+
+# Extra commands
+help-$(PLATFORM):
 	@true
 
-.PHONY: load-gateware-netv2 load-firmware-netv2 help-netv2
+reset-$(PLATFORM):
+	@echo "Unsupported."
+	@false
+
+.PHONY: help-$(PLATFORM) reset-$(PLATFORM)

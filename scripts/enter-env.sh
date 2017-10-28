@@ -81,7 +81,6 @@ fi
 if [ -z "$XILINX_DIR" ]; then
 	LOCAL_XILINX_DIR=$BUILD_DIR/Xilinx
 	if [ -f "$LOCAL_XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/xreport" ]; then
-		export MISOC_EXTRA_CMDLINE="-Ob toolchain_path $LOCAL_XILINX_DIR/opt/Xilinx/"
 		# Reserved MAC address from documentation block, see
 		# http://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
 		export XILINXD_LICENSE_FILE=$LOCAL_XILINX_DIR
@@ -92,6 +91,9 @@ if [ -z "$XILINX_DIR" ]; then
 	else
 		XILINX_DIR=/
 	fi
+fi
+if [ ! -z "$XILINX_DIR" ]; then
+	export MISOC_EXTRA_CMDLINE="-Ob toolchain_path $XILINX_DIR/opt/Xilinx/"
 fi
 echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
 

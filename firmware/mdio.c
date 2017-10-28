@@ -4,7 +4,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "ci.h"
 #include "stdio_wrap.h"
 
 static void delay(void)

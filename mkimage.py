@@ -1,27 +1,27 @@
 #!/usr/bin/env python3
+"""
+Flash image creation tool.
+"""
 
 import os
 import argparse
 
-from make import make_args, make_builddir, make_platform
-
-BIOS_SIZE = 0x8000
+import make
 
 
 def main():
-    parser = argparse.ArgumentParser(description="SPI Flash contents tool")
-    make_args(parser)
+    parser = argparse.ArgumentParser(description=__doc__)
+    make.get_args(parser)
 
-    parser.add_argument("--output-file", default='flash.bin')
+    parser.add_argument("--output-file", default="image.bin")
     parser.add_argument("--override-gateware")
     parser.add_argument("--override-bios")
-    parser.add_argument("--override-firmware")
     parser.add_argument("--firmware-name", default="HDMI2USB")
     parser.add_argument("--force-image-size")
 
     args = parser.parse_args()
 
-    builddir = make_builddir(args)
+    builddir = make.get_builddir(args)
     if os.path.sep not in args.output_file:
         args.output_file = os.path.join(builddir, args.output_file)
 
@@ -30,7 +30,7 @@ def main():
     assert os.path.exists(output_dir), (
         "Directory %r doesn't exist!" % output_dir)
 
-    gateware = os.path.join(builddir, "gateware", "top.bin")
+    gateware = make.get_gateware(builddir, "flash")
     if args.override_gateware:
         if args.override_gateware.lower() == "none":
             gateware = None
@@ -40,8 +40,10 @@ def main():
         assert os.path.exists(gateware), (
             "Gateware file %r not found! "
             "Use --override-gateware=none for no gateware." % gateware)
+        assert gateware.endswith('.bin'), (
+            "Gateware must be a .bin for flashing (not %s)." % gateware)
 
-    bios = os.path.join(builddir, "software", "bios", "bios.bin")
+    bios = make.get_bios(builddir, "flash")
     if args.override_bios:
         if args.override_bios.lower() == "none":
             bios = None
@@ -52,7 +54,7 @@ def main():
             "BIOS file %r not found! "
             "Use --override-bios=none for no BIOS." % bios)
 
-    firmware = os.path.join(builddir, "software", "firmware", "firmware.fbi")
+    firmware = make.get_firmware(builddir, "flash")
     if args.override_firmware:
         if args.override_firmware.lower() == "none":
             firmware = None
@@ -62,12 +64,14 @@ def main():
         assert os.path.exists(firmware), (
             "Firmware file %r not found! "
             "Use --override-firmware=none for no firmware." % firmware)
+        assert firmware.endswith('.fbi'), (
+            "Firmware must be a MiSoC .fbi image.")
 
-    platform = make_platform(args)
+    platform = make.get_platform(args)
 
     gateware_pos = 0
     bios_pos = platform.gateware_size
-    firmware_pos = platform.gateware_size + BIOS_SIZE
+    firmware_pos = platform.gateware_size + make.BIOS_SIZE
 
     print()
     with open(output_file, "wb") as f:
@@ -93,7 +97,7 @@ def main():
             bios = "Skipped"
 
         # LiteX BIOS
-        assert len(bios_data) < BIOS_SIZE
+        assert len(bios_data) < make.BIOS_SIZE
         f.seek(bios_pos)
         f.write(bios_data)
         print(("    BIOS @ 0x{:08x} ({:10} bytes) {:60}"

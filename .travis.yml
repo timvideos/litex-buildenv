@@ -1,5 +1,3 @@
-sudo: required
-
 language:
  - c
 
@@ -23,25 +21,11 @@ env:
   global:
    - HDMI2USB_UDEV_IGNORE=1
    - CLEAN_CHECK=1
-  matrix:
-#   - PLATFORM=arty
-   - CPU=lm32 PLATFORM=atlys SKIP_TARGETS="hdmi2usb\|video.*"
-   - CPU=or1k PLATFORM=atlys TARGETS="base net"
-   - PLATFORM=atlys TARGET=video
-   - PLATFORM=atlys TARGET=hdmi2usb
-   - PLATFORM=minispartan6
-#   - PLATFORM=netv2
-#   - PLATFORM=nexys_video
-#   - PLATFORM=pipistrello
-   - CPU=lm32 PLATFORM=opsis SKIP_TARGETS="hdmi2usb\|video.*\|memtest"
-   - CPU=or1k PLATFORM=opsis TARGETS="base net"
-   - PLATFORM=opsis TARGET=video
-   - PLATFORM=opsis TARGET=hdmi2usb
-#   - PLATFORM=sim
-   - CPU=lm32 PLATFORM=mimasv2 TARGETS="base"
-   - CPU=or1k PLATFORM=mimasv2 TARGETS="base" # or1k and memtest don't fit on mimasv2
 
 install:
+ - export CPU="$C"
+ - export PLATFORMS="$P"
+ - export TARGETS="$T"
  - $PWD/.travis/setup.sh
 
 script:
@@ -55,3 +39,70 @@ notifications:
    - "chat.freenode.net#hdmi2usb"
   template:
    - "[%{repository_slug}/%{branch}#%{build_number}] (%{commit}): %{message} (%{build_url})"
+
+jobs:
+  include:
+  #--------------------------------------------
+  # Base targets
+  #--------------------------------------------
+  # lm32 Base targets
+  - stage: Targets - Base
+    env: C=lm32 P=arty         T="base net"
+
+  - stage: Targets - Base
+    env: C=lm32 P=atlys        T="base net"
+
+  - stage: Targets - Base
+    env: C=lm32 P=mimasv2      T="base"
+
+  - stage: Targets - Base
+    env: C=lm32 P=minispartan6 T="base"
+
+  - stage: Targets - Base
+    env: C=lm32 P=netv2        T="base"
+
+  - stage: Targets - Base
+    env: C=lm32 P=nexys_video  T="base net"
+
+  - stage: Targets - Base
+    env: C=lm32 P=opsis        T="base net"
+
+#  - stage: Targets - Base
+#    env: C=lm32 P=pipistrello T="base"
+
+  # or1k base targets
+  - stage: Targets - Base
+    env: C=or1k P=arty         T="base net"
+
+  - stage: Targets - Base
+    env: C=or1k P=atlys        T="base net"
+
+  - stage: Targets - Base
+    env: C=or1k P=mimasv2      T="base"
+
+  - stage: Targets - Base
+    env: C=or1k P=opsis        T="base net"
+
+  #--------------------------------------------
+  # Video Targets
+  #--------------------------------------------
+  - stage: Targets - Video
+    env: C=lm32 P=atlys        T="video"
+
+  - stage: Targets - Video
+    env: C=lm32 P=netv2        T="video"
+
+  - stage: Targets - Video
+    env: C=lm32 P=nexys_video  T="video"
+
+  - stage: Targets - Video
+    env: C=lm32 P=opsis        T="video"
+
+  #--------------------------------------------
+  # HDMI2USB Targets
+  #--------------------------------------------
+  - stage: Targets - HDMI2USB
+    env: C=lm32 P=atlys T="hdmi2usb"
+
+  - stage: Targets - HDMI2USB
+    env: C=lm32 P=opsis T="hdmi2usb"

@@ -14,6 +14,17 @@ echo "Running with PLATFORMS='$PLATFORMS'"
 
 source scripts/enter-env.sh || exit 1
 
+# How long to wait for "make gateware" to finish.
+# Normal LiteX targets should take no longer than 20ish minutes on a modern
+# machine. We round up to 40mins.
+export GATEWARE_TIMEOUT=${GATEWARE_TIMEOUT:-2700}
+export GATEWARE_KILLOUT=$((GATEWARE_TIMEOUT+60))
+if [ -x /usr/bin/timeout ]; then
+	export GATEWARE_TIMEOUT_CMD="/usr/bin/timeout --kill-after=${GATEWARE_KILLOUT}s ${GATEWARE_TIMEOUT}s"
+elif [ -x /usr/bin/timelimit ]; then
+	export GATEWARE_TIMEOUT_CMD="/usr/bin/timelimit -T $GATEWARE_KILLOUT -t $GATEWARE_TIMEOUT"
+fi
+
 ls -l $XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/xreport
 if [ -f $XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/xreport ]; then
 	HAVE_XILINX_ISE=1
@@ -113,8 +124,12 @@ function build() {
 		echo "Skipping gateware"
 		make gateware-fake
 	else
-		FILTER=$PWD/.travis/run-make-gateware-filter.py \
-			make gateware || return 1
+		# Sometimes Xilinx ISE gets stuck and will never complete, we
+		# use timeout to prevent waiting here forever.
+		# FIXME: Should this be in the Makefile instead?
+		echo "Using $GATEWARE_TIMEOUT timeout (with '$GATEWARE_TIMEOUT_CMD')."
+		export FILTER=$PWD/.travis/run-make-gateware-filter.py
+		$GATEWARE_TIMEOUT_CMD time --verbose make gateware || return 1
 	fi
 	echo "============================================="
 
@@ -284,27 +299,31 @@ else
 	echo "============================================="
 fi
 
+if [ -z "$CPUS" ]; then
+	if [ -z "$CPU" ]; then
+		#CPUS="lm32 or1k riscv32"
+		CPUS="lm32 or1k"
+	else
+		CPUS="$CPU"
+	fi
+fi
 
+START_TARGET="$TARGET"
+START_TARGETS="$TARGETS"
 for PLATFORM in $PLATFORMS; do
-	if [ -z "$TARGETS" ]; then
+	if [ -z "$START_TARGETS" ]; then
 		if [ -z "$SKIP_TARGETS" ]; then
 			SKIP_TARGETS="__"
 		fi
-		if [ -z "$TARGET" -a -z "$TARGETS" ]; then
-			TARGETS=$(ls targets/${PLATFORM}/*.py | grep -v "__" | grep -v "$SKIP_TARGETS" | sed -e"s+targets/${PLATFORM}/++" -e"s/.py//")
+		if [ ! -z "$START_TARGETS" ]; then
+			TARGETS="$START_TARGETS"
+		elif [ ! -z "$START_TARGET" ]; then
+			TARGETS="$START_TARGET"
 		else
-			TARGETS="$TARGET"
+			TARGETS=$(ls targets/${PLATFORM}/*.py | grep -v "__" | grep -v "$SKIP_TARGETS" | sed -e"s+targets/${PLATFORM}/++" -e"s/.py//")
 		fi
 	fi
 
-	if [ -z "$CPUS" ]; then
-		if [ -z "$CPU" ]; then
-			#CPUS="lm32 or1k riscv32"
-			CPUS="lm32"
-		else
-			CPUS="$CPU"
-		fi
-	fi
 	echo ""
 	echo ""
 	echo ""

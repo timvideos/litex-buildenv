@@ -1,22 +1,55 @@
-# atlys loading
+# atlys targets
 
+ifneq ($(PLATFORM),atlys)
+	$(error "Platform should be atlys when using this file!?")
+endif
+
+# Settings
 DEFAULT_TARGET = video
 TARGET ?= $(DEFAULT_TARGET)
 
-gateware-load-atlys: tftp
-	atlys-mode-switch --verbose --load-gateware $(GATEWARE_FILEBASE).bit
+# Image
+image-flash-$(PLATFORM):
+	$(PLATFORM)-mode-switch --verbose --flash-gateware=$(IMAGE_FILE)
+	$(PLATFORM)-mode-switch --verbose --reset-gateware
 
-firmware-load-atlys:
-	flterm --port=$$(atlys-mode-switch --get-serial-device) --kernel=$(FIRMWARE_FILEBASE).bin
+.PHONY: image-flash-$(PLATFORM)
 
-reset-atlys:
-	atlys-mode-switch --verbose --mode=jtag
+# Gateware
+gateware-load-$(PLATFORM):
+	$(PLATFORM)-mode-switch --verbose --load-gateware $(GATEWARE_FILEBASE).bit
 
-flash-atlys:
-	atlys-mode-switch --verbose --flash-gateware=$(GATEWARE_FILEBASE).bin
-	atlys-mode-switch --verbose --flash-softcpu-firmware=$(FIRMWARE_FILEBASE).fbi
+gateware-flash-$(PLATFORM):
+	$(PLATFORM)-mode-switch --verbose --flash-gateware=$(GATEWARE_FILEBASE).bin
+	$(PLATFORM)-mode-switch --verbose --reset-gateware
 
-help-atlys:
-	@echo " make reset-atlys"
+.PHONY: gateware-load-$(PLATFORM) gateware-flash-$(PLATFORM)
 
-.PHONY: gateware-load-atlys firmware-load-atlys reset-atlys flash-atlys help-atlys
+# Firmware
+firmware-load-$(PLATFORM):
+	flterm --port=$$($(PLATFORM)-mode-switch --get-serial-device) --kernel=$(FIRMWARE_FILEBASE).bin
+
+firmware-flash-$(PLATFORM):
+	$(PLATFORM)-mode-switch --verbose --flash-softcpu-firmware=$(FIRMWARE_FILEBASE).fbi
+	$(PLATFORM)-mode-switch --verbose --reset-gateware
+
+firmware-connect-$(PLATFORM):
+	flterm --port=$$($(PLATFORM)-mode-switch --get-serial-dev)
+
+.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM)
+
+# Bios
+bios-flash-$(PLATFORM):
+	$(PLATFORM)-mode-switch --verbose --flash-softcpu-bios=$(BIOS_FILE)
+	$(PLATFORM)-mode-switch --verbose --reset-gateware
+
+.PHONY: bios-flash-$(PLATFORM)
+
+# Extra commands
+help-$(PLATFORM):
+	@true
+
+reset-$(PLATFORM):
+	$(PLATFORM)-mode-switch --verbose --mode=jtag
+
+.PHONY: help-$(PLATFORM) reset-$(PLATFORM)

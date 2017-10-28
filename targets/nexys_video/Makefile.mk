@@ -1,16 +1,54 @@
-# nexys_video loading
+# nexys_video targets
 
+ifneq ($(PLATFORM),nexys_video)
+	$(error "Platform should be nexys_video when using this file!?")
+endif
+
+# Settings
 DEFAULT_TARGET = video
+TARGET ?= $(DEFAULT_TARGET)
 
-load-gateware-nexys_video:
-	echo "Not working yet."
-	false
-
-load-firmware-nexys_video:
-	echo "Not working yet."
-	false
-
-help-nexys_video:
+# Image
+image-flash-$(PLATFORM): image-flash-py
 	@true
 
-.PHONY: load-gateware-nexys_video load-firmware-nexys_video help-nexys_video
+.PHONY: image-flash-$(PLATFORM)
+
+# Gateware
+gateware-load-$(PLATFORM):
+	@echo "Unsupported."
+	@false
+
+gateware-flash-$(PLATFORM): gateware-flash-py
+	@true
+
+.PHONY: gateware-load-$(PLATFORM) gateware-flash-$(PLATFORM)
+# Firmware
+firmware-load-$(PLATFORM):
+	@echo "Unsupported."
+	@false
+
+firmware-flash-$(PLATFORM): firmwage-flash-py
+	@true
+
+firmware-connect-$(PLATFORM):
+	flterm --port=$(COMM_PORT) --speed=$(BAUD)
+
+.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM)
+
+# Bios
+bios-flash-$(PLATFORM):
+	@echo "Unsupported."
+	@false
+
+.PHONY: bios-flash-$(PLATFORM)
+
+# Extra commands
+help-$(PLATFORM):
+	@true
+
+reset-$(PLATFORM):
+	@echo "Unsupported."
+	@false
+
+.PHONY: help-$(PLATFORM) reset-$(PLATFORM)
