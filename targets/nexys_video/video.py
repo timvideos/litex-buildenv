@@ -19,7 +19,7 @@ class VideoSoC(BaseSoC):
     csr_map_update(BaseSoC.csr_map, csr_peripherals)
 
     interrupt_map = {
-        "hdmi_in0": 3,
+        "hdmi_in0": 4,
     }
     interrupt_map.update(BaseSoC.interrupt_map)
 
