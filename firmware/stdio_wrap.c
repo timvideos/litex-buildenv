@@ -16,7 +16,7 @@ char *translate_crlf(const char *s, int trailing_lf) {
 	assert(tailing_lf == 0 || trailing_lf == 1);
 	char *out = stdio_write_buffer;
 	char *end = stdio_write_buffer + STDIO_BUFFER_SIZE - 2 - trailing_lf;
-	while (*s != '\0') {
+	while (*s != '\0' && out < end) {
 		if (*s == '\n') {
 			assert(out < end);
 			*out++ = '\r';
