@@ -23,8 +23,7 @@ static void print_csr_string(unsigned int addr, size_t size) {
 		unsigned char c = MMPTR(ptr+i);
 		if (c == '\0')
 			return;
-		// FIXME: Wrap putchar
-                putchar(c);
+		wputchar(c);
 	}
 }
 

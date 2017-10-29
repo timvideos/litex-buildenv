@@ -20,6 +20,20 @@ int wputs(const char *s)
 	return 0;
 }
 
+int wputchar(int c)
+{
+#ifdef ETHMAC_BASE
+	if(telnet_active) {
+		telnet_putchar(c);
+	} else {
+#endif
+		putchar(c);
+#ifdef ETHMAC_BASE
+	}
+#endif
+	return 0;
+}
+
 int wprintf(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
 int wprintf(const char *fmt, ...)
 {
