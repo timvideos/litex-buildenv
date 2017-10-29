@@ -37,7 +37,7 @@ firmware-flash-$(PLATFORM): firmwage-flash-py
 firmware-connect-$(PLATFORM):
 	flterm --port=$(COMM_PORT) --speed=$(BAUD)
 
-.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM)
+.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM) firmware-clear-$(PLATFORM)
 
 # Bios
 bios-flash-$(PLATFORM):

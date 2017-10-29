@@ -48,7 +48,11 @@ firmware-flash-$(PLATFORM):
 firmware-connect-$(PLATFORM):
 	flterm --port=$(COMM_PORT) --speed=$(BAUD)
 
-.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM)
+firmware-clear-$(PLATFORM):
+	@echo "FIXME: Unsupported?."
+	@false
+
+.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM) firmware-clear-$(PLATFORM)
 
 # Bios
 bios-flash-$(PLATFORM):
