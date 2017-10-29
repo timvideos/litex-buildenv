@@ -272,8 +272,9 @@ static char *readstr(void)
 					break;
 				case 0x07:
 					break;
-				case '\r':
 				case '\n':
+					break;
+				case '\r':
 					s[ptr] = 0x00;
 					wputsnonl("\n");
 					ptr = 0;
