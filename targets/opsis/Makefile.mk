@@ -36,7 +36,6 @@ firmware-flash-$(PLATFORM):
 	$(PLATFORM)-mode-switch --verbose --reset-gateware
 
 firmware-connect-$(PLATFORM):
-	$(PLATFORM)-mode-switch --verbose --mode=serial
 	flterm --port=$$($(PLATFORM)-mode-switch --get-serial-dev)
 
 firmware-clear-$(PLATFORM):
