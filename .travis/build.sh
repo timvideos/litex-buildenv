@@ -405,6 +405,21 @@ fi
 echo ""
 echo ""
 echo ""
+echo "Errors from failures..."
+echo "============================================="
+
+for F in $(find . -name 'output.*.log'); do
+	echo ""
+	echo ""
+	echo $F
+	echo "---------------------------------------------"
+	cat $F
+	echo "---------------------------------------------"
+done
+
+echo ""
+echo ""
+echo ""
 echo "The following builds succeeded"
 echo "============================================="
 
@@ -432,3 +447,4 @@ if [ ${#FAILURES[@]} -ne 0 ]; then
 else
 	echo "All builds succeeded! \\o/"
 fi
+
