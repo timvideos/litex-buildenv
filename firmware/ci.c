@@ -1220,8 +1220,10 @@ void ci_service(void)
 		}
 #endif
 #ifdef CSR_INFO_DNA_ID_ADDR
-		else if(strcmp(token, "dna") == 0)
+		else if(strcmp(token, "dna") == 0) {
 			print_board_dna();
+			wputchar('\n');
+		}
 #endif
 #ifdef CSR_OPSIS_I2C_MASTER_W_ADDR
 		else if(strcmp(token, "opsis_eeprom") == 0) {
