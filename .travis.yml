@@ -67,8 +67,8 @@ jobs:
   - stage: Targets - Base
     env: C=lm32 P=opsis        T="base net"
 
-#  - stage: Targets - Base
-#    env: C=lm32 P=pipistrello T="base"
+  - stage: Targets - Base
+    env: C=lm32 P=pipistrello T="base"
 
   # or1k base targets
   - stage: Targets - Base
