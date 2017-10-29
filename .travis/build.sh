@@ -175,7 +175,7 @@ function build() {
 
 		declare -a SAVE
 		declare -a SAVE
-		SAVE+="flash.bin" 				# Combined binary include gateware+bios+firmware
+		SAVE+="image*.bin" 				# Combined binary include gateware+bios+firmware
 		# Gateware output for using
 		SAVE+=("gateware/top.bit")			# Gateware in JTAG compatible format
 		SAVE+=("gateware/top.bin")			# Gateware in flashable format
