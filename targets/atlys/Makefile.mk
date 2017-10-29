@@ -37,8 +37,7 @@ firmware-connect-$(PLATFORM):
 	flterm --port=$$($(PLATFORM)-mode-switch --get-serial-dev)
 
 firmware-clear-$(PLATFORM):
-	@echo "FIXME: Unsupported?."
-	@false
+	$(PLATFORM)-mode-switch --verbose --clear-softcpu-firmware
 
 .PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM) firmware-clear-$(PLATFORM)
 
