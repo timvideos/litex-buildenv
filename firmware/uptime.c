@@ -25,7 +25,7 @@ int uptime(void)
 
 void uptime_print(void)
 {
-	wprintf("uptime: %s\r\n", uptime_str());
+	wprintf("uptime: %s\n", uptime_str());
 }
 
 const char* uptime_str(void)

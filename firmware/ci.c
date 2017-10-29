@@ -100,13 +100,13 @@ static void help_heartbeat(void)
 static void heartbeat_enable(void)
 {
 	hb_status(true);
-	wprintf("Heartbeat enabled\r\n");
+	wprintf("Heartbeat enabled\n");
 }
 
 static void heartbeat_disable(void)
 {
 	hb_status(false);
-	wprintf("Heartbeat disabled\r\n");
+	wprintf("Heartbeat disabled\n");
 }
 
 #ifdef CSR_HDMI_OUT0_BASE
@@ -322,25 +322,25 @@ static char *get_token(char **str)
 
 static void status_enable(void)
 {
-	wprintf("Enabling status\r\n");
+	wprintf("Enabling status\n");
 	status_enabled = 1;
 }
 
 static void status_disable(void)
 {
-	wprintf("Disabling status\r\n");
+	wprintf("Disabling status\n");
 	status_enabled = 0;
 }
 
 static void status_short_enable(void)
 {
-	wprintf("Enabling short status\r\n");
+	wprintf("Enabling short status\n");
 	status_short_enabled = 1;
 }
 
 static void status_short_disable(void)
 {
-	wprintf("Disabling status\r\n");
+	wprintf("Disabling status\n");
 	status_short_enabled = 0;
 }
 
@@ -411,7 +411,7 @@ static void status_short_print(void)
 		wprintf("off ");
 #endif
 
-	wprintf("\r\nstatus2: ");
+	wprintf("\nstatus2: ");
 	wprintf("EDID: ");
 	wprintf("%dx%d@" REFRESH_RATE_PRINTF "Hz/",
 		processor_h_active,
@@ -444,7 +444,7 @@ static void status_short_print(void)
 	wprintf("ddr: ");
 	debug_ddr();
 #endif
-	wprintf("\r\n");
+	wputchar('\n');
 }
 
 static void status_print(void)
@@ -464,7 +464,7 @@ static void status_print(void)
 		wprintf(" (disabled)");
 	}
 #endif
-	wprintf("\r\n");
+	wputchar('\n');
 #endif
 
 #ifdef CSR_HDMI_IN1_BASE
@@ -481,7 +481,7 @@ static void status_print(void)
 	} else {
 		wprintf(" (disabled)");
 	}
-	wprintf("\r\n");
+	wputchar('\n');
 #endif
 
 #ifdef CSR_HDMI_OUT0_BASE
@@ -501,7 +501,7 @@ static void status_print(void)
 		hdmi_out0_core_underflow_enable_write(1);
 	} else
 		wprintf("off");
-	wprintf("\r\n");
+	wputchar('\n');
 #endif
 
 #ifdef CSR_HDMI_OUT1_BASE
@@ -521,7 +521,7 @@ static void status_print(void)
 		hdmi_out1_core_underflow_enable_write(1);
 	} else
 		wprintf("off");
-	wprintf("\r\n");
+	wputchar('\n');
 #endif
 
 	wprintf("EDID primary mode:   ");
@@ -529,7 +529,7 @@ static void status_print(void)
 		processor_h_active,
 		processor_v_active,
 		REFRESH_RATE_PRINTF_ARGS(processor_refresh));
-	wprintf("\r\n");
+	wputchar('\n');
 
 	wprintf("EDID secondary mode: ");
 	if (processor_secondary_mode == EDID_SECONDARY_MODE_OFF) {
@@ -540,7 +540,7 @@ static void status_print(void)
 		processor_describe_mode(mode_descriptor, processor_secondary_mode);
 		wprintf("%s", mode_descriptor);
 	}
-	wprintf("\r\n");
+	wputchar('\n');
 
 #ifdef ENCODER_BASE
 	wprintf("encoder: ");
@@ -554,12 +554,12 @@ static void status_print(void)
 			encoder_quality);
 	} else
 		wprintf("off");
-	wprintf("\r\n");
+	wputchar('\n');
 #endif
 #ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
 	wprintf("ddr: ");
 	debug_ddr();
-	wprintf("\r\n");
+	wputchar('\n');
 #endif
 }
 
@@ -570,7 +570,7 @@ static void status_service(void)
 	if(elapsed(&last_event, SYSTEM_CLOCK_FREQUENCY)) {
 		if(status_enabled) {
 			status_print();
-			wprintf("\r\n");
+			wputchar('\n');
 		}
 		if(status_short_enabled) {
 		    status_short_print();
@@ -592,30 +592,30 @@ static void status_service(void)
 
 static void video_matrix_list(void)
 {
-	wprintf("Video sources:\r\n");
+	wprintf("Video sources:\n");
 #ifdef CSR_HDMI_IN0_BASE
-	wprintf("input0 (0): %s\r\n", HDMI_IN0_MNEMONIC);
+	wprintf("input0 (0): %s\n", HDMI_IN0_MNEMONIC);
 	wputs(HDMI_IN0_DESCRIPTION);
 #endif
 #ifdef CSR_HDMI_IN1_BASE
-	wprintf("input1 (1): %s\r\n", HDMI_IN1_MNEMONIC);
+	wprintf("input1 (1): %s\n", HDMI_IN1_MNEMONIC);
 	wputs(HDMI_IN1_DESCRIPTION);
 #endif
-	wprintf("pattern (p):\r\n");
-	wprintf("  Video pattern\r\n");
+	wprintf("pattern (p):\n");
+	wprintf("  Video pattern\n");
 	wputs(" ");
-	wprintf("Video sinks:\r\n");
+	wprintf("Video sinks:\n");
 #ifdef CSR_HDMI_OUT0_BASE
-	wprintf("output0 (0): %s\r\n", HDMI_OUT0_MNEMONIC);
+	wprintf("output0 (0): %s\n", HDMI_OUT0_MNEMONIC);
 	wputs(HDMI_OUT0_DESCRIPTION);
 #endif
 #ifdef CSR_HDMI_OUT1_BASE
-	wprintf("output1 (1): %s\r\n", HDMI_OUT1_MNEMONIC);
+	wprintf("output1 (1): %s\n", HDMI_OUT1_MNEMONIC);
 	wputs(HDMI_OUT1_DESCRIPTION);
 #endif
 #ifdef ENCODER_BASE
-	wprintf("encoder (e):\r\n");
-	wprintf("  JPEG encoder (USB output)\r\n");
+	wprintf("encoder (e):\n");
+	wprintf("  JPEG encoder (USB output)\n");
 #endif
 	wputs(" ");
 }
@@ -625,24 +625,24 @@ static void video_matrix_connect(int source, int sink)
 	if(source >= 0 && source <= VIDEO_IN_PATTERN)
 	{
 		if(sink >= 0 && sink <= VIDEO_OUT_HDMI_OUT1) {
-			wprintf("Connecting %s to output%d\r\n", processor_get_source_name(source), sink);
+			wprintf("Connecting %s to output%d\n", processor_get_source_name(source), sink);
 			if(sink == VIDEO_OUT_HDMI_OUT0)
 #ifdef CSR_HDMI_OUT0_BASE
 				processor_set_hdmi_out0_source(source);
 #else
-				wprintf("hdmi_out0 is missing.\r\n");
+				wprintf("hdmi_out0 is missing.\n");
 #endif
 			else if(sink == VIDEO_OUT_HDMI_OUT1)
 #ifdef CSR_HDMI_OUT1_BASE
 				processor_set_hdmi_out1_source(source);
 #else
-				wprintf("hdmi_out1 is missing.\r\n");
+				wprintf("hdmi_out1 is missing.\n");
 #endif
 			processor_update();
 		}
 #ifdef ENCODER_BASE
 		else if(sink == VIDEO_OUT_ENCODER) {
-			wprintf("Connecting %s to encoder\r\n", processor_get_source_name(source));
+			wprintf("Connecting %s to encoder\n", processor_get_source_name(source));
 			processor_set_encoder_source(source);
 			processor_update();
 		}
@@ -656,10 +656,10 @@ static void video_mode_list(void)
 	int i;
 
 	processor_list_modes(mode_descriptors);
-	wprintf("Available video modes:\r\n");
+	wprintf("Available video modes:\n");
 	for(i=0;i<PROCESSOR_MODE_COUNT;i++)
-		wprintf("mode %d: %s\r\n", i, &mode_descriptors[i*PROCESSOR_MODE_DESCLEN]);
-	wprintf("\r\n");
+		wprintf("mode %d: %s\n", i, &mode_descriptors[i*PROCESSOR_MODE_DESCLEN]);
+	wputchar('\n');
 }
 
 static void video_mode_set(int mode)
@@ -667,7 +667,7 @@ static void video_mode_set(int mode)
 	char mode_descriptor[PROCESSOR_MODE_DESCLEN];
 	if(mode < PROCESSOR_MODE_COUNT) {
 		processor_describe_mode(mode_descriptor, mode);
-		wprintf("Setting video mode to %s\r\n", mode_descriptor);
+		wprintf("Setting video mode to %s\n", mode_descriptor);
 		config_set(CONFIG_KEY_RES_PRIMARY, mode);
 		processor_start(mode);
 	}
@@ -679,7 +679,7 @@ static void video_mode_secondary(char *str)
 	if((token = get_token(&str)) == '\0') return;
 
 	if(strcmp(token, "off") == 0) {
-		wprintf("Turning off secondary video mode\r\n");
+		wprintf("Turning off secondary video mode\n");
 		processor_set_secondary_mode(EDID_SECONDARY_MODE_OFF);
 	}
 	else {
@@ -687,7 +687,7 @@ static void video_mode_secondary(char *str)
 		char mode_descriptor[PROCESSOR_MODE_DESCLEN];
 		if (mode < PROCESSOR_MODE_COUNT) {
 			processor_describe_mode(mode_descriptor, mode);
-			wprintf("Setting secondary video mode to %s\r\n", mode_descriptor);
+			wprintf("Setting secondary video mode to %s\n", mode_descriptor);
 			config_set(CONFIG_KEY_RES_SECONDARY, mode);
 			processor_set_secondary_mode(mode);
 		}
@@ -696,13 +696,13 @@ static void video_mode_secondary(char *str)
 
 #define NEXT_TOKEN_OR_RETURN(s, t)				\
 	if(!(t = get_token(&s))) {				\
-		wprintf("Parse failed - invalid mode.\r\n");	\
+		wprintf("Parse failed - invalid mode.\n");	\
 		return;						\
 	}
 
 static void video_mode_custom(char* str)
 {
-	wprintf("Parsing custom mode...\r\n");
+	wprintf("Parsing custom mode...\n");
 
 	char* token;
 	// Modeline "String description" Dot-Clock HDisp HSyncStart HSyncEnd HTotal VDisp VSyncStart VSyncEnd VTotal [options]
@@ -753,7 +753,7 @@ static void video_mode_custom(char* str)
 
 		if (!timing_mode_flags[f].string) {
 			if (*token != '\0') {
-				wprintf("Skipping flag: %s\r\n", token);
+				wprintf("Skipping flag: %s\n", token);
 				continue;
 			}
 			break;
@@ -799,7 +799,7 @@ static void video_mode_custom(char* str)
 	if (hTotal <= hSyncEnd || hSyncEnd <= hSyncStart ||
 			hSyncStart <= width || vTotal <= vSyncEnd ||
 			vSyncEnd <= vSyncStart || vSyncStart <= height) {
-		wprintf("Failed to set custom mode - values out of range.\r\n");
+		wprintf("Failed to set custom mode - values out of range.\n");
 	}
 
 	struct video_timing* mode = processor_get_custom_mode();
@@ -824,7 +824,7 @@ static void video_mode_custom(char* str)
 	mode->flags = modeFlags;
 
 	processor_set_custom_mode();
-	wprintf("Custom video mode set.\r\n");
+	wprintf("Custom video mode set.\n");
 }
 
 static void hdp_toggle(int source)
@@ -832,7 +832,7 @@ static void hdp_toggle(int source)
 #if defined(CSR_HDMI_IN0_BASE) || defined(CSR_HDMI_IN1_BASE)
 	int i;
 #endif
-	wprintf("Toggling HDP on output%d\r\n", source);
+	wprintf("Toggling HDP on output%d\n", source);
 #ifdef CSR_HDMI_IN0_BASE
 	if(source == VIDEO_IN_HDMI_IN0) {
 		hdmi_in0_edid_hpd_en_write(0);
@@ -840,7 +840,7 @@ static void hdp_toggle(int source)
 		hdmi_in0_edid_hpd_en_write(1);
 	}
 #else
-	wprintf("hdmi_in0 is missing.\r\n");
+	wprintf("hdmi_in0 is missing.\n");
 #endif
 #ifdef CSR_HDMI_IN1_BASE
 	if(source == VIDEO_IN_HDMI_IN1) {
@@ -849,20 +849,20 @@ static void hdp_toggle(int source)
 		hdmi_in1_edid_hpd_en_write(1);
 	}
 #else
-	wprintf("hdmi_in1 is missing.\r\n");
+	wprintf("hdmi_in1 is missing.\n");
 #endif
 }
 
 #ifdef CSR_HDMI_IN0_BASE
 void input0_on(void)
 {
-	wprintf("Enabling input0\r\n");
+	wprintf("Enabling input0\n");
 	hdmi_in0_enable();
 }
 
 void input0_off(void)
 {
-	wprintf("Disabling input0\r\n");
+	wprintf("Disabling input0\n");
 	hdmi_in0_disable();
 }
 #endif
@@ -870,13 +870,13 @@ void input0_off(void)
 #ifdef CSR_HDMI_IN1_BASE
 void input1_on(void)
 {
-	wprintf("Enabling input1\r\n");
+	wprintf("Enabling input1\n");
 	hdmi_in1_enable();
 }
 
 void input1_off(void)
 {
-	wprintf("Disabling input1\r\n");
+	wprintf("Disabling input1\n");
 	hdmi_in1_disable();
 }
 #endif
@@ -884,13 +884,13 @@ void input1_off(void)
 #ifdef CSR_HDMI_OUT0_BASE
 void output0_on(void)
 {
-	wprintf("Enabling output0\r\n");
+	wprintf("Enabling output0\n");
 	hdmi_out0_core_initiator_enable_write(1);
 }
 
 void output0_off(void)
 {
-	wprintf("Disabling output0\r\n");
+	wprintf("Disabling output0\n");
 	hdmi_out0_core_initiator_enable_write(0);
 }
 #endif
@@ -898,13 +898,13 @@ void output0_off(void)
 #ifdef CSR_HDMI_OUT1_BASE
 void output1_on(void)
 {
-	wprintf("Enabling output1\r\n");
+	wprintf("Enabling output1\n");
 	hdmi_out1_core_initiator_enable_write(1);
 }
 
 void output1_off(void)
 {
-	wprintf("Disabling output1\r\n");
+	wprintf("Disabling output1\n");
 	hdmi_out1_core_initiator_enable_write(0);
 }
 #endif
@@ -912,25 +912,25 @@ void output1_off(void)
 #ifdef ENCODER_BASE
 void encoder_on(void)
 {
-	wprintf("Enabling encoder\r\n");
+	wprintf("Enabling encoder\n");
 	encoder_enable(1);
 }
 
 void encoder_configure_quality(int quality)
 {
-	wprintf("Setting encoder quality to %d\r\n", quality);
+	wprintf("Setting encoder quality to %d\n", quality);
 	encoder_set_quality(quality);
 }
 
 void encoder_configure_fps(int fps)
 {
-	wprintf("Setting encoder fps to %d\r\n", fps);
+	wprintf("Setting encoder fps to %d\n", fps);
 	encoder_set_fps(fps);
 }
 
 void encoder_off(void)
 {
-	wprintf("Disabling encoder\r\n");
+	wprintf("Disabling encoder\n");
 	encoder_enable(0);
 }
 #endif
@@ -965,7 +965,7 @@ static void debug_ddr(void)
 	burstbits = (2*DFII_NPHASES) << DFII_PIX_DATA_SIZE;
 	rdb = (nr*f >> (24 - log2(burstbits)))/1000000ULL;
 	wrb = (nw*f >> (24 - log2(burstbits)))/1000000ULL;
-	wprintf("read:%5dMbps  write:%5dMbps  all:%5dMbps\r\n", rdb, wrb, rdb + wrb);
+	wprintf("read:%5dMbps  write:%5dMbps  all:%5dMbps\n", rdb, wrb, rdb + wrb);
 	*/
 }
 #endif
@@ -1051,7 +1051,7 @@ void ci_service(void)
 				source = VIDEO_IN_PATTERN;
 			}
 			else {
-				wprintf("Unknown video source: '%s'\r\n", token);
+				wprintf("Unknown video source: '%s'\n", token);
 			}
 
 			/* get video sink */
@@ -1067,7 +1067,7 @@ void ci_service(void)
 				sink = VIDEO_OUT_ENCODER;
 			}
 			else
-				wprintf("Unknown video sink: '%s'\r\n", token);
+				wprintf("Unknown video sink: '%s'\n", token);
 
 			if (source >= 0 && sink >= 0)
 				video_matrix_connect(source, sink);
@@ -1162,7 +1162,7 @@ void ci_service(void)
 #endif
 	else if((strcmp(token, "p") == 0) || (strcmp(token, "p") == 0)) {
 		pattern_next();
-		wprintf("Pattern now %d\r\n", pattern);
+		wprintf("Pattern now %d\n", pattern);
 	}
 	else if((strcmp(token, "status") == 0) || (strcmp(token, "s") == 0)) {
 		token = get_token(&str);
@@ -1198,7 +1198,7 @@ void ci_service(void)
 				hdmi_in0_debug = 1;
 			else
 				hdmi_in0_debug = !hdmi_in0_debug;
-			wprintf("HDMI Input 0 debug %s\r\n", hdmi_in0_debug ? "on" : "off");
+			wprintf("HDMI Input 0 debug %s\n", hdmi_in0_debug ? "on" : "off");
 		}
 #endif
 #ifdef CSR_HDMI_IN1_BASE
@@ -1210,13 +1210,13 @@ void ci_service(void)
 				hdmi_in1_debug = 1;
 			else
 				hdmi_in1_debug = !hdmi_in1_debug;
-			wprintf("HDMI Input 1 debug %s\r\n", hdmi_in1_debug ? "on" : "off");
+			wprintf("HDMI Input 1 debug %s\n", hdmi_in1_debug ? "on" : "off");
 		}
 #endif
 #ifdef CSR_SDRAM_CONTROLLER_BANDWIDTH_UPDATE_ADDR
 		else if(strcmp(token, "ddr") == 0) {
 			debug_ddr();
-			wprintf("\r\n");
+			wputchar('\n');
 		}
 #endif
 #ifdef CSR_INFO_DNA_ID_ADDR
@@ -1265,7 +1265,7 @@ void ci_service(void)
 			}
 #endif
 			if(found == 0)
-				wprintf("%s port has no EDID capabilities\r\n", token);
+				wprintf("%s port has no EDID capabilities\n", token);
 #ifdef CSR_CAS_BASE
 		} else if(strcmp(token, "cas") == 0) {
 			token = get_token(&str);
@@ -1278,14 +1278,14 @@ void ci_service(void)
 #endif
 #ifdef CSR_CAS_SWITCHES_IN_ADDR
 			else if(strcmp(token, "switches") == 0) {
-				wprintf("%X\r\n", (int)cas_switches_in_read());
+				wprintf("%X\n", (int)cas_switches_in_read());
 			}
 #endif
 #ifdef CSR_CAS_BUTTONS_EV_STATUS_ADDR
 			else if(strcmp(token, "buttons") == 0) {
 				int status = cas_buttons_ev_status_read();
 				int pending = cas_buttons_ev_pending_read();
-				wprintf("%X %X\r\n", status, pending);
+				wprintf("%X %X\n", status, pending);
 				token = get_token(&str);
 				if(strcmp(token, "clear") == 0) {
 					cas_buttons_ev_pending_write(pending);
