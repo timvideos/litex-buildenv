@@ -28,6 +28,34 @@ if [ z"$TRAVIS_PULL_REQUEST_SLUG" != z ]; then
 	echo "---------------------------------------------"
 	git log -n 5 --graph pull-$TRAVIS_PULL_REQUEST-merge
 	echo "---------------------------------------------"
+
+	echo ""
+	echo ""
+	echo ""
+	echo "- Using pull request version of submodules (if they exist)"
+	echo "---------------------------------------------"
+	git submodule status | while read SHA1 MODULE_PATH
+	do
+		"$PWD/.travis/add-local-submodule.sh" "$TRAVIS_PULL_REQUEST_SLUG" "$MODULE_PATH"
+	done
+	echo "---------------------------------------------"
+	git submodule foreach --recursive 'git remote -v; echo'
+	echo "---------------------------------------------"
+fi
+
+if [ z"$TRAVIS_REPO_SLUG" != z ]; then
+	echo ""
+	echo ""
+	echo ""
+	echo "- Using local version of submodules (if they exist)"
+	echo "---------------------------------------------"
+	git submodule status | while read SHA1 MODULE_PATH DESC
+	do
+		"$PWD/.travis/add-local-submodule.sh" "$TRAVIS_REPO_SLUG" "$MODULE_PATH"
+	done
+	echo "---------------------------------------------"
+	git submodule foreach --recursive 'git remote -v; echo'
+	echo "---------------------------------------------"
 fi
 
 if [ z"$TRAVIS_BRANCH" != z ]; then

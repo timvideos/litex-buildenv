@@ -16,6 +16,10 @@ addons:
     - libusb-1.0-0-dev
     - python-yaml
     - realpath
+    - util-linux
+
+git:
+  submodules: false
 
 env:
   global:
