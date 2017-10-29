@@ -41,6 +41,10 @@ notifications:
    - "[%{repository_slug}/%{branch}#%{build_number}] (%{commit}): %{message} (%{build_url})"
 
 jobs:
+  fail_fast: true
+  allow_failures:
+  - env: C=lm32 P=pipistrello T="base"
+
   include:
   #--------------------------------------------
   # Base targets
