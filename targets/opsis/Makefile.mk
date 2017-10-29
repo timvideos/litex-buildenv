@@ -39,7 +39,10 @@ firmware-connect-$(PLATFORM):
 	$(PLATFORM)-mode-switch --verbose --mode=serial
 	flterm --port=$$($(PLATFORM)-mode-switch --get-serial-dev)
 
-.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM)
+firmware-clear-$(PLATFORM):
+	$(PLATFORM)-mode-switch --verbose --clear-softcpu-firmware
+
+.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM) firmware-clear-$(PLATFORM)
 
 # Bios
 bios-flash-$(PLATFORM):

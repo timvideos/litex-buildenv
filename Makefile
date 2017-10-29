@@ -193,6 +193,9 @@ firmware-flash-py: firmware
 firmware-connect: firmware-connect-$(PLATFORM)
 	@true
 
+firmware-clear: firmware-clear-$(PLATFORM)
+	@true
+
 firmware-clean:
 	rm -rf $(TARGET_BUILD_DIR)/software
 
@@ -321,6 +324,8 @@ help:
 	@echo " make firmware-load     - *Temporarily* load the firmware onto a device"
 	@echo " make firmware-flash    - *Permanently* flash the firmware onto a device"
 	@echo " make firmware-connect  - *Connect* to the firmware running on a device"
+	@echo " make firmware-clear    - *Permenantly* erase the firmware on the device,"
+	@echo "                          forcing TFTP/serial booting"
 	@echo ""
 	@echo "Image commands avaliable:"
 	@echo " make image             - Make an image containing gateware+bios+firmware"
