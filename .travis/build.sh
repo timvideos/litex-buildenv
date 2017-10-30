@@ -268,7 +268,13 @@ declare -a FAILURES
 
 
 # Clone prebuilt repo to copy results into
-if [ -z "$GH_TOKEN" ]; then
+if [ ! -z "$TRAVIS_PULL_REQUEST" -a "$TRAVIS_PULL_REQUEST" != "false" ]; then
+	# Don't do prebuilt for a pull request.
+	echo ""
+	echo ""
+	echo ""
+	echo "- Pull request, so no prebuilt pushing."
+elif [ -z "$GH_TOKEN" ]; then
 	# Only if run by travis display error
 	if [ ! -z $TRAVIS_BUILD_NUMBER  ]; then
 		echo ""
