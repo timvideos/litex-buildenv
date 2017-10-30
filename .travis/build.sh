@@ -268,7 +268,13 @@ declare -a FAILURES
 
 
 # Clone prebuilt repo to copy results into
-if [ -z "$GH_TOKEN" ]; then
+if [ ! -z "$TRAVIS_PULL_REQUEST" -a "$TRAVIS_PULL_REQUEST" != "false" ]; then
+	# Don't do prebuilt for a pull request.
+	echo ""
+	echo ""
+	echo ""
+	echo "- Pull request, so no prebuilt pushing."
+elif [ -z "$GH_TOKEN" ]; then
 	# Only if run by travis display error
 	if [ ! -z $TRAVIS_BUILD_NUMBER  ]; then
 		echo ""
@@ -371,7 +377,7 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 						-m "Updating unstable link (Travis build #$TRAVIS_BUILD_NUMBER of $GIT_REVISION for PLATFORM=$PLATFORM TARGET=$TARGET CPU=$CPU)" \
 						-m "" \
 						-m "From https://github.com/$TRAVIS_REPO_SLUG/tree/$TRAVIS_COMMIT" \
-						-m "$TRAVIS_COMIT_MESSAGE"
+						-m "$TRAVIS_COMMIT_MESSAGE"
 				else
 					echo "Not updating $PLATFORM"
 				fi
@@ -405,6 +411,21 @@ fi
 echo ""
 echo ""
 echo ""
+echo "Errors from failures..."
+echo "============================================="
+
+for F in $(find . -name 'output.*.log'); do
+	echo ""
+	echo ""
+	echo $F
+	echo "---------------------------------------------"
+	cat $F
+	echo "---------------------------------------------"
+done
+
+echo ""
+echo ""
+echo ""
 echo "The following builds succeeded"
 echo "============================================="
 
@@ -432,3 +453,4 @@ if [ ${#FAILURES[@]} -ne 0 ]; then
 else
 	echo "All builds succeeded! \\o/"
 fi
+
