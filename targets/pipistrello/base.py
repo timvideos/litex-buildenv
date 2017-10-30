@@ -11,8 +11,8 @@ from litedram.modules import MT46H32M16
 from litedram.phy import s6ddrphy
 from litedram.core import ControllerSettings
 
-from gateware import info
 #from gateware import i2c_hack
+from gateware import info
 from gateware import spi_flash
 
 from targets.utils import csr_map_update
@@ -178,8 +178,6 @@ class BaseSoC(SoCSDRAM):
         "front_panel",
         "ddrphy",
         "info",
-#        "fx2_reset",
-#        "fx2_hack",
     )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
@@ -194,19 +192,11 @@ class BaseSoC(SoCSDRAM):
         SoCSDRAM.__init__(self, platform, clk_freq,
             integrated_rom_size=0x8000,
             integrated_sram_size=0x4000,
-            with_uart=False,
             **kwargs)
         self.submodules.crg = _CRG(platform, clk_freq)
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
 
         self.submodules.info = info.Info(platform, self.__class__.__name__)
-
-#        self.submodules.fx2_reset = gpio.GPIOOut(platform.request("fx2_reset"))
-#        self.submodules.fx2_hack = i2c_hack.I2CShiftReg(platform.request("opsis_eeprom"))
-
-        self.submodules.suart = shared_uart.SharedUART(self.clk_freq, 115200)
-        self.suart.add_uart_pads(platform.request('fx2_serial'))
-        self.submodules.uart = self.suart.uart
 
         self.submodules.spiflash = spi_flash.SpiFlash(
             platform.request("spiflash4x"),
@@ -214,10 +204,11 @@ class BaseSoC(SoCSDRAM):
             div=platform.spiflash_clock_div)
         self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
         self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
-        self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size
         self.register_mem("spiflash", self.mem_map["spiflash"],
             self.spiflash.bus, size=platform.spiflash_total_size)
 
+        bios_size = 0x8000
+        self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size+bios_size
         # sdram
         sdram_module = MT46H32M16(self.clk_freq, "1:2")
         self.submodules.ddrphy = s6ddrphy.S6HalfRateDDRPHY(
