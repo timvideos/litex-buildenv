@@ -13,8 +13,6 @@ image-flash-$(PLATFORM):
 	@echo "Unsupported."
 	@false
 
-.PHONY: image-flash-$(PLATFORM)
-
 # Gateware
 gateware-load-$(PLATFORM):
 	@echo "Unsupported."
@@ -23,8 +21,6 @@ gateware-load-$(PLATFORM):
 gateware-flash-$(PLATFORM):
 	@echo "Unsupported."
 	@false
-
-.PHONY: gateware-load-$(PLATFORM) gateware-flash-$(PLATFORM)
 
 # Firmware
 firmware-load-$(PLATFORM):
@@ -39,14 +35,14 @@ firmware-connect-$(PLATFORM):
 	@echo "Unsupported."
 	@false
 
-.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM)
+firmware-clear-$(PLATFORM):
+	@echo "FIXME: Unsupported?."
+	@false
 
 # Bios
 bios-flash-$(PLATFORM):
 	@echo "Unsupported."
 	@false
-
-.PHONY: bios-flash-$(PLATFORM)
 
 # Extra commands
 help-$(PLATFORM):
@@ -56,8 +52,6 @@ help-$(PLATFORM):
 reset-$(PLATFORM):
 	@echo "Unsupported."
 	@false
-
-.PHONY: help-$(PLATFORM) reset-$(PLATFORM)
 
 $(PLATFORM)-setup:
 	sudo true

@@ -12,8 +12,6 @@ TARGET ?= $(DEFAULT_TARGET)
 image-flash-$(PLATFORM): image-flash-py
 	@true
 
-.PHONY: image-flash-$(PLATFORM)
-
 # Gateware
 gateware-load-$(PLATFORM):
 	@echo "Unsupported."
@@ -22,7 +20,6 @@ gateware-load-$(PLATFORM):
 gateware-flash-$(PLATFORM): gateware-flash-py
 	@true
 
-.PHONY: gateware-load-$(PLATFORM) gateware-flash-$(PLATFORM)
 # Firmware
 firmware-load-$(PLATFORM):
 	@echo "Unsupported."
@@ -34,14 +31,14 @@ firmware-flash-$(PLATFORM): firmwage-flash-py
 firmware-connect-$(PLATFORM):
 	flterm --port=$(COMM_PORT) --speed=$(BAUD)
 
-.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM)
+firmware-clear-$(PLATFORM):
+	@echo "FIXME: Unsupported?."
+	@false
 
 # Bios
 bios-flash-$(PLATFORM):
 	@echo "Unsupported."
 	@false
-
-.PHONY: bios-flash-$(PLATFORM)
 
 # Extra commands
 help-$(PLATFORM):
@@ -50,5 +47,3 @@ help-$(PLATFORM):
 reset-$(PLATFORM):
 	@echo "Unsupported."
 	@false
-
-.PHONY: help-$(PLATFORM) reset-$(PLATFORM)

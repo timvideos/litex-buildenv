@@ -16,16 +16,12 @@ BAUD ?= 115200
 image-flash-$(PLATFORM): image-flash-py
 	@true
 
-.PHONY: image-flash-$(PLATFORM)
-
 # Gateware
 gateware-load-$(PLATFORM):
 	openocd -f board/digilent_$(PLATFORM).cfg -c "init; pld load 0 $(TARGET_BUILD_DIR)/gateware/top.bit; exit"
 
 gateware-flash-$(PLATFORM): gateware-flash-py
 	@true
-
-.PHONY: gateware-load-$(PLATFORM) gateware-flash-$(PLATFORM)
 
 # Firmware
 firmware-load-$(PLATFORM):
@@ -37,14 +33,10 @@ firmware-flash-$(PLATFORM): firmwage-flash-py
 firmware-connect-$(PLATFORM):
 	flterm --port=$(COMM_PORT) --speed=$(BAUD)
 
-.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM)
-
 # Bios
 bios-flash-$(PLATFORM):
 	@echo "Unsupported."
 	@false
-
-.PHONY: bios-flash-$(PLATFORM)
 
 # Extra commands
 help-$(PLATFORM):
@@ -53,5 +45,3 @@ help-$(PLATFORM):
 reset-$(PLATFORM):
 	@echo "Unsupported."
 	@false
-
-.PHONY: help-$(PLATFORM) reset-$(PLATFORM)
