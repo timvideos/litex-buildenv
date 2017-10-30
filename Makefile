@@ -120,7 +120,7 @@ image-flash: image image-flash-$(PLATFORM)
 image-flash-py: image
 	$(PYTHON) flash.py --mode=image
 
-.PHONY: image image-load image-flash image-flash-py
+.PHONY: image image-load image-flash image-flash-py image-flash-$(PLATFORM) image-load-$(PLATFORM)
 
 # Gateware - the stuff which configures the FPGA.
 # --------------------------------------
@@ -159,7 +159,7 @@ gateware-flash-py:
 gateware-clean:
 	rm -rf $(TARGET_BUILD_DIR)/gateware
 
-.PHONY: gateware gateware-load gateware-flash gateware-flash-py gateware-clean
+.PHONY: gateware gateware-load gateware-flash gateware-flash-py gateware-clean gateware-load-$(PLATFORM) gateware-flash-$(PLATFORM)
 
 # Firmware - the stuff which runs in the soft CPU inside the FPGA.
 # --------------------------------------
@@ -196,6 +196,8 @@ firmware-connect: firmware-connect-$(PLATFORM)
 firmware-clear: firmware-clear-$(PLATFORM)
 	@true
 
+.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM) firmware-clear-$(PLATFORM)
+
 firmware-clean:
 	rm -rf $(TARGET_BUILD_DIR)/software
 
@@ -210,7 +212,8 @@ bios: $(BIOS_FILE)
 bios-flash: $(BIOS_FILE) bios-flash-$(PLATFORM)
 	@true
 
-.PHONY: $(FIRMWARE_FILE) bios bios-flash
+.PHONY: $(FIRMWARE_FILE) bios bios-flash bios-flash-$(PLATFORM)
+
 
 # TFTP booting stuff
 # --------------------------------------
@@ -347,7 +350,7 @@ clean:
 dist-clean:
 	rm -rf build
 
-.PHONY: flash help clean dist-clean
+.PHONY: flash help clean dist-clean help-$(PLATFORM) reset reset-$(PLATFORM)
 
 # Tests
 # --------------------------------------

@@ -13,8 +13,6 @@ image-flash-$(PLATFORM):
 	$(PLATFORM)-mode-switch --verbose --flash-gateware=$(IMAGE_FILE)
 	$(PLATFORM)-mode-switch --verbose --reset-gateware
 
-.PHONY: image-flash-$(PLATFORM)
-
 # Gateware
 gateware-load-$(PLATFORM):
 	$(PLATFORM)-mode-switch --verbose --load-gateware $(GATEWARE_FILEBASE).bit
@@ -23,8 +21,6 @@ gateware-load-$(PLATFORM):
 gateware-flash-$(PLATFORM):
 	$(PLATFORM)-mode-switch --verbose --flash-gateware=$(GATEWARE_FILEBASE).bin
 	$(PLATFORM)-mode-switch --verbose --reset-gateware
-
-.PHONY: gateware-load-$(PLATFORM) gateware-flash-$(PLATFORM)
 
 # Firmware
 firmware-load-$(PLATFORM):
@@ -41,14 +37,10 @@ firmware-connect-$(PLATFORM):
 firmware-clear-$(PLATFORM):
 	$(PLATFORM)-mode-switch --verbose --clear-softcpu-firmware
 
-.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM) firmware-clear-$(PLATFORM)
-
 # Bios
 bios-flash-$(PLATFORM):
 	$(PLATFORM)-mode-switch --verbose --flash-softcpu-bios=$(BIOS_FILE)
 	$(PLATFORM)-mode-switch --verbose --reset-gateware
-
-.PHONY: bios-flash-$(PLATFORM)
 
 # Extra commands
 help-$(PLATFORM):
@@ -58,5 +50,3 @@ reset-$(PLATFORM):
 	$(PLATFORM)-mode-switch --verbose --mode=serial
 	$(PLATFORM)-mode-switch --verbose --mode=jtag
 	$(PLATFORM)-mode-switch --verbose --mode=serial
-
-.PHONY: help-$(PLATFORM) reset-$(PLATFORM)

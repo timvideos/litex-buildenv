@@ -24,8 +24,6 @@ endif
 image-flash-$(PLATFORM):
 	$(PYTHON) $$(which MimasV2Config.py) $(PROG_PORT) $(IMAGE_FILE)
 
-.PHONY: image-flash-$(PLATFORM)
-
 # Gateware
 gateware-load-$(PLATFORM):
 	@echo "MimasV2 doesn't support loading, use the flash target instead."
@@ -35,7 +33,6 @@ gateware-load-$(PLATFORM):
 gateware-flash-$(PLATFORM):
 	$(PYTHON) $$(which MimasV2Config.py) $(PROG_PORT) $(GATEWARE_FILEBASE).bin
 
-.PHONY: gateware-load-$(PLATFORM) gateware-flash-$(PLATFORM)
 # Firmware
 firmware-load-$(PLATFORM):
 	flterm --port=$(COMM_PORT) --kernel=$(FIRMWARE_FILEBASE).bin --speed=$(BAUD)
@@ -52,14 +49,10 @@ firmware-clear-$(PLATFORM):
 	@echo "FIXME: Unsupported?."
 	@false
 
-.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM) firmware-clear-$(PLATFORM)
-
 # Bios
 bios-flash-$(PLATFORM):
 	@echo "Unsupported."
 	@false
-
-.PHONY: bios-flash-$(PLATFORM)
 
 # Extra commands
 help-$(PLATFORM):
@@ -68,5 +61,3 @@ help-$(PLATFORM):
 reset-$(PLATFORM):
 	@echo "Unsupported."
 	@false
-
-.PHONY: help-$(PLATFORM) reset-$(PLATFORM)
