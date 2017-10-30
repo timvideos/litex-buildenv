@@ -336,6 +336,9 @@ help:
 	@make -s help-$(PLATFORM)
 	@echo " make clean             - Clean all build artifacts."
 
+reset: reset-$(PLATFORM)
+	@true
+
 clean:
 	rm build/cache.mk
 	rm -rf $(TARGET_BUILD_DIR)
