@@ -38,6 +38,7 @@
 #include "hdmi_out1.h"
 #include "heartbeat.h"
 #include "mdio.h"
+#include "mmcm.h"
 #include "opsis_eeprom.h"
 #include "pattern.h"
 #include "pll.h"
@@ -161,8 +162,7 @@ static void help_debug(void)
 #ifdef CSR_GENERATOR_BASE
 	wputs("  debug sdram_test               - run a memory test");
 #endif
-	wputs("  debug pll                      - dump pll configuration");
-	wputs("  debug mmcm                     - dump mmcm configuration");
+	wputs("  debug clocks                   - dump pll/mmcm configuration");
 #ifdef CSR_HDMI_IN0_BASE
 	wputs("  debug input0 <on/off>          - debug dvisampler0");
 #endif
@@ -935,9 +935,11 @@ void encoder_off(void)
 }
 #endif
 
-static void debug_pll(void)
+static void debug_clocks(void)
 {
+	// Only the active clock system will output anything
 	pll_dump();
+	mmcm_dump();
 }
 
 static unsigned int log2(unsigned int v)
@@ -1182,8 +1184,8 @@ void ci_service(void)
 	}
 	else if((strcmp(token, "debug") == 0) || (strcmp(token, "d") == 0)) {
 		token = get_token(&str);
-		if(strcmp(token, "pll") == 0)
-			debug_pll();
+		if(strcmp(token, "clocks") == 0)
+			debug_clocks();
 #ifdef CSR_GENERATOR_BASE
 		else if(strcmp(token, "sdram_test") == 0) bist_test();
 #endif
