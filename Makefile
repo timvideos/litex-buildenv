@@ -324,7 +324,7 @@ help:
 	@echo " make firmware-load     - *Temporarily* load the firmware onto a device"
 	@echo " make firmware-flash    - *Permanently* flash the firmware onto a device"
 	@echo " make firmware-connect  - *Connect* to the firmware running on a device"
-	@echo " make firmware-clear    - *Permenantly* erase the firmware on the device,"
+	@echo " make firmware-clear    - *Permanently* erase the firmware on the device,"
 	@echo "                          forcing TFTP/serial booting"
 	@echo ""
 	@echo "Image commands avaliable:"
