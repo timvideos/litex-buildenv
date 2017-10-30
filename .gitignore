@@ -8,3 +8,4 @@ build
 *.png
 third_party/qemu-litex
 third_party/micropython
+third_party/linux
