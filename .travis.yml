@@ -47,7 +47,6 @@ notifications:
 jobs:
   fail_fast: true
   allow_failures:
-  - env: C=lm32 P=pipistrello  T="base"
   - env: C=or1k P=mimasv2      T="base"
 
   include:
@@ -91,6 +90,9 @@ jobs:
 
   - stage: Targets - Base
     env: C=or1k P=opsis        T="base net"
+
+  - stage: Targets - Base
+    env: C=or1k P=pipistrello  T="base"
 
   #--------------------------------------------
   # Video Targets
