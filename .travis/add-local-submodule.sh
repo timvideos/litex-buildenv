@@ -1,13 +1,12 @@
 #! /bin/bash
 
-if [ "`whoami`" == "root" ]
+if [ "$(whoami)" == "root" ]
 then
     echo "Please don't run this script as root!"
     exit 1
 fi
 
 SCRIPT_SRC=$(realpath ${BASH_SOURCE[0]})
-SCRIPT_DIR=$(dirname $SCRIPT_SRC)
 
 set -e
 
