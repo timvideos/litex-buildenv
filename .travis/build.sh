@@ -377,7 +377,7 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 						-m "Updating unstable link (Travis build #$TRAVIS_BUILD_NUMBER of $GIT_REVISION for PLATFORM=$PLATFORM TARGET=$TARGET CPU=$CPU)" \
 						-m "" \
 						-m "From https://github.com/$TRAVIS_REPO_SLUG/tree/$TRAVIS_COMMIT" \
-						-m "$TRAVIS_COMIT_MESSAGE"
+						-m "$TRAVIS_COMMIT_MESSAGE"
 				else
 					echo "Not updating $PLATFORM"
 				fi
