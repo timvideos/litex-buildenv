@@ -212,18 +212,31 @@ bios-flash: $(BIOS_FILE) bios-flash-$(PLATFORM)
 # TFTP booting stuff
 # --------------------------------------
 # TFTP server for minisoc to load firmware from
+ATFTPD  := $(shell which atftpd 2>/dev/null)
+INTFTPD := $(shell which in.tftpd 2>/dev/null)
+
 tftp: $(FIRMWARE_FILEBASE).bin
 	mkdir -p $(TFTPD_DIR)
 	cp $(FIRMWARE_FILEBASE).bin $(TFTPD_DIR)/boot.bin
 
 tftpd_stop:
 	sudo true
+ifdef ATFTPD
 	sudo killall atftpd || true	# FIXME: This is dangerous...
+else ifdef INTFTPD
+	sudo killall in.tftpd || true
+endif
 
 tftpd_start:
 	mkdir -p $(TFTPD_DIR)
 	sudo true
+ifdef ATFTPD
 	sudo atftpd --verbose --bind-address $(TFTP_IPRANGE).100 --daemon --logfile /dev/stdout --no-fork --user $(shell whoami) $(TFTPD_DIR) &
+else ifdef INTFTPD
+	sudo in.tftpd --verbose --listen --address $(TFTP_IPRANGE).100 --user $(shell whoami) -s $(TFTPD_DIR) &
+else
+	$(error "Cannot find an appropriate tftpd binary to launch the server.")
+endif
 
 .PHONY: tftp tftpd_stop tftpd_start
 
