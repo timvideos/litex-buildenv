@@ -224,12 +224,21 @@ tftp: $(FIRMWARE_FILEBASE).bin
 
 tftpd_stop:
 	sudo true
-	sudo killall atftpd || true	# FIXME: This is dangerous...
+	sudo killall atftpd || sudo killall in.tftpd || true # FIXME: This is dangerous...
 
 tftpd_start:
 	mkdir -p $(TFTPD_DIR)
 	sudo true
-	sudo atftpd --verbose --bind-address $(TFTP_IPRANGE).100 --daemon --logfile /dev/stdout --no-fork --user $(shell whoami) $(TFTPD_DIR) &
+	@if command -v atftpd >/dev/null ; then \
+		echo "Starting aftpd"; \
+		sudo atftpd --verbose --bind-address $(TFTP_IPRANGE).100 --daemon --logfile /dev/stdout --no-fork --user $(shell whoami) $(TFTPD_DIR) & \
+	elif command -v in.tftpd >/dev/null; then \
+		echo "Starting in.tftpd"; \
+		sudo in.tftpd --verbose --listen --address $(TFTP_IPRANGE).100 --user $(shell whoami) -s $(TFTPD_DIR) & \
+	else \
+		echo "Cannot find an appropriate tftpd binary to launch the server."; \
+		false; \
+	fi
 
 .PHONY: tftp tftpd_stop tftpd_start
 

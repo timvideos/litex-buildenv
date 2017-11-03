@@ -127,6 +127,9 @@ if grep -q ETHMAC_BASE $TARGET_BUILD_DIR/software/include/generated/csr.h; then
 	EXTRA_ARGS+=("-net nic -net tap,ifname=tap0,script=no,downscript=no")
 fi
 
+# Allow gdb connections
+EXTRA_ARGS+=("-gdb tcp::10001")
+
 SPIFLASH_MODEL=$(grep spiflash_model platforms/$PLATFORM.py | sed -e's/[^"]*"//' -e's/".*$//')
 echo $SPIFLASH_MODEL
 
