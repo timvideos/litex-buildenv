@@ -67,7 +67,7 @@ if [ ! -f "$TARGET_QEMU_BUILD_DIR/Makefile" ]; then
 	mkdir -p $TARGET_QEMU_BUILD_DIR
 	(
 		cd $TARGET_QEMU_BUILD_DIR
-		$QEMU_SRC_DIR/configure \
+		CFLAGS="-Wno-error" $QEMU_SRC_DIR/configure \
 			--target-list=$QEMU_ARCH \
 			--python=/usr/bin/python2 \
 			--enable-fdt \
