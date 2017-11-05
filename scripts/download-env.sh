@@ -86,6 +86,9 @@ if [ ! -z "$XILINX_PASSPHRASE" ]; then
 			cat $XILINX_PASSPHRASE_FILE | gpg --batch --passphrase-fd 0 ${XILINX_TAR_FILE}.gpg
 			tar -xjf $XILINX_TAR_FILE
 
+			# Remove the tar file to free up space.
+			rm ${XILINX_TAR_FILE}*
+
 			# FIXME: Hacks to try and make Vivado work.
 			mkdir -p $XILINX_DIR/opt/Xilinx/Vivado/2017.3/scripts/rt/data/svlog/sdbs
 			mkdir -p $XILINX_DIR/opt/Xilinx/Vivado/2017.3/tps/lnx64/jre
