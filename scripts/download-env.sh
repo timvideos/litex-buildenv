@@ -164,11 +164,15 @@ export PATH=$CONDA_DIR/bin:$PATH:/sbin
 (
 	echo
 	echo "Installing conda (self contained Python environment with binary package support)"
-	if [ ! -d $CONDA_DIR ]; then
+	if [[ ! -e $CONDA_DIR/bin/conda ]]; then
 		cd $BUILD_DIR
-		wget --no-verbose -c https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+		# FIXME: Get the miniconda people to add a "self check" mode
+		wget --no-verbose --continue https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 		chmod a+x Miniconda3-latest-Linux-x86_64.sh
-		./Miniconda3-latest-Linux-x86_64.sh -p $CONDA_DIR -b
+		# -p to specify the install location
+		# -b to enable batch mode (no prompts)
+		# -f to not return an error if the location specified by -p already exists
+		./Miniconda3-latest-Linux-x86_64.sh -p $CONDA_DIR -b -f
 		conda config --set always_yes yes --set changeps1 no
 		conda update -q conda
 	fi
