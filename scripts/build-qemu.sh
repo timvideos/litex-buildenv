@@ -113,18 +113,25 @@ fi
 
 # Ethernet
 if grep -q ETHMAC_BASE $TARGET_BUILD_DIR/software/include/generated/csr.h; then
-	if [ ! -e /dev/net/tap0 ]; then
-	        sudo true
-		echo "Need to bring up a tun device."
-		IPRANGE=192.168.100
-	        sudo openvpn --mktun --dev tap0
-	        sudo ifconfig tap0 $IPRANGE.100 up
-	        sudo mknod /dev/net/tap0 c 10 200
-	        sudo chown $(whoami) /dev/net/tap0
-		make tftpd_start
-	fi
+	# Make qemu emulate a network device
+	EXTRA_ARGS+=("-net nic")
+
+	# Build/copy the image into the TFTP directory.
 	make tftp
-	EXTRA_ARGS+=("-net nic -net tap,ifname=tap0,script=no,downscript=no")
+
+	# Use the userspace network support. QEMU will pretend to be a
+	# machine a 192.168.100.100. Any connections to that IP will
+	# automatically be forwarded to the real localhost.
+	#
+	# Connections to real localhost on port 2223, will be
+	# forwarded to the expected guest ip (192.168.100.50) on port
+	# 23 (telnet).
+	EXTRA_ARGS+=("-net user,net=192.168.100.0/24,host=192.168.100.100,dhcpstart=192.168.100.50,tftp=$TOP_DIR/build/tftpd,hostfwd=tcp::2223-:23")
+
+	# Make debugging the userspace networking easier, dump all
+	# packets to a file.
+	# FIXME: Make this optional.
+	EXTRA_ARGS+=("-net dump,file=/tmp/data.pcap")
 fi
 
 # Allow gdb connections
