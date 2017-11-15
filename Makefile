@@ -124,6 +124,7 @@ image-flash-py: image
 	$(PYTHON) flash.py --mode=image
 
 .PHONY: image image-load image-flash image-flash-py image-flash-$(PLATFORM) image-load-$(PLATFORM)
+.NOTPARALLEL: image-load image-flash image-flash-py image-flash-$(PLATFORM) image-load-$(PLATFORM)
 
 # Gateware - the stuff which configures the FPGA.
 # --------------------------------------
@@ -163,6 +164,7 @@ gateware-clean:
 	rm -rf $(TARGET_BUILD_DIR)/gateware
 
 .PHONY: gateware gateware-load gateware-flash gateware-flash-py gateware-clean gateware-load-$(PLATFORM) gateware-flash-$(PLATFORM)
+.NOTPARALLEL: gateware-load gateware-flash gateware-flash-py gateware-flash-$(PLATFORM) gateware-load-$(PLATFORM)
 
 # Firmware - the stuff which runs in the soft CPU inside the FPGA.
 # --------------------------------------
@@ -216,6 +218,7 @@ bios-flash: $(BIOS_FILE) bios-flash-$(PLATFORM)
 	@true
 
 .PHONY: $(FIRMWARE_FILE) bios bios-flash bios-flash-$(PLATFORM)
+.NOTPARALLEL: bios-flash bios-flash-$(PLATFORM)
 
 
 # TFTP booting stuff
@@ -244,6 +247,7 @@ tftpd_start:
 	fi
 
 .PHONY: tftp tftpd_stop tftpd_start
+.NOTPARALLEL: tftp tftpd_stop tftpd_start
 
 # Extra targets
 # --------------------------------------
@@ -364,6 +368,7 @@ dist-clean:
 	rm -rf build
 
 .PHONY: flash help clean dist-clean help-$(PLATFORM) reset reset-$(PLATFORM)
+.NOTPARALLEL: flash help help-$(PLATFORM) reset reset-$(PLATFORM)
 
 # Tests
 # --------------------------------------
