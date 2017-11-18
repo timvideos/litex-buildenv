@@ -74,6 +74,3 @@ export CROSS_COMPILE=$CPU-elf-newlib-
 	mkdir -p $(dirname $TOP_DIR/$FIRMWARE_FILEBASE)
 	cp arch/openrisc/boot/vmlinux.bin $TOP_DIR/$FIRMWARE_FILEBASE.bin
 )
-
-make tftp
-make gateware-load
