@@ -41,10 +41,12 @@ fi
 
 (
 	cd third_party/litex
-	git checkout or1k-linux
+	if [ "$(git rev-parse --abbrev-ref HEAD)" != "or1k-linux" ]; then
+		git checkout or1k-linux
+		cd ../..
+		make gateware
+	fi
 )
-
-make gateware
 
 # Install a toolchain with the newlib standard library
 if ! $CPU-elf-newlib-gcc --version > /dev/null 2>&1; then
