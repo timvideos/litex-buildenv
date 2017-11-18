@@ -97,8 +97,8 @@ class BaseSoC(SoCSDRAM):
         "spiflash",
         "ddrphy",
         "info",
-        "leds",
-        "rgb_leds",
+#        "leds",
+#        "rgb_leds",
     )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
@@ -120,8 +120,8 @@ class BaseSoC(SoCSDRAM):
 
         # Basic peripherals
         self.submodules.info = info.Info(platform, self.__class__.__name__)
-        self.submodules.leds = led.ClassicLed(Cat(platform.request("user_led", i) for i in range(4)))
-        self.submodules.rgb_leds = led.RGBLed(platform.request("rgb_leds"))
+#        self.submodules.leds = led.ClassicLed(Cat(platform.request("user_led", i) for i in range(4)))
+#        self.submodules.rgb_leds = led.RGBLed(platform.request("rgb_leds"))
 
         # spi flash
         spiflash_pads = platform.request(spiflash)
