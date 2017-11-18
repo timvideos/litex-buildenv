@@ -114,11 +114,14 @@ def main():
     if not buildargs.get('csr_csv', None):
         buildargs['csr_csv'] = os.path.join(testdir, "csr.csv")
 
-    builder = Builder(soc, **buildargs)
-    if not args.no_compile_firmware or args.override_firmware:
-        builder.add_software_package("uip", "{}/firmware/uip".format(os.getcwd()))
-        builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
-    vns = builder.build(**dict(args.build_option))
+    if soc.cpu_type is not None:
+        builder = Builder(soc, **buildargs)
+        if not args.no_compile_firmware or args.override_firmware:
+            builder.add_software_package("uip", "{}/firmware/uip".format(os.getcwd()))
+            builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
+        vns = builder.build(**dict(args.build_option))
+    else:
+        vns = platform.build(soc) #, **buildargs)
 
     if hasattr(soc, 'pcie_phy'):
         from targets.common import cpu_interface
