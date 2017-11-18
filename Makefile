@@ -229,10 +229,10 @@ tftpd_stop:
 tftpd_start:
 	mkdir -p $(TFTPD_DIR)
 	sudo true
-	@if command -v atftpd >/dev/null ; then \
+	@if command -v sudo atftpd >/dev/null ; then \
 		echo "Starting aftpd"; \
 		sudo atftpd --verbose --bind-address $(TFTP_IPRANGE).100 --daemon --logfile /dev/stdout --no-fork --user $(shell whoami) --group $(shell whoami) $(TFTPD_DIR) & \
-	elif command -v in.tftpd >/dev/null; then \
+	elif command -v sudo in.tftpd >/dev/null; then \
 		echo "Starting in.tftpd"; \
 		sudo in.tftpd --verbose --listen --address $(TFTP_IPRANGE).100 --user $(shell whoami) -s $(TFTPD_DIR) & \
 	else \
