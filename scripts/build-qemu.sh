@@ -67,7 +67,7 @@ if [ ! -f "$TARGET_QEMU_BUILD_DIR/Makefile" ]; then
 	mkdir -p $TARGET_QEMU_BUILD_DIR
 	(
 		cd $TARGET_QEMU_BUILD_DIR
-		$QEMU_SRC_DIR/configure \
+		CFLAGS="-Wno-error" $QEMU_SRC_DIR/configure \
 			--target-list=$QEMU_ARCH \
 			--python=/usr/bin/python2 \
 			--enable-fdt \
@@ -126,6 +126,9 @@ if grep -q ETHMAC_BASE $TARGET_BUILD_DIR/software/include/generated/csr.h; then
 	make tftp
 	EXTRA_ARGS+=("-net nic -net tap,ifname=tap0,script=no,downscript=no")
 fi
+
+# Allow gdb connections
+EXTRA_ARGS+=("-gdb tcp::10001")
 
 SPIFLASH_MODEL=$(grep spiflash_model platforms/$PLATFORM.py | sed -e's/[^"]*"//' -e's/".*$//')
 echo $SPIFLASH_MODEL

@@ -9,9 +9,9 @@ fi
 CALLED=$_
 [[ "${BASH_SOURCE[0]}" != "${0}" ]] && SOURCED=1 || SOURCED=0
 
-SETUP_SRC=$(realpath ${BASH_SOURCE[0]})
-SETUP_DIR=$(dirname $SETUP_SRC)
-TOP_DIR=$(realpath $SETUP_DIR/..)
+SETUP_SRC="$(realpath ${BASH_SOURCE[0]})"
+SETUP_DIR="$(dirname "${SETUP_SRC}")"
+TOP_DIR="$(realpath "${SETUP_DIR}/..")"
 LIKELY_XILINX_LICENSE_LOCATION="$HOME/.Xilinx/Xilinx.lic"
 
 if [ $SOURCED = 0 ]; then
@@ -29,6 +29,20 @@ if [ ! -z "$SETTINGS_FILE" -o ! -z "$XILINX" ]; then
 	echo "You appear to have sourced the Xilinx ISE settings, these are incompatible with building."
 	echo "Please exit this terminal and run again from a clean shell."
 	return 1
+fi
+
+# Conda does not support ' ' in the path (it bails early).
+if echo "${SETUP_DIR}" | grep -q ' '; then
+	echo "You appear to have whitespace characters in the path to this script."
+	echo "Please move this repository to another path that does not contain whitespace."
+	exit 1
+fi
+
+# Conda does not support ':' in the path (it fails to install python).
+if echo "${SETUP_DIR}" | grep -q ':'; then
+	echo "You appear to have ':' characters in the path to this script."
+	echo "Please move this repository to another path that does not contain this character."
+	exit 1
 fi
 
 # Check ixo-usb-jtag *isn't* install
