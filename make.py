@@ -121,7 +121,7 @@ def main():
             builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
         vns = builder.build(**dict(args.build_option))
     else:
-        vns = platform.build(soc) #, **buildargs)
+        vns = platform.build(soc, build_dir=os.path.join(builddir, "gateware"))
 
     if hasattr(soc, 'pcie_phy'):
         from targets.common import cpu_interface
