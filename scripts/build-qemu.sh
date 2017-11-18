@@ -118,7 +118,12 @@ if grep -q ETHMAC_BASE $TARGET_BUILD_DIR/software/include/generated/csr.h; then
 		echo "Need to bring up a tun device."
 		IPRANGE=192.168.100
 	        sudo openvpn --mktun --dev tap0
-	        sudo ifconfig tap0 $IPRANGE.100 up
+		if command -v ifconfig >/dev/null ; then
+			sudo ifconfig tap0 $IPRANGE.100 up
+		else
+			sudo ip addr add $IPRANGE.100/24 dev tap0
+			sudo ip link set dev tap0 up
+		fi
 	        sudo mknod /dev/net/tap0 c 10 200
 	        sudo chown $(whoami) /dev/net/tap0
 		make tftpd_start
