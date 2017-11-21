@@ -111,10 +111,11 @@ def main():
     buildargs = builder_argdict(args)
     if not buildargs.get('output_dir', None):
         buildargs['output_dir'] = builddir
-    if not buildargs.get('csr_csv', None):
-        buildargs['csr_csv'] = os.path.join(testdir, "csr.csv")
 
-    if soc.cpu_type is not None:
+    if hasattr(soc, 'cpu_type'):
+        if not buildargs.get('csr_csv', None):
+            buildargs['csr_csv'] = os.path.join(testdir, "csr.csv")
+
         builder = Builder(soc, **buildargs)
         if not args.no_compile_firmware or args.override_firmware:
             builder.add_software_package("uip", "{}/firmware/uip".format(os.getcwd()))
