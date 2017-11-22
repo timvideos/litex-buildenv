@@ -71,7 +71,7 @@ export BUILDINC_DIRECTORY="$(realpath $TARGET_BUILD_DIR/software/include)"
 export BUILD="$(realpath $TARGET_MPY_BUILD_DIR)"
 OLD_DIR=$PWD
 cd $TARGET_MPY_BUILD_DIR
-make V=1 -C $(realpath ../../../../third_party/micropython/litex/)
+make V=1 -C $(realpath ../../../../third_party/micropython/litex/) -j$JOBS
 cd $OLD_DIR
 
 # Generate a firmware image suitable for flashing.

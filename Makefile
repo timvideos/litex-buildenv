@@ -35,6 +35,9 @@ FIRMWARE ?= firmware
 CLANG = 0
 export CLANG
 
+JOBS ?= $(shell nproc)
+JOBS ?= 2
+
 ifeq ($(PLATFORM_EXPANSION),)
 FULL_PLATFORM = $(PLATFORM)
 else
@@ -264,6 +267,7 @@ env:
 	@# Hardcoded values
 	@echo "export CLANG=$(CLANG)"
 	@echo "export PYTHONHASHSEED=$(PYTHONHASHSEED)"
+	@echo "export JOBS=$(JOBS)"
 	@# Files
 	@echo "export IMAGE_FILE='$(IMAGE_FILE)'"
 	@echo "export GATEWARE_FILEBASE='$(GATEWARE_FILEBASE)'"
