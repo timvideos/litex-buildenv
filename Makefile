@@ -201,7 +201,10 @@ firmware-clear: firmware-clear-$(PLATFORM)
 firmware-clean:
 	rm -rf $(TARGET_BUILD_DIR)/software
 
-.PHONY: firmware-cmd $(FIRMWARE_FILEBASE).bin firmware firmware-load firmware-flash firmware-connect firmware-clean
+firmware-test:
+	firmware/test.sh
+
+.PHONY: firmware-cmd $(FIRMWARE_FILEBASE).bin firmware firmware-load firmware-flash firmware-connect firmware-clean firmware-test
 
 $(BIOS_FILE): firmware-cmd
 	@true
@@ -333,6 +336,7 @@ help:
 	@echo ""
 	@echo "Firmware make commands avaliable:"
 	@echo " make firmware          - Build the firmware"
+	@echo " make firmware-test     - Run firmware tests"
 	@echo " make firmware-load     - *Temporarily* load the firmware onto a device"
 	@echo " make firmware-flash    - *Permanently* flash the firmware onto a device"
 	@echo " make firmware-connect  - *Connect* to the firmware running on a device"
@@ -346,6 +350,7 @@ help:
 	@echo ""
 	@echo "Other Make commands avaliable:"
 	@make -s help-$(PLATFORM)
+	@echo " make test              - Run all tests"
 	@echo " make clean             - Clean all build artifacts."
 
 reset: reset-$(PLATFORM)
@@ -370,7 +375,7 @@ test-submodules: $(addsuffix /.git,$(addprefix third_party/,$(TEST_MODULES)))
 test-edid: test-submodules
 	$(MAKE) -C test/edid check
 
-test:
-	true
+test: firmware-test
+	@echo "Tests passed"
 
 .PHONY: test test-edid
