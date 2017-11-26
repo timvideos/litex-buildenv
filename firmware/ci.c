@@ -276,7 +276,7 @@ static char *readstr(void)
 					break;
 				case '\r':
 					s[ptr] = 0x00;
-					wputsnonl("\n");
+					wputs("");
 					ptr = 0;
 					return s;
 				default:
