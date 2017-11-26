@@ -2,6 +2,7 @@ __pycache__
 *.pyc
 *.egg-info
 *.vcd
+firmware/hdmi_in[1-9].[ch]
 outgoing
 build
 *~
