@@ -12,7 +12,7 @@
 #include "uptime.h"
 #include "version_data.h"
 
-#define PATTERN_FRAMEBUFFER_BASE 0x02000000 + 0x100000
+#define PATTERN_FRAMEBUFFER_BASE 0x00000000 + 0x100000
 
 unsigned int pattern_framebuffer_base(void) {
 	return PATTERN_FRAMEBUFFER_BASE;
