@@ -19,8 +19,6 @@
 int hdmi_in0_debug;
 int hdmi_in0_fb_index;
 
-#define HDMI_IN0_FRAMEBUFFERS_BASE (0x00000000 + 0x100000)
-
 //#define CLEAN_COMMUTATION
 //#define DEBUG
 

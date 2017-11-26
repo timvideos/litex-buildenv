@@ -4,6 +4,8 @@
 #ifndef __HDMI_IN0_H
 #define __HDMI_IN0_H
 
+#define HDMI_IN0_FRAMEBUFFERS_BASE (0x01000000 + 0x100000)
+
 extern int hdmi_in0_debug;
 extern int hdmi_in0_fb_index;
 
