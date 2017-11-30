@@ -5,6 +5,15 @@ set -e
 echo ""
 echo ""
 echo ""
+echo "- Disk space free (initial)"
+echo "---------------------------------------------"
+df -h
+DF_INITIAL="$(($(stat -f --format="%a*%S" .)))"
+DF_LAST=$DF_INITIAL
+
+echo ""
+echo ""
+echo ""
 echo "- Fetching non shallow to get git version"
 echo "---------------------------------------------"
 git fetch origin --unshallow && git fetch origin --tags
@@ -89,10 +98,30 @@ GIT_REVISION=$(git describe)
 
 set -x
 
+echo ""
+echo ""
+echo ""
+echo "- Disk space free (after fixing git)"
+echo "---------------------------------------------"
+df -h
+DF_AFTER_GIT="$(($(stat -f --format="%a*%S" .)))"
+DF_LAST="$DF_AFTER_GIT"
+awk "BEGIN {printf \"Git is using %.2f megabytes\n\",($DF_AFTER_GIT-$DF_LAST)/1024/1024}"
+
 # Run the script once to check it works
 time scripts/download-env.sh
 # Run the script again to check it doesn't break things
 time scripts/download-env.sh
+
+echo ""
+echo ""
+echo ""
+echo "- Disk space free (after downloading environment)"
+echo "---------------------------------------------"
+df -h
+DF_AFTER_DOWNLOAD="$(($(stat -f --format="%a*%S" .)))"
+DF_LAST="$DF_AFTER_DOWNLOAD"
+awk "BEGIN {printf \"Environment is using %.2f megabytes\n\",($DF_AFTER_DOWNLOAD-$DF_LAST)/1024/1024}"
 
 set +x
 set +e
