@@ -301,7 +301,10 @@ else
 	echo "- Uploading built files to github.com/$PREBUILT_REPO_OWNER/$PREBUILT_REPO"
 	echo "---------------------------------------------"
 	export PREBUILT_DIR="/tmp/HDMI2USB-firmware-prebuilt"
-	git clone https://$GH_TOKEN@github.com/$PREBUILT_REPO_OWNER/${PREBUILT_REPO}.git $PREBUILT_DIR
+	git clone \
+		--depth 10 \
+		--branch master \
+		https://$GH_TOKEN@github.com/$PREBUILT_REPO_OWNER/${PREBUILT_REPO}.git $PREBUILT_DIR
 	echo "============================================="
 fi
 
