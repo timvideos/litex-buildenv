@@ -84,7 +84,7 @@ if [ ! -z "$XILINX_PASSPHRASE" ]; then
 			# This setup was taken from https://github.com/m-labs/artiq/blob/master/.travis/get-xilinx.sh
 			wget --no-verbose -c http://xilinx.timvideos.us/${XILINX_TAR_FILE}.gpg
 			cat $XILINX_PASSPHRASE_FILE | gpg --batch --passphrase-fd 0 ${XILINX_TAR_FILE}.gpg
-			tar -xjvf $XILINX_TAR_FILE
+			tar -xjf $XILINX_TAR_FILE
 
 			# FIXME: Hacks to try and make Vivado work.
 			mkdir -p $XILINX_DIR/opt/Xilinx/Vivado/2017.3/scripts/rt/data/svlog/sdbs
