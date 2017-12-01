@@ -8,6 +8,7 @@ echo ""
 echo "- Disk space free (initial)"
 echo "---------------------------------------------"
 df -h
+echo ""
 DF_INITIAL="$(($(stat -f --format="%a*%S" .)))"
 DF_LAST=$DF_INITIAL
 
@@ -102,14 +103,27 @@ echo ""
 echo "- Disk space free (after fixing git)"
 echo "---------------------------------------------"
 df -h
+echo ""
 DF_AFTER_GIT="$(($(stat -f --format="%a*%S" .)))"
-awk "BEGIN {printf \"Git is using %.2f megabytes\n\",($DF_AFTER_GIT-$DF_LAST)/1024/1024}"
+awk "BEGIN {printf \"Git is using %.2f megabytes\n\",($DF_LAST-$DF_AFTER_GIT)/1024/1024}"
 DF_LAST="$DF_AFTER_GIT"
 
+echo ""
+echo "============================================="
+echo ""
+echo ""
 # Run the script once to check it works
 time scripts/download-env.sh
+echo ""
+echo ""
+echo "============================================="
+echo ""
+echo ""
 # Run the script again to check it doesn't break things
 time scripts/download-env.sh
+echo ""
+echo ""
+echo "============================================="
 
 echo ""
 echo ""
@@ -117,10 +131,15 @@ echo ""
 echo "- Disk space free (after downloading environment)"
 echo "---------------------------------------------"
 df -h
+echo ""
 DF_AFTER_DOWNLOAD="$(($(stat -f --format="%a*%S" .)))"
-awk "BEGIN {printf \"Environment is using %.2f megabytes\n\",($DF_AFTER_DOWNLOAD-$DF_LAST)/1024/1024}"
+awk "BEGIN {printf \"Environment is using %.2f megabytes\n\",($DF_LAST-$DF_AFTER_DOWNLOAD)/1024/1024}"
 DF_LAST="$DF_AFTER_DOWNLOAD"
 
+echo "============================================="
+echo "============================================="
+echo ""
+echo ""
 set +x
 set +e
 source scripts/enter-env.sh

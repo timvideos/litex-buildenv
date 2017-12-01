@@ -52,7 +52,14 @@ function build() {
 	export TARGET_BUILD_DIR=$PWD/build/${PLATFORM}_${TARGET}_${CPU}
 	export LOGFILE=$TARGET_BUILD_DIR/output.$(date +%Y%m%d-%H%M%S).log
 	echo "Using logfile $LOGFILE"
-
+	echo ""
+	echo ""
+	echo ""
+	echo "- Disk space free (before build)"
+	echo "---------------------------------------------"
+	df -h
+	DF_BEFORE_BUILD="$(($(stat -f --format="%a*%S" .)))"
+	echo "============================================="
 	echo ""
 	echo ""
 	echo ""
@@ -234,6 +241,17 @@ function build() {
 		)
 		echo "============================================="
 	fi
+
+	echo ""
+	echo ""
+	echo ""
+	echo "- Disk space free (after build)"
+	echo "---------------------------------------------"
+	df -h
+	echo ""
+	DF_AFTER_BUILD="$(($(stat -f --format="%a*%S" .)))"
+	awk "BEGIN {printf \"Build is using %.2f megabytes\n\",($DF_BEFORE_BUILD-$DF_AFTER_BUILD)/1024/1024}"
+	echo "============================================="
 
 	if [ ! -z "$CLEAN_CHECK" ]; then
 		echo ""
