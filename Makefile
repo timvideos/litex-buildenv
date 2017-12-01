@@ -38,6 +38,10 @@ export CLANG
 JOBS ?= $(shell nproc)
 JOBS ?= 2
 
+ifeq ($(shell [ $(JOBS) -gt 1 ] && echo true),true)
+    export MAKEFLAGS="-j $(JOBS) -l $(JOBS)"
+endif
+
 ifeq ($(PLATFORM_EXPANSION),)
 FULL_PLATFORM = $(PLATFORM)
 else
