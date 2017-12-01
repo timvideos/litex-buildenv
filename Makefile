@@ -85,7 +85,6 @@ build/cache.mk: targets/*/*.py scripts/makefile-cache.sh
 
 TARGETS=$(TARGETS_$(PLATFORM))
 
-
 # Initialize submodules automatically
 third_party/%/.git: .gitmodules
 	git submodule sync --recursive -- $$(dirname $@)
@@ -201,12 +200,13 @@ firmware-connect: firmware-connect-$(PLATFORM)
 firmware-clear: firmware-clear-$(PLATFORM)
 	@true
 
-.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM) firmware-clear-$(PLATFORM)
-
 firmware-clean:
 	rm -rf $(TARGET_BUILD_DIR)/software
 
+.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-flash-py firmware-connect-$(PLATFORM) firmware-clear-$(PLATFORM)
+.NOTPARALLEL: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-flash-py firmware-connect-$(PLATFORM) firmware-clear-$(PLATFORM)
 .PHONY: firmware-cmd $(FIRMWARE_FILEBASE).bin firmware firmware-load firmware-flash firmware-connect firmware-clean
+.NOTPARALLEL: firmware-cmd firmware-load firmware-flash firmware-connect
 
 $(BIOS_FILE): firmware-cmd
 	@true
@@ -367,8 +367,8 @@ clean:
 dist-clean:
 	rm -rf build
 
-.PHONY: flash help clean dist-clean help-$(PLATFORM) reset reset-$(PLATFORM)
-.NOTPARALLEL: flash help help-$(PLATFORM) reset reset-$(PLATFORM)
+.PHONY: flash env info prompt help clean dist-clean help-$(PLATFORM) reset reset-$(PLATFORM)
+.NOTPARALLEL: flash env prompt info help help-$(PLATFORM) reset reset-$(PLATFORM)
 
 # Tests
 # --------------------------------------
@@ -383,3 +383,4 @@ test:
 	true
 
 .PHONY: test test-edid
+.NOTPARALLEL: test test-edid
