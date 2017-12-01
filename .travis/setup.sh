@@ -96,8 +96,6 @@ git describe
 echo "============================================="
 GIT_REVISION=$(git describe)
 
-set -x
-
 echo ""
 echo ""
 echo ""
