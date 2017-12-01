@@ -105,8 +105,8 @@ echo "- Disk space free (after fixing git)"
 echo "---------------------------------------------"
 df -h
 DF_AFTER_GIT="$(($(stat -f --format="%a*%S" .)))"
-DF_LAST="$DF_AFTER_GIT"
 awk "BEGIN {printf \"Git is using %.2f megabytes\n\",($DF_AFTER_GIT-$DF_LAST)/1024/1024}"
+DF_LAST="$DF_AFTER_GIT"
 
 # Run the script once to check it works
 time scripts/download-env.sh
@@ -120,8 +120,8 @@ echo "- Disk space free (after downloading environment)"
 echo "---------------------------------------------"
 df -h
 DF_AFTER_DOWNLOAD="$(($(stat -f --format="%a*%S" .)))"
-DF_LAST="$DF_AFTER_DOWNLOAD"
 awk "BEGIN {printf \"Environment is using %.2f megabytes\n\",($DF_AFTER_DOWNLOAD-$DF_LAST)/1024/1024}"
+DF_LAST="$DF_AFTER_DOWNLOAD"
 
 set +x
 set +e
