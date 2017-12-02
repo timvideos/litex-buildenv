@@ -399,7 +399,7 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 				echo "Updating unstable link (Try $i)"
 				echo "---------------------------------------------"
 				cd $PLATFORM/firmware
-				LATEST="$(ls ../../archive/master/ | tail -n 1)"
+				LATEST="$(ls ../../archive/master/ | sort -V | tail -n 1)"
 				HDMI2USB_FIRMWARE="../../archive/master/$LATEST/$PLATFORM/hdmi2usb/lm32"
 				echo "Checking for '$HDMI2USB_FIRMWARE'"
 				if [ -d "$HDMI2USB_FIRMWARE" -a "$(readlink unstable)" != "$HDMI2USB_FIRMWARE" ]; then
