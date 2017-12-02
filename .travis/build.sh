@@ -319,10 +319,22 @@ else
 	echo "- Uploading built files to github.com/$PREBUILT_REPO_OWNER/$PREBUILT_REPO"
 	echo "---------------------------------------------"
 	export PREBUILT_DIR="/tmp/HDMI2USB-firmware-prebuilt"
-	git clone \
-		--depth 10 \
-		--branch master \
-		https://$GH_TOKEN@github.com/$PREBUILT_REPO_OWNER/${PREBUILT_REPO}.git $PREBUILT_DIR
+	(
+		# Do a sparse, shallow checkout to keep disk space usage down.
+		mkdir -p $PREBUILT_DIR
+		cd $PREBUILT_DIR
+		git init
+		git config core.sparseCheckout true
+		git remote add origin https://$GH_TOKEN@github.com/$PREBUILT_REPO_OWNER/${PREBUILT_REPO}.git
+		cat > .git/info/sparse-checkout <<EOF
+archive/*
+archive/*/*
+!archive/*/*/*
+archive/**/sha256sum.txt
+EOF
+		git fetch --depth 1 origin master
+		git checkout master
+	)
 	echo "============================================="
 fi
 
