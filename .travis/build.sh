@@ -333,6 +333,8 @@ archive/**/sha256sum.txt
 EOF
 		git fetch --depth 1 origin master
 		git checkout master
+		echo ""
+		echo "Prebuilt repo checkout is using $(du -h -s $PREBUILD_DIR)"
 	)
 	echo "============================================="
 fi
