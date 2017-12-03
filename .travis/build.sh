@@ -309,7 +309,6 @@ else
 	# Look at repo we are running in to determine where to try pushing to if in a fork
 	PREBUILT_REPO=HDMI2USB-firmware-prebuilt
 	PREBUILT_REPO_OWNER=$(echo $TRAVIS_REPO_SLUG|awk -F'/' '{print $1}')
-	echo "PREBUILT_REPO_OWNER = $PREBUILT_REPO_OWNER"
 	GIT_REVISION=$TRAVIS_BRANCH/$(git describe)
 	ORIG_COMMITTER_NAME=$(git log -1 --pretty=%an)
 	ORIG_COMMITTER_EMAIL=$(git log -1 --pretty=%ae)
@@ -319,10 +318,25 @@ else
 	echo "- Uploading built files to github.com/$PREBUILT_REPO_OWNER/$PREBUILT_REPO"
 	echo "---------------------------------------------"
 	export PREBUILT_DIR="/tmp/HDMI2USB-firmware-prebuilt"
-	git clone \
-		--depth 10 \
-		--branch master \
-		https://$GH_TOKEN@github.com/$PREBUILT_REPO_OWNER/${PREBUILT_REPO}.git $PREBUILT_DIR
+	(
+		# Do a sparse, shallow checkout to keep disk space usage down.
+		mkdir -p $PREBUILT_DIR
+		cd $PREBUILT_DIR
+		git init > /dev/null
+		git config core.sparseCheckout true
+		git remote add origin https://$GH_TOKEN@github.com/$PREBUILT_REPO_OWNER/${PREBUILT_REPO}.git
+		cat > .git/info/sparse-checkout <<EOF
+archive/*
+archive/*/*
+!archive/*/*/*
+archive/**/sha256sum.txt
+EOF
+		git fetch --depth 1 origin master
+		git checkout master
+		echo ""
+		PREBUILT_DIR_DU=$(du -h -s . | sed -e's/[ \t]*\.$//')
+		echo "Prebuilt repo checkout is using $PREBUILT_DIR_DU"
+	)
 	echo "============================================="
 fi
 
@@ -387,7 +401,7 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 				echo "Updating unstable link (Try $i)"
 				echo "---------------------------------------------"
 				cd $PLATFORM/firmware
-				LATEST="$(ls ../../archive/master/ | tail -n 1)"
+				LATEST="$(ls ../../archive/master/ | sort -V | tail -n 1)"
 				HDMI2USB_FIRMWARE="../../archive/master/$LATEST/$PLATFORM/hdmi2usb/lm32"
 				echo "Checking for '$HDMI2USB_FIRMWARE'"
 				if [ -d "$HDMI2USB_FIRMWARE" -a "$(readlink unstable)" != "$HDMI2USB_FIRMWARE" ]; then
