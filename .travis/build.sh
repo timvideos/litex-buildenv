@@ -322,7 +322,7 @@ else
 		# Do a sparse, shallow checkout to keep disk space usage down.
 		mkdir -p $PREBUILT_DIR
 		cd $PREBUILT_DIR
-		git init
+		git init > /dev/null
 		git config core.sparseCheckout true
 		git remote add origin https://$GH_TOKEN@github.com/$PREBUILT_REPO_OWNER/${PREBUILT_REPO}.git
 		cat > .git/info/sparse-checkout <<EOF
@@ -334,7 +334,8 @@ EOF
 		git fetch --depth 1 origin master
 		git checkout master
 		echo ""
-		echo "Prebuilt repo checkout is using $(du -h -s $PREBUILD_DIR)"
+		PREBUILT_DIR_DU=$(du -h -s . | sed -e's/[ \t]*\.$//')
+		echo "Prebuilt repo checkout is using $PREBUILT_DIR_DU"
 	)
 	echo "============================================="
 fi
