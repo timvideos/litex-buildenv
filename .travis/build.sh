@@ -309,7 +309,6 @@ else
 	# Look at repo we are running in to determine where to try pushing to if in a fork
 	PREBUILT_REPO=HDMI2USB-firmware-prebuilt
 	PREBUILT_REPO_OWNER=$(echo $TRAVIS_REPO_SLUG|awk -F'/' '{print $1}')
-	echo "PREBUILT_REPO_OWNER = $PREBUILT_REPO_OWNER"
 	GIT_REVISION=$TRAVIS_BRANCH/$(git describe)
 	ORIG_COMMITTER_NAME=$(git log -1 --pretty=%an)
 	ORIG_COMMITTER_EMAIL=$(git log -1 --pretty=%ae)
