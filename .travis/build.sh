@@ -397,6 +397,7 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 			for PLATFORM in $PLATFORMS; do
 				(
 				if [ ! -d "$PLATFORM/firmware" ]; then
+					echo "No firmware directory for $PLATFORM, skipping."
 					continue
 				fi
 				echo
@@ -404,6 +405,7 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 				echo "---------------------------------------------"
 				cd $PLATFORM/firmware
 				LATEST="$(ls ../../archive/master/ | sort -V | tail -n 1)"
+				echo "Latest firmware is $LATEST (current is $(readlink unstable))"
 				HDMI2USB_FIRMWARE="../../archive/master/$LATEST/$PLATFORM/hdmi2usb/lm32"
 				echo "Checking for '$HDMI2USB_FIRMWARE'"
 				if [ -d "$HDMI2USB_FIRMWARE" -a "$(readlink unstable)" != "$HDMI2USB_FIRMWARE" ]; then
