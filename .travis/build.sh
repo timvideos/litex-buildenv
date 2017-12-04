@@ -392,6 +392,8 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 	cd $PREBUILT_DIR
 	for i in 1 2 3 4 5 6 7 8 9 10; do	# Try 10 times.
 		if [ "$TRAVIS_BRANCH" = "master" ]; then
+			echo "Pushing with PLATFORMS='$PLATFORMS'"
+			echo
 			for PLATFORM in $PLATFORMS; do
 				(
 				if [ ! -d "$PLATFORM/firmware" ]; then
@@ -418,6 +420,8 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 				fi
 				)
 			done
+		else
+			echo "Not updating link as on branch '$TRAVIS_BRANCH'"
 		fi
 		echo
 		echo "Merging (Try $i)"
