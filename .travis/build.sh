@@ -322,10 +322,14 @@ else
 		git config core.sparseCheckout true
 		git remote add origin https://$GH_TOKEN@github.com/$PREBUILT_REPO_OWNER/${PREBUILT_REPO}.git
 		cat > .git/info/sparse-checkout <<EOF
+*.md
 archive/*
 archive/*/*
 !archive/*/*/*
 archive/**/sha256sum.txt
+**/stable
+**/testing
+**/unstable
 EOF
 		git fetch --depth 1 origin master
 		git checkout master
