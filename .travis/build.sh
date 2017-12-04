@@ -184,21 +184,17 @@ function build() {
 		declare -a SAVE
 		SAVE+="image*.bin" 				# Combined binary include gateware+bios+firmware
 		# Gateware output for using
-		SAVE+=("gateware/top.bit")			# Gateware in JTAG compatible format
-		SAVE+=("gateware/top.bin")			# Gateware in flashable format
-		# Gateware inputs for reference
-		SAVE+=("gateware/top.v")			# Gateware verilog code
-		SAVE+=("gateware/top.ucf")			# Gateware constraints
-		# Gateware tools reporting information - Xilinx ISE
-		SAVE+=("gateware/top_map.map")			# Report: Map
-		SAVE+=("gateware/top.pad")			# Report: Pinout
-		SAVE+=("gateware/top.par")			# Report: Place and route
-		SAVE+=("gateware/top.srp")			# Report: Synthasis
+		SAVE+=("gateware/")				# All gateware parts
 		# Software support files
 		SAVE+=("software/include/")			# Generated headers+config needed for QEmu, micropython, etc
 		SAVE+=("software/bios/bios.*")			# BIOS for soft-cpu inside the gateware
 		SAVE+=("software/firmware/firmware.*")		# HDMI2USB firmware for soft-cpu inside the gateware
 		SAVE+=("support/fx2.hex")			# Firmware for Cypress FX2 on some boards
+		# Extra firmware
+		SAVE+=("software/micropython/firmware.*")	# MicroPython
+		SAVE+=("software/linux/firmware.*")		# Linux
+		# CSV files with csr/litescope/etc descriptions
+		SAVE+=("test/")
 
 		for TO_SAVE in ${SAVE[@]}; do
 			echo
