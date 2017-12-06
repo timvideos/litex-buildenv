@@ -184,21 +184,17 @@ function build() {
 		declare -a SAVE
 		SAVE+="image*.bin" 				# Combined binary include gateware+bios+firmware
 		# Gateware output for using
-		SAVE+=("gateware/top.bit")			# Gateware in JTAG compatible format
-		SAVE+=("gateware/top.bin")			# Gateware in flashable format
-		# Gateware inputs for reference
-		SAVE+=("gateware/top.v")			# Gateware verilog code
-		SAVE+=("gateware/top.ucf")			# Gateware constraints
-		# Gateware tools reporting information - Xilinx ISE
-		SAVE+=("gateware/top_map.map")			# Report: Map
-		SAVE+=("gateware/top.pad")			# Report: Pinout
-		SAVE+=("gateware/top.par")			# Report: Place and route
-		SAVE+=("gateware/top.srp")			# Report: Synthasis
+		SAVE+=("gateware/")				# All gateware parts
 		# Software support files
 		SAVE+=("software/include/")			# Generated headers+config needed for QEmu, micropython, etc
 		SAVE+=("software/bios/bios.*")			# BIOS for soft-cpu inside the gateware
 		SAVE+=("software/firmware/firmware.*")		# HDMI2USB firmware for soft-cpu inside the gateware
 		SAVE+=("support/fx2.hex")			# Firmware for Cypress FX2 on some boards
+		# Extra firmware
+		SAVE+=("software/micropython/firmware.*")	# MicroPython
+		SAVE+=("software/linux/firmware.*")		# Linux
+		# CSV files with csr/litescope/etc descriptions
+		SAVE+=("test/")
 
 		for TO_SAVE in ${SAVE[@]}; do
 			echo
@@ -326,10 +322,14 @@ else
 		git config core.sparseCheckout true
 		git remote add origin https://$GH_TOKEN@github.com/$PREBUILT_REPO_OWNER/${PREBUILT_REPO}.git
 		cat > .git/info/sparse-checkout <<EOF
+*.md
 archive/*
 archive/*/*
 !archive/*/*/*
 archive/**/sha256sum.txt
+**/stable
+**/testing
+**/unstable
 EOF
 		git fetch --depth 1 origin master
 		git checkout master
@@ -392,9 +392,12 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 	cd $PREBUILT_DIR
 	for i in 1 2 3 4 5 6 7 8 9 10; do	# Try 10 times.
 		if [ "$TRAVIS_BRANCH" = "master" ]; then
+			echo "Pushing with PLATFORMS='$PLATFORMS'"
+			echo
 			for PLATFORM in $PLATFORMS; do
 				(
 				if [ ! -d "$PLATFORM/firmware" ]; then
+					echo "No firmware directory for $PLATFORM, skipping."
 					continue
 				fi
 				echo
@@ -402,6 +405,7 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 				echo "---------------------------------------------"
 				cd $PLATFORM/firmware
 				LATEST="$(ls ../../archive/master/ | sort -V | tail -n 1)"
+				echo "Latest firmware is $LATEST (current is $(readlink unstable))"
 				HDMI2USB_FIRMWARE="../../archive/master/$LATEST/$PLATFORM/hdmi2usb/lm32"
 				echo "Checking for '$HDMI2USB_FIRMWARE'"
 				if [ -d "$HDMI2USB_FIRMWARE" -a "$(readlink unstable)" != "$HDMI2USB_FIRMWARE" ]; then
@@ -418,6 +422,8 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 				fi
 				)
 			done
+		else
+			echo "Not updating link as on branch '$TRAVIS_BRANCH'"
 		fi
 		echo
 		echo "Merging (Try $i)"
