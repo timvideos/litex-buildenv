@@ -52,7 +52,14 @@ function build() {
 	export TARGET_BUILD_DIR=$PWD/build/${PLATFORM}_${TARGET}_${CPU}
 	export LOGFILE=$TARGET_BUILD_DIR/output.$(date +%Y%m%d-%H%M%S).log
 	echo "Using logfile $LOGFILE"
-
+	echo ""
+	echo ""
+	echo ""
+	echo "- Disk space free (before build)"
+	echo "---------------------------------------------"
+	df -h
+	DF_BEFORE_BUILD="$(($(stat -f --format="%a*%S" .)))"
+	echo "============================================="
 	echo ""
 	echo ""
 	echo ""
@@ -177,21 +184,17 @@ function build() {
 		declare -a SAVE
 		SAVE+="image*.bin" 				# Combined binary include gateware+bios+firmware
 		# Gateware output for using
-		SAVE+=("gateware/top.bit")			# Gateware in JTAG compatible format
-		SAVE+=("gateware/top.bin")			# Gateware in flashable format
-		# Gateware inputs for reference
-		SAVE+=("gateware/top.v")			# Gateware verilog code
-		SAVE+=("gateware/top.ucf")			# Gateware constraints
-		# Gateware tools reporting information - Xilinx ISE
-		SAVE+=("gateware/top_map.map")			# Report: Map
-		SAVE+=("gateware/top.pad")			# Report: Pinout
-		SAVE+=("gateware/top.par")			# Report: Place and route
-		SAVE+=("gateware/top.srp")			# Report: Synthasis
+		SAVE+=("gateware/")				# All gateware parts
 		# Software support files
 		SAVE+=("software/include/")			# Generated headers+config needed for QEmu, micropython, etc
 		SAVE+=("software/bios/bios.*")			# BIOS for soft-cpu inside the gateware
 		SAVE+=("software/firmware/firmware.*")		# HDMI2USB firmware for soft-cpu inside the gateware
 		SAVE+=("support/fx2.hex")			# Firmware for Cypress FX2 on some boards
+		# Extra firmware
+		SAVE+=("software/micropython/firmware.*")	# MicroPython
+		SAVE+=("software/linux/firmware.*")		# Linux
+		# CSV files with csr/litescope/etc descriptions
+		SAVE+=("test/")
 
 		for TO_SAVE in ${SAVE[@]}; do
 			echo
@@ -234,6 +237,17 @@ function build() {
 		)
 		echo "============================================="
 	fi
+
+	echo ""
+	echo ""
+	echo ""
+	echo "- Disk space free (after build)"
+	echo "---------------------------------------------"
+	df -h
+	echo ""
+	DF_AFTER_BUILD="$(($(stat -f --format="%a*%S" .)))"
+	awk "BEGIN {printf \"Build is using %.2f megabytes\n\",($DF_BEFORE_BUILD-$DF_AFTER_BUILD)/1024/1024}"
+	echo "============================================="
 
 	if [ ! -z "$CLEAN_CHECK" ]; then
 		echo ""
@@ -291,7 +305,6 @@ else
 	# Look at repo we are running in to determine where to try pushing to if in a fork
 	PREBUILT_REPO=HDMI2USB-firmware-prebuilt
 	PREBUILT_REPO_OWNER=$(echo $TRAVIS_REPO_SLUG|awk -F'/' '{print $1}')
-	echo "PREBUILT_REPO_OWNER = $PREBUILT_REPO_OWNER"
 	GIT_REVISION=$TRAVIS_BRANCH/$(git describe)
 	ORIG_COMMITTER_NAME=$(git log -1 --pretty=%an)
 	ORIG_COMMITTER_EMAIL=$(git log -1 --pretty=%ae)
@@ -301,7 +314,29 @@ else
 	echo "- Uploading built files to github.com/$PREBUILT_REPO_OWNER/$PREBUILT_REPO"
 	echo "---------------------------------------------"
 	export PREBUILT_DIR="/tmp/HDMI2USB-firmware-prebuilt"
-	git clone https://$GH_TOKEN@github.com/$PREBUILT_REPO_OWNER/${PREBUILT_REPO}.git $PREBUILT_DIR
+	(
+		# Do a sparse, shallow checkout to keep disk space usage down.
+		mkdir -p $PREBUILT_DIR
+		cd $PREBUILT_DIR
+		git init > /dev/null
+		git config core.sparseCheckout true
+		git remote add origin https://$GH_TOKEN@github.com/$PREBUILT_REPO_OWNER/${PREBUILT_REPO}.git
+		cat > .git/info/sparse-checkout <<EOF
+*.md
+archive/*
+archive/*/*
+!archive/*/*/*
+archive/**/sha256sum.txt
+**/stable
+**/testing
+**/unstable
+EOF
+		git fetch --depth 1 origin master
+		git checkout master
+		echo ""
+		PREBUILT_DIR_DU=$(du -h -s . | sed -e's/[ \t]*\.$//')
+		echo "Prebuilt repo checkout is using $PREBUILT_DIR_DU"
+	)
 	echo "============================================="
 fi
 
@@ -357,16 +392,20 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 	cd $PREBUILT_DIR
 	for i in 1 2 3 4 5 6 7 8 9 10; do	# Try 10 times.
 		if [ "$TRAVIS_BRANCH" = "master" ]; then
+			echo "Pushing with PLATFORMS='$PLATFORMS'"
+			echo
 			for PLATFORM in $PLATFORMS; do
 				(
 				if [ ! -d "$PLATFORM/firmware" ]; then
+					echo "No firmware directory for $PLATFORM, skipping."
 					continue
 				fi
 				echo
 				echo "Updating unstable link (Try $i)"
 				echo "---------------------------------------------"
 				cd $PLATFORM/firmware
-				LATEST="$(ls ../../archive/master/ | tail -n 1)"
+				LATEST="$(ls ../../archive/master/ | sort -V | tail -n 1)"
+				echo "Latest firmware is $LATEST (current is $(readlink unstable))"
 				HDMI2USB_FIRMWARE="../../archive/master/$LATEST/$PLATFORM/hdmi2usb/lm32"
 				echo "Checking for '$HDMI2USB_FIRMWARE'"
 				if [ -d "$HDMI2USB_FIRMWARE" -a "$(readlink unstable)" != "$HDMI2USB_FIRMWARE" ]; then
@@ -383,6 +422,8 @@ if [ ! -z "$PREBUILT_DIR" ]; then
 				fi
 				)
 			done
+		else
+			echo "Not updating link as on branch '$TRAVIS_BRANCH'"
 		fi
 		echo
 		echo "Merging (Try $i)"
