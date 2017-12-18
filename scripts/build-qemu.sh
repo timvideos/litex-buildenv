@@ -117,7 +117,7 @@ if grep -q ETHMAC_BASE $TARGET_BUILD_DIR/software/include/generated/csr.h; then
 	        sudo true
 		echo "Need to bring up a tun device."
 		IPRANGE=192.168.100
-	        sudo openvpn --mktun --dev tap0
+	        sudo ip tuntap add tap0 mode tap
 		if command -v ifconfig >/dev/null ; then
 			sudo ifconfig tap0 $IPRANGE.100 up
 		else
