@@ -7,7 +7,7 @@
  * Despite varying pixel clocks, we must keep the PLL VCO operating
  * in the specified range of 600MHz - 1200MHz.
  */
-#ifdef CSR_HDMI_OUT0_CLOCKING_MMCM_RESET_ADDR
+#ifdef CSR_HDMI_OUT0_DRIVER_CLOCKING_MMCM_RESET_ADDR
 void hdmi_out0_mmcm_write(int adr, int data) {
 	hdmi_out0_driver_clocking_mmcm_adr_write(adr);
 	hdmi_out0_driver_clocking_mmcm_dat_w_write(data);
@@ -83,7 +83,7 @@ void mmcm_config_for_clock(int freq)
 void mmcm_dump(void)
 {
 	int i;
-#ifdef CSR_HDMI_OUT0_CLOCKING_MMCM_RESET_ADDR
+#ifdef CSR_HDMI_OUT0_DRIVER_CLOCKING_MMCM_RESET_ADDR
 	printf("framebuffer MMCM:\r\n");
 	for(i=0;i<128;i++)
 		printf("%04x ", hdmi_out0_mmcm_read(i));

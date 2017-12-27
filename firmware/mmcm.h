@@ -3,10 +3,12 @@
 
 #include <generated/csr.h>
 
-#ifdef CSR_HDMI_IN0_CLOCKING_MMCM_RESET_ADDR
-
+#ifdef CSR_HDMI_OUT0_DRIVER_CLOCKING_MMCM_RESET_ADDR
 void hdmi_out0_mmcm_write(int adr, int data);
 int hdmi_out0_mmcm_read(int adr);
+#endif
+
+#ifdef CSR_HDMI_IN0_CLOCKING_MMCM_RESET_ADDR
 void hdmi_in0_clocking_mmcm_write(int adr, int data);
 int hdmi_in0_clocking_mmcm_read(int adr);
 
