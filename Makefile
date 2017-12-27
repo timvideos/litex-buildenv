@@ -23,11 +23,19 @@ endif
 export TARGET
 
 DEFAULT_CPU = lm32
+DEFAULT_CPU_VARIANT =
 CPU ?= $(DEFAULT_CPU)
+CPU_VARIANT ?= $(DEFAULT_CPU_VARIANT)
 ifeq ($(CPU),)
     $(error "Internal error: CPU not set.")
 endif
 export CPU
+ifeq ($(CPU_VARIANT),)
+FULL_CPU = $(CPU)
+else
+FULL_CPU = $(CPU).$(CPU_VARIANT)
+LITEX_EXTRA_CMDLINE += -Ot cpu_variant $(CPU_VARIANT)
+endif
 
 FIRMWARE ?= firmware
 
@@ -44,7 +52,7 @@ else
 FULL_PLATFORM = $(PLATFORM).$(PLATFORM_EXPANSION)
 LITEX_EXTRA_CMDLINE += -Ot expansion $(PLATFORM_EXPANSION)
 endif
-TARGET_BUILD_DIR = build/$(FULL_PLATFORM)_$(TARGET)_$(CPU)/
+TARGET_BUILD_DIR = build/$(FULL_PLATFORM)_$(TARGET)_$(FULL_CPU)/
 
 GATEWARE_FILEBASE = $(TARGET_BUILD_DIR)/gateware/top
 BIOS_FILE = $(TARGET_BUILD_DIR)/software/bios/bios.bin
@@ -257,6 +265,8 @@ env:
 	@echo "export TARGET='$(TARGET)'"
 	@echo "export DEFAULT_TARGET='$(DEFAULT_TARGET)'"
 	@echo "export CPU='$(CPU)'"
+	@echo "export CPU_VARIANT='$(CPU_VARIANT)'"
+	@echo "export FULL_CPU='$(FULL_CPU)'"
 	@echo "export FIRMWARE='$(FIRMWARE)'"
 	@echo "export OVERRIDE_FIRMWARE='$(OVERRIDE_FIRMWARE)'"
 	@echo "export PROG='$(PROG)'"
@@ -277,7 +287,7 @@ env:
 info:
 	@echo "              Platform: $(FULL_PLATFORM)"
 	@echo "                Target: $(TARGET) (default: $(DEFAULT_TARGET))"
-	@echo "                   CPU: $(CPU)"
+	@echo "                   CPU: $(FULL_CPU) (default: $(DEFAULT_CPU))"
 	@if [ x"$(FIRMWARE)" != x"firmware" ]; then \
 		echo "               Firmare: $(FIRMWARE) (default: firmware)"; \
 	fi
@@ -286,6 +296,7 @@ prompt:
 	@echo -n "P=$(PLATFORM)"
 	@if [ x"$(TARGET)" != x"$(DEFAULT_TARGET)" ]; then echo -n " T=$(TARGET)"; fi
 	@if [ x"$(CPU)" != x"$(DEFAULT_CPU)" ]; then echo -n " C=$(CPU)"; fi
+	@if [ x"$(CPU_VARIANT)" != x"$(DEFAULT_CPU_VARIANT)" ]; then echo -n ".$(CPU_VARIANT)"; fi
 	@if [ x"$(FIRMWARE)" != x"firmware" ]; then \
 		echo -n " F=$(FIRMWARE)"; \
 	fi
@@ -321,6 +332,10 @@ help:
 	@echo " CPU describes which soft-CPU to use on the FPGA."
 	@echo " CPU=lm32 OR or1k"
 	@echo "                        (current: $(CPU), default: $(DEFAULT_CPU))"
+	@echo ""
+	@echo " CPU_VARIANT describes which soft-CPU variant to use on the FPGA."
+	@echo " CPU_VARIANT=<variant such as min OR full>"
+	@echo "                        (current: $(CPU_VARIANT), default: $(DEFAULT_CPU_VARIANT))"
 	@echo ""
 	@echo " FIRMWARE describes the code running on the soft-CPU inside the FPGA."
 	@echo " FIRMWARE=firmware OR micropython"

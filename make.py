@@ -14,6 +14,7 @@ def get_args(parser, platform='opsis', target='hdmi2usb'):
     parser.add_argument("--platform", action="store", default=os.environ.get('PLATFORM', platform))
     parser.add_argument("--target", action="store", default=os.environ.get('TARGET', target))
     parser.add_argument("--cpu-type", default=os.environ.get('CPU', 'lm32'))
+    parser.add_argument("--cpu-variant", default=os.environ.get('CPU_VARIANT', ''))
 
     parser.add_argument("--iprange", default="192.168.100")
 
@@ -33,7 +34,10 @@ def get_builddir(args):
     for name, value in args.target_option:
         if name == 'tofe_board':
             full_platform = "{}.{}".format(full_platform, value)
-    return "build/{}_{}_{}/".format(full_platform.lower(), args.target.lower(), args.cpu_type)
+    full_cpu = args.cpu_type
+    if args.cpu_variant:
+        full_cpu = "{}.{}".format(full_cpu, args.cpu_variant)
+    return "build/{}_{}_{}/".format(full_platform.lower(), args.target.lower(), full_cpu.lower())
 
 
 def get_testdir(args):
