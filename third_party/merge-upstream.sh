@@ -2,15 +2,28 @@
 
 set -e
 
-TARGETS=${@-$(find * -maxdepth 0 -type d | grep -v micropython | grep -v qemu | grep -v libuip)}
+TARGETS=${@-$(find * -maxdepth 0 -type d)}
 
 COMMIT_MSG=$(tempfile) || exit
 trap "rm -f -- '$COMMIT_MSG'" EXIT
 
+MODULES=()
 for TARGET in $TARGETS; do
+	if [ ! -e $TARGET/.git ] || ! grep -q "gitdir:" $TARGET/.git 2> /dev/null; then
+		echo "Skipping $TARGET as not submodule"
+		continue
+	else
+		echo "Submodule $TARGET"
+		MODULES+=("$TARGET")
+	fi
 	git submodule sync --recursive -- $TARGET
 	git submodule update --recursive --init $TARGET
 done
+
+echo
+echo "Found submodules:"
+declare -p MODULES
+echo
 
 cat > $COMMIT_MSG <<EOF
 Updating submodules.
@@ -18,7 +31,7 @@ Updating submodules.
 EOF
 
 DIRTY=0
-for TARGET in $TARGETS; do
+for TARGET in ${MODULES[@]}; do
 	pushd $TARGET > /dev/null
 	VERSION=$(git describe --always --dirty)
 	echo -n "$TARGET version ($VERSION) " | grep --color -E "dirty|$"
@@ -35,7 +48,7 @@ else
 	exit 1
 fi
 
-for TARGET in $TARGETS; do
+for TARGET in ${MODULES[@]}; do
 	(
 		case $TARGET in
 		*)
