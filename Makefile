@@ -35,6 +35,13 @@ FIRMWARE ?= firmware
 CLANG = 0
 export CLANG
 
+JOBS ?= $(shell nproc)
+JOBS ?= 2
+
+ifeq ($(shell [ $(JOBS) -gt 1 ] && echo true),true)
+    export MAKEFLAGS="-j $(JOBS) -l $(JOBS)"
+endif
+
 ifeq ($(PLATFORM_EXPANSION),)
 FULL_PLATFORM = $(PLATFORM)
 else
@@ -82,7 +89,6 @@ build/cache.mk: targets/*/*.py scripts/makefile-cache.sh
 
 TARGETS=$(TARGETS_$(PLATFORM))
 
-
 # Initialize submodules automatically
 third_party/%/.git: .gitmodules
 	git submodule sync --recursive -- $$(dirname $@)
@@ -121,6 +127,7 @@ image-flash-py: image
 	$(PYTHON) flash.py --mode=image
 
 .PHONY: image image-load image-flash image-flash-py image-flash-$(PLATFORM) image-load-$(PLATFORM)
+.NOTPARALLEL: image-load image-flash image-flash-py image-flash-$(PLATFORM) image-load-$(PLATFORM)
 
 # Gateware - the stuff which configures the FPGA.
 # --------------------------------------
@@ -160,6 +167,7 @@ gateware-clean:
 	rm -rf $(TARGET_BUILD_DIR)/gateware
 
 .PHONY: gateware gateware-load gateware-flash gateware-flash-py gateware-clean gateware-load-$(PLATFORM) gateware-flash-$(PLATFORM)
+.NOTPARALLEL: gateware-load gateware-flash gateware-flash-py gateware-flash-$(PLATFORM) gateware-load-$(PLATFORM)
 
 # Firmware - the stuff which runs in the soft CPU inside the FPGA.
 # --------------------------------------
@@ -196,12 +204,13 @@ firmware-connect: firmware-connect-$(PLATFORM)
 firmware-clear: firmware-clear-$(PLATFORM)
 	@true
 
-.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-connect-$(PLATFORM) firmware-clear-$(PLATFORM)
-
 firmware-clean:
 	rm -rf $(TARGET_BUILD_DIR)/software
 
+.PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-flash-py firmware-connect-$(PLATFORM) firmware-clear-$(PLATFORM)
+.NOTPARALLEL: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-flash-py firmware-connect-$(PLATFORM) firmware-clear-$(PLATFORM)
 .PHONY: firmware-cmd $(FIRMWARE_FILEBASE).bin firmware firmware-load firmware-flash firmware-connect firmware-clean
+.NOTPARALLEL: firmware-cmd firmware-load firmware-flash firmware-connect
 
 $(BIOS_FILE): firmware-cmd
 	@true
@@ -213,6 +222,7 @@ bios-flash: $(BIOS_FILE) bios-flash-$(PLATFORM)
 	@true
 
 .PHONY: $(FIRMWARE_FILE) bios bios-flash bios-flash-$(PLATFORM)
+.NOTPARALLEL: bios-flash bios-flash-$(PLATFORM)
 
 
 # TFTP booting stuff
@@ -241,6 +251,7 @@ tftpd_start:
 	fi
 
 .PHONY: tftp tftpd_stop tftpd_start
+.NOTPARALLEL: tftp tftpd_stop tftpd_start
 
 # Extra targets
 # --------------------------------------
@@ -264,6 +275,7 @@ env:
 	@# Hardcoded values
 	@echo "export CLANG=$(CLANG)"
 	@echo "export PYTHONHASHSEED=$(PYTHONHASHSEED)"
+	@echo "export JOBS=$(JOBS)"
 	@# Files
 	@echo "export IMAGE_FILE='$(IMAGE_FILE)'"
 	@echo "export GATEWARE_FILEBASE='$(GATEWARE_FILEBASE)'"
@@ -359,7 +371,8 @@ clean:
 dist-clean:
 	rm -rf build
 
-.PHONY: flash help clean dist-clean help-$(PLATFORM) reset reset-$(PLATFORM)
+.PHONY: flash env info prompt help clean dist-clean help-$(PLATFORM) reset reset-$(PLATFORM)
+.NOTPARALLEL: flash env prompt info help help-$(PLATFORM) reset reset-$(PLATFORM)
 
 # Tests
 # --------------------------------------
@@ -374,3 +387,4 @@ test:
 	true
 
 .PHONY: test test-edid
+.NOTPARALLEL: test test-edid
