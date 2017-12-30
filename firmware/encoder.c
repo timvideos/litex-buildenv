@@ -153,7 +153,7 @@ int encoder_set_quality(int quality) {
 			encoder_quality = quality;
 			break;
 		default:
-			wprintf("Unsupported encoder quality (50, 75, 85 or 100)\r\n");
+			wprintf("Unsupported encoder quality (50, 75, 85 or 100)\n");
 			return 0;
 	}
 	return 1;

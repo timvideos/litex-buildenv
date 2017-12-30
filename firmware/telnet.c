@@ -23,7 +23,7 @@ void telnet_init(void)
 		(tcp_socket_data_callback_t) telnet_data_callback,
 		(tcp_socket_event_callback_t) telnet_event_callback);
 	tcp_socket_listen(&telnet_socket, TELNET_PORT);
-	printf("Telnet listening on port %d\n", TELNET_PORT);
+	printf("Telnet listening on port %d\r\n", TELNET_PORT);
 }
 
 int telnet_event_callback(struct tcp_socket *s, void *ptr, tcp_socket_event_t event)
@@ -31,13 +31,13 @@ int telnet_event_callback(struct tcp_socket *s, void *ptr, tcp_socket_event_t ev
 	switch(event)
 	{
 		case TCP_SOCKET_CONNECTED:
-			printf("\nTelnet connected.\n");
+			printf("\r\nTelnet connected.\r\n");
 			telnet_active = 1;
 			break;
 		case TCP_SOCKET_CLOSED:
 		case TCP_SOCKET_TIMEDOUT:
 		case TCP_SOCKET_ABORTED:
-			printf("\nTelnet disconnected.\n");
+			printf("\r\nTelnet disconnected.\r\n");
 			telnet_active = 0;
 		default:
 			break;

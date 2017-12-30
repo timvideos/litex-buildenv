@@ -485,7 +485,7 @@ static void fb_get_clock_md(unsigned int pixel_clock, unsigned int *best_m, unsi
 	unsigned int md1000 = (bm * 1000) / bd;
 	if (md1000 > hdmi_out0_driver_clocking_clkfx_md_max_1000_read()) {
 		wprintf(
-			"WARNING: md1000 (%d) > (%d)\r\n",
+			"WARNING: md1000 (%d) > (%d)\n",
 			md1000,
 			hdmi_out0_driver_clocking_clkfx_md_max_1000_read());
 	}

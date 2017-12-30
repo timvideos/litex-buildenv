@@ -2,6 +2,7 @@
 #include <generated/csr.h>
 
 #include "mmcm.h"
+#include "stdio_wrap.h"
 
 /*
  * Despite varying pixel clocks, we must keep the PLL VCO operating
@@ -86,7 +87,7 @@ void mmcm_config_for_clock(MMCM *mmcm, int freq)
 	 * FIXME: we also need to configure phase detector
 	 */
 	if(freq < 3000)
-		printf("Frequency too low for input MMCMs\r\n");
+		wprintf("Frequency too low for input MMCMs\n");
 	else if(freq < 6000)
 		mmcm_config_30to60mhz(mmcm);
 	else if(freq < 12000)
@@ -94,7 +95,7 @@ void mmcm_config_for_clock(MMCM *mmcm, int freq)
 	else if(freq < 24000)
 		mmcm_config_120to240mhz(mmcm);
 	else
-		printf("Frequency too high for input MMCMs\r\n");
+		wprintf("Frequency too high for input MMCMs\n");
 }
 
 void mmcm_dump(MMCM* mmcm)
@@ -108,13 +109,13 @@ void mmcm_dump_all(void)
 {
 	int i;
 #ifdef CSR_HDMI_OUT0_DRIVER_CLOCKING_MMCM_RESET_ADDR
-	printf("framebuffer MMCM:\r\n");
+	printf("framebuffer MMCM:\n");
 	mmcm_dump(&hdmi_out0_driver_clocking_mmcm);
-	printf("\r\n");
+	printf("\n");
 #endif
 #ifdef CSR_HDMI_IN0_CLOCKING_MMCM_RESET_ADDR
-	printf("dvisampler MMCM:\r\n");
+	printf("dvisampler MMCM:\n");
 	mmcm_dump(&hdmi_in0_clocking_mmcm);
-	printf("\r\n");
+	printf("\n");
 #endif
 }

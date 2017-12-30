@@ -58,7 +58,7 @@ int main(void)
 	irq_setie(1);
 	uart_init();
 
-	wputs("HDMI2USB firmware booting...\r\n");
+	wputs("HDMI2USB firmware booting...\n");
 
 #ifdef CSR_OPSIS_I2C_MASTER_W_ADDR
 	opsis_eeprom_i2c_init();
