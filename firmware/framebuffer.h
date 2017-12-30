@@ -25,17 +25,17 @@
  * Each input then has 3 frame buffers spaced like this;
  *  // HDMI Input 0
  *  0x01000000 - HDMI Input 0 - Frame Buffer n
- *  0x01000000 - HDMI Input 0 - Frame Buffer n+1
- *  0x01000000 - HDMI Input 0 - Frame Buffer n+2
+ *  0x01040000 - HDMI Input 0 - Frame Buffer n+1
+ *  0x01080000 - HDMI Input 0 - Frame Buffer n+2
  *  // HDMI Input 1
  *  0x02000000 - HDMI Input 1 - Frame Buffer n
- *  0x02000000 - HDMI Input 1 - Frame Buffer n+1
- *  0x02000000 - HDMI Input 1 - Frame Buffer n+2
+ *  0x02040000 - HDMI Input 1 - Frame Buffer n+1
+ *  0x02080000 - HDMI Input 1 - Frame Buffer n+2
  *  ...
  *  // HDMI Input x
  *  0x0x000000 - HDMI Input x - Frame Buffer n
- *  0x0x000000 - HDMI Input x - Frame Buffer n+1
- *  0x0x000000 - HDMI Input x - Frame Buffer n+2
+ *  0x0x040000 - HDMI Input x - Frame Buffer n+1
+ *  0x0x080000 - HDMI Input x - Frame Buffer n+2
  *
  */
 #define FRAMEBUFFER_OFFSET		0x01000000
