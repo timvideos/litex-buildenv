@@ -586,7 +586,7 @@ void processor_init(int sec_mode)
 		encoder_enable(0);
 		encoder_target_fps = 30;
 #endif
-	pattern = COLOR_BAR_PATTERN;
+	pattern = PATTERN_COLOR_BARS;
 	processor_secondary_mode = sec_mode;
 }
 
