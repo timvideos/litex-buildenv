@@ -17,10 +17,47 @@
 #include <stdint.h>
 #include "generated/mem.h"
 
+/**
+ * Frame buffers must be aligned to XXX boundary.
+ *
+ * 0x0100000 - Pattern Buffer - Frame Buffer n
+ *
+ * Each input then has 3 frame buffers spaced like this;
+ *  // HDMI Input 0
+ *  0x01000000 - HDMI Input 0 - Frame Buffer n
+ *  0x01000000 - HDMI Input 0 - Frame Buffer n+1
+ *  0x01000000 - HDMI Input 0 - Frame Buffer n+2
+ *  // HDMI Input 1
+ *  0x02000000 - HDMI Input 1 - Frame Buffer n
+ *  0x02000000 - HDMI Input 1 - Frame Buffer n+1
+ *  0x02000000 - HDMI Input 1 - Frame Buffer n+2
+ *  ...
+ *  // HDMI Input x
+ *  0x0x000000 - HDMI Input x - Frame Buffer n
+ *  0x0x000000 - HDMI Input x - Frame Buffer n+1
+ *  0x0x000000 - HDMI Input x - Frame Buffer n+2
+ *
+ */
+#define FRAMEBUFFER_OFFSET		0x01000000
+#define FRAMEBUFFER_PATTERNS		1
+
+#define FRAMEBUFFER_PIXELS_X		1920	// pixels
+#define FRAMEBUFFER_PIXELS_Y		1080	// pixels
+#define FRAMEBUFFER_PIXELS_BYTES	2	// bytes
+
+#define FRAMEBUFFER_BASE(x)			(x*FRAMEBUFFER_OFFSET)
+#define FRAMEBUFFER_BASE_PATTERN		FRAMEBUFFER_BASE(0)
+#define FRAMEBUFFER_BASE_HDMI_INPUT(x)		FRAMEBUFFER_BASE(x+FRAMEBUFFER_PATTERNS)
+
 // Largest frame size at 16bpp (ish)
-#define FRAMEBUFFER_SIZE (1920*1080*2)
-#define FRAMEBUFFER_COUNT 4
-#define FRAMEBUFFER_MASK (FRAMEBUFFER_COUNT - 1)
+#define FRAMEBUFFER_SIZE		0x400000 // bytes
+#if (FRAMEBUFFER_PIXELS_X*FRAMEBUFFER_PIXELS_Y*FRAMEBUFFER_PIXELS_BYTES) > FRAMEBUFFER_SIZE
+#error "Number of pixels don't fit in frame buffer"
+#endif
+
+#define FRAMEBUFFER_COUNT 		4			// Must be a multiple of 2
+#define FRAMEBUFFER_MASK 		(FRAMEBUFFER_COUNT - 1)
+
 typedef unsigned int fb_ptrdiff_t;
 // FIXME: typedef uint16_t framebuffer_t[FRAMEBUFFER_SIZE];
 

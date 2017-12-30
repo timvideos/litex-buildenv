@@ -29,7 +29,7 @@ TMPFILE_H=$(tempfile -s .h | mktemp --suffix=.h)
 TMPFILE_C=$(tempfile -s .c | mktemp --suffix=.c)
 
 cat $FIRMWARE_DIR/hdmi_in0.h | sed \
-	-e"s/IN0_INDEX 0/IN${X}_INDEX $X/g" \
+	-e"s/IN0_INDEX\([^0-9]\+\)0/IN${X}_INDEX\1$X/g" \
 	-e"s/IN0/IN$X/g" \
 	-e"s/in0/in$X/g" \
 	> $TMPFILE_H
