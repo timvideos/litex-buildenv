@@ -83,7 +83,7 @@ fi
 
 OLD_DIR=$PWD
 cd $TARGET_QEMU_BUILD_DIR
-make -j8
+make -j$JOBS
 cd $OLD_DIR
 
 # Need the .fbi for mkimage below...

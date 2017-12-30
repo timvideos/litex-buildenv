@@ -8,8 +8,10 @@ from litex.soc.tools.remote import RemoteServer
 from litex.soc.tools.remote import RemoteClient
 from litex.soc.tools.remote import CommUART
 
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from make import make_args, make_testdir
+TOP_DIR=os.path.join(os.path.dirname(__file__), "..")
+
+sys.path.append(TOP_DIR)
+from make import get_args, get_testdir
 
 
 class ServerProxy(threading.Thread):
@@ -31,7 +33,7 @@ class ServerProxy(threading.Thread):
 
 def connect(desc, *args, add_args=None, **kw):
     parser = argparse.ArgumentParser(description=desc)
-    make_args(parser, *args, **kw)
+    get_args(parser, *args, **kw)
     parser.add_argument("--ipaddress")
     parser.add_argument("--port") #, desc="Serial port")
     if add_args is not None:
@@ -50,7 +52,8 @@ def connect(desc, *args, add_args=None, **kw):
         args.ipaddress = "{}.50".format(args.iprange)
 
     print("Connecting to {}".format(args.ipaddress))
-    wb = RemoteClient(args.ipaddress, 1234, csr_csv="{}/csr.csv".format(make_testdir(args)), csr_data_width=32)
+    test_dir = os.path.join(TOP_DIR, get_testdir(args))
+    wb = RemoteClient(args.ipaddress, 1234, csr_csv="{}/csr.csv".format(test_dir))
     wb.open()
     print()
     print("Device DNA: {}".format(get_dna(wb)))

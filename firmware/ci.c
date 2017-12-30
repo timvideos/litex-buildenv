@@ -940,7 +940,7 @@ static void debug_clocks(void)
 {
 	// Only the active clock system will output anything
 	pll_dump();
-	mmcm_dump();
+	mmcm_dump_all();
 }
 
 static unsigned int log2(unsigned int v)
