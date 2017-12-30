@@ -208,7 +208,7 @@ firmware-clean:
 	rm -rf $(TARGET_BUILD_DIR)/software
 
 firmware-test:
-	firmware/test.sh
+	scripts/check-firmware-newlines.sh
 
 .PHONY: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-flash-py firmware-connect-$(PLATFORM) firmware-clear-$(PLATFORM)
 .NOTPARALLEL: firmware-load-$(PLATFORM) firmware-flash-$(PLATFORM) firmware-flash-py firmware-connect-$(PLATFORM) firmware-clear-$(PLATFORM)
