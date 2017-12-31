@@ -47,51 +47,6 @@ if [ "$FIRMWARE" != "linux" ]; then
 	exit 1
 fi
 
-REMOTE_NAME=h2u-litex-linux
-
-LITEX_SRC=$TOP_DIR/third_party/litex
-LITEX_BRANCH=${LITEX_BRANCH:-or1k-linux}
-LITEX_REMOTE="${LITEX_REMOTE:-https://github.com/enjoy-digital/litex.git}"
-LITEX_REMOTE_BIT=$(echo $LITEX_REMOTE | sed -e's-^.*://--' -e's/.git$//')
-(
-	# Init the submodule if it doesn't exist
-	if [ ! -d $LITEX_SRC ]; then
-		git submodule update --init third_party/litex
-	fi
-
-	# Change into the dir
-	cd $LITEX_SRC
-
-	# Add the remote if it doesn't exist
-	LITEX_REMOTE_NAME="$(git remote -v | grep fetch | grep "$LITEX_REMOTE_BIT" | sed -e's/\t.*$//')"
-	if [ x"$LITEX_REMOTE_NAME" = x ]; then
-		git remote add "$REMOTE_NAME" "$LITEX_REMOTE"
-		LITEX_REMOTE_NAME=$REMOTE_NAME
-	fi
-
-	# Get any new data
-	git fetch $LITEX_REMOTE_NAME
-
-	# Checkout or1k-linux branch it not already on it
-	if [ "$(git rev-parse --abbrev-ref HEAD)" != "$LITEX_BRANCH" ]; then
-		git checkout $LITEX_BRANCH || \
-			git checkout "$LITEX_REMOTE_NAME/$LITEX_BRANCH" -b $LITEX_BRANCH
-
-		# Need to rebuild the gateware
-		# FIXME: Make this conditional on the gateware /actually/ changing
-		(
-			cd $TOP_DIR
-			make gateware
-		)
-	fi
-)
-# Unset these values as LITEX and LINUX are very close in name and hence could
-# accidentally be used below.
-unset LITEX_SRC
-unset LITEX_BRANCH
-unset LITEX_REMOTE
-unset LITEX_REMOTE_BIT
-
 # Install a toolchain with the newlib standard library
 if ! $CPU-elf-newlib-gcc --version > /dev/null 2>&1; then
 	conda install gcc-$CPU-elf-newlib
