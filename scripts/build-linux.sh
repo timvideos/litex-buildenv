@@ -91,6 +91,42 @@ LINUX_BRANCH=${LINUX_BRANCH:-litex-minimal}
 	fi
 )
 
+# Get litex-devicetree
+LITEX_DT_SRC="$TOP_DIR/third_party/litex-devicetree"
+LITEX_DT_REMOTE="${LITEX_DT_REMOTE:-https://github.com/mithro/litex-devicetree.git}"
+LITEX_DT_REMOTE_BIT=$(echo $LITEX_DT_REMOTE | sed -e's-^.*://--' -e's/.git$//')
+LITEX_DT_REMOTE_NAME=mithro-litex-devicetree
+LITEX_DT_BRANCH=master
+(
+	# Download the Linux source for the first time
+	if [ ! -d "$LITEX_DT_SRC" ]; then
+	(
+		cd $(dirname $LITEX_DT_SRC)
+		echo "Downloading LiteX devicetree code."
+		git clone $LITEX_DT_REMOTE $LITEX_DT_SRC
+	)
+	fi
+
+	# Change into the dir
+	cd $LITEX_DT_SRC
+
+	# Add the remote if it doesn't exist
+	CURRENT_LITEX_DT_REMOTE_NAME=$(git remote -v | grep fetch | grep "$LITEX_DT_REMOTE_BIT" | sed -e's/\t.*$//')
+	if [ x"$CURRENT_LITEX_DT_REMOTE_NAME" = x ]; then
+		git remote add $LITEX_DT_REMOTE_NAME $LITEX_DT_REMOTE
+		CURRENT_LITEX_DT_REMOTE_NAME=$LITEX_DT_REMOTE_NAME
+	fi
+
+	# Get any new data
+	git fetch $CURRENT_LITEX_DT_REMOTE_NAME
+
+	# Checkout or1k-linux branch it not already on it
+	if [ "$(git rev-parse --abbrev-ref HEAD)" != "$LITEX_DT_BRANCH" ]; then
+		git checkout $LITEX_DT_BRANCH || \
+			git checkout "$CURRENT_LITEX_DT_REMOTE_NAME/$LITEX_DT_BRANCH" -b $LITEX_DT_BRANCH
+	fi
+)
+
 # Build linux-litex
 export ARCH=openrisc
 export CROSS_COMPILE=$CPU-elf-newlib-

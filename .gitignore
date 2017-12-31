@@ -10,3 +10,4 @@ build
 third_party/qemu-litex
 third_party/micropython
 third_party/linux
+third_party/litex-devicetree
