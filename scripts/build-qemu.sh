@@ -120,13 +120,13 @@ if grep -q ETHMAC_BASE $TARGET_BUILD_DIR/software/include/generated/csr.h; then
 	make tftp
 
 	# Use the userspace network support. QEMU will pretend to be a
-	# machine a 192.168.100.100. Any connections to that IP will
+	# machine a $IPRANGE.100. Any connections to that IP will
 	# automatically be forwarded to the real localhost.
 	#
 	# Connections to real localhost on port 2223, will be
-	# forwarded to the expected guest ip (192.168.100.50) on port
+	# forwarded to the expected guest ip ($IPRANGE.50) on port
 	# 23 (telnet).
-	EXTRA_ARGS+=("-net user,net=192.168.100.0/24,host=192.168.100.100,dhcpstart=192.168.100.50,tftp=$TOP_DIR/build/tftpd,hostfwd=tcp::2223-:23")
+	EXTRA_ARGS+=("-net user,net=$IPRANGE.0/24,host=$IPRANGE.100,dhcpstart=$IPRANGE.50,tftp=$TOP_DIR/build/tftpd,hostfwd=tcp::2223-:23")
 
 	# Make debugging the userspace networking easier, dump all
 	# packets to a file.
