@@ -27,7 +27,6 @@ if [ -z "$HDMI2USB_ENV" ]; then
 fi
 
 # Imports TARGET, PLATFORM, CPU and TARGET_BUILD_DIR from Makefile
-export FIRMWARE=linux
 eval $(make env)
 make info
 
@@ -36,6 +35,15 @@ set -e
 
 if [ "$CPU" != or1k ]; then
 	echo "Linux is only supported on or1k at the moment."
+	exit 1
+fi
+if [ "$CPU_VARIANT" != "linux" ]; then
+	echo "Linux needs a CPU_VARIANT set to 'linux' to enable features"
+	echo "needed by Linux like the MMU."
+	exit 1
+fi
+if [ "$FIRMWARE" != "linux" ]; then
+	echo "When building Linux you should set FIRMWARE to 'linux'."
 	exit 1
 fi
 
