@@ -208,21 +208,25 @@ echo "Installing binaries into environment"
 echo "---------------------------------"
 
 # fxload
-echo
-echo "Installing fxload (tool for Cypress FX2)"
-# conda install fxload
-check_exists fxload
+if [ "$PLATFORM" == "opsis" -o "$PLATFORM" == "atlys" ]; then
+	echo
+	echo "Installing fxload (tool for Cypress FX2)"
+	# conda install fxload
+	check_exists fxload
+fi
 
 # FIXME: Remove this once @jimmo has finished his new firmware
 # MimasV2Config.py
-MIMASV2CONFIG=$BUILD_DIR/conda/bin/MimasV2Config.py
-echo
-echo "Installing MimasV2Config.py (mimasv2 flashing tool)"
-if [ ! -e $MIMASV2CONFIG ]; then
-	wget https://raw.githubusercontent.com/numato/samplecode/master/FPGA/MimasV2/tools/configuration/python/MimasV2Config.py -O $MIMASV2CONFIG
-	chmod a+x $MIMASV2CONFIG
+if [ "$PLATFORM" == "mimasv2" ]; then
+	MIMASV2CONFIG=$BUILD_DIR/conda/bin/MimasV2Config.py
+	echo
+	echo "Installing MimasV2Config.py (mimasv2 flashing tool)"
+	if [ ! -e $MIMASV2CONFIG ]; then
+		wget https://raw.githubusercontent.com/numato/samplecode/master/FPGA/MimasV2/tools/configuration/python/MimasV2Config.py -O $MIMASV2CONFIG
+		chmod a+x $MIMASV2CONFIG
+	fi
+	check_exists MimasV2Config.py
 fi
-check_exists MimasV2Config.py
 
 # flterm
 echo

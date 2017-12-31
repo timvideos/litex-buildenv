@@ -180,22 +180,25 @@ echo "Checking binaries in environment"
 echo "---------------------------------"
 
 # fxload
+if [ "$PLATFORM" == "opsis" -o "$PLATFORM" == "atlys" ]; then
+	# check sbin for fxload as well
+	export PATH=$PATH:/sbin
 
-# check sbin for fxload as well
-export PATH=$PATH:/sbin
-
-check_exists fxload || return 1
+	check_exists fxload || return 1
+fi
 
 # FIXME: Remove this once @jimmo has finished his new firmware
 # MimasV2Config.py
-MIMASV2CONFIG=$BUILD_DIR/conda/bin/MimasV2Config.py
+if [ "$PLATFORM" == "mimasv2" ]; then
+	MIMASV2CONFIG=$BUILD_DIR/conda/bin/MimasV2Config.py
 
 
 
 
 
 
-check_exists MimasV2Config.py || return 1
+	check_exists MimasV2Config.py || return 1
+fi
 
 # flterm
 
