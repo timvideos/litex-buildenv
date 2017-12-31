@@ -30,6 +30,7 @@
 #include "encoder.h"
 #include "edid.h"
 #include "pll.h"
+#include "mmcm.h"
 #include "processor.h"
 #include "heartbeat.h"
 
@@ -405,33 +406,26 @@ static void fb_clkgen_write(int cmd, int data)
 	hdmi_out0_driver_clocking_send_cmd_data_write(1);
 	while(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_BUSY);
 }
-#elif CSR_HDMI_OUT0_DRIVER_CLOCKING_DRP_DWE_ADDR
-static void hdmi_out0_write_mmcm_reg(unsigned int address, unsigned int data) {
-	hdmi_out0_driver_clocking_drp_addr_write(address);
-	hdmi_out0_driver_clocking_drp_di_write(data);
-	hdmi_out0_driver_clocking_drp_dwe_write(1);
-	hdmi_out0_driver_clocking_drp_den_write(1);
-}
-
+#elif CSR_HDMI_OUT0_DRIVER_CLOCKING_MMCM_RESET_ADDR
 // Artix-7 MMCM clocking
 static void fb_clkgen_write(int m, int d)
 {
 	/* clkfbout_mult = m */
 	if(m%2)
-		hdmi_out0_mmcm_write(0x14, 0x1000 | ((m/2)<<6) | (m/2 + 1));
+		hdmi_out0_driver_clocking_mmcm_write(0x14, 0x1000 | ((m/2)<<6) | (m/2 + 1));
 	else
-		hdmi_out0_mmcm_write(0x14, 0x1000 | ((m/2)<<6) | m/2);
+		hdmi_out0_driver_clocking_mmcm_write(0x14, 0x1000 | ((m/2)<<6) | m/2);
 	/* divclk_divide = d */
 	if (d == 1)
-		hdmi_out0_mmcm_write(0x16, 0x1000);
+		hdmi_out0_driver_clocking_mmcm_write(0x16, 0x1000);
 	else if(d%2)
-		hdmi_out0_mmcm_write(0x16, ((d/2)<<6) | (d/2 + 1));
+		hdmi_out0_driver_clocking_mmcm_write(0x16, ((d/2)<<6) | (d/2 + 1));
 	else
-		hdmi_out0_mmcm_write(0x16, ((d/2)<<6) | d/2);
+		hdmi_out0_driver_clocking_mmcm_write(0x16, ((d/2)<<6) | d/2);
 	/* clkout0_divide = 10 */
-	hdmi_out0_mmcm_write(0x8, 0x1000 | (5<<6) | 5);
-	/* clkout1_divide = 2 */
-	hdmi_out0_mmcm_write(0xa, 0x1000 | (1<<6) | 1);
+	hdmi_out0_driver_clocking_mmcm_write(0x8, 0x1000 | (5<<6) | 5);
+	/* clkout1_driver_clocking_divide = 2 */
+	hdmi_out0_driver_clocking_mmcm_write(0xa, 0x1000 | (1<<6) | 1);
 }
 #else
 
@@ -462,7 +456,7 @@ static void fb_get_clock_md(unsigned int pixel_clock, unsigned int *best_m, unsi
 	ideal_d = 5000;
 	max_d = 256;
 	max_m = 256;
-#elif CSR_HDMI_OUT0_DRIVER_CLOCKING_DRP_DWE_ADDR
+#elif CSR_HDMI_OUT0_DRIVER_CLOCKING_MMCM_RESET_ADDR
 	// Artix 7
 	pixel_clock = pixel_clock * 10;
 	ideal_d = 10000;
@@ -491,7 +485,7 @@ static void fb_get_clock_md(unsigned int pixel_clock, unsigned int *best_m, unsi
 	unsigned int md1000 = (bm * 1000) / bd;
 	if (md1000 > hdmi_out0_driver_clocking_clkfx_md_max_1000_read()) {
 		wprintf(
-			"WARNING: md1000 (%d) > (%d)\r\n",
+			"WARNING: md1000 (%d) > (%d)\n",
 			md1000,
 			hdmi_out0_driver_clocking_clkfx_md_max_1000_read());
 	}
@@ -510,7 +504,7 @@ static void fb_set_clock(unsigned int pixel_clock)
 	hdmi_out0_driver_clocking_send_go_write(1);
 	while(!(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_PROGDONE));
 	while(!(hdmi_out0_driver_clocking_status_read() & CLKGEN_STATUS_LOCKED));
-#elif CSR_HDMI_OUT0_CLOCKING_MMCM_RESET_ADDR
+#elif CSR_HDMI_OUT0_DRIVER_CLOCKING_MMCM_RESET_ADDR
 	fb_clkgen_write(clock_m, clock_d);
 #endif
 }
@@ -520,8 +514,6 @@ static void fb_set_mode(const struct video_timing *mode)
 {
 	unsigned int hdmi_out0_enabled;
 	unsigned int hdmi_out1_enabled;
-
-	fb_set_clock(mode->pixel_clock);
 
 #ifdef CSR_HDMI_OUT0_BASE
 	if (hdmi_out0_core_initiator_enable_read()) {
@@ -560,6 +552,8 @@ static void fb_set_mode(const struct video_timing *mode)
 
 	hdmi_out1_core_initiator_enable_write(hdmi_out1_enabled);
 #endif
+
+	fb_set_clock(mode->pixel_clock);
 }
 
 static void edid_set_mode(const struct video_timing *mode, const struct video_timing *sec_mode)
@@ -592,7 +586,7 @@ void processor_init(int sec_mode)
 		encoder_enable(0);
 		encoder_target_fps = 30;
 #endif
-	pattern = COLOR_BAR_PATTERN;
+	pattern = PATTERN_COLOR_BARS;
 	processor_secondary_mode = sec_mode;
 }
 
@@ -622,7 +616,7 @@ void processor_start(int mode)
 #ifdef CSR_HDMI_OUT1_BASE
 	hdmi_out1_core_initiator_enable_write(0);
 #endif
-#ifdef CSR_HDMI_IN0_CLOCKING_MMCM_RESET_ADDR
+#ifdef CSR_HDMI_OUT0_DRIVER_CLOCKING_MMCM_RESET_ADDR
 	hdmi_out0_driver_clocking_mmcm_reset_write(1);
 #endif
 #ifdef CSR_HDMI_OUT0_DRIVER_CLOCKING_PLL_RESET_ADDR
@@ -649,8 +643,8 @@ void processor_start(int mode)
 
 #ifdef CSR_HDMI_OUT0_DRIVER_CLOCKING_PLL_RESET_ADDR
 	pll_config_for_clock(m->pixel_clock);
-#elif CSR_HDMI_OUT0_DRIVER_CLOCKING_DRP_DWE_ADDR
-	mmcm_config_for_clock(m->pixel_clock);
+#elif CSR_HDMI_OUT0_DRIVER_CLOCKING_MMCM_RESET_ADDR
+	mmcm_config_for_clock(&hdmi_out0_driver_clocking_mmcm, m->pixel_clock);
 #endif
 
 	fb_set_mode(m);
@@ -665,7 +659,7 @@ void processor_start(int mode)
 
 #ifdef CSR_HDMI_OUT0_DRIVER_CLOCKING_PLL_RESET_ADDR
 	hdmi_out0_driver_clocking_pll_reset_write(0);
-#elif CSR_HDMI_OUT0_DRIVER_CLOCKING_DRP_DWE_ADDR
+#elif CSR_HDMI_OUT0_DRIVER_CLOCKING_MMCM_RESET_ADDR
 	hdmi_out0_driver_clocking_mmcm_reset_write(0);
 #endif
 #ifdef CSR_HDMI_OUT0_BASE

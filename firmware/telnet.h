@@ -18,8 +18,8 @@
 #endif
 
 #define TELNET_PORT 23
-#define TELNET_BUFFER_SIZE_RX 1512
-#define TELNET_BUFFER_SIZE_TX 1512
+#define TELNET_BUFFER_SIZE_RX 4096
+#define TELNET_BUFFER_SIZE_TX 4096
 
 int telnet_active;
 

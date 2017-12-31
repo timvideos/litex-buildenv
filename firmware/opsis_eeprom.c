@@ -16,7 +16,7 @@ void opsis_eeprom_i2c_init(void) {
     opsis_eeprom_i2c.r_read = opsis_i2c_master_r_read;
     OPSIS_I2C_ACTIVE(OPSIS_I2C_GPIO);
     i2c_init(&opsis_eeprom_i2c);
-    wprintf("finished.\r\n");
+    wprintf("finished.\n");
 }
 
 static void opsis_eeprom_read(uint8_t addr) {
@@ -29,16 +29,16 @@ static void opsis_eeprom_read(uint8_t addr) {
     i2c_start_cond(&opsis_eeprom_i2c);
     b = i2c_write(&opsis_eeprom_i2c, OPSIS_EEPROM_SLAVE_ADDRESS | I2C_WRITE);
     if (!b && opsis_eeprom_debug_enabled)
-        wprintf("opsis_eeprom: NACK while writing slave address!\r\n");
+        wprintf("opsis_eeprom: NACK while writing slave address!\n");
     b = i2c_write(&opsis_eeprom_i2c, addr);
     if (!b && opsis_eeprom_debug_enabled)
-        wprintf("opsis_eeprom: NACK while writing opsis_eeprom address!\r\n");
+        wprintf("opsis_eeprom: NACK while writing opsis_eeprom address!\n");
 
     // Read data from I2C EEPROM
     i2c_start_cond(&opsis_eeprom_i2c);
     b = i2c_write(&opsis_eeprom_i2c, OPSIS_EEPROM_SLAVE_ADDRESS | I2C_READ);
     if (!b && opsis_eeprom_debug_enabled)
-        wprintf("opsis_eeprom: NACK while writing slave address (2)!\r\n");
+        wprintf("opsis_eeprom: NACK while writing slave address (2)!\n");
 }
 
 void opsis_eeprom_dump(void) {
@@ -47,7 +47,7 @@ void opsis_eeprom_dump(void) {
         unsigned char b = i2c_read(&opsis_eeprom_i2c, 1);
         wprintf("%02X ", b);
         if(!((i+1) % 16))
-            wprintf("\r\n");
+            wputchar('\n');
     }
     i2c_stop_cond(&opsis_eeprom_i2c);
 }

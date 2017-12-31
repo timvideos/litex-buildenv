@@ -36,6 +36,8 @@ if [ z"$TRAVIS_PULL_REQUEST_SLUG" != z ]; then
 	git fetch origin pull/$TRAVIS_PULL_REQUEST/head:pull-$TRAVIS_PULL_REQUEST-head
 	git fetch origin pull/$TRAVIS_PULL_REQUEST/merge:pull-$TRAVIS_PULL_REQUEST-merge
 	echo "---------------------------------------------"
+	git log -n 5 --graph pull-$TRAVIS_PULL_REQUEST-head
+	echo "---------------------------------------------"
 	git log -n 5 --graph pull-$TRAVIS_PULL_REQUEST-merge
 	echo "---------------------------------------------"
 

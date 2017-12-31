@@ -23,8 +23,7 @@ static void print_csr_string(unsigned int addr, size_t size) {
 		unsigned char c = MMPTR(ptr+i);
 		if (c == '\0')
 			return;
-		// FIXME: Wrap putchar
-                putchar(c);
+		wputchar(c);
 	}
 }
 
@@ -61,44 +60,44 @@ void print_board_mac(void) {
 }
 
 void print_version(void) {
-	wprintf("\r\n");
-	wprintf("hardware version info\r\n");
-	wprintf("===============================================\r\n");
+	wputchar('\n');
+	wprintf("hardware version info\n");
+	wprintf("===============================================\n");
 	wprintf("           DNA: ");
 	print_board_dna();
-	wprintf("\r\n");
+	wputchar('\n');
 	wprintf("           MAC: ");
 	print_board_mac();
-	wprintf("\r\n");
-	wprintf("\r\n");
-	wprintf("gateware version info\r\n");
-	wprintf("===============================================\r\n");
+	wputchar('\n');
+	wputchar('\n');
+	wprintf("gateware version info\n");
+	wprintf("===============================================\n");
 #ifdef CSR_INFO_PLATFORM_PLATFORM_ADDR
 	wprintf("      platform: ");
 	print_csr_string(CSR_INFO_PLATFORM_PLATFORM_ADDR, CSR_INFO_PLATFORM_PLATFORM_SIZE);
-	wprintf("\r\n");
+	wputchar('\n');
 #endif
 #ifdef CSR_INFO_PLATFORM_TARGET_ADDR
 	wprintf("        target: ");
 	print_csr_string(CSR_INFO_PLATFORM_TARGET_ADDR, CSR_INFO_PLATFORM_TARGET_SIZE);
-	wprintf("\r\n");
+	wputchar('\n');
 #endif
 #ifdef CSR_INFO_GIT_COMMIT_ADDR
 	wprintf("      revision: ");
 	print_csr_hex(CSR_INFO_GIT_COMMIT_ADDR, CSR_INFO_GIT_COMMIT_SIZE);
-	wprintf("\r\n");
+	wputchar('\n');
 #endif
-//	wprintf("misoc revision: %08x\r\n", identifier_revision_read());
-	wprintf("\r\n");
-	wprintf("firmware version info\r\n");
-	wprintf("===============================================\r\n");
-	wprintf("      platform: %s\r\n", board);
-	wprintf("        target: %s\r\n", target);
-	wprintf("    git commit: %s\r\n", git_commit);
-	wprintf("    git branch: %s\r\n", git_branch);
-	wprintf("  git describe: %s\r\n", git_describe);
-	wprintf("    git status:\r\n%s\r\n", git_status);
-	wprintf("         built: "__DATE__" "__TIME__"\r\n");
-	wprintf("        uptime: %s\r\n", uptime_str());
-	wprintf("-----------------------------------------------\r\n");
+//	wprintf("misoc revision: %08x\n", identifier_revision_read());
+	wputchar('\n');
+	wprintf("firmware version info\n");
+	wprintf("===============================================\n");
+	wprintf("      platform: %s\n", board);
+	wprintf("        target: %s\n", target);
+	wprintf("    git commit: %s\n", git_commit);
+	wprintf("    git branch: %s\n", git_branch);
+	wprintf("  git describe: %s\n", git_describe);
+	wprintf("    git status:\n%s\n", git_status);
+	wprintf("         built: "__DATE__" "__TIME__"\n");
+	wprintf("        uptime: %s\n", uptime_str());
+	wprintf("-----------------------------------------------\n");
 }

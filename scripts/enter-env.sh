@@ -45,10 +45,10 @@ if echo "${SETUP_DIR}" | grep -q ':'; then
 	exit 1
 fi
 
-# Check ixo-usb-jtag *isn't* install
-if [ -d /lib/firmware/ixo-usb-jtag/ ]; then
-	echo "Please uninstall ixo-usb-jtag package, the required firmware is"
-	echo "included in the HDMI2USB modeswitch tool."
+# Check ixo-usb-jtag *isn't* installed
+if [ -e /lib/udev/rules.d/85-ixo-usb-jtag.rules ]; then
+	echo "Please uninstall ixo-usb-jtag package from the timvideos PPA, the"
+	echo "required firmware is included in the HDMI2USB modeswitch tool."
 	echo
 	echo "On Debian/Ubuntu run:"
 	echo "  sudo apt-get remove ixo-usb-jtag"

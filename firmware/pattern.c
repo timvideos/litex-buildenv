@@ -12,10 +12,8 @@
 #include "uptime.h"
 #include "version_data.h"
 
-#define PATTERN_FRAMEBUFFER_BASE 0x02000000 + 0x100000
-
 unsigned int pattern_framebuffer_base(void) {
-	return PATTERN_FRAMEBUFFER_BASE;
+	return FRAMEBUFFER_BASE_PATTERN;
 }
 
 static const unsigned int color_bar[8] = {
@@ -136,7 +134,7 @@ static int inc_color(int color) {
 static void pattern_draw_text_color(int x, int y, char *ptr, long background_color, long text_color) {
 	int i, j, k;
 	int adr;
-	volatile unsigned int *framebuffer = (unsigned int *)(MAIN_RAM_BASE + PATTERN_FRAMEBUFFER_BASE);
+	volatile unsigned int *framebuffer = (unsigned int *)(MAIN_RAM_BASE + pattern_framebuffer_base());
 	for(i=0; ptr[i] != '\0'; i++) {
 		for(j=-1; j<8; j++) {
 			for(k=-1; k<6; k++) {
@@ -159,7 +157,7 @@ static void pattern_draw_text(int x, int y, char *ptr) {
 
 void pattern_next(void) {
 	pattern++;
-	pattern = pattern % MAX_PATTERN;
+	pattern = pattern % PATTERN_MAX;
 	pattern_fill_framebuffer(processor_h_active, processor_v_active);
 }
 
@@ -170,8 +168,8 @@ void pattern_fill_framebuffer(int h_active, int w_active)
 	int color;
 	flush_l2_cache();
 	color = -1;
-	volatile unsigned int *framebuffer = (unsigned int *)(MAIN_RAM_BASE + PATTERN_FRAMEBUFFER_BASE);
-	if(pattern == COLOR_BAR_PATTERN) {
+	volatile unsigned int *framebuffer = (unsigned int *)(MAIN_RAM_BASE + pattern_framebuffer_base());
+	if(pattern == PATTERN_COLOR_BARS) {
 		/* color bar pattern */
 		for(i=0; i<h_active*w_active*2/4; i++) {
 			if(i%(h_active/16) == 0)
