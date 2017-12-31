@@ -56,6 +56,7 @@ fi
 LINUX_SRC="$TOP_DIR/third_party/linux"
 LINUX_LOCAL="$LINUX_GITLOCAL" # Local place to clone from
 LINUX_REMOTE="${LINUX_REMOTE:-https://github.com/mithro/linux-litex.git}"
+LINUX_REMOTE_NAME=mithro-linux-litex
 LINUX_REMOTE_BIT=$(echo $LINUX_REMOTE | sed -e's-^.*://--' -e's/.git$//')
 LINUX_CLONE_FROM="${LINUX_LOCAL:-$LINUX_REMOTE}"
 LINUX_BRANCH=${LINUX_BRANCH:-litex-minimal}
@@ -66,7 +67,7 @@ LINUX_BRANCH=${LINUX_BRANCH:-litex-minimal}
 		cd $(dirname $LINUX_SRC)
 		echo "Downloading Linux source tree."
 		echo "If you already have a local git checkout you can set 'LINUX_GITLOCAL' to speed up this step."
-		git clone $LINUX_CLONE_FROM linux
+		git clone $LINUX_CLONE_FROM $LINUX_SRC
 	)
 	fi
 
@@ -74,19 +75,19 @@ LINUX_BRANCH=${LINUX_BRANCH:-litex-minimal}
 	cd $LINUX_SRC
 
 	# Add the remote if it doesn't exist
-	LINUX_REMOTE_NAME=$(git remote -v | grep fetch | grep "$LINUX_REMOTE_BIT" | sed -e's/\t.*$//')
-	if [ x"$LINUX_REMOTE_NAME" = x ]; then
-		git remote add $REMOTE_NAME https://github.com/enjoy-digital/litex.git
-		LINUX_REMOTE_NAME=$REMOTE_NAME
+	CURRENT_LINUX_REMOTE_NAME=$(git remote -v | grep fetch | grep "$LINUX_REMOTE_BIT" | sed -e's/\t.*$//')
+	if [ x"$CURRENT_LINUX_REMOTE_NAME" = x ]; then
+		git remote add $LINUX_REMOTE_NAME $LINUX_REMOTE
+		CURRENT_LINUX_REMOTE_NAME=$CURRENT_LINUX_REMOTE_NAME
 	fi
 
 	# Get any new data
-	git fetch $LINUX_REMOTE_NAME
+	git fetch $CURRENT_LINUX_REMOTE_NAME
 
 	# Checkout or1k-linux branch it not already on it
 	if [ "$(git rev-parse --abbrev-ref HEAD)" != "$LINUX_BRANCH" ]; then
 		git checkout $LINUX_BRANCH || \
-			git checkout "$LINUX_REMOTE_NAME/$LINUX_BRANCH" -b $LINUX_BRANCH
+			git checkout "$CURRENT_LINUX_REMOTE_NAME/$LINUX_BRANCH" -b $LINUX_BRANCH
 	fi
 )
 
