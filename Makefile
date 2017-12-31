@@ -7,16 +7,15 @@ endif
 PYTHON ?= python
 export PYTHON
 
+SPLIT_REGEX := ^\([^.]*\)\.\?\(.*\)$$
+
 # The platform to run on. It is made up of FPGA_MAIN_BOARD.EXPANSION_BOARD
 DEFAULT_PLATFORM = opsis
 DEFAULT_PLATFORM_EXPANSION =
-ifeq ($(PLATFORM),)
-    $(error "PLATFORM not set, please set it.")
-endif
 
 ifneq ($(FULL_PLATFORM),)
-    PLATFORM_PART := $(shell echo $(FULL_PLATFORM) | sed -e's/\..\+$$//')
-    PLATFORM_EXPANSION_PART := $(shell echo $(FULL_PLATFORM) | sed -e's/^[^.]\+\.//')
+    PLATFORM_PART := $(shell echo $(FULL_PLATFORM) | sed -e's/$(SPLIT_REGEX)/\1/')
+    PLATFORM_EXPANSION_PART := $(shell echo $(FULL_PLATFORM) | sed -e's/$(SPLIT_REGEX)/\2/')
 
     # Check PLATFORM value matches FULL_PLATFORM bits
     ifneq ($(PLATFORM),)
@@ -24,7 +23,7 @@ ifneq ($(FULL_PLATFORM),)
             $(error "FULL_PLATFORM was set to '$(FULL_PLATFORM)' ($(PLATFORM_PART)), but PLATFORM was set to '$(PLATFORM)'.")
         endif
     else
-        PLATFORM="$(PLATFORM_PART)"
+        PLATFORM=$(PLATFORM_PART)
     endif
 
     # Check PLATFORM_EXPANSION value matches FULL_PLATFORM bits
@@ -33,7 +32,7 @@ ifneq ($(FULL_PLATFORM),)
             $(error "FULL_PLATFORM was set to '$(FULL_PLATFORM)', but PLATFORM_EXPANSION was set to '$(PLATFORM_EXPANSION)'.")
         endif
     else
-        PLATFORM_EXPANSION="$(PLATFORM_EXPANSION_PART)"
+        PLATFORM_EXPANSION=$(PLATFORM_EXPANSION_PART)
     endif
 endif
 PLATFORM ?= $(DEFAULT_PLATFORM)
@@ -54,8 +53,8 @@ endif
 DEFAULT_CPU = lm32
 DEFAULT_CPU_VARIANT =
 ifneq ($(FULL_CPU),)
-    CPU_PART := $(shell echo $(FULL_CPU) | sed -e's/\..\+$$//')
-    CPU_VARIANT_PART := $(shell echo $(FULL_CPU) | sed -e's/^[^.]\+\.//')
+    CPU_PART := $(shell echo $(FULL_CPU) | sed -e's/$(SPLIT_REGEX)/\1/')
+    CPU_VARIANT_PART := $(shell echo $(FULL_CPU) | sed -e's/$(SPLIT_REGEX)/\2/')
 
     # Check CPU value matches FULL_CPU bits
     ifneq ($(CPU),)
@@ -63,7 +62,7 @@ ifneq ($(FULL_CPU),)
             $(error "FULL_CPU was set to '$(FULL_CPU)' ($(CPU_PART)), but CPU was set to '$(CPU)'.")
         endif
     else
-        CPU="$(CPU_PART)"
+        CPU=$(CPU_PART)
     endif
 
     # Check CPU_VARIANT value matches FULL_CPU bits
@@ -72,7 +71,7 @@ ifneq ($(FULL_CPU),)
             $(error "FULL_CPU was set to '$(FULL_CPU)', but CPU_VARIANT was set to '$(CPU_VARIANT)'.")
         endif
     else
-        CPU_VARIANT="$(CPU_VARIANT_PART)"
+        CPU_VARIANT=$(CPU_VARIANT_PART)
     endif
 endif
 
@@ -99,6 +98,10 @@ endif
 export TARGET
 
 FIRMWARE ?= firmware
+ifeq ($(FIRMWARE),)
+    FIRMWARE = firmware
+endif
+export FIRMWARE
 
 # We don't use CLANG
 CLANG = 0
@@ -439,7 +442,7 @@ reset: reset-$(PLATFORM)
 	@true
 
 clean:
-	rm build/cache.mk
+	rm -f build/cache.mk
 	rm -rf $(TARGET_BUILD_DIR)
 	py3clean . || rm -rf $$(find -name __pycache__)
 

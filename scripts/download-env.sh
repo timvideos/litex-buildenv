@@ -196,10 +196,18 @@ export PATH=$CONDA_DIR/bin:$PATH:/sbin
 	conda config --add channels timvideos
 )
 
+eval $(cd $TOP_DIR; export HDMI2USB_ENV=1; make env || return 1) || exit 1
+(
+	cd $TOP_DIR
+	export HDMI2USB_ENV=1
+	make info || return 1
+	echo
+) || exit 1
+
 # Check the Python version
 echo
 echo "Installing python3.5"
-conda install python=3.5
+conda install -y $CONDA_FLAGS python=3.5
 check_version python 3.5
 echo "python ==3.5.4" > $CONDA_DIR/conda-meta/pinned # Make sure it stays at version 3.5
 
@@ -231,31 +239,31 @@ fi
 # flterm
 echo
 echo "Installing flterm (serial terminal tool)"
-conda install flterm
+conda install -y $CONDA_FLAGS flterm
 check_exists flterm
 
 # binutils for the target
 echo
 echo "Installing binutils for ${CPU} (assembler, linker, and other tools)"
-conda install binutils-${CPU}-elf=$BINUTILS_VERSION
+conda install -y $CONDA_FLAGS binutils-${CPU}-elf=$BINUTILS_VERSION
 check_version ${CPU}-elf-ld $BINUTILS_VERSION
 
 # gcc for the target
 echo
 echo "Installing gcc for ${CPU} ('bare metal' C cross compiler)"
-conda install gcc-${CPU}-elf-nostdc=$GCC_VERSION
+conda install -y $CONDA_FLAGS gcc-${CPU}-elf-nostdc=$GCC_VERSION
 check_version ${CPU}-elf-gcc $GCC_VERSION
 
 # gdb for the target
 #echo
 #echo "Installing gdb for ${CPU} (debugger)"
-#conda install gdb-${CPU}-elf=$GDB_VERSION
+#conda install -y $CONDA_FLAGS gdb-${CPU}-elf=$GDB_VERSION
 #check_version ${CPU}-elf-gdb $GDB_VERSION
 
 # openocd for programming via Cypress FX2
 echo
 echo "Installing openocd (jtag tool for programming and debug)"
-conda install openocd=$OPENOCD_VERSION
+conda install -y $CONDA_FLAGS openocd=$OPENOCD_VERSION
 check_version openocd $OPENOCD_VERSION
 
 echo ""
@@ -264,13 +272,13 @@ echo "---------------------------------------"
 # pyserial for communicating via uarts
 echo
 echo "Installing pyserial (python module)"
-conda install pyserial
+conda install -y $CONDA_FLAGS pyserial
 check_import serial
 
 # ipython for interactive debugging
 echo
 echo "Installing ipython (python module)"
-conda install ipython
+conda install -y $CONDA_FLAGS ipython
 check_import IPython
 
 # progressbar2 for progress bars

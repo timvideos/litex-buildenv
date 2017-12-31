@@ -25,14 +25,16 @@ env:
   global:
    - HDMI2USB_UDEV_IGNORE=1
    - CLEAN_CHECK=1
+   - PREBUILT_DIR="/tmp/HDMI2USB-firmware-prebuilt"
    # Travis reports incorrect the hosts number of processors, override to 2
    # cores.
    - JOBS=2
 
 install:
- - export CPU="$C"
- - export PLATFORMS="$P"
- - export TARGETS="$T"
+ - export CPUS="$C" && echo "CPUS='$CPUS'"
+ - export PLATFORMS="$P" && echo "PLATFORMS='$PLATFORMS'"
+ - export TARGETS="$T" && echo "TARGETS='$TARGETS'"
+ - export FIRMWARE="$F" && echo "FIRMWARE='$FIRMWARE'"
  - $PWD/.travis/setup.sh
 
 script:
@@ -96,6 +98,11 @@ jobs:
 
   - stage: Targets - Base
     env: C=or1k P=pipistrello  T="base"
+
+  # Linux Targets
+  #--------------------------------------------
+  - stage: Targets - Base
+    env: C=or1k.linux F=linux P=arty        T="net"
 
   #--------------------------------------------
   # Video Targets

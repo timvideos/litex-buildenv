@@ -1,10 +1,6 @@
 #!/bin/bash
 
 # Settings for the download-env.sh and setup-env.sh scripts
-
-export PLATFORM=${PLATFORM:-opsis}
-export CPU=${CPU:-lm32}
-
 BUILD_DIR=$TOP_DIR/build
 THIRD_DIR=$TOP_DIR/third_party
 CONDA_DIR=$BUILD_DIR/conda

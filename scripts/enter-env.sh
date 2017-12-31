@@ -169,6 +169,14 @@ echo "---------------------------------"
 # Install and setup conda for downloading packages
 export PATH=$CONDA_DIR/bin:$PATH
 
+eval $(cd $TOP_DIR; export HDMI2USB_ENV=1; make env || return 1) || return 1
+(
+	cd $TOP_DIR
+	export HDMI2USB_ENV=1
+	make info || return 1
+	echo
+) || return 1
+
 # Check the Python version
 
 
