@@ -302,9 +302,9 @@ export HDMI2USB_ENV=1
 
 # Set prompt
 ORIG_PS1="$PS1"
-hdmi2usb_prompt() {
+litex_buildenv_prompt() {
 	P="$(cd $TOP_DIR; make prompt)"
-	PS1="(H2U $P) $ORIG_PS1"
+	PS1="(LX $P) $ORIG_PS1"
 	case "$TERM" in
 	xterm*|rxvt*)
 		PS1="$PS1\[\033]0;($P) \w\007\]"
@@ -313,4 +313,4 @@ hdmi2usb_prompt() {
 		;;
 	esac
 }
-PROMPT_COMMAND=hdmi2usb_prompt
+PROMPT_COMMAND=litex_buildenv_prompt
