@@ -7,25 +7,78 @@ endif
 PYTHON ?= python
 export PYTHON
 
-PLATFORM ?= opsis
-export PLATFORM
-# Default board
+# The platform to run on. It is made up of FPGA_MAIN_BOARD.EXPANSION_BOARD
+DEFAULT_PLATFORM = opsis
+DEFAULT_PLATFORM_EXPANSION =
 ifeq ($(PLATFORM),)
     $(error "PLATFORM not set, please set it.")
 endif
 
-# Include platform specific targets
-include targets/$(PLATFORM)/Makefile.mk
-TARGET ?= $(DEFAULT_TARGET)
-ifeq ($(TARGET),)
-    $(error "Internal error: TARGET not set.")
-endif
-export TARGET
+ifneq ($(FULL_PLATFORM),)
+    PLATFORM_PART := $(shell echo $(FULL_PLATFORM) | sed -e's/\..\+$$//')
+    PLATFORM_EXPANSION_PART := $(shell echo $(FULL_PLATFORM) | sed -e's/^[^.]\+\.//')
 
+    # Check PLATFORM value matches FULL_PLATFORM bits
+    ifneq ($(PLATFORM),)
+        ifneq ($(PLATFORM),$(PLATFORM_PART))
+            $(error "FULL_PLATFORM was set to '$(FULL_PLATFORM)' ($(PLATFORM_PART)), but PLATFORM was set to '$(PLATFORM)'.")
+        endif
+    else
+        PLATFORM="$(PLATFORM_PART)"
+    endif
+
+    # Check PLATFORM_EXPANSION value matches FULL_PLATFORM bits
+    ifneq ($(PLATFORM_EXPANSION),)
+        ifneq ($(PLATFORM_EXPANSION),$(PLATFORM_EXPANSION_PART))
+            $(error "FULL_PLATFORM was set to '$(FULL_PLATFORM)', but PLATFORM_EXPANSION was set to '$(PLATFORM_EXPANSION)'.")
+        endif
+    else
+        PLATFORM_EXPANSION="$(PLATFORM_EXPANSION_PART)"
+    endif
+endif
+PLATFORM ?= $(DEFAULT_PLATFORM)
+PLATFORM_EXPANSION ?= $(DEFAULT_PLATFORM_EXPANSION)
+
+ifeq ($(PLATFORM),)
+    $(error "Internal error: PLATFORM not set.")
+endif
+export PLATFORM
+ifeq ($(PLATFORM_EXPANSION),)
+FULL_PLATFORM = $(PLATFORM)
+else
+FULL_PLATFORM = $(PLATFORM).$(PLATFORM_EXPANSION)
+LITEX_EXTRA_CMDLINE += -Ot expansion $(PLATFORM_EXPANSION)
+endif
+
+# The soft CPU core to use inside the FPGA it is made up of CPU.VARIANT.
 DEFAULT_CPU = lm32
 DEFAULT_CPU_VARIANT =
+ifneq ($(FULL_CPU),)
+    CPU_PART := $(shell echo $(FULL_CPU) | sed -e's/\..\+$$//')
+    CPU_VARIANT_PART := $(shell echo $(FULL_CPU) | sed -e's/^[^.]\+\.//')
+
+    # Check CPU value matches FULL_CPU bits
+    ifneq ($(CPU),)
+        ifneq ($(CPU),$(CPU_PART))
+            $(error "FULL_CPU was set to '$(FULL_CPU)' ($(CPU_PART)), but CPU was set to '$(CPU)'.")
+        endif
+    else
+        CPU="$(CPU_PART)"
+    endif
+
+    # Check CPU_VARIANT value matches FULL_CPU bits
+    ifneq ($(CPU_VARIANT),)
+        ifneq ($(CPU_VARIANT),$(CPU_VARIANT_PART))
+            $(error "FULL_CPU was set to '$(FULL_CPU)', but CPU_VARIANT was set to '$(CPU_VARIANT)'.")
+        endif
+    else
+        CPU_VARIANT="$(CPU_VARIANT_PART)"
+    endif
+endif
+
 CPU ?= $(DEFAULT_CPU)
 CPU_VARIANT ?= $(DEFAULT_CPU_VARIANT)
+
 ifeq ($(CPU),)
     $(error "Internal error: CPU not set.")
 endif
@@ -36,6 +89,14 @@ else
 FULL_CPU = $(CPU).$(CPU_VARIANT)
 LITEX_EXTRA_CMDLINE += -Ot cpu_variant $(CPU_VARIANT)
 endif
+
+# Include platform specific targets
+include targets/$(PLATFORM)/Makefile.mk
+TARGET ?= $(DEFAULT_TARGET)
+ifeq ($(TARGET),)
+    $(error "Internal error: TARGET not set.")
+endif
+export TARGET
 
 FIRMWARE ?= firmware
 
@@ -50,12 +111,6 @@ ifeq ($(shell [ $(JOBS) -gt 1 ] && echo true),true)
     export MAKEFLAGS="-j $(JOBS) -l $(JOBS)"
 endif
 
-ifeq ($(PLATFORM_EXPANSION),)
-FULL_PLATFORM = $(PLATFORM)
-else
-FULL_PLATFORM = $(PLATFORM).$(PLATFORM_EXPANSION)
-LITEX_EXTRA_CMDLINE += -Ot expansion $(PLATFORM_EXPANSION)
-endif
 TARGET_BUILD_DIR = build/$(FULL_PLATFORM)_$(TARGET)_$(FULL_CPU)/
 
 GATEWARE_FILEBASE = $(TARGET_BUILD_DIR)/gateware/top
@@ -304,7 +359,7 @@ info:
 	fi
 
 prompt:
-	@echo -n "P=$(PLATFORM)"
+	@echo -n "P=$(FULL_PLATFORM)"
 	@if [ x"$(TARGET)" != x"$(DEFAULT_TARGET)" ]; then echo -n " T=$(TARGET)"; fi
 	@if [ x"$(CPU)" != x"$(DEFAULT_CPU)" ]; then echo -n " C=$(CPU)"; fi
 	@if [ x"$(CPU_VARIANT)" != x"$(DEFAULT_CPU_VARIANT)" ]; then echo -n ".$(CPU_VARIANT)"; fi
