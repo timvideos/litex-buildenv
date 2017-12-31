@@ -145,15 +145,16 @@ TARGET_LINUX_BUILD_DIR=$(dirname $TOP_DIR/$FIRMWARE_FILEBASE)
 	mkdir -p $TARGET_LINUX_BUILD_DIR
 	(
 		cd $TARGET_LINUX_BUILD_DIR
-		if [ ! -e openrisc-rootfs.cpio ]; then
-			wget "https://drive.google.com/a/mithis.com/uc?authuser=0&id=0B5VlNZ_Rvdw6d21LWXdHQlZuOVU&export=download" -O openrisc-rootfs.cpio
+		ROOTFS=openrisc-rootfs.cpio
+		if [ ! -e $ROOTFS ]; then
+			wget "https://drive.google.com/a/mithis.com/uc?authuser=0&id=0B5VlNZ_Rvdw6d21LWXdHQlZuOVU&export=download" -O $ROOTFS
 		fi
-		if [ ! -e openrisc-rootfs.cpio.gz ]; then
-			gzip openrisc-rootfs.cpio
+		if [ ! -e $ROOTFS.gz ]; then
+			gzip -k $ROOTFS
 		fi
 	)
 	make O="$TARGET_LINUX_BUILD_DIR" litex_defconfig
-	make O="$TARGET_LINUX_BUILD_DIR" -j$JOBS
+	time make O="$TARGET_LINUX_BUILD_DIR" -j$JOBS
 	ls -l $TARGET_LINUX_BUILD_DIR/arch/openrisc/boot/vmlinux.bin
-	ln -s $TARGET_LINUX_BUILD_DIR/arch/openrisc/boot/vmlinux.bin $TOP_DIR/$FIRMWARE_FILEBASE.bin
+	ln -sf $TARGET_LINUX_BUILD_DIR/arch/openrisc/boot/vmlinux.bin $TOP_DIR/$FIRMWARE_FILEBASE.bin
 )
