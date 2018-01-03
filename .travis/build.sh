@@ -28,7 +28,9 @@ ORIG_COMMITTER_EMAIL=$(git log -1 --pretty=%ae)
 set +x
 set -e
 
-FILELIST='find | sort | grep -v "__pycache__" | grep -v "conda"'
+function filelist() {
+	find | sort | grep -v "__pycache__" | grep -v "conda"
+}
 
 function build() {
 	export FULL_PLATFORM=$1
@@ -68,7 +70,7 @@ function build() {
 	echo "============================================="
 
 	# Create "clean" file list before build
-	$FILELIST > /tmp/filelist.before
+	filelist > /tmp/filelist.before
 
 	TITLE="$FULL_PLATFORM $TARGET $FULL_CPU $FIRMWARE"
 
@@ -304,7 +306,7 @@ function build() {
 		echo "============================================="
 
 		# Check that make clean didn't leave anything behind
-		$FILELIST > /tmp/filelist.after
+		filelist > /tmp/filelist.after
 		echo ""
 		echo ""
 		echo ""
