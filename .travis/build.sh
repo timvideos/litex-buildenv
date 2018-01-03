@@ -29,7 +29,7 @@ set +x
 set -e
 
 function filelist() {
-	find | sort | grep -v "__pycache__" | grep -v "conda"
+	find | sort | grep -v "__pycache__" | grep -v "conda" | grep -v third_party
 }
 
 function build() {
