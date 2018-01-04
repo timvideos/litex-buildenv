@@ -331,12 +331,10 @@ flash: image-flash
 env:
 	@echo "export PLATFORM='$(PLATFORM)'"
 	@echo "export PLATFORM_EXPANSION='$(PLATFORM_EXPANSION)'"
-	@echo "export FULL_PLATFORM='$(FULL_PLATFORM)'"
 	@echo "export TARGET='$(TARGET)'"
 	@echo "export DEFAULT_TARGET='$(DEFAULT_TARGET)'"
 	@echo "export CPU='$(CPU)'"
 	@echo "export CPU_VARIANT='$(CPU_VARIANT)'"
-	@echo "export FULL_CPU='$(FULL_CPU)'"
 	@echo "export FIRMWARE='$(FIRMWARE)'"
 	@echo "export OVERRIDE_FIRMWARE='$(OVERRIDE_FIRMWARE)'"
 	@echo "export PROG='$(PROG)'"
