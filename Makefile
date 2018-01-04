@@ -352,6 +352,9 @@ env:
 	@echo "export GATEWARE_FILEBASE='$(GATEWARE_FILEBASE)'"
 	@echo "export FIRMWARE_FILEBASE='$(FIRMWARE_FILEBASE)'"
 	@echo "export BIOS_FILE='$(BIOS_FILE)'"
+	@# Network settings
+	@echo "export TFTP_IPRANGE='$(TFTP_IPRANGE)'"
+	@echo "export TFTPD_DIR='$(TFTPD_DIR)'"
 
 info:
 	@echo "              Platform: $(FULL_PLATFORM)"
