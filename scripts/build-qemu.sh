@@ -170,6 +170,6 @@ echo $SPIFLASH_MODEL
 $TARGET_QEMU_BUILD_DIR/$QEMU_ARCH/qemu-system-$QEMU_CPU \
 	-M litex \
 	-nographic -nodefaults \
-	-monitor pty \
+	-monitor telnet::10000,server,nowait \
 	-serial stdio \
 	${EXTRA_ARGS[@]}
