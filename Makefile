@@ -46,7 +46,7 @@ ifeq ($(PLATFORM_EXPANSION),)
 FULL_PLATFORM = $(PLATFORM)
 else
 FULL_PLATFORM = $(PLATFORM).$(PLATFORM_EXPANSION)
-LITEX_EXTRA_CMDLINE += -Ot expansion $(PLATFORM_EXPANSION)
+MAKE_LITEX_EXTRA_CMDLINE += -Ot expansion $(PLATFORM_EXPANSION)
 endif
 
 # The soft CPU core to use inside the FPGA it is made up of CPU.VARIANT.
@@ -86,7 +86,7 @@ ifeq ($(CPU_VARIANT),)
 FULL_CPU = $(CPU)
 else
 FULL_CPU = $(CPU).$(CPU_VARIANT)
-LITEX_EXTRA_CMDLINE += -Ot cpu_variant $(CPU_VARIANT)
+MAKE_LITEX_EXTRA_CMDLINE += -Ot cpu_variant $(CPU_VARIANT)
 endif
 
 # Include platform specific targets
@@ -140,6 +140,7 @@ MAKE_CMD=\
 		--iprange=$(TFTP_IPRANGE) \
 		$(MISOC_EXTRA_CMDLINE) \
 		$(LITEX_EXTRA_CMDLINE) \
+		$(MAKE_LITEX_EXTRA_CMDLINE) \
 
 # We use the special PIPESTATUS which is bash only below.
 SHELL := /bin/bash
@@ -171,7 +172,7 @@ endif
 
 $(IMAGE_FILE): $(GATEWARE_FILEBASE).bin $(BIOS_FILE) $(FIRMWARE_FILEBASE).fbi
 	$(PYTHON) mkimage.py \
-		$(MISOC_EXTRA_CMDLINE) $(LITEX_EXTRA_CMDLINE) \
+		$(MISOC_EXTRA_CMDLINE) $(LITEX_EXTRA_CMDLINE) $(MAKE_LITEX_EXTRA_CMDLINE) \
 		--override-gateware=$(GATEWARE_FILEBASE).bin \
 		--override-bios=$(BIOS_FILE) \
 		$(OVERRIDE_FIRMWARE) \
@@ -343,6 +344,7 @@ env:
 	@echo "export TFTP_DIR='$(TFTPD_DIR)'"
 	@echo "export MISOC_EXTRA_CMDLINE='$(MISOC_EXTRA_CMDLINE)'"
 	@echo "export LITEX_EXTRA_CMDLINE='$(LITEX_EXTRA_CMDLINE)'"
+	@echo "export MAKE_LITEX_EXTRA_CMDLINE='$(MAKE_LITEX_EXTRA_CMDLINE)'"
 	@# Hardcoded values
 	@echo "export CLANG=$(CLANG)"
 	@echo "export PYTHONHASHSEED=$(PYTHONHASHSEED)"

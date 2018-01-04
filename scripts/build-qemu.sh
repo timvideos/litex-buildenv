@@ -92,7 +92,7 @@ if [ ! -d $FIRMWARE_FILEBASE.fbi ]; then
 fi
 
 QEMU_IMAGE_FILE=$IMAGE_FILE.4qemu
-/usr/bin/env python mkimage.py $MISOC_EXTRA_CMDLINE $LITEX_EXTRA_CMDLINE --output-file=$QEMU_IMAGE_FILE --override-gateware=none --force-image-size=true $OVERRIDE_FIRMWARE
+/usr/bin/env python mkimage.py $MISOC_EXTRA_CMDLINE $LITEX_EXTRA_CMDLINE $MAKE_LITEX_EXTRA_CMDLINE --output-file=$QEMU_IMAGE_FILE --override-gateware=none --force-image-size=true $OVERRIDE_FIRMWARE
 $TARGET_QEMU_BUILD_DIR/qemu-img convert -f raw $QEMU_IMAGE_FILE -O qcow2 -S 16M $TARGET_BUILD_DIR/qemu.qcow2
 
 # BIOS
