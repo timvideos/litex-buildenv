@@ -17,7 +17,8 @@ echo ""
 echo ""
 echo "- Fetching non shallow to get git version"
 echo "---------------------------------------------"
-git fetch origin --unshallow && git fetch origin --tags
+git fetch origin --unshallow || true
+git fetch origin --tags
 
 if [ z"$TRAVIS_PULL_REQUEST_SLUG" != z ]; then
 	echo ""
