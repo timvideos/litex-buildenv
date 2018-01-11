@@ -92,7 +92,7 @@ if [ ! -d $FIRMWARE_FILEBASE.fbi ]; then
 fi
 
 QEMU_IMAGE_FILE=$IMAGE_FILE.4qemu
-/usr/bin/env python mkimage.py $MISOC_EXTRA_CMDLINE $LITEX_EXTRA_CMDLINE --output-file=$QEMU_IMAGE_FILE --override-gateware=none --force-image-size=true $OVERRIDE_FIRMWARE
+/usr/bin/env python mkimage.py $MISOC_EXTRA_CMDLINE $LITEX_EXTRA_CMDLINE $MAKE_LITEX_EXTRA_CMDLINE --output-file=$QEMU_IMAGE_FILE --override-gateware=none --force-image-size=true $OVERRIDE_FIRMWARE
 $TARGET_QEMU_BUILD_DIR/qemu-img convert -f raw $QEMU_IMAGE_FILE -O qcow2 -S 16M $TARGET_BUILD_DIR/qemu.qcow2
 
 # BIOS
@@ -113,25 +113,52 @@ fi
 
 # Ethernet
 if grep -q ETHMAC_BASE $TARGET_BUILD_DIR/software/include/generated/csr.h; then
-	# Make qemu emulate a network device
-	EXTRA_ARGS+=("-net nic")
+	QEMU_NETWORK=${QEMU_NETWORK:-tap}
+	case $QEMU_NETWORK in
+	tap)
+		if [ ! -e /dev/net/tap0 ]; then
+			echo "Need to create and bring up a tun device, needing sudo..."
+			sudo true
+			sudo mknod /dev/net/tap0 c 10 200
+			if sudo which openvpn > /dev/null; then
+				sudo openvpn --mktun --dev tap0
+			elif sudo which tunctl > /dev/null; then
+				sudo tunctl -t tap0 -u $(whoami)
+			else
+				echo "Unable to find tool to create tap0 device!"
+				exit 1
+			fi
+			sudo chown $(whoami) /dev/net/tap0
+			sudo ifconfig tap0 $TFTP_IPRANGE.100 up
+			make tftpd_start
+		fi
+		EXTRA_ARGS+=("-net nic -net tap,ifname=tap0,script=no,downscript=no")
+		;;
+
+	user)
+		# Make qemu emulate a network device
+		EXTRA_ARGS+=("-net nic")
+		# Use the userspace network support. QEMU will pretend to be a
+		# machine a $TFTP_IPRANGE.100. Any connections to that IP will
+		# automatically be forwarded to the real localhost.
+		#
+		# Connections to real localhost on port 2223, will be
+		# forwarded to the expected guest ip ($TFTP_IPRANGE.50) on port
+		# 23 (telnet).
+		EXTRA_ARGS+=("-net user,net=$TFTP_IPRANGE.0/24,host=$TFTP_IPRANGE.100,dhcpstart=$TFTP_IPRANGE.50,tftp=$TFTPD_DIR,hostfwd=tcp::2223-:23")
+
+		# Make debugging the userspace networking easier, dump all
+		# packets to a file.
+		# FIXME: Make this optional.
+		EXTRA_ARGS+=("-net dump,file=/tmp/data.pcap")
+		;;
+	*)
+		echo "Unknown QEMU_NETWORK mode '$QEMU_NETWORK'"
+		;;
+	esac
 
 	# Build/copy the image into the TFTP directory.
 	make tftp
-
-	# Use the userspace network support. QEMU will pretend to be a
-	# machine a $IPRANGE.100. Any connections to that IP will
-	# automatically be forwarded to the real localhost.
-	#
-	# Connections to real localhost on port 2223, will be
-	# forwarded to the expected guest ip ($IPRANGE.50) on port
-	# 23 (telnet).
-	EXTRA_ARGS+=("-net user,net=$IPRANGE.0/24,host=$IPRANGE.100,dhcpstart=$IPRANGE.50,tftp=$TOP_DIR/build/tftpd,hostfwd=tcp::2223-:23")
-
-	# Make debugging the userspace networking easier, dump all
-	# packets to a file.
-	# FIXME: Make this optional.
-	EXTRA_ARGS+=("-net dump,file=/tmp/data.pcap")
 fi
 
 # Allow gdb connections
@@ -143,6 +170,6 @@ echo $SPIFLASH_MODEL
 $TARGET_QEMU_BUILD_DIR/$QEMU_ARCH/qemu-system-$QEMU_CPU \
 	-M litex \
 	-nographic -nodefaults \
-	-monitor pty \
+	-monitor telnet::10000,server,nowait \
 	-serial stdio \
 	${EXTRA_ARGS[@]}

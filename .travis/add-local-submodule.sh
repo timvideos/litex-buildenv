@@ -62,6 +62,7 @@ if [ -e $SUBMODULE/.git ]; then
 		git remote add user $USER_URL || git remote set-url user $USER_URL
 		$(which git) fetch user || git remote rm user
 
+		git rm origin || true
 		git remote add origin $ORIGIN || git remote set-url origin $ORIGIN
 		$(which git) fetch origin
 	)

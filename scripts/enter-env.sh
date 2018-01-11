@@ -169,6 +169,14 @@ echo "---------------------------------"
 # Install and setup conda for downloading packages
 export PATH=$CONDA_DIR/bin:$PATH
 
+eval $(cd $TOP_DIR; export HDMI2USB_ENV=1; make env || return 1) || return 1
+(
+	cd $TOP_DIR
+	export HDMI2USB_ENV=1
+	make info || return 1
+	echo
+) || return 1
+
 # Check the Python version
 
 
@@ -180,22 +188,25 @@ echo "Checking binaries in environment"
 echo "---------------------------------"
 
 # fxload
+if [ "$PLATFORM" == "opsis" -o "$PLATFORM" == "atlys" ]; then
+	# check sbin for fxload as well
+	export PATH=$PATH:/sbin
 
-# check sbin for fxload as well
-export PATH=$PATH:/sbin
-
-check_exists fxload || return 1
+	check_exists fxload || return 1
+fi
 
 # FIXME: Remove this once @jimmo has finished his new firmware
 # MimasV2Config.py
-MIMASV2CONFIG=$BUILD_DIR/conda/bin/MimasV2Config.py
+if [ "$PLATFORM" == "mimasv2" ]; then
+	MIMASV2CONFIG=$BUILD_DIR/conda/bin/MimasV2Config.py
 
 
 
 
 
 
-check_exists MimasV2Config.py || return 1
+	check_exists MimasV2Config.py || return 1
+fi
 
 # flterm
 
@@ -299,9 +310,9 @@ export HDMI2USB_ENV=1
 
 # Set prompt
 ORIG_PS1="$PS1"
-hdmi2usb_prompt() {
+litex_buildenv_prompt() {
 	P="$(cd $TOP_DIR; make prompt)"
-	PS1="(H2U $P) $ORIG_PS1"
+	PS1="(LX $P) $ORIG_PS1"
 	case "$TERM" in
 	xterm*|rxvt*)
 		PS1="$PS1\[\033]0;($P) \w\007\]"
@@ -310,4 +321,4 @@ hdmi2usb_prompt() {
 		;;
 	esac
 }
-PROMPT_COMMAND=hdmi2usb_prompt
+PROMPT_COMMAND=litex_buildenv_prompt
