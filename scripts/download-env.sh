@@ -19,12 +19,6 @@ if [ $SOURCED = 1 ]; then
 	return
 fi
 
-if [ ! -z "$HDMI2USB_ENV" ]; then
-	echo "You appear to have sourced the HDMI2USB settings, these are incompatible with setting up."
-	echo "Please exit this terminal and run again from a clean shell."
-	exit 1
-fi
-
 if [ ! -z "$SETTINGS_FILE" -o ! -z "$XILINX" ]; then
 	echo "You appear to have sourced the Xilinx ISE settings, these are incompatible with setting up."
 	echo "Please exit this terminal and run again from a clean shell."
