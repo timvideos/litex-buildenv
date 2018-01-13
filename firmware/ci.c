@@ -579,17 +579,49 @@ static void status_service(void)
 	}
 }
 
-// FIXME
+#ifdef CSR_HDMI_IN0_BASE
+#ifndef HDMI_IN0_MNEMONIC
+#warning "Missing HDMI IN0 mnemonic!"
 #define HDMI_IN0_MNEMONIC ""
-#define HDMI_IN1_MNEMONIC ""
-#define HDMI_OUT0_MNEMONIC ""
-#define HDMI_OUT1_MNEMONIC ""
-
+#endif
+#ifndef HDMI_IN0_DESCRIPTION
+#warning "Missing HDMI IN0 description!"
 #define HDMI_IN0_DESCRIPTION ""
+#endif
+#endif
+
+#ifdef CSR_HDMI_IN1_BASE
+#ifndef HDMI_IN1_MNEMONIC
+#warning "Missing HDMI IN1 mnemonic!"
+#define HDMI_IN1_MNEMONIC ""
+#endif
+#ifndef HDMI_IN1_DESCRIPTION
+#warning "Missing HDMI IN1 description!"
 #define HDMI_IN1_DESCRIPTION ""
+#endif
+#endif
+
+#ifdef CSR_HDMI_OUT0_BASE
+#ifndef HDMI_OUT0_MNEMONIC
+#warning "Missing HDMI OUT0 mnemonic!"
+#define HDMI_OUT0_MNEMONIC ""
+#endif
+#ifndef HDMI_OUT0_DESCRIPTION
+#warning "Missing HDMI OUT0 description!"
 #define HDMI_OUT0_DESCRIPTION ""
+#endif
+#endif
+
+#ifdef CSR_HDMI_OUT1_BASE
+#ifndef HDMI_OUT1_MNEMONIC
+#warning "Missing HDMI OUT1 mnemonic!"
+#define HDMI_OUT1_MNEMONIC ""
+#endif
+#ifndef HDMI_OUT1_DESCRIPTION
+#warning "Missing HDMI OUT1 description!"
 #define HDMI_OUT1_DESCRIPTION ""
-// FIXME
+#endif
+#endif
 
 static void video_matrix_list(void)
 {
