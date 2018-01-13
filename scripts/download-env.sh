@@ -167,6 +167,17 @@ function check_import_version {
 	fi
 }
 
+function fix_conda {
+	for py in $(find $CONDA_DIR -name envs_manager.py); do
+		START_SUM=$(sha256sum $py | sed -e's/ .*//')
+		sed -i -e"s^expand(join('~', '.conda', 'environments.txt'))^join('$CONDA_DIR', 'environments.txt')^" $py
+		END_SUM=$(sha256sum $py | sed -e's/ .*//')
+		if [ $START_SUM != $END_SUM ]; then
+			sed -i -e"s/$START_SUM/$END_SUM/" $(find $CONDA_DIR -name paths.json)
+		fi
+	done
+}
+
 echo ""
 echo "Initializing environment"
 echo "---------------------------------"
@@ -184,13 +195,16 @@ export PATH=$CONDA_DIR/bin:$PATH:/sbin
 		# -b to enable batch mode (no prompts)
 		# -f to not return an error if the location specified by -p already exists
 		./Miniconda3-latest-Linux-x86_64.sh -p $CONDA_DIR -b -f
+		fix_conda
 		conda config --system --set always_yes yes
 		conda config --system --set changeps1 no
 		conda config --system --add envs_dirs $CONDA_DIR/envs
 		conda config --system --add pkgs_dirs $CONDA_DIR/pkgs
 		conda update -q conda
 	fi
+	fix_conda
 	conda config --system --add channels timvideos
+	conda info
 )
 
 eval $(cd $TOP_DIR; export HDMI2USB_ENV=1; make env || return 1) || exit 1
@@ -205,6 +219,7 @@ eval $(cd $TOP_DIR; export HDMI2USB_ENV=1; make env || return 1) || exit 1
 echo
 echo "Installing python3.5"
 conda install -y $CONDA_FLAGS python=3.5
+fix_conda
 check_version python 3.5
 echo "python ==3.5.4" > $CONDA_DIR/conda-meta/pinned # Make sure it stays at version 3.5
 
