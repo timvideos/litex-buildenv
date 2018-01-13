@@ -184,7 +184,10 @@ export PATH=$CONDA_DIR/bin:$PATH:/sbin
 		# -b to enable batch mode (no prompts)
 		# -f to not return an error if the location specified by -p already exists
 		./Miniconda3-latest-Linux-x86_64.sh -p $CONDA_DIR -b -f
-		conda config --system --set always_yes yes --set changeps1 no
+		conda config --system --set always_yes yes
+		conda config --system --set changeps1 no
+		conda config --system --add envs_dirs $CONDA_DIR/envs
+		conda config --system --add pkgs_dirs $CONDA_DIR/pkgs
 		conda update -q conda
 	fi
 	conda config --system --add channels timvideos
