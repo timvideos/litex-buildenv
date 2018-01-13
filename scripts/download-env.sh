@@ -184,10 +184,10 @@ export PATH=$CONDA_DIR/bin:$PATH:/sbin
 		# -b to enable batch mode (no prompts)
 		# -f to not return an error if the location specified by -p already exists
 		./Miniconda3-latest-Linux-x86_64.sh -p $CONDA_DIR -b -f
-		conda config --set always_yes yes --set changeps1 no
+		conda config --system --set always_yes yes --set changeps1 no
 		conda update -q conda
 	fi
-	conda config --add channels timvideos
+	conda config --system --add channels timvideos
 )
 
 eval $(cd $TOP_DIR; export HDMI2USB_ENV=1; make env || return 1) || exit 1
