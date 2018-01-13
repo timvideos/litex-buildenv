@@ -2,6 +2,8 @@
 
 set -e
 
+./.travis/prevent-condarc.sh
+
 ./.travis/fixup-git.sh
 
 function setup() {
