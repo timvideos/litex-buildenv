@@ -122,5 +122,8 @@ NET "{pix1_clk}" TNM_NET = "GRPpix1_clk";
             self.hdmi_out0.driver.clocking.cd_pix.clk,
             self.hdmi_out1.driver.clocking.cd_pix.clk)
 
+        for name, value in sorted(self.platform.hdmi_infos.items()):
+            self.add_constant(name, value)
+
 
 SoC = VideoSoC
