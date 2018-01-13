@@ -89,6 +89,9 @@ class VideoSoC(BaseSoC):
             self.hdmi_out0.driver.clocking.cd_pix.clk,
             self.hdmi_out0.driver.clocking.cd_pix5x.clk)
 
+        for name, value in sorted(self.platform.hdmi_infos.items()):
+            self.add_constant(name, value)
+
 
 class VideoSoCDebug(VideoSoC):
     csr_peripherals = (

@@ -83,11 +83,23 @@ _io = [
 
 ]
 
+_hdmi_infos = {
+    "HDMI_OUT0_MNEMONIC": "TX1",
+    "HDMI_OUT0_DESCRIPTION" : (
+      "  FIXME in platforms/netv2.py\\r\\n"
+    ),
+
+    "HDMI_IN0_MNEMONIC": "RX1",
+    "HDMI_IN0_DESCRIPTION" : (
+      "  FIXME in platforms/netv2.py\\r\\n"
+    ),
+}
 
 class Platform(XilinxPlatform):
     name = "netv2"
     default_clk_name = "clk50"
     default_clk_period = 20.0
+    hdmi_infos = _hdmi_infos
 
     # From https://www.xilinx.com/support/documentation/user_guides/ug470_7Series_Config.pdf
     # 17536096 bits == 2192012 == 0x21728c -- Therefore 0x220000

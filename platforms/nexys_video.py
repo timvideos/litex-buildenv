@@ -228,10 +228,23 @@ _connectors = [
     )
 ]
 
+_hdmi_infos = {
+    "HDMI_OUT0_MNEMONIC": "TX1",
+    "HDMI_OUT0_DESCRIPTION" : (
+      "  FIXME in platforms/nexys_video.py\\r\\n"
+    ),
+
+    "HDMI_IN0_MNEMONIC": "RX1",
+    "HDMI_IN0_DESCRIPTION" : (
+      "  FIXME in platforms/nexys_video.py\\r\\n"
+    ),
+}
+
 class Platform(XilinxPlatform):
     name = "nexys_video"
     default_clk_name = "clk100"
     default_clk_period = 10.0
+    hdmi_infos = _hdmi_infos
 
     # From https://www.xilinx.com/support/documentation/user_guides/ug470_7Series_Config.pdf
     # 77,845,216 bits == 9730652 == 0x947a5c -- Therefore 0x1000000
