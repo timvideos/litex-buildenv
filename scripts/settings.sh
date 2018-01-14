@@ -6,7 +6,7 @@ THIRD_DIR=$TOP_DIR/third_party
 CONDA_DIR=$BUILD_DIR/conda
 
 # Python module versions
-HDMI2USB_MODESWITCH_VERSION=0.0.0
+HDMI2USB_MODESWITCH_VERSION=0.0.1
 HEXFILE_VERSION=0.1
 
 # Conda package versions
