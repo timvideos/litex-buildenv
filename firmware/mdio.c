@@ -93,7 +93,6 @@ void mdio_dump(void) {
 
 int mdio_status(void) {
 	int status;
-	mdio_dump();
 
 	status = mdio_read(0, 17);
 
