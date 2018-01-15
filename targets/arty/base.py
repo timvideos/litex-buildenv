@@ -148,8 +148,8 @@ class BaseSoC(SoCSDRAM):
         sdram_module = MT41K128M16(self.clk_freq, "1:4")
         self.submodules.ddrphy = a7ddrphy.A7DDRPHY(
             platform.request("ddram"))
-        self.add_constant("A7DDRPHY_BITSLIP", 2)
-        self.add_constant("A7DDRPHY_DELAY", 6)
+        self.add_constant("READ_LEVELING_BITSLIP", 2)
+        self.add_constant("READ_LEVELING_DELAY", 6)
         controller_settings = ControllerSettings(
             with_bandwidth=True,
             cmd_buffer_depth=8,
