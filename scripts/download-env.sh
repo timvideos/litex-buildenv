@@ -87,6 +87,10 @@ if [ ! -z "$XILINX_PASSPHRASE" ]; then
 			mkdir -p $XILINX_DIR/opt/Xilinx/Vivado/2017.3/scripts/rt/data/svlog/sdbs
 			mkdir -p $XILINX_DIR/opt/Xilinx/Vivado/2017.3/tps/lnx64/jre
 
+			# Make ISE stop complaining about missing wbtc binary
+			mkdir -p $XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64
+			ln -s /bin/true $XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/wbtc
+
 			# Relocate ISE from /opt to $XILINX_DIR
 			for i in $(grep -l -Rsn "/opt/Xilinx" $XILINX_DIR/opt)
 			do
