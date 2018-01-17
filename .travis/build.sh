@@ -219,7 +219,7 @@ function build() {
 	if [ -d "$PREBUILT_DIR" ]; then
 		COPY_DEST="$PREBUILT_DIR/archive/$GIT_REVISION/$FULL_PLATFORM/$TARGET/$FULL_CPU/"
 
-		mkdir -p $COPY_DEST
+		svn mkdir --parents $COPY_DEST
 		echo ""
 		echo ""
 		echo ""
@@ -274,13 +274,23 @@ function build() {
 		cd $COPY_DEST
 		echo $PWD
 		ls -l -a .
-		git add -A .
-		git commit -a \
-			-m "Travis build #$TRAVIS_BUILD_NUMBER of $GIT_REVISION for PLATFORM=$FULL_PLATFORM TARGET=$TARGET CPU=$FULL_CPU FIRMWARE=$FIRMWARE" \
-			-m "" \
-			-m "From https://github.com/$TRAVIS_REPO_SLUG/tree/$TRAVIS_COMMIT" \
-			-m "$TRAVIS_COMIT_MESSAGE"
-		git diff HEAD~1 --stat=1000,1000
+		svn add --parents *
+		)
+		(
+		cd $PREBUILT_DIR
+		echo $PWD
+		COMMIT_MSG=$(tempfile -s .msg)
+		cat > $COMMIT_MSG <<EOF
+Travis build #$TRAVIS_BUILD_NUMBER of $GIT_REVISION for PLATFORM=$FULL_PLATFORM TARGET=$TARGET CPU=$FULL_CPU FIRMWARE=$FIRMWARE
+
+From https://github.com/$TRAVIS_REPO_SLUG/tree/$TRAVIS_COMMIT
+$TRAVIS_COMIT_MESSAGE
+EOF
+		svn commit \
+			--file $COMMIT_MSG \
+			--non-interactive \
+			--username "$GH_USER" \
+			--password "$GH_TOKEN" \
 		)
 		echo "============================================="
 	fi
