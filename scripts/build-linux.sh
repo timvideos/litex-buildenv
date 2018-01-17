@@ -137,9 +137,10 @@ TARGET_LINUX_BUILD_DIR=$(dirname $TOP_DIR/$FIRMWARE_FILEBASE)
 	mkdir -p $TARGET_LINUX_BUILD_DIR
 	(
 		cd $TARGET_LINUX_BUILD_DIR
-		ROOTFS=openrisc-rootfs.cpio
+		# To rebuild, use https://ozlabs.org/~joel/litex_or1k_defconfig
+		ROOTFS=openrisc-rootfs.cpio.gz
 		if [ ! -e $ROOTFS ]; then
-			wget "https://drive.google.com/a/mithis.com/uc?authuser=0&id=0B5VlNZ_Rvdw6d21LWXdHQlZuOVU&export=download" -O $ROOTFS
+			wget "https://ozlabs.org/~joel/openrisc-rootfs.cpio.gz" -O $ROOTFS
 		fi
 		if [ ! -e $ROOTFS.gz ]; then
 			gzip -k $ROOTFS
