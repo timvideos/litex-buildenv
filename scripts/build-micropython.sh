@@ -33,6 +33,11 @@ make info
 set -x
 set -e
 
+if [ "$FIRMWARE" != "micropython" ]; then
+        echo "When building MicroPython you should set FIRMWARE to 'micropython'."
+        exit 1
+fi
+
 # Install a toolchain with the newlib standard library
 if ! $CPU-elf-newlib-gcc --version > /dev/null 2>&1; then
 	conda install gcc-$CPU-elf-newlib
@@ -43,7 +48,7 @@ MPY_SRC_DIR=$TOP_DIR/third_party/micropython
 if [ ! -d "$MPY_SRC_DIR" ]; then
 	(
 		cd $(dirname $MPY_SRC_DIR)
-		git clone https://github.com/upy-fpga/micropython.git
+		git clone https://github.com/fupy/micropython.git
 		cd $MPY_SRC_DIR
 		git submodule update --init
 	)
@@ -75,6 +80,4 @@ make V=1 -C $(realpath ../../../../third_party/micropython/litex/) -j$JOBS
 cd $OLD_DIR
 
 # Generate a firmware image suitable for flashing.
-#python -m litex.soc.tools.mkmscimg -f $TARGET_MPY_BUILD_DIR/firmware.bin -o $TARGET_MPY_BUILD_DIR/firmware.fbi
-#/usr/bin/env python mkimage.py $MISOC_EXTRA_CMDLINE $LITEX_EXTRA_CMDLINE --output-file=$TARGET_BUILD_DIR/micropython.bin --override-firmware=$TARGET_MPY_BUILD_DIR/firmware.fbi
 make image
