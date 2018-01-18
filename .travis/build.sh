@@ -217,14 +217,15 @@ function build() {
 	# Save the resulting binaries into the prebuilt repo. The gateware
 	# should always exist, but others might not.
 	if [ -d "$PREBUILT_DIR" ]; then
+		echo ""
+		echo ""
+		echo ""
+		echo "- Adding built files to $(cd $COPY_DEST; svn info | grep "Repository Root:")"
+		echo "---------------------------------------------"
+
 		COPY_DEST="$PREBUILT_DIR/archive/$GIT_REVISION/$FULL_PLATFORM/$TARGET/$FULL_CPU/"
 
 		svn mkdir --parents $COPY_DEST
-		echo ""
-		echo ""
-		echo ""
-		echo "- Adding built files to $(cd $COPY_DEST; git remote get-url origin)"
-		echo "---------------------------------------------"
 
 		declare -a SAVE
 		SAVE+="image*.bin" 				# Combined binary include gateware+bios+firmware
@@ -259,6 +260,8 @@ function build() {
 		mkdir -p $COPY_DEST/logs/
 		cp $TARGET_BUILD_DIR/software/firmware/version_data.c $COPY_DEST/logs/version_data.c
 		cp $TARGET_BUILD_DIR/output.*.log $COPY_DEST/logs/
+
+		find $COPY_DEST -empty -delete
 
 		(
 		cd $COPY_DEST
