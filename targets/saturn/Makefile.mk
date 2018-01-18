@@ -1,11 +1,11 @@
 # saturn targets
 
 ifneq ($(PLATFORM),saturn)
-	$(error "Platform should be arty when using this file!?")
+	$(error "Platform should be saturn when using this file!?")
 endif
 
 # Settings
-DEFAULT_TARGET = net
+DEFAULT_TARGET = base
 TARGET ?= $(DEFAULT_TARGET)
 
 PROG_PORT ?= /dev/ttyUSB0
