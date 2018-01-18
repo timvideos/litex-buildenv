@@ -52,7 +52,7 @@ class _CRG(Module):
         n, d = f.numerator, f.denominator
         p = 8
 
-        assert f0*n/d/p/2 == clk_freq
+        assert f0*n/d/p/4 == clk_freq
         assert 19e6     <= f0/d     <= 500e6    # pfd
         assert 400e6    <= f0*n/d   <= 1000e6   # vco
 
