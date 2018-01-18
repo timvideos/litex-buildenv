@@ -2,6 +2,11 @@ ifneq ($(OS),Windows_NT)
 ifeq ($(HDMI2USB_ENV),)
     $(error "Please enter environment. 'source scripts/enter-env.sh'")
 endif
+
+# Force colors despite running through tee.
+COLORAMA=force
+export COLORAMA
+
 endif
 
 PYTHON ?= python
@@ -124,6 +129,13 @@ IMAGE_FILE = $(TARGET_BUILD_DIR)/image-gateware+bios+$(FIRMWARE).bin
 TFTP_IPRANGE ?= 192.168.100
 export TFTP_IPRANGE
 TFTPD_DIR ?= build/tftpd/
+
+# Well known TFTP Server Port is UDP/69
+# Default to high numbered port so we can run TFTP server as non-root
+# (export into shell environment to use during building firmware BIOS)
+#
+TFTP_SERVER_PORT ?= 6069
+export TFTP_SERVER_PORT
 
 # Couple of Python settings.
 # ---------------------------------
@@ -298,6 +310,16 @@ bios-flash: $(BIOS_FILE) bios-flash-$(PLATFORM)
 # TFTP booting stuff
 # --------------------------------------
 # TFTP server for minisoc to load firmware from
+#
+# We can run the TFTP server as the user if port >= 1024
+# otherwise we need to run as root using sudo
+
+ATFTPD=$(shell which atftpd)
+ATFTPD?=/usr/sbin/atftpd
+
+IN_TFTPD=$(shell which in.tfptd)
+IN_TFTPD=?=/usr/sbin/in.tftpd
+
 tftp: $(FIRMWARE_FILEBASE).bin
 	mkdir -p $(TFTPD_DIR)
 	cp $(FIRMWARE_FILEBASE).bin $(TFTPD_DIR)/boot.bin
@@ -308,13 +330,24 @@ tftpd_stop:
 
 tftpd_start:
 	mkdir -p $(TFTPD_DIR)
-	sudo true
-	@if sudo which atftpd >/dev/null ; then \
+	@if [ $(TFTP_SERVER_PORT) -lt 1024 ]; then \
+		echo "Root required to run TFTP Server, will use sudo"; \
+		sudo true; \
+	fi
+	@if [ -x "$(ATFTPD)" ]; then \
 		echo "Starting aftpd"; \
-		sudo atftpd --verbose --bind-address $(TFTP_IPRANGE).100 --daemon --logfile /dev/stdout --no-fork --user $(shell whoami) $(TFTPD_DIR) & \
-	elif sudo which in.tftpd >/dev/null; then \
+		if [ $(TFTP_SERVER_PORT) -lt 1024 ]; then \
+			sudo "$(ATFTPD)" --verbose --bind-address $(TFTP_IPRANGE).100 --port $(TFTP_SERVER_PORT) --daemon --logfile /dev/stdout --no-fork --user $(shell whoami) --group $(shell id -gn) $(TFTPD_DIR) & \
+		else \
+			"$(ATFTPD)" --verbose --bind-address $(TFTP_IPRANGE).100 --port $(TFTP_SERVER_PORT) --daemon --logfile /dev/stdout --no-fork --user $(shell whoami) --group $(shell id -gn) $(TFTPD_DIR) & \
+		fi \
+	elif [ -x "$(IN_TFTPD)" ]; then \
 		echo "Starting in.tftpd"; \
-		sudo in.tftpd --verbose --listen --address $(TFTP_IPRANGE).100 --user $(shell whoami) -s $(TFTPD_DIR) & \
+		if [ $(TFTP_SERVER_PORT) -lt 1024 ]; then \
+			sudo "$(IN_TFTPD)" --verbose --listen --address $(TFTP_IPRANGE).100 --port-range $(TFTP_SERVER_PORT):$(TFTP_SERVER_PORT) --user $(shell whoami) -s $(TFTPD_DIR) & \
+		else \
+			"$(IN_TFTPD)" --verbose --listen --address $(TFTP_IPRANGE).100 --port-range $(TFTP_SERVER_PORT):$(TFTP_SERVER_PORT) --user $(shell whoami) -s $(TFTPD_DIR) & \
+		fi \
 	else \
 		echo "Cannot find an appropriate tftpd binary to launch the server."; \
 		false; \
@@ -354,6 +387,7 @@ env:
 	@echo "export BIOS_FILE='$(BIOS_FILE)'"
 	@# Network settings
 	@echo "export TFTP_IPRANGE='$(TFTP_IPRANGE)'"
+	@echo "export TFTP_SERVER_PORT='$(TFTP_SERVER_PORT)'"
 	@echo "export TFTPD_DIR='$(TFTPD_DIR)'"
 
 info:
