@@ -26,8 +26,7 @@ gateware-flash-$(PLATFORM): gateware-flash-py
 
 # Firmware
 firmware-load-$(PLATFORM):
-	@echo "Unsupported."
-	@false
+	flterm --port=$(COMM_PORT) --kernel=$(FIRMWARE_FILEBASE).bin --speed=$(BAUD)
 
 firmware-flash-$(PLATFORM): firmwage-flash-py
 	@true
