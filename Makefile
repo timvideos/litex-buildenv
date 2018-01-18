@@ -2,6 +2,11 @@ ifneq ($(OS),Windows_NT)
 ifeq ($(HDMI2USB_ENV),)
     $(error "Please enter environment. 'source scripts/enter-env.sh'")
 endif
+
+# Force colors despite running through tee.
+COLORAMA=force
+export COLORAMA
+
 endif
 
 PYTHON ?= python
