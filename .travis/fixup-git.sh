@@ -2,6 +2,8 @@
 
 set -e
 
+DF_BEFORE_GIT="$(($(stat -f --format="%a*%S" .)))"
+
 echo ""
 echo ""
 echo ""
@@ -114,5 +116,4 @@ echo "---------------------------------------------"
 df -h
 echo ""
 DF_AFTER_GIT="$(($(stat -f --format="%a*%S" .)))"
-awk "BEGIN {printf \"Git is using %.2f megabytes\n\",($DF_LAST-$DF_AFTER_GIT)/1024/1024}"
-DF_LAST="$DF_AFTER_GIT"
+awk "BEGIN {printf \"Git is using %.2f megabytes\n\",($DF_BEFORE_GIT-$DF_AFTER_GIT)/1024/1024}"
