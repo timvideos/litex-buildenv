@@ -1,4 +1,4 @@
-# opsis targets
+# galatea targets
 
 ifneq ($(PLATFORM),galatea)
 	$(error "Platform should be galatea when using this file!?")
@@ -9,44 +9,41 @@ DEFAULT_TARGET = base
 TARGET ?= $(DEFAULT_TARGET)
 
 # Image
-image-flash-$(PLATFORM):
-	$(PLATFORM)-mode-switch --verbose --flash-gateware=$(IMAGE_FILE)
-	$(PLATFORM)-mode-switch --verbose --reset-gateware
+image-flash-$(PLATFORM): image-flash-py
+	@true
 
 # Gateware
 gateware-load-$(PLATFORM):
-	$(PLATFORM)-mode-switch --verbose --load-gateware $(GATEWARE_FILEBASE).bit
-	$(PLATFORM)-mode-switch --verbose --reset-gateware
+	@echo "Unsupported."
+	@false
 
-gateware-flash-$(PLATFORM):
-	$(PLATFORM)-mode-switch --verbose --flash-gateware=$(GATEWARE_FILEBASE).bin
-	$(PLATFORM)-mode-switch --verbose --reset-gateware
+gateware-flash-$(PLATFORM): gateware-flash-py
+	@true
 
 # Firmware
 firmware-load-$(PLATFORM):
-	$(PLATFORM)-mode-switch --verbose --mode=serial
-	flterm --port=$$($(PLATFORM)-mode-switch --get-serial-dev) --kernel=$(FIRMWARE_FILEBASE).bin
+	@echo "Unsupported."
+	@false
 
-firmware-flash-$(PLATFORM):
-	$(PLATFORM)-mode-switch --verbose --flash-softcpu-firmware=$(FIRMWARE_FILEBASE).fbi
-	$(PLATFORM)-mode-switch --verbose --reset-gateware
+firmware-flash-$(PLATFORM): firmwage-flash-py
+	@true
 
 firmware-connect-$(PLATFORM):
-	flterm --port=$$($(PLATFORM)-mode-switch --get-serial-dev)
+	flterm --port=$(COMM_PORT) --speed=$(BAUD)
 
 firmware-clear-$(PLATFORM):
-	$(PLATFORM)-mode-switch --verbose --clear-softcpu-firmware
+	@echo "FIXME: Unsupported?."
+	@false
 
 # Bios
 bios-flash-$(PLATFORM):
-	$(PLATFORM)-mode-switch --verbose --flash-softcpu-bios=$(BIOS_FILE)
-	$(PLATFORM)-mode-switch --verbose --reset-gateware
+	@echo "Unsupported."
+	@false
 
 # Extra commands
 help-$(PLATFORM):
 	@true
 
 reset-$(PLATFORM):
-	$(PLATFORM)-mode-switch --verbose --mode=serial
-	$(PLATFORM)-mode-switch --verbose --mode=jtag
-	$(PLATFORM)-mode-switch --verbose --mode=serial
+	@echo "Unsupported."
+	@false
