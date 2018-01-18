@@ -126,7 +126,7 @@ export TFTP_IPRANGE
 TFTPD_DIR ?= build/tftpd/
 
 # Default TFTP Server Port to IANA well known UDP/69
-TFTP_SERVER_PORT ?= 69
+TFTP_SERVER_PORT ?= 6069
 
 # Couple of Python settings.
 # ---------------------------------
