@@ -129,7 +129,15 @@ if grep -q ETHMAC_BASE $TARGET_BUILD_DIR/software/include/generated/csr.h; then
 				exit 1
 			fi
 			sudo chown $(whoami) /dev/net/tap0
-			sudo ifconfig tap0 $TFTP_IPRANGE.100 up
+			if sudo which ifconifg > /dev/null; then
+				sudo ifconfig tap0 $TFTP_IPRANGE.100 up
+			elif sudo which ip > /dev/null; then
+				sudo ip addr add $TFTP_IPRANGE.100/24 dev tap0
+				sudo ip link set dev tap0 up
+			else
+				echo "Unable to find tool to configure tap0 address"
+				exit 1
+			fi
 			make tftpd_start
 		fi
 		EXTRA_ARGS+=("-net nic -net tap,ifname=tap0,script=no,downscript=no")
