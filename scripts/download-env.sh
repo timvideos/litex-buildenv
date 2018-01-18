@@ -252,6 +252,18 @@ if [ "$PLATFORM" == "mimasv2" ]; then
 	check_exists MimasV2Config.py
 fi
 
+# elbertconfig.py
+if [ "$PLATFORM" == "elbertv2" ]; then
+	ELBERTCONFIG=$BUILD_DIR/conda/bin/elbertconfig.py
+	echo
+	echo "Installing elbertconfig.py (Elbert flashing tool)"
+	if [ ! -e $ELBERTCONFIG ]; then
+		wget https://raw.githubusercontent.com/numato/samplecode/master/FPGA/ElbertV2/tools/configuration/python/elbertconfig.py -O $ELBERTCONFIG
+		chmod a+x $ELBERTCONFIG
+	fi
+	check_exists elbertconfig.py
+fi
+
 # flterm
 echo
 echo "Installing flterm (serial terminal tool)"
