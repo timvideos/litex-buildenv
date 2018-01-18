@@ -125,6 +125,9 @@ TFTP_IPRANGE ?= 192.168.100
 export TFTP_IPRANGE
 TFTPD_DIR ?= build/tftpd/
 
+# Default TFTP Server Port to IANA well known UDP/69
+TFTP_SERVER_PORT ?= 69
+
 # Couple of Python settings.
 # ---------------------------------
 # Turn off Python's hash randomization
@@ -298,6 +301,10 @@ bios-flash: $(BIOS_FILE) bios-flash-$(PLATFORM)
 # TFTP booting stuff
 # --------------------------------------
 # TFTP server for minisoc to load firmware from
+#
+# We can run the TFTP server as the user if port >= 1024
+# otherwise we need to run as root using sudo
+
 tftp: $(FIRMWARE_FILEBASE).bin
 	mkdir -p $(TFTPD_DIR)
 	cp $(FIRMWARE_FILEBASE).bin $(TFTPD_DIR)/boot.bin
@@ -308,13 +315,24 @@ tftpd_stop:
 
 tftpd_start:
 	mkdir -p $(TFTPD_DIR)
-	sudo true
+	@if [ $(TFTP_SERVER_PORT) -lt 1024 ]; then \
+		echo "Root required to run TFTP Server, will use sudo"; \
+		sudo true; \
+	fi
 	@if sudo which atftpd >/dev/null ; then \
 		echo "Starting aftpd"; \
-		sudo atftpd --verbose --bind-address $(TFTP_IPRANGE).100 --daemon --logfile /dev/stdout --no-fork --user $(shell whoami) --group $(shell id -gn) $(TFTPD_DIR) & \
+		if [ $(TFTP_SERVER_PORT) -lt 1024 ]; then \
+			sudo atftpd --verbose --bind-address $(TFTP_IPRANGE).100 --port $(TFTP_SERVER_PORT) --daemon --logfile /dev/stdout --no-fork --user $(shell whoami) --group $(shell id -gn) $(TFTPD_DIR) & \
+		else \
+			atftpd --verbose --bind-address $(TFTP_IPRANGE).100 --port $(TFTP_SERVER_PORT) --daemon --logfile /dev/stdout --no-fork --user $(shell whoami) --group $(shell id -gn) $(TFTPD_DIR) & \
+		fi \
 	elif sudo which in.tftpd >/dev/null; then \
 		echo "Starting in.tftpd"; \
-		sudo in.tftpd --verbose --listen --address $(TFTP_IPRANGE).100 --user $(shell whoami) -s $(TFTPD_DIR) & \
+		if [ $(TFTP_SERVER_PORT) -lt 1024 ]; then \
+			sudo in.tftpd --verbose --listen --address $(TFTP_IPRANGE).100 --port-range $(TFTP_SERVER_PORT):$(TFTP_SERVER_PORT) --user $(shell whoami) -s $(TFTPD_DIR) & \
+		else \
+			in.tftpd --verbose --listen --address $(TFTP_IPRANGE).100 --port-range $(TFTP_SERVER_PORT):$(TFTP_SERVER_PORT) --user $(shell whoami) -s $(TFTPD_DIR) & \
+		fi \
 	else \
 		echo "Cannot find an appropriate tftpd binary to launch the server."; \
 		false; \
