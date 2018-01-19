@@ -132,6 +132,7 @@ static int inc_color(int color) {
 }
 
 static void pattern_draw_text_color(int x, int y, char *ptr, long background_color, long text_color) {
+#ifdef MAIN_RAM_BASE
 	int i, j, k;
 	int adr;
 	volatile unsigned int *framebuffer = (unsigned int *)(MAIN_RAM_BASE + pattern_framebuffer_base());
@@ -149,6 +150,8 @@ static void pattern_draw_text_color(int x, int y, char *ptr, long background_col
 			}
 		}
 	}
+/* FIXME: Framebuffer Should not even be compiled if no MAIN RAM */
+#endif
 }
 
 static void pattern_draw_text(int x, int y, char *ptr) {
@@ -164,6 +167,7 @@ void pattern_next(void) {
 
 void pattern_fill_framebuffer(int h_active, int w_active)
 {
+#ifdef MAIN_RAM_BASE
 	int i, j;
 	int color;
 	flush_l2_cache();
@@ -242,10 +246,13 @@ void pattern_fill_framebuffer(int h_active, int w_active)
 #endif
 
 	flush_l2_cache();
+/* FIXME: Framebuffer Should not even be compiled if no MAIN RAM */
+#endif
 }
 
 void pattern_service(void)
 {
+#ifdef MAIN_RAM_BASE
 	static int last_event;
 	static char buffer[16];
 
@@ -254,4 +261,6 @@ void pattern_service(void)
 		pattern_draw_text(1, 1, buffer);
 	}
 	flush_l2_cache();
+/* FIXME: Framebuffer Should not even be compiled if no MAIN RAM */
+#endif
 }

@@ -14,6 +14,7 @@
 #ifndef __FRAMEBUFFER_H
 #define __FRAMEBUFFER_H
 
+#include <assert.h>
 #include <stdint.h>
 #include "generated/mem.h"
 
@@ -62,7 +63,13 @@ typedef unsigned int fb_ptrdiff_t;
 // FIXME: typedef uint16_t framebuffer_t[FRAMEBUFFER_SIZE];
 
 inline unsigned int *fb_ptrdiff_to_main_ram(fb_ptrdiff_t p) {
+#ifdef MAIN_RAM_BASE
 	return (unsigned int *)(MAIN_RAM_BASE + p);
+#else
+/*       FIXME!  Should be unreachable if we have no main ram! */
+        assert(0);
+        return (unsigned int *)(0);
+#endif
 }
 
 #endif /* __FRAMEBUFFER_H */
