@@ -105,7 +105,7 @@ def main():
     platform = get_platform(args)
 
     exec("from targets.{}.{} import SoC".format(args.platform, args.target.lower(), args.target), globals())
-    soc = SoC(platform, **soc_sdram_argdict(args), **dict(args.target_option))
+    soc = SoC(platform, ident=SoC.__class__.__name__, **soc_sdram_argdict(args), **dict(args.target_option))
     if hasattr(soc, 'configure_iprange'):
         soc.configure_iprange(args.iprange)
 
