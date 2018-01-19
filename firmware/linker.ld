@@ -5,6 +5,31 @@ __DYNAMIC = 0;
 
 INCLUDE generated/regions.ld
 
+/* XXX: Elbert v2 hack, without main RAM -- offset in spiflash
+
+        platforms/elbertv2/base.py:
+        self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size+bios_size
+
+        generated/regions.ld:
+        spiflash : ORIGIN = 0x20000000, LENGTH = 0x00200000
+
+        targets/elbertv2.py:
+        gateware_size = 0x10000
+
+        platforms/elbertv2/base.py:
+        bios_size = 0x8000
+
+        Plus there is some values at the start of the flash (length/CRC)
+        which we need to skip; call that 0x100
+
+        .data has to go into sram, because needs to be writable and there
+        is no where else.
+*/
+MEMORY {
+	main_base : ORIGIN = 0x20018100, LENGTH = 0x001e7f00
+}
+/* XXX: ^^^^^ Elbert v2 hack */
+
 SECTIONS
 {
 	.text :
@@ -12,7 +37,7 @@ SECTIONS
 		_ftext = .;
 		*(.text .stub .text.* .gnu.linkonce.t.*)
 		_etext = .;
-	} > main_ram
+	} > main_base
 
 	.rodata :
 	{
@@ -21,7 +46,7 @@ SECTIONS
 		*(.rodata .rodata.* .gnu.linkonce.r.*)
 		*(.rodata1)
 		_erodata = .;
-	} > main_ram
+	} > main_base
 
 	.data :
 	{
@@ -32,7 +57,7 @@ SECTIONS
 		_gp = ALIGN(16);
 		*(.sdata .sdata.* .gnu.linkonce.s.*)
 		_edata = .;
-	} > main_ram
+	} > sram
 
 	.bss :
 	{
