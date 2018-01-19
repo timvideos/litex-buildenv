@@ -14,8 +14,6 @@ from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 
-from litedram.core import ControllerSettings
-
 from gateware import info
 from gateware import cas
 from gateware import spi_flash
@@ -48,8 +46,10 @@ class _CRG(Module):
         p = 8
         f = Fraction(clk_freq*p, f0)
         n, d = f.numerator, f.denominator
-        assert 19e6 <= f0/d <= 500e6  # pfd
-        assert 400e6 <= f0*n/d <= 1080e6  # vco
+
+        # XXX: unclear what these asserts should be with 12 MHz clock...
+        #assert 19e6 <= f0/d <= 500e6  # pfd
+        #assert 400e6 <= f0*n/d <= 1080e6  # vco
 
         # Unbuffered output signals from the PLL. They need to be buffered
         # before feeding into the fabric.
@@ -172,7 +172,9 @@ class BaseSoC(SoCCore):
 
         # Basic peripherals
         self.submodules.info = info.Info(platform, self.__class__.__name__)
-        self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
+
+        # XXX: Unclear if we need something else to support this...
+        #self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
 
         # spi flash
         self.submodules.spiflash = spi_flash.SpiFlashSingle(
