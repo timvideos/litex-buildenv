@@ -32,11 +32,13 @@ cat $FIRMWARE_DIR/hdmi_in0.h | sed \
 	-e"s/IN0_INDEX\([^0-9]\+\)0/IN${X}_INDEX\1$X/g" \
 	-e"s/IN0/IN$X/g" \
 	-e"s/in0/in$X/g" \
+	-e"s/dvisampler0/dvisampler$X/g" \
 	> $TMPFILE_H
 
 cat $FIRMWARE_DIR/hdmi_in0.c | sed \
 	-e"s/IN0/IN$X/g" \
 	-e"s/in0/in$X/g" \
+	-e"s/dvisampler0/dvisampler$X/g" \
 	> $TMPFILE_C
 
 if ! cmp -s $TMPFILE_H hdmi_in$X.h; then
