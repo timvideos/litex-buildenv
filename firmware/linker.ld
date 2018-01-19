@@ -20,13 +20,21 @@ INCLUDE generated/regions.ld
         bios_size = 0x8000
 
         Plus there is some values at the start of the flash (length/CRC)
-        which we need to skip; call that 0x100
+        which we need to skip; these are unsigned ints (4 bytes) each, so
+        0x08.
+
+        (This calculation might require revisting and/or adjusting if
+        the litex bios calculations are adjusted.)
 
         .data has to go into sram, because needs to be writable and there
         is no where else.
+
+        Check generated address locations with, eg,
+        objdump -t build/elbertv2_base_lm32/software/firmware/firmware.elf
+
 */
 MEMORY {
-	main_base : ORIGIN = 0x20018100, LENGTH = 0x001e7f00
+	main_base : ORIGIN = 0x20018008, LENGTH = 0x001e7f00
 }
 /* XXX: ^^^^^ Elbert v2 hack */
 
