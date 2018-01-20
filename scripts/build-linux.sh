@@ -78,7 +78,7 @@ LINUX_BRANCH=${LINUX_BRANCH:-litex-minimal}
 	CURRENT_LINUX_REMOTE_NAME=$(git remote -v | grep fetch | grep "$LINUX_REMOTE_BIT" | sed -e's/\t.*$//')
 	if [ x"$CURRENT_LINUX_REMOTE_NAME" = x ]; then
 		git remote add $LINUX_REMOTE_NAME $LINUX_REMOTE
-		CURRENT_LINUX_REMOTE_NAME=$CURRENT_LINUX_REMOTE_NAME
+		CURRENT_LINUX_REMOTE_NAME=$LINUX_REMOTE_NAME
 	fi
 
 	# Get any new data
