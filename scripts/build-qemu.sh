@@ -202,6 +202,9 @@ if grep -q ETHMAC_BASE $TARGET_BUILD_DIR/software/include/generated/csr.h; then
 		# FIXME: Make this optional.
 		EXTRA_ARGS+=("-net dump,file=/tmp/data.pcap")
 		;;
+	none)
+		echo "QEmu networking disabled..."
+		;;
 	*)
 		echo "Unknown QEMU_NETWORK mode '$QEMU_NETWORK'"
 		;;
