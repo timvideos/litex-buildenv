@@ -25,7 +25,6 @@ class _CRG(Module):
         self.clock_domains.cd_clk50 = ClockDomain()
 
         clk100 = platform.request("clk100")
-        rst = ~platform.request("cpu_reset")
 
         pll_locked = Signal()
         pll_fb = Signal()
@@ -68,9 +67,9 @@ class _CRG(Module):
             Instance("BUFG", i_I=pll_sys4x_dqs, o_O=self.cd_sys4x_dqs.clk),
             Instance("BUFG", i_I=pll_clk200, o_O=self.cd_clk200.clk),
             Instance("BUFG", i_I=pll_clk50, o_O=self.cd_clk50.clk),
-            AsyncResetSynchronizer(self.cd_sys, ~pll_locked | rst),
-            AsyncResetSynchronizer(self.cd_clk200, ~pll_locked | rst),
-            AsyncResetSynchronizer(self.cd_clk50, ~pll_locked | rst),
+            AsyncResetSynchronizer(self.cd_sys, ~pll_locked),
+            AsyncResetSynchronizer(self.cd_clk200, ~pll_locked),
+            AsyncResetSynchronizer(self.cd_clk50, ~pll_locked),
         ]
 
         reset_counter = Signal(4, reset=15)
@@ -89,8 +88,6 @@ class BaseSoC(SoCSDRAM):
         "spiflash",
         "ddrphy",
         "info",
-#        "leds",
-#        "rgb_leds",
     )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
@@ -112,8 +109,6 @@ class BaseSoC(SoCSDRAM):
 
         # Basic peripherals
         self.submodules.info = info.Info(platform, self.__class__.__name__)
-#        self.submodules.leds = led.ClassicLed(Cat(platform.request("user_led", i) for i in range(4)))
-#        self.submodules.rgb_leds = led.RGBLed(platform.request("rgb_leds"))
 
         # spi flash
         spiflash_pads = platform.request(spiflash)
