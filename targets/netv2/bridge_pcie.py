@@ -64,7 +64,6 @@ class PCIeDMASoC(SoCCore):
             shadow_base=0x00000000,
             csr_data_width=32,
             with_uart=False,
-            ident="NeTV2 LiteX PCIe SoC",
             with_timer=False,
             **kwargs)
         self.submodules.crg = _CRG(platform)
