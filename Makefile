@@ -486,7 +486,7 @@ reset: reset-$(PLATFORM)
 clean:
 	rm -f build/cache.mk
 	rm -rf $(TARGET_BUILD_DIR)
-	py3clean . || rm -rf $$(find -name __pycache__)
+	py3clean . 2>/dev/null || rm -rf $$(find -name __pycache__)
 
 dist-clean:
 	rm -rf build
