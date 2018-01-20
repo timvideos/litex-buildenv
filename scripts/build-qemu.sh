@@ -33,6 +33,10 @@ make info
 set -x
 set -e
 
+QEMU_REMOTE="${QEMU_REMOTE:-https://github.com/timvideos/qemu-litex.git}"
+QEMU_REMOTE_NAME=timvideos-qemu-litex
+QEMU_REMOTE_BIT=$(echo $QEMU_REMOTE | sed -e's-^.*://--' -e's/.git$//')
+QEMU_BRANCH=${QEMU_BRANCH:-master}
 QEMU_SRC_DIR=$TOP_DIR/third_party/qemu-litex
 if [ ! -d "$QEMU_SRC_DIR" ]; then
 	(
@@ -40,6 +44,26 @@ if [ ! -d "$QEMU_SRC_DIR" ]; then
 		git clone https://github.com/timvideos/qemu-litex.git
 		cd $QEMU_SRC_DIR
 		git submodule update --init dtc
+	)
+else
+	(
+		cd $QEMU_SRC_DIR
+
+		# Add the remote if it doesn't exist
+		CURRENT_QEMU_REMOTE_NAME=$(git remote -v | grep fetch | grep "$QEMU_REMOTE_BIT" | sed -e's/\t.*$//')
+		if [ x"$CURRENT_QEMU_REMOTE_NAME" = x ]; then
+			git remote add $QEMU_REMOTE_NAME $QEMU_REMOTE
+			CURRENT_QEMU_REMOTE_NAME=$QEMU_REMOTE_NAME
+		fi
+
+		# Get any new data
+		git fetch $CURRENT_QEMU_REMOTE_NAME
+
+		# Checkout or1k-linux branch it not already on it
+		if [ "$(git rev-parse --abbrev-ref HEAD)" != "$QEMU_BRANCH" ]; then
+			git checkout $QEMU_BRANCH || \
+				git checkout "$CURRENT_QEMU_REMOTE_NAME/$QEMU_BRANCH" -b $QEMU_BRANCH
+		fi
 	)
 fi
 
