@@ -208,13 +208,13 @@ image-flash-py: image
 .PHONY: image image-load image-flash image-flash-py image-flash-$(PLATFORM) image-load-$(PLATFORM)
 .NOTPARALLEL: image-load image-flash image-flash-py image-flash-$(PLATFORM) image-load-$(PLATFORM)
 
-# Gateware - the stuff which configures the FPGA.
-# --------------------------------------
-GATEWARE_MODULES=litex litedram liteeth litepcie litesata litescope liteusb litevideo litex
-gateware-submodules: $(addsuffix /.git,$(addprefix third_party/,$(GATEWARE_MODULES)))
+LITEX_SUBMODULES=litex litedram liteeth litepcie litesata litescope liteusb litevideo
+litex-submodules: $(addsuffix /.git,$(addprefix third_party/,$(LITEX_SUBMODULES)))
 	@true
 
-gateware: gateware-submodules
+# Gateware - the stuff which configures the FPGA.
+# --------------------------------------
+gateware: litex-submodules
 	mkdir -p $(TARGET_BUILD_DIR)
 ifneq ($(OS),Windows_NT)
 	$(MAKE_CMD) \
@@ -250,7 +250,7 @@ gateware-clean:
 
 # Firmware - the stuff which runs in the soft CPU inside the FPGA.
 # --------------------------------------
-firmware-cmd:
+firmware-cmd: litex-submodules
 	mkdir -p $(TARGET_BUILD_DIR)
 ifneq ($(OS),Windows_NT)
 	$(MAKE_CMD) --no-compile-gateware \
