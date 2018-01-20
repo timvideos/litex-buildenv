@@ -18,8 +18,7 @@ image-flash-$(PLATFORM): image-flash-py
 
 # Gateware
 gateware-load-$(PLATFORM):
-	@echo "Unsupported."
-	@false
+	openocd -f board/numato_$(PLATFORM).cfg -c "init; pld load 0 $(TARGET_BUILD_DIR)/gateware/top.bit; exit"
 
 gateware-flash-$(PLATFORM): gateware-flash-py
 	@true
