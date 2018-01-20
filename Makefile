@@ -325,8 +325,13 @@ tftp: $(FIRMWARE_FILEBASE).bin
 	cp $(FIRMWARE_FILEBASE).bin $(TFTPD_DIR)/boot.bin
 
 tftpd_stop:
-	sudo true
-	sudo killall atftpd || sudo killall in.tftpd || true # FIXME: This is dangerous...
+	# FIXME: This is dangerous...
+	@if [ $(TFTP_SERVER_PORT) -lt 1024 ]; then \
+		sudo true; \
+		sudo killall atftpd || sudo killall in.tftpd || true; \
+	else \
+		killall atftpd || killall in.tftpd || true; \
+	fi
 
 tftpd_start:
 	mkdir -p $(TFTPD_DIR)
