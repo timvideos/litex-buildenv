@@ -140,30 +140,48 @@ if grep -q ETHMAC_BASE $TARGET_BUILD_DIR/software/include/generated/csr.h; then
 	QEMU_NETWORK=${QEMU_NETWORK:-tap}
 	case $QEMU_NETWORK in
 	tap)
+		echo "Using tun device for QEmu networking, (may need sudo)..."
+		# Make the tap0 dev node exists
 		if [ ! -e /dev/net/tap0 ]; then
-			echo "Need to create and bring up a tun device, needing sudo..."
 			sudo true
 			sudo mknod /dev/net/tap0 c 10 200
+			sudo chown $(whoami) /dev/net/tap0
+		fi
+
+		# Check that the tap0 network interface exists
+		if [ ! -e /sys/class/net/tap0 ]; then
+			sudo true
 			if sudo which openvpn > /dev/null; then
-				sudo openvpn --mktun --dev tap0
+				sudo openvpn --mktun --dev tap0 --user $(whoami)
 			elif sudo which tunctl > /dev/null; then
 				sudo tunctl -t tap0 -u $(whoami)
 			else
 				echo "Unable to find tool to create tap0 device!"
 				exit 1
 			fi
-			sudo chown $(whoami) /dev/net/tap0
-			if sudo which ifconifg > /dev/null; then
-				sudo ifconfig tap0 $TFTP_IPRANGE.100 up
-			elif sudo which ip > /dev/null; then
+		fi
+
+		# Check the tap0 device if configure and up
+		if sudo which ifconfig > /dev/null; then
+			if ! ifconfig tap0 | grep -q "UP" || ! ifconfig tap0 | grep -q "$TFTP_IPRANGE.100"; then
+				sudo true
+				sudo ifconfig tap0 $TFTP_IPRANGE.100 netmask 255.255.255.0 up
+			fi
+		elif sudo which ip > /dev/null; then
+			if ! ip addr show tap0 | grep -q "UP" || ! ip addr show tap0 | grep -q "$TFTP_IPRANGE.100"; then
+				sudo true
 				sudo ip addr add $TFTP_IPRANGE.100/24 dev tap0
 				sudo ip link set dev tap0 up
-			else
-				echo "Unable to find tool to configure tap0 address"
-				exit 1
 			fi
-			make tftpd_start
+		else
+			echo "Unable to find tool to configure tap0 address"
+			exit 1
 		fi
+
+		# Restart tftpd
+		make tftpd_stop
+		make tftpd_start
+
 		EXTRA_ARGS+=("-net nic -net tap,ifname=tap0,script=no,downscript=no")
 		;;
 
