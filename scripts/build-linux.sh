@@ -142,9 +142,6 @@ TARGET_LINUX_BUILD_DIR=$(dirname $TOP_DIR/$FIRMWARE_FILEBASE)
 		if [ ! -e $ROOTFS ]; then
 			wget "https://ozlabs.org/~joel/openrisc-rootfs.cpio.gz" -O $ROOTFS
 		fi
-		if [ ! -e $ROOTFS.gz ]; then
-			gzip -k $ROOTFS
-		fi
 	)
 	make O="$TARGET_LINUX_BUILD_DIR" litex_defconfig
 	time make O="$TARGET_LINUX_BUILD_DIR" -j$JOBS
