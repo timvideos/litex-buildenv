@@ -78,7 +78,7 @@ LINUX_BRANCH=${LINUX_BRANCH:-litex-minimal}
 	CURRENT_LINUX_REMOTE_NAME=$(git remote -v | grep fetch | grep "$LINUX_REMOTE_BIT" | sed -e's/\t.*$//')
 	if [ x"$CURRENT_LINUX_REMOTE_NAME" = x ]; then
 		git remote add $LINUX_REMOTE_NAME $LINUX_REMOTE
-		CURRENT_LINUX_REMOTE_NAME=$CURRENT_LINUX_REMOTE_NAME
+		CURRENT_LINUX_REMOTE_NAME=$LINUX_REMOTE_NAME
 	fi
 
 	# Get any new data
@@ -141,9 +141,6 @@ TARGET_LINUX_BUILD_DIR=$(dirname $TOP_DIR/$FIRMWARE_FILEBASE)
 		ROOTFS=openrisc-rootfs.cpio.gz
 		if [ ! -e $ROOTFS ]; then
 			wget "https://ozlabs.org/~joel/openrisc-rootfs.cpio.gz" -O $ROOTFS
-		fi
-		if [ ! -e $ROOTFS.gz ]; then
-			gzip -k $ROOTFS
 		fi
 	)
 	make O="$TARGET_LINUX_BUILD_DIR" litex_defconfig
