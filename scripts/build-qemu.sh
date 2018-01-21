@@ -59,7 +59,7 @@ else
 		# Get any new data
 		git fetch $CURRENT_QEMU_REMOTE_NAME
 
-		# Checkout or1k-linux branch it not already on it
+		# Checkout master branch it not already on it
 		if [ "$(git rev-parse --abbrev-ref HEAD)" != "$QEMU_BRANCH" ]; then
 			git checkout $QEMU_BRANCH || \
 				git checkout "$CURRENT_QEMU_REMOTE_NAME/$QEMU_BRANCH" -b $QEMU_BRANCH
