@@ -208,9 +208,32 @@ image-flash-py: image
 .PHONY: image image-load image-flash image-flash-py image-flash-$(PLATFORM) image-load-$(PLATFORM)
 .NOTPARALLEL: image-load image-flash image-flash-py image-flash-$(PLATFORM) image-load-$(PLATFORM)
 
+# Submodule checks
+#
+# Generate third_party/*/.git dependencies to force checkouts of submodules
+#
+# Also check for non-matching submodules, and warn that update might be
+# needed (but do not force to match, as that makes development difficult)
+# This is indicated by a "git submodule status" that does not start with
+# a space (" ").
+#
 LITEX_SUBMODULES=litex litedram liteeth litepcie litesata litescope liteusb litevideo
 litex-submodules: $(addsuffix /.git,$(addprefix third_party/,$(LITEX_SUBMODULES)))
-	@true
+	@if git submodule status --recursive | grep "^[^ ]" >/dev/null; then \
+		echo ""; \
+		echo "***************************************************************************"; \
+		echo "WARNING: the following submodules do not match expected commit:"; \
+		echo ""; \
+		git submodule status --recursive | grep "^[^ ]"; \
+		echo ""; \
+		echo "If you are not developing in submodules you may need to run:"; \
+		echo ""; \
+		echo "git submodule update --init --recursive"; \
+		echo ""; \
+		echo "manually to bring everything back in sync with upstream"; \
+		echo "***************************************************************************"; \
+		echo ""; \
+	fi
 
 # Gateware - the stuff which configures the FPGA.
 # --------------------------------------
