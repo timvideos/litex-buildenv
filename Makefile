@@ -317,8 +317,8 @@ bios-flash: $(BIOS_FILE) bios-flash-$(PLATFORM)
 ATFTPD=$(shell which atftpd 2> /dev/null)
 ATFTPD?=/usr/sbin/atftpd
 
-IN_TFTPD=$(shell which in.tfptd)
-IN_TFTPD=?=/usr/sbin/in.tftpd
+IN_TFTPD=$(shell which in.tftpd 2> /dev/null)
+IN_TFTPD?=/usr/sbin/in.tftpd
 
 tftp: $(FIRMWARE_FILEBASE).bin
 	mkdir -p $(TFTPD_DIR)
@@ -347,11 +347,11 @@ tftpd_start:
 			"$(ATFTPD)" --verbose --bind-address $(TFTP_IPRANGE).100 --port $(TFTP_SERVER_PORT) --daemon --logfile /dev/stdout --no-fork --user $(shell whoami) --group $(shell id -gn) $(TFTPD_DIR) & \
 		fi \
 	elif [ -x "$(IN_TFTPD)" ]; then \
-		echo "Starting in.tftpd"; \
+		echo "Starting in.tftpd on port $(TFTP_SERVER_PORT)"; \
 		if [ $(TFTP_SERVER_PORT) -lt 1024 ]; then \
 			sudo "$(IN_TFTPD)" --verbose --listen --address $(TFTP_IPRANGE).100 --port-range $(TFTP_SERVER_PORT):$(TFTP_SERVER_PORT) --user $(shell whoami) -s $(TFTPD_DIR) & \
 		else \
-			"$(IN_TFTPD)" --verbose --listen --address $(TFTP_IPRANGE).100 --port-range $(TFTP_SERVER_PORT):$(TFTP_SERVER_PORT) --user $(shell whoami) -s $(TFTPD_DIR) & \
+			"$(IN_TFTPD)" --verbose --listen --address $(TFTP_IPRANGE).100:$(TFTP_SERVER_PORT) --port-range $(TFTP_SERVER_PORT):$(TFTP_SERVER_PORT) --user $(shell whoami) -s $(TFTPD_DIR) & \
 		fi \
 	else \
 		echo "Cannot find an appropriate tftpd binary to launch the server."; \
