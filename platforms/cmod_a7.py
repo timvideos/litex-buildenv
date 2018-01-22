@@ -3,32 +3,25 @@
 
 from litex.build.generic_platform import *
 from litex.build.openocd import OpenOCD
-from litex.build.xilinx import XilinxPlatform, XC3SProg, VivadoProgrammer
+from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 
 _io = [
 
     ## LEDs
     #set_property -dict { PACKAGE_PIN A17   IOSTANDARD LVCMOS33 } [get_ports { led[0] }]; #IO_L12N_T1_MRCC_16 Sch=led[1]
     #set_property -dict { PACKAGE_PIN C16   IOSTANDARD LVCMOS33 } [get_ports { led[1] }]; #IO_L13P_T2_MRCC_16 Sch=led[2]
-    ("user_led", 0, Pins("H5"), IOStandard("LVCMOS33")),
-    ("user_led", 1, Pins("J5"), IOStandard("LVCMOS33")),
-    ("user_led", 2, Pins("T9"), IOStandard("LVCMOS33")),
-    ("user_led", 3, Pins("T10"), IOStandard("LVCMOS33")),
+    ("user_led", 0, Pins("A17"), IOStandard("LVCMOS33")),
+    ("user_led", 1, Pins("C16"), IOStandard("LVCMOS33")),
 
     #set_property -dict { PACKAGE_PIN B17   IOSTANDARD LVCMOS33 } [get_ports { led0_b }]; #IO_L14N_T2_SRCC_16 Sch=led0_b
     #set_property -dict { PACKAGE_PIN B16   IOSTANDARD LVCMOS33 } [get_ports { led0_g }]; #IO_L13N_T2_MRCC_16 Sch=led0_g
     #set_property -dict { PACKAGE_PIN C17   IOSTANDARD LVCMOS33 } [get_ports { led0_r }]; #IO_L14P_T2_SRCC_16 Sch=led0_r
     ("rgb_leds", 0,
-        Subsignal("r", Pins("G6 G3 J3 K1")),
-        Subsignal("g", Pins("F6 J4 J2 H6")),
-        Subsignal("b", Pins("E1 G4 H4 K2")),
+        Subsignal("r", Pins("C17")),
+        Subsignal("g", Pins("B16")),
+        Subsignal("b", Pins("B17")),
         IOStandard("LVCMOS33")
     ),
-
-    ("user_sw", 0, Pins("A8"), IOStandard("LVCMOS33")),
-    ("user_sw", 1, Pins("C11"), IOStandard("LVCMOS33")),
-    ("user_sw", 2, Pins("C10"), IOStandard("LVCMOS33")),
-    ("user_sw", 3, Pins("A10"), IOStandard("LVCMOS33")),
 
     ## Buttons
     #set_property -dict { PACKAGE_PIN A18   IOSTANDARD LVCMOS33 } [get_ports { btn[0] }]; #IO_L19N_T3_VREF_16 Sch=btn[0]
@@ -41,14 +34,12 @@ _io = [
     #create_clock -add -name sys_clk_pin -period 83.33 -waveform {0 41.66} [get_ports {sysclk}];
     ("clk12", 0, Pins("L17"), IOStandard("LVCMOS33")),
 
-    ("cpu_reset", 0, Pins("C2"), IOStandard("LVCMOS33")),
-
     ## UART
     #set_property -dict { PACKAGE_PIN J18   IOSTANDARD LVCMOS33 } [get_ports { uart_rxd_out }]; #IO_L7N_T1_D10_14 Sch=uart_rxd_out
     #set_property -dict { PACKAGE_PIN J17   IOSTANDARD LVCMOS33 } [get_ports { uart_txd_in  }]; #IO_L7P_T1_D09_14 Sch=uart_txd_in
     ("serial", 0,
-        Subsignal("tx", Pins("D10")),
-        Subsignal("rx", Pins("A9")),
+        Subsignal("tx", Pins("J18")),
+        Subsignal("rx", Pins("J17")),
         IOStandard("LVCMOS33")),
 
     ## QSPI - N25Q032A13EF440F
@@ -164,7 +155,7 @@ class Platform(XilinxPlatform):
     spiflash_sector_size = 0x10000
 
     def __init__(self, toolchain="vivado", programmer="openocd"):
-        XilinxPlatform.__init__(self, "xc7a35t-csg236-1", _io,
+        XilinxPlatform.__init__(self, "xc7a35t-cpg236-1", _io,
                                 toolchain=toolchain)
         self.toolchain.bitstream_commands = \
             ["set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]"]
