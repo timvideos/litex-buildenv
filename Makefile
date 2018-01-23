@@ -208,9 +208,32 @@ image-flash-py: image
 .PHONY: image image-load image-flash image-flash-py image-flash-$(PLATFORM) image-load-$(PLATFORM)
 .NOTPARALLEL: image-load image-flash image-flash-py image-flash-$(PLATFORM) image-load-$(PLATFORM)
 
+# Submodule checks
+#
+# Generate third_party/*/.git dependencies to force checkouts of submodules
+#
+# Also check for non-matching submodules, and warn that update might be
+# needed (but do not force to match, as that makes development difficult)
+# This is indicated by a "git submodule status" that does not start with
+# a space (" ").
+#
 LITEX_SUBMODULES=litex litedram liteeth litepcie litesata litescope liteusb litevideo
 litex-submodules: $(addsuffix /.git,$(addprefix third_party/,$(LITEX_SUBMODULES)))
-	@true
+	@if git submodule status --recursive | grep "^[^ ]" >/dev/null; then \
+		echo ""; \
+		echo "***************************************************************************"; \
+		echo "WARNING: the following submodules do not match expected commit:"; \
+		echo ""; \
+		git submodule status --recursive | grep "^[^ ]"; \
+		echo ""; \
+		echo "If you are not developing in submodules you may need to run:"; \
+		echo ""; \
+		echo "git submodule update --init --recursive"; \
+		echo ""; \
+		echo "manually to bring everything back in sync with upstream"; \
+		echo "***************************************************************************"; \
+		echo ""; \
+	fi
 
 # Gateware - the stuff which configures the FPGA.
 # --------------------------------------
@@ -314,11 +337,15 @@ bios-flash: $(BIOS_FILE) bios-flash-$(PLATFORM)
 # We can run the TFTP server as the user if port >= 1024
 # otherwise we need to run as root using sudo
 
-ATFTPD=$(shell which atftpd)
-ATFTPD?=/usr/sbin/atftpd
+ATFTPD:=$(shell which atftpd)
+ifeq ($(ATFTPD),)
+ATFTPD:=/usr/sbin/atftpd
+endif
 
-IN_TFTPD=$(shell which in.tfptd)
-IN_TFTPD=?=/usr/sbin/in.tftpd
+IN_TFTPD:=$(shell which in.tfptd)
+ifeq ($(IN_TFTPD),)
+IN_TFTPD:=/usr/sbin/in.tftpd
+endif
 
 tftp: $(FIRMWARE_FILEBASE).bin
 	mkdir -p $(TFTPD_DIR)
@@ -340,7 +367,7 @@ tftpd_start:
 		sudo true; \
 	fi
 	@if [ -x "$(ATFTPD)" ]; then \
-		echo "Starting aftpd"; \
+		echo "Starting atftpd"; \
 		if [ $(TFTP_SERVER_PORT) -lt 1024 ]; then \
 			sudo "$(ATFTPD)" --verbose --bind-address $(TFTP_IPRANGE).100 --port $(TFTP_SERVER_PORT) --daemon --logfile /dev/stdout --no-fork --user $(shell whoami) --group $(shell id -gn) $(TFTPD_DIR) & \
 		else \
