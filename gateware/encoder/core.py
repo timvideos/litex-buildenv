@@ -29,7 +29,7 @@ class EncoderDMAReader(Module, AutoCSR):
         burst_pixels = dram_port.dw//pixel_bits
         alignment_bits = bits_for(dram_port.dw//8) - 1
 
-        self.comb += dma.source.connect(source) # XXX add Converter
+        self.comb += dma.source.connect(source)
 
         base = Signal(32)
         h_width = self.h_width.storage
