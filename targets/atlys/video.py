@@ -2,7 +2,7 @@ from litevideo.input import HDMIIn
 from litevideo.output import VideoOut
 
 from targets.utils import csr_map_update
-from targets.atlys.net import NetSoC as BaseSoC
+from targets.atlys.base import BaseSoC
 
 
 class VideoSoC(BaseSoC):
