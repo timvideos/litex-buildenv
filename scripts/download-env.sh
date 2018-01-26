@@ -219,13 +219,14 @@ eval $(cd $TOP_DIR; export HDMI2USB_ENV=1; make env || return 1) || exit 1
 	echo
 ) || exit 1
 
+echo "python ==3.6" > $CONDA_DIR/conda-meta/pinned # Make sure it stays at version 3.6
+
 # Check the Python version
 echo
-echo "Installing python3.5"
-conda install -y $CONDA_FLAGS python=3.5
+echo "Installing python3.6"
+conda install -y $CONDA_FLAGS python=3.6
 fix_conda
-check_version python 3.5
-echo "python ==3.5.4" > $CONDA_DIR/conda-meta/pinned # Make sure it stays at version 3.5
+check_version python 3.6
 
 echo ""
 echo "Installing binaries into environment"
