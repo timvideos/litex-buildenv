@@ -41,7 +41,7 @@ for TARGET in ${MODULES[@]}; do
 	popd > /dev/null
 done
 
-if [ $DIRTY -eq 0 ]; then
+if [ $DIRTY = 0 ]; then
 	echo "All targets clean, good to update."
 else
 	echo "Some target are dirty, can't update."
@@ -62,6 +62,7 @@ for TARGET in ${MODULES[@]}; do
 		BEFORE_VER=$(git describe --always --dirty)
 		git fetch origin | sed -e's/^/    /'
 		git checkout origin/$BRANCH | sed -e's/^/    /'
+		git submodule update --recursive --init
 		AFTER_VER=$(git describe --always --dirty)
 		if [ x"$BEFORE_VER" = x"$AFTER_VER" ]; then
 			echo "$TARGET is unchanged"
