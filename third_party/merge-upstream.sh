@@ -74,6 +74,8 @@ for TARGET in ${MODULES[@]}; do
 			echo "Move $TARGET from $BEFORE_VER to $AFTER_VER"
 			cat >> $COMMIT_MSG <<EOF
  * $TARGET changed from $BEFORE_VER to $AFTER_VER
+$(git log --graph --pretty=format:'%h - %s <%an>' --no-color --abbrev-commit $BEFORE_VER..$AFTER_VER | sed -e's/^/    /')
+
 EOF
 		fi
 		echo
