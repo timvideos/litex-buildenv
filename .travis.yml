@@ -86,6 +86,24 @@ jobs:
   - stage: Targets - Base
     env: C=lm32 P=pipistrello  T="base"
 
+  - stage: Targets - Base
+    env: C=lm32 P=saturn       T="base"
+
+  - stage: Targets - Base
+    env: C=lm32 P=galatea      T="base"
+
+  - stage: Targets - Base
+    env: C=lm32 P=neso         T="base"
+
+  - stage: Targets - Base
+    env: C=lm32 P=waxwing      T="base"
+
+  - stage: Targets - Base
+    env: C=lm32 P=basys3       T="base"
+
+  - stage: Targets - Base
+    env: C=lm32 P=cmod_a7      T="base"
+
   # or1k base targets
   - stage: Targets - Base
     env: C=or1k P=arty         T="base net"
