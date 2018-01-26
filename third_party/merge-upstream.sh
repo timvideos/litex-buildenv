@@ -64,6 +64,10 @@ for TARGET in ${MODULES[@]}; do
 		git checkout origin/$BRANCH | sed -e's/^/    /'
 		git submodule update --recursive --init
 		AFTER_VER=$(git describe --always --dirty)
+		if echo $AFTER_VER | grep -q "dirty"; then
+			echo "Updated version is dirty!?"
+			exit 1
+		fi
 		if [ x"$BEFORE_VER" = x"$AFTER_VER" ]; then
 			echo "$TARGET is unchanged"
 		else
