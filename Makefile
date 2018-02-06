@@ -342,6 +342,7 @@ ifeq ($(ATFTPD),)
 ATFTPD:=/usr/sbin/atftpd
 endif
 
+# Requires HPA in.tftpd not traditional BSD in.tftpd
 IN_TFTPD:=$(shell which in.tfptd)
 ifeq ($(IN_TFTPD),)
 IN_TFTPD:=/usr/sbin/in.tftpd
@@ -376,9 +377,9 @@ tftpd_start:
 	elif [ -x "$(IN_TFTPD)" ]; then \
 		echo "Starting in.tftpd"; \
 		if [ $(TFTP_SERVER_PORT) -lt 1024 ]; then \
-			sudo "$(IN_TFTPD)" --verbose --listen --address $(TFTP_IPRANGE).100 --port-range $(TFTP_SERVER_PORT):$(TFTP_SERVER_PORT) --user $(shell whoami) -s $(TFTPD_DIR) & \
+			sudo "$(IN_TFTPD)" --verbose --listen --address $(TFTP_IPRANGE).100:$(TFTP_SERVER_PORT)  --user $(shell whoami) -s $(TFTPD_DIR) & \
 		else \
-			"$(IN_TFTPD)" --verbose --listen --address $(TFTP_IPRANGE).100 --port-range $(TFTP_SERVER_PORT):$(TFTP_SERVER_PORT) --user $(shell whoami) -s $(TFTPD_DIR) & \
+			"$(IN_TFTPD)" --verbose --listen --address $(TFTP_IPRANGE).100:$(TFTP_SERVER_PORT) --user $(shell whoami) -s $(TFTPD_DIR) & \
 		fi \
 	else \
 		echo "Cannot find an appropriate tftpd binary to launch the server."; \
