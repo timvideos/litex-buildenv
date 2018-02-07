@@ -347,7 +347,7 @@ endif
 # even if run as current user, otherwise it reports
 # "cannot set groups for user $USER"
 #
-IN_TFTPD:=$(shell which in.tfptd)
+IN_TFTPD:=$(shell which in.tftpd)
 ifeq ($(IN_TFTPD),)
 IN_TFTPD:=/usr/sbin/in.tftpd
 endif
