@@ -342,7 +342,12 @@ ifeq ($(ATFTPD),)
 ATFTPD:=/usr/sbin/atftpd
 endif
 
-IN_TFTPD:=$(shell which in.tfptd)
+# Requires HPA in.tftpd not traditional BSD in.tftpd
+# Unfortunately in.tftpd seems to require root always
+# even if run as current user, otherwise it reports
+# "cannot set groups for user $USER"
+#
+IN_TFTPD:=$(shell which in.tftpd)
 ifeq ($(IN_TFTPD),)
 IN_TFTPD:=/usr/sbin/in.tftpd
 endif
@@ -357,7 +362,11 @@ tftpd_stop:
 		sudo true; \
 		sudo killall atftpd || sudo killall in.tftpd || true; \
 	else \
-		killall atftpd || killall in.tftpd || true; \
+		killall atftpd || \
+		if ps axuwww | grep -v grep | \
+			grep "[i]n.tftpd" >/dev/null 2>&1; then \
+				sudo killall in.tftpd; \
+		fi || true; \
 	fi
 
 tftpd_start:
@@ -376,9 +385,11 @@ tftpd_start:
 	elif [ -x "$(IN_TFTPD)" ]; then \
 		echo "Starting in.tftpd"; \
 		if [ $(TFTP_SERVER_PORT) -lt 1024 ]; then \
-			sudo "$(IN_TFTPD)" --verbose --listen --address $(TFTP_IPRANGE).100 --port-range $(TFTP_SERVER_PORT):$(TFTP_SERVER_PORT) --user $(shell whoami) -s $(TFTPD_DIR) & \
+			sudo "$(IN_TFTPD)" --verbose --listen --address $(TFTP_IPRANGE).100:$(TFTP_SERVER_PORT)  --user $(shell whoami) -s $(TFTPD_DIR) & \
 		else \
-			"$(IN_TFTPD)" --verbose --listen --address $(TFTP_IPRANGE).100 --port-range $(TFTP_SERVER_PORT):$(TFTP_SERVER_PORT) --user $(shell whoami) -s $(TFTPD_DIR) & \
+			echo "Root required to run in.tftpd, will use sudo"; \
+			sudo true; \
+			sudo "$(IN_TFTPD)" --verbose --listen --address $(TFTP_IPRANGE).100:$(TFTP_SERVER_PORT) --user $(shell whoami) -s $(TFTPD_DIR) & \
 		fi \
 	else \
 		echo "Cannot find an appropriate tftpd binary to launch the server."; \
