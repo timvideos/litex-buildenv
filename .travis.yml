@@ -40,6 +40,9 @@ install:
 script:
  - $PWD/.travis/build.sh
 
+after_success:
+ - $PWD/.travis/update-prebuilt-list.sh
+
 notifications:
  email:
   - hdmi2usb-spam@googlegroups.com
