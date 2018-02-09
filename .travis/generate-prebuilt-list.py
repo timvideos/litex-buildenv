@@ -38,6 +38,8 @@ parser.add_argument(
     '--gh-user', default=os.getenv('GH_USER', None))
 parser.add_argument(
     '--gh-token', default=os.getenv('GH_TOKEN', None))
+parser.add_argument(
+    '--outdir', default=os.getenv('OUTDIR', None))
 args = parser.parse_args()
 
 assert args.repo
@@ -63,6 +65,13 @@ git_file_url = "https://github.com/{}/{}/blob/master/archive/{}".format(
 
 svn_args = '--non-interactive --username {} --password {}'.format(
     args.gh_user, args.gh_token)
+
+print()
+print("Looking at cpu '{}' in target '{}' for platform '{}' from '{}/{}'".format(
+    args.full_cpu, args.target, args.full_platform, args.owner, args.repo))
+print()
+print("-"*75)
+print()
 
 revs_data = subprocess.check_output(
     "svn list {} {}".format(svn_args, svn_base_url).split()).decode('utf-8')
@@ -132,11 +141,6 @@ def get_sha256sum(rev, full_platform, target, full_cpu, svn_args=svn_args, svn_b
         _get_sha256sum_cache[full_path] = data
         return data
 
-print()
-print("Looking at cpu '{}' in target '{}' for platform '{}' from '{}/{}'".format(
-    args.full_cpu, args.target, args.full_platform, args.owner, args.repo))
-print()
-
 channels = {}
 
 # Find the unstable revision
@@ -169,14 +173,20 @@ for channel, rev in sorted(channels.items()):
 print()
 
 # Download the gh-pages branch of the HDMI2USB-firmware-prebuilt repo
-tmpdir = tempfile.mkdtemp()
+if args.outdir is None:
+    tmpdir = tempfile.mkdtemp()
+else:
+    tmpdir = args.outdir
+
+os.makedirs(tmpdir, exist_ok=True)
 print("Using {}".format(tmpdir))
 print()
 
 os.chdir(tmpdir)
 print("Download github pages repo...")
-subprocess.check_call(
-    "svn checkout {} -q {}".format(svn_args, pre_base_url).split())
+if not os.path.exists("gh-pages"):
+    subprocess.check_call(
+        "svn checkout {} -q {}".format(svn_args, pre_base_url).split())
 print("Done.")
 print("")
 os.chdir("gh-pages")
@@ -231,19 +241,22 @@ print("Current status...")
 changes = subprocess.check_output("svn status -u --depth infinity".split(), stderr=subprocess.STDOUT).decode('utf-8')
 print(changes)
 subprocess.check_call("svn diff .".split(), stderr=subprocess.STDOUT)
+print()
 
 if len(changes.splitlines()) == 1:
-    print("Committing changes...")
+    print("No changes to commit...")
     print()
-    sys.exit(0)
+else:
+    print()
+    print("Committing changes...")
+
+    with tempfile.NamedTemporaryFile() as f:
+        f.write("Updating channels (in Travis build {})\n".format(os.getenv("TRAVIS_BUILD_NUMBER", "None")).encode('utf-8'))
+        f.flush()
+
+        subprocess.check_call("svn commit {} --file {}".format(svn_args, f.name).split())
 
 print()
-print("Committing changes...")
-
-with tempfile.NamedTemporaryFile() as f:
-    f.write("Updating channels (in Travis build {})\n".format(os.getenv("TRAVIS_BUILD_NUMBER", "None")).encode('utf-8'))
-    f.flush()
-
-    subprocess.check_call("svn commit {} --file {}".format(svn_args, f.name).split())
-
+print("-"*75)
+print("Done..")
 print()
