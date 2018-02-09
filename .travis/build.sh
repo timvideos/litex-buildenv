@@ -374,8 +374,6 @@ for F in ${FAILURES[@]}; do
 	echo $F | sed -e's/+/ /g'
 done
 
-bash ./.travis/push-prebuilt.sh
-
 echo ""
 echo ""
 echo ""
