@@ -117,18 +117,31 @@ def get_sha256sum(rev, full_platform, target, full_cpu, svn_args=svn_args, svn_b
                     svn_args=svn_args,
                     svn_base_url=svn_base_url,
                     full_path=full_path,
-                ).split()
+                ).split(),
+                stderr=subprocess.STDOUT,
             ).decode('utf-8')
             data = data.replace("./", "{}/{}".format(git_file_url, full_path))
         except subprocess.CalledProcessError:
+            print("  - Did not find {full_platform}/{target}/{full_cpu} at {rev}".format(
+                rev=rev,
+                full_platform=full_platform,
+                target=target,
+                full_cpu=full_cpu,
+            ))
             data = None
         _get_sha256sum_cache[full_path] = data
         return data
 
-# Get the stable/testing revisions
-channels = get_channel_spreadsheet()
+print()
+print("Looking at cpu '{}' in target '{}' for platform '{}' from '{}/{}'".format(
+    args.full_cpu, args.target, args.full_platform, args.owner, args.repo))
+print()
+
+channels = {}
 
 # Find the unstable revision
+print("Found {} revisions, 10 latest:\n  * ".format(len(revs)), end="")
+print("\n  * ".join(reversed(revs[-10:])))
 urevs = list(revs)
 while True:
     rev = urevs.pop(-1)
@@ -136,22 +149,24 @@ while True:
         continue
     channels['unstable'] = rev
     break
-
-print()
-print("Looking at target '{}' for platform '{}' from '{}/{}'".format(
-    args.target, args.full_platform, args.owner, args.repo))
-print()
-print("Found {} revisions, 10 latest:\n  * ".format(len(revs)), end="")
-print("\n  * ".join(reversed(revs[-10:])))
-print()
-for channel, rev in sorted(channels.items()):
-    print("Channel {:10s} is at rev {}".format(channel, rev))
 print()
 
+# Get the stable/testing revisions
+print("Getting other channels..")
+channels.update(get_channel_spreadsheet())
+
+# Get the sha254 files for each channel
 output = {}
 for channel, rev in sorted(channels.items()):
     output[channel] = get_sha256sum(
         rev, args.full_platform, args.target, args.full_cpu)
+print()
+
+for channel, rev in sorted(channels.items()):
+    if not output[channel]:
+        rev = "unknown"
+    print("Channel {:10s} is at rev {}".format(channel, rev))
+print()
 
 # Download the gh-pages branch of the HDMI2USB-firmware-prebuilt repo
 tmpdir = tempfile.mkdtemp()
@@ -161,9 +176,10 @@ print()
 os.chdir(tmpdir)
 print("Download github pages repo...")
 subprocess.check_call(
-    "svn checkout {}".format(pre_base_url).split())
-os.chdir("gh-pages")
+    "svn checkout {} -q {}".format(svn_args, pre_base_url).split())
+print("Done.")
 print("")
+os.chdir("gh-pages")
 
 with open("revs.txt", "w") as f:
     for rev in revs:
@@ -183,6 +199,8 @@ with open(os.path.join(out_dir, "channels.txt"), "w") as f:
         f.write("{} {} {}\n".format(channel, rev, gh_url))
 
 for channel, lines in sorted(output.items()):
+    if not lines:
+        continue
     with open(os.path.join(out_dir, "{}.sha256sum".format(channel)), "w") as f:
         f.write("".join(lines))
 
