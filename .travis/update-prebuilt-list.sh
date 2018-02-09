@@ -11,7 +11,8 @@ function prebuilt() {
 		unset $FIRMWARE
 	fi
 	export FIRMWARE
-	.travis/generate-prebuilt-list.py
+	.travis/generate-prebuilt-list.py || return 1
+	return 0
 }
 
 if [ x"$TRAVIS_BRANCH" = x"master" ]; then
