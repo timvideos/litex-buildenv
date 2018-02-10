@@ -240,8 +240,9 @@ _io = [
         Subsignal("hpd_en", Pins("V19"), IOStandard("LVCMOS33"))
     ),
 
-    # Debug header?
-    #("debug", 0, Pins("AA2"), IOStandard("LVCMOS15")), # (/FPGA_Bank_0_3/DEBUG_IO0)
+    # Debug header
+    ("debug_io0", 0, Pins("AA2"), IOStandard("LVCMOS15")), # (/FPGA_Bank_0_3/DEBUG_IO0)
+    ("debug_io1", 0, Pins("AA1"), IOStandard("LVCMOS15")), # (/FPGA_Bank_0_3/DEBUG_IO1)
 
     ## onboard HDMI OUT1
     ## HDMI - connector J3 - Direction TX
