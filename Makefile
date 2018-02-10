@@ -178,11 +178,13 @@ third_party/%/.git: .gitmodules
 # --------------------------------------
 ifeq ($(FIRMWARE),none)
 OVERRIDE_FIRMWARE=--override-firmware=none
+FIRMWARE_FBI=
 else
 OVERRIDE_FIRMWARE=--override-firmware=$(FIRMWARE_FILEBASE).fbi
+FIRMWARE_FBI=$(FIRMWARE_FILEBASE).fbi
 endif
 
-$(IMAGE_FILE): $(GATEWARE_FILEBASE).bin $(BIOS_FILE) $(FIRMWARE_FILEBASE).fbi
+$(IMAGE_FILE): $(GATEWARE_FILEBASE).bin $(BIOS_FILE) $(FIRMWARE_FBI)
 	$(PYTHON) mkimage.py \
 		$(MISOC_EXTRA_CMDLINE) $(LITEX_EXTRA_CMDLINE) $(MAKE_LITEX_EXTRA_CMDLINE) \
 		--override-gateware=$(GATEWARE_FILEBASE).bin \
