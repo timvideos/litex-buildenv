@@ -1,100 +1,79 @@
+#!/usr/bin/env python
+
 import  subprocess
 import  os
 import  tempfile
 import  filecmp
 import  shutil
 
-commit          = subprocess.Popen(['git', 'log', '--format="%H"', '-n''1'], stdout=subprocess.PIPE)
-commit,gar      = commit.communicate()
-print   "Showing commit variable"
-print   commit[1:-2]
+commit = subprocess.check_output(['git', 'log', '--format="%H"', '-n', '1'])
+print "Showing commit variable"
+print commit[1:-2]
 
-branch          = subprocess.Popen(['git', 'symbolic-ref', '--short', 'HEAD'], stdout=subprocess.PIPE)
-branch,gar      = branch.communicate()
-print   "Showing branch variable"
-print   branch[:-1]
+branch = subprocess.check_output(['git', 'symbolic-ref', '--short', 'HEAD'])
+print "Showing branch variable"
+print branch[:-1]
 
-describe        = subprocess.Popen(['git', 'describe', '--dirty'], stdout=subprocess.PIPE)
-describe,gar    = describe.communicate();
+describe = subprocess.check_output(['git', 'describe', '--dirty'])
 print   "Showing describe variable"
 print describe[:-1]
 
-status          = subprocess.Popen(['git', 'status', '--short'], stdout=subprocess.PIPE)
-status,gar      = status.communicate();
+status = subprocess.check_output(['git', 'status', '--short'])
 
-platform        = os.environ['PLATFORM']
-print   "Showing uplatform"
-print   platform.upper()
+print "Showing uplatform"
+if "PLATFORM" in os.environ:
+    platform = os.environ['PLATFORM']
+    print platform.upper()
+else:
+    platform = ""
 
-target          = os.environ['TARGET']
-print   "Showing utarget"
-print   target.upper()
+print "Showing utarget"
+if "TARGET" in os.environ:
+    target = os.environ['TARGET']
+    print target.upper()
+else:
+    target = ""
 
-temp_h          = tempfile.NamedTemporaryFile( suffix='.h',delete='true')
-print   "Showing temp file .h"
-print   temp_h.name
-temp_h.write    ('#ifndef   __VERSION_DATA_H\n'         )
-temp_h.write    ('#define   __VERSION_DATA_H\n'         )
-temp_h.write    ('\n'                                   )
-temp_h.write    ('extern const char* board;\n'          )
-temp_h.write    ('extern const char* target;\n'         )
-temp_h.write    ('\n'                                   )
-temp_h.write    ('extern const char* git_commit;\n'     )
-temp_h.write    ('extern const char* git_branch;\n'     )
-temp_h.write    ('extern const char* git_describe;\n'   )
-temp_h.write    ('extern const char* git_status;\n'     )
-temp_h.write    ('\n'                                   )
-temp_h.write    ('#endif  // __VERSION_DATA_H\n'        )
+temp_h = tempfile.NamedTemporaryFile( suffix='.h',delete='true')
+print "Showing temp file .h"
+print temp_h.name
+temp_h.write ("""\
+#ifndef __VERSION_DATA_H
+#define __VERSION_DATA_H
+
+extern const char* board;
+extern const char* target;
+
+extern const char* git_commit;
+extern const char* git_branch;
+extern const char* git_describe;
+extern const char* git_status;
+
+#endif  // __VERSION_DATA_H""")
 temp_h.seek(0)
 
 temp_c          = tempfile.NamedTemporaryFile( suffix='.c',delete='true')
 print   "Showing temp file .c"
 print   temp_c.name
-temp_c.write    ('#ifndef PLATFORM_'                    )
-temp_c.write    (platform                               )
-temp_c.write    ('\n'                                   )
-temp_c.write    ('#error "Version mismatch - PLATFORM_' )
-temp_c.write    (platform                               )
-temp_c.write    (' not defined!"'                       )
-temp_c.write    ('\n'                                   )
-temp_c.write    ('#endif'                               )
-temp_c.write    ('\n'                                   )
-temp_c.write    ('\n'                                   )
-temp_c.write    ('const char* board = "'                )
-temp_c.write    (platform                               )
-temp_c.write    ('";'                                   )
-temp_c.write    ('\n'                                   )
 
-temp_c.write    ('#ifndef TARGET_'                      )
-temp_c.write    (target                                 )
-temp_c.write    ('\n'                                   )
-temp_c.write    ('#error "Version mismatch - TARGET_'   )
-temp_c.write    (target                                 )
-temp_c.write    (' not defined!"'                       )
-temp_c.write    ('\n'                                   )
-temp_c.write    ('#endif'                               )
-temp_c.write    ('\n'                                   )
-temp_c.write    ('\n'                                   )
-temp_c.write    ('const char* target = "'               )
-temp_c.write    (target                                 )
-temp_c.write    ('";'                                   )
-temp_c.write    ('\n'                                   )
+temp_c.write    ("""\
 
-temp_c.write    ('const char* git_commit = "'           )
-temp_c.write    (commit[1:-2]                           )
-temp_c.write    ('";'                                   )
-temp_c.write    ('\n'                                   )
-temp_c.write    ('const char* git_branch = "'           )
-temp_c.write    (branch[:-1]                            )
-temp_c.write    ('";'                                   )
-temp_c.write    ('\n'                                   )
-temp_c.write    ('const char* git_describe = "'         )
-temp_c.write    (describe[:-1]                          )
-temp_c.write    ('";'                                   )
-temp_c.write    ('\n'                                   )
+#ifndef PLATFORM_%s
+#error \"Version mismatch - PLATFORM_%s not defined!\"
+#endif
+const char* board = \"%s\";
 
-temp_c.write    ('const char* git_status =\n'             )
-temp_c.write    ('    "    --\\r\\n"\n')
+#ifndef TARGET_%s
+#error \"Version mismatch - TARGET_%s not defined!\"
+#endif
+const char* target = \"%s\";
+
+const char* git_commit = \"%s\";
+const char* git_branch = \"%s\";
+const char* git_describe = \"%s\";
+const char* git_status =
+    \"    --\\r\\n\"
+""" % (platform.upper(),platform.upper(),platform,target.upper(),target.upper(),target,commit[1:-2],branch[:-1],describe[:-1]))
 
 for x in range ( 0, len(status.split('\n'))-1 ):
     temp    = status.splitlines()[x]
@@ -103,6 +82,7 @@ for x in range ( 0, len(status.split('\n'))-1 ):
     temp_c.write    ('\n')
 temp_c.write    ('    "    --\\r\\n";')
 temp_c.seek(0)
+
 
 if not ( filecmp.cmp(temp_h.name,'version_data.h') ):
     print   "Updating version_data.h"
