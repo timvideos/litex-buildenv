@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+"""
+This file embeds in the firmware information like the git commit
+number,git branch information and git status of the build tree.
+"""
 
 import subprocess
 import os
@@ -6,83 +10,79 @@ import tempfile
 import filecmp
 import shutil
 
-commit = subprocess.check_output(['git', 'log', '--format="%H"', '-n', '1'])
-print("Showing commit variable")
-print(commit[1:-2])
+commit = subprocess.check_output(['git', 'log', '--format="%H"', '-n', '1'])\
+                                    .decode('utf-8')
+branch = subprocess.check_output(['git', 'symbolic-ref', '--short', 'HEAD'])\
+                                    .decode('utf-8')
+describe = subprocess.check_output(['git', 'describe', '--dirty'])\
+                                    .decode('utf-8')
+status = subprocess.check_output(['git', 'status', '--short']).decode('utf-8')
+length = status.count('\n')
 
-branch = subprocess.check_output(['git', 'symbolic-ref', '--short', 'HEAD'])
-print("Showing branch variable")
-print(branch[:-1])
-
-describe = subprocess.check_output(['git', 'describe', '--dirty'])
-print("Showing describe variable")
-print(describe[:-1])
-
-status = subprocess.check_output(['git', 'status', '--short'])
-length = status.count(b'\n')
-print(status)
-
-print("Showing uplatform")
 if "PLATFORM" in os.environ:
     platform = os.environ['PLATFORM']
-    print(platform.upper())
 else:
     platform = ""
+    print("PLATFORM NOT SET")
 
-print("Showing utarget")
 if "TARGET" in os.environ:
     target = os.environ['TARGET']
-    print(target.upper())
 else:
     target = ""
+    print("TARGET NOT SET")
 
-temp_h = tempfile.NamedTemporaryFile(suffix='.h', delete='true')
+temp_h = tempfile.NamedTemporaryFile(suffix='.h', delete=True, mode='w+t')
 print("Showing temp file .h")
 print(temp_h.name)
-temp_h.write(b"""\
+string = ("""\
 #ifndef __VERSION_DATA_H
 #define __VERSION_DATA_H
+
 extern const char* board;
 extern const char* target;
+
 extern const char* git_commit;
 extern const char* git_branch;
 extern const char* git_describe;
 extern const char* git_status;
+
 #endif  // __VERSION_DATA_H""")
+temp_h.write(string)
 temp_h.seek(0)
 
-
-temp_c = tempfile.NamedTemporaryFile(suffix='.c', delete='true')
+temp_c = tempfile.NamedTemporaryFile(suffix='.c', delete=True, mode='w+t')
 print("Showing temp file .c")
 print(temp_c.name)
 
-temp_c.write(b"""\
+string = ("""\
 
-#ifndef PLATFORM_%s
-#error \"Version mismatch - PLATFORM_%s not defined!\"
+#ifndef PLATFORM_{}
+#error "Version mismatch - PLATFORM_{} not defined!"
 #endif
-const char* board = \"%s\";
+const char* board = "{}";
 
-#ifndef TARGET_%s
-#error \"Version mismatch - TARGET_%s not defined!\"
+#ifndef TARGET_{}
+#error "Version mismatch - TARGET_{} not defined!"
 #endif
-const char* target = \"%s\";
+const char* target = "{}";
 
-const char* git_commit = \"%s\";
-const char* git_branch = \"%s\";
-const char* git_describe = \"%s\";
+const char* git_commit = "{}";
+const char* git_branch = "{}";
+const char* git_describe = "{}";
 const char* git_status =
-    \"    --\\r\\n\"
-""" % (platform.upper().encode(), platform.upper().encode(), platform.encode(),
-       target.upper().encode(), target.upper().encode(), target.encode(),
-       commit[1:-2], branch[:-1], describe[:-1]))
+    "    --\\r\\n"
+""")
 
-for x in range(0, length):
-    temp = status.splitlines()[x]
-    temp = '   "    ' + temp.decode() + '\\r\\n"'
-    temp_c.write(temp.encode())
-    temp_c.write(b'\n')
-temp_c.write(b'    "    --\\r\\n";')
+temp_c.write(string.format(platform.upper(), platform.upper(), platform,
+             target.upper(), target.upper(), target, commit[1:-2],
+             branch[:-1], describe[:-1]))
+
+for line in range(0, length):
+    temp = status.splitlines()[line]
+    temp = '   "    ' + temp + '\\r\\n"'
+    temp_c.write(temp)
+    temp_c.write('\n')
+temp_c.write('    "    --\\r\\n";')
 temp_c.seek(0)
 
 
