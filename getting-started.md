@@ -240,7 +240,7 @@ this step.
 
 Load the gateware and firmware - see [1] if using a VM:
 ```
-make load-gateware
+make gateware-load
 ```
 
 On the Opsis, while loading the Blue LED (D1 / Done) and Green LED (D2) will
@@ -319,7 +319,7 @@ hdmi2usb-mode-switch --mode=jtag
 Connect to lm32 softcore to send direct commands to the HDMI2USB such as
 changing resolution:
 ```
-make connect-lm32
+make firmware-connect
 ```
 Set a mode/capture - type 'help' and read instructions.
 
