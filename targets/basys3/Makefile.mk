@@ -1,7 +1,7 @@
 # basys3 targets
 
 ifneq ($(PLATFORM),basys3)
-	$(error "Platform should be arty when using this file!?")
+	$(error "Platform should be basys3 when using this file!?")
 endif
 
 # Settings
