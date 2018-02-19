@@ -6,35 +6,44 @@ number,git branch information and git status of the build tree.
 
 import subprocess
 import os
-import tempfile
-import filecmp
-import shutil
+import sys
+import io
 
-commit = subprocess.check_output(['git', 'log', '--format="%H"', '-n', '1'])\
-                                    .decode('utf-8')
-branch = subprocess.check_output(['git', 'symbolic-ref', '--short', 'HEAD'])\
-                                    .decode('utf-8')
-describe = subprocess.check_output(['git', 'describe', '--dirty'])\
-                                    .decode('utf-8')
+commit = subprocess.check_output(
+        ['git', 'log', '--format="%H"', '-n', '1']).decode('utf-8')
+branch = subprocess.check_output(
+        ['git', 'symbolic-ref', '--short', 'HEAD']).decode('utf-8')
+describe = subprocess.check_output(
+        ['git', 'describe', '--dirty']).decode('utf-8')
 status = subprocess.check_output(['git', 'status', '--short']).decode('utf-8')
 length = status.count('\n')
 
 if "PLATFORM" in os.environ:
     platform = os.environ['PLATFORM']
 else:
-    platform = ""
-    print("PLATFORM NOT SET")
+    sys.stderr.write("""\
+    PLATFORM environment variable is not set.
+
+    This script should only be run as part of LiteX Build Environment.
+
+    Try 'source ./scripts/enter-env.sh'
+""")
+    sys.exit(1)
 
 if "TARGET" in os.environ:
     target = os.environ['TARGET']
 else:
-    target = ""
-    print("TARGET NOT SET")
+    sys.stderr.write("""\
+    TARGET environment variable is not set.
 
-temp_h = tempfile.NamedTemporaryFile(suffix='.h', delete=True, mode='w+t')
-print("Showing temp file .h")
-print(temp_h.name)
-string = ("""\
+    This script should only be run as part of LiteX Build Environment
+
+    Try 'source ./scripts/enter-env.sh'
+""")
+    sys.exit(1)
+
+temp_h = io.StringIO()
+temp_h.write("""\
 #ifndef __VERSION_DATA_H
 #define __VERSION_DATA_H
 
@@ -47,35 +56,28 @@ extern const char* git_describe;
 extern const char* git_status;
 
 #endif  // __VERSION_DATA_H""")
-temp_h.write(string)
 temp_h.seek(0)
 
-temp_c = tempfile.NamedTemporaryFile(suffix='.c', delete=True, mode='w+t')
-print("Showing temp file .c")
-print(temp_c.name)
-
-string = ("""\
-
-#ifndef PLATFORM_{}
-#error "Version mismatch - PLATFORM_{} not defined!"
+temp_c = io.StringIO()
+temp_c.write("""\
+#ifndef PLATFORM_{UPLATFORM}
+#error "Version mismatch - PLATFORM_{UPLATFORM} not defined!"
 #endif
-const char* board = "{}";
+const char* board = "{PLATFORM}";
 
-#ifndef TARGET_{}
-#error "Version mismatch - TARGET_{} not defined!"
+#ifndef TARGET_{UTARGET}
+#error "Version mismatch - TARGET_{UTARGET} not defined!"
 #endif
-const char* target = "{}";
+const char* target = "{TARGET}";
 
-const char* git_commit = "{}";
-const char* git_branch = "{}";
-const char* git_describe = "{}";
+const char* git_commit = "{COMMIT}";
+const char* git_branch = "{BRANCH}";
+const char* git_describe = "{DESCRIBE}";
 const char* git_status =
     "    --\\r\\n"
-""")
-
-temp_c.write(string.format(platform.upper(), platform.upper(), platform,
-             target.upper(), target.upper(), target, commit[1:-2],
-             branch[:-1], describe[:-1]))
+""".format(UPLATFORM=platform.upper(), PLATFORM=platform,
+           UTARGET=target.upper(), TARGET=target,
+           COMMIT=commit[1:-2], BRANCH=branch[:-1], DESCRIBE=describe[:-1]))
 
 for line in range(0, length):
     temp = status.splitlines()[line]
@@ -85,15 +87,31 @@ for line in range(0, length):
 temp_c.write('    "    --\\r\\n";')
 temp_c.seek(0)
 
-
-if not (filecmp.cmp(temp_h.name, 'version_data.h')):
-    print("Updating version_data.h")
-    os.remove('version_data.h')
-    shutil.copyfile(temp_h.name, 'version_data.h')
-
-if not (filecmp.cmp(temp_c.name, 'version_data.c')):
+try:
+    myfile = open("version_data.c", "r+")
+except IOError:
+    myfile = open("version_data.c", "w+")
+data = myfile.read()
+data_c = temp_c.getvalue()
+if not (dat a == data_c):
     print("Updating version_data.c")
-    os.remove('version_data.c')
-    shutil.copyfile(temp_c.name, 'version_data.c')
+    myfile.seek(0)
+    myfile.truncate(0)
+    myfile.write(data_c)
+myfile.close()
+
+try:
+    myfile = open("version_data.h", "r+")
+except IOError:
+    myfile = open("version_data.h", "w+")
+data = myfile.read()
+data_h = temp_h.getvalue()
+if not (data == data_h):
+    print("Updating version_data.h")
+    myfile.seek(0)
+    myfile.truncate(0)
+    myfile.write(data_h)
+myfile.close()
+
 temp_c.close()
 temp_h.close()
