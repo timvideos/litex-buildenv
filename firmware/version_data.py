@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 This file embeds in the firmware information like the git commit
-number,git branch information and git status of the build tree.
+number, git branch information and git status of the build tree.
 """
 
 import subprocess
