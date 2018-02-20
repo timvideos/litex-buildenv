@@ -322,4 +322,4 @@ litex_buildenv_prompt() {
 		;;
 	esac
 }
-PROMPT_COMMAND=litex_buildenv_prompt
+PROMPT_COMMAND="litex_buildenv_prompt; ${PROMPT_COMMAND}"
