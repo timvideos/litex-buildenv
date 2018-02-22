@@ -11,9 +11,6 @@ Welcome to LiteX Build Environment's documentation!
    :caption: Contents:
 
 
-Python Documentation
-====================
-
 .. toctree::
    :maxdepth: 2
    :caption: Python Documentation:
@@ -32,9 +29,20 @@ Python Documentation
    apidoc/third_party/liteusb/liteusb.rst
    apidoc/third_party/litevideo/litevideo.rst
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Modules:
+   :name: modtoc
 
-API Documentation
-=================
+   apidoc/litex-buildenv/modules.rst
+   apidoc/third_party/litex/modules.rst
+   apidoc/third_party/liteusb/modules.rst
+   apidoc/third_party/litedram/modules.rst
+   apidoc/third_party/litesata/modules.rst
+   apidoc/third_party/liteeth/modules.rst
+   apidoc/third_party/litepcie/modules.rst
+   apidoc/third_party/litevideo/modules.rst
+   apidoc/third_party/litescope/modules.rst
 
 .. toctree::
    :maxdepth: 2
@@ -42,12 +50,12 @@ API Documentation
    :name: apitoc
    :glob:
 
-   firmware-api
+   firmware-api/root.rst
 
-   third_party-lite*-api
+   third_party-lite*-api/root.rst
 
-   third_party-edid-decode-api
-   third_party-libuip-api
+   third_party-edid-decode-api/root.rst
+   third_party-libuip-api/root.rst
 
 Indices and tables
 ==================
@@ -56,5 +64,7 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
+
+---
 
 |release| - |today|
