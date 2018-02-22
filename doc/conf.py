@@ -20,6 +20,11 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+import re
+import os, sys
+
+import sphinx_rtd_theme
+
 
 # -- General configuration ------------------------------------------------
 
@@ -30,15 +35,46 @@
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.todo',
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
     'sphinx.ext.coverage',
-    'sphinx.ext.imgmath',
+    'sphinx.ext.doctest',               # Import doctest as examples
+    'sphinx.ext.extlinks',              # Enable short links
+    'sphinx.ext.githubpages',
     'sphinx.ext.ifconfig',
+    'sphinx.ext.imgconverter',
+    'sphinx.ext.inheritance_diagram',
+    'sphinx.ext.intersphinx',           # Links to other Sphinx instances
+    'sphinx.ext.linkcode',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.napoleon',              # Google and NumPy style docstrings
+    'sphinx.ext.todo',
     'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages']
+    'breathe',
+    'exhale',
+    # Sphinx Contrib Packages
+    #'sphinxcontrib.ansi',               # .. ansi-block::
+    #'sphinxcontrib.argdoc',             # Automatic docs from argparse (maybe 'sphinxcontrib.autoprogram' instead?)
+    #'sphinxcontrib.cheader',            # .. c:header:: <libfoobar.h> - No module named 'sphinx.util.compat'
+    #'sphinxcontrib.cheeseshop',         # :pypi:`Sphinx`
+    #'sphinxcontrib.cmakedomain',
+    'sphinxcontrib.documentedlist',     # .. documentedlist::
+    'sphinxcontrib.examplecode',
+    'sphinxcontrib.makedomain',         # https://bitbucket.org/klorenz/sphinxcontrib-makedomain
+    'sphinxcontrib.manpage',            # :linuxman:ls(1)
+    'sphinxcontrib.spelling',           # Spell checking!
+    'sphinxcontrib_trio',               # Better abstract and similar detection
+    'sphinx_git',                       # .. git_changelog::
+    'sphinx_autodoc_typehints',         # 
+    # FPGA Specific
+    #'sphinxcontrib.gtkwave',            # .. gtkwave:: docs/gtkwave_output.vcd
+    'sphinxcontrib.wavedrom',           # Support wavedrom rendering
+    'symbolator_sphinx',                # Support symbolator rendering of Verilog
+]
+
+extlinks = {
+    'issue': ('https://github.com/timvideos/litex-buildenv/issues/%s', 'issue ')}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -46,8 +82,10 @@ templates_path = ['_templates']
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-# source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+source_suffix = ['.rst', '.md']
+source_parsers = {
+   '.md': 'recommonmark.parser.CommonMarkParser',
+}
 
 # The master toctree document.
 master_doc = 'index'
@@ -90,7 +128,7 @@ todo_include_todos = True
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -102,6 +140,22 @@ html_theme = 'alabaster'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+# Enable github links when not on readthedocs
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+if not on_rtd:
+    html_context = {
+        "display_github": True, # Integrate GitHub
+        "github_user": "timvideos",
+        "github_repo": "litex-buildenv",
+        "github_version": "master",
+        "conf_py_path": "/docs/",
+    }
+else:
+    # :github_url: ?
+    html_theme_options = {
+        "canonical_url": "https://litex-buildenv.rtfd.io/",
+    }
 
 
 # -- Options for HTMLHelp output ------------------------------------------
@@ -155,13 +209,241 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'LiteXBuildEnvironment', u'LiteX Build Environment Documentation',
-     author, 'LiteXBuildEnvironment', 'One line description of project.',
+    (master_doc, 'LiteXBuildEnv', u'Lite X Build Environment Documentation',
+     author, 'LiteXBuildEnv', 'Environment for building Lite X based applications.',
      'Miscellaneous'),
 ]
 
+# -- Monkey patch things to make things safer -----------------------------
+
+# Monkey patch codecs.open to default to our errors='replacer' when errors
+# isn't specified.
+import codecs
+from html import entities as html_entities
+
+def replacer(exc):
+    logging.warn("Error: {}".format(exc), exc_info=exc)
+    l = []
+    for c in exc.object[exc.start:exc.end]:
+        if isinstance(exc, UnicodeEncodeError):
+            c = ord(c)
+        elif isinstance(exc, UnicodeDecodeError):
+            pass
+        else:
+            raise TypeError("don't know how to handle %r" % exc)
+        try:
+            l.append("&%s;" % html_entities.codepoint2name[c])
+        except KeyError:
+            l.append("&#%d;" % c)
+    return ("".join(l), exc.end)
+
+codecs.register_error("replacer", replacer)
+
+_codecs_open = codecs.open
+def codecs_open_replace_errors(*args, **kw):
+    if "errors" not in kw and len(args) < 4:
+        kw['errors'] = 'replacer'
+    return _codecs_open(*args, **kw)
+codecs.open = codecs_open_replace_errors
+
+# MonkeyPatch minidom.parse to deal with broken XML "Doxygen for Verilog"
+# occasionally produced.
+import logging
+from lxml import etree as ET
+from xml.dom import minidom
+from xml.parsers import expat
+_minidom_parse = minidom.parse
+
+def minidom_parse_with_fixup(inFilename, *args, **kw):
+    try:
+        return _minidom_parse(inFilename, *args, **kw)
+    except expat.ExpatError as e:
+        logging.warn("Fixing up XML in {}".format(inFilename), exc_info=e)
+        fixxml = ET.parse(codecs.open(inFilename, 'r', "utf-8"), ET.XMLParser(recover=True))
+        fixstr = ET.tostring(fixxml, method="xml", encoding='utf-8', xml_declaration=True)
+        return minidom.parseString(fixstr, *args, **kw)
+minidom.parse = minidom_parse_with_fixup
+
+# -- Breathe + Exhale config for C++ API Documentation --------------------
+
+breathe_projects = {
+    "firmware":     "_doxygen/firmware/xml",
+
+    "edid-decode":  "_doxygen/edid-decode/xml",
+    "libuip":       "_doxygen/libuip/xml",
+    "litedram":     "_doxygen/litedram/xml",
+    "liteeth":      "_doxygen/liteeth/xml",
+    "litepcie":     "_doxygen/litepcie/xml",
+    "litesata":     "_doxygen/litesata/xml",
+    "litescope":    "_doxygen/litescope/xml",
+    "liteusb":      "_doxygen/liteusb/xml",
+    "litevideo":    "_doxygen/litevideo/xml",
+    "litex":        "_doxygen/litex/xml",
+}
+breathe_default_project = "firmware"
+
+breathe_projects_source = {
+    "firmware":     "../firmware",
+
+    "edid-decode":  "../third_party/edid-decode",
+    "libuip":       "../third_party/libuip",
+    "litedram":     "../third_party/litedram",
+    "liteeth":      "../third_party/liteeth",
+    "litepcie":     "../third_party/litepcie",
+    "litesata":     "../third_party/litesata",
+    "litescope":    "../third_party/litescope",
+    "liteusb":      "../third_party/liteusb",
+    "litevideo":    "../third_party/litevideo",
+    "litex":        "../third_party/litex",
+}
+
+# Setup the exhale extension
+
+exhale_args = {
+    'verboseBuild': True,
+
+    "rootFileTitle":        "Unknown",
+    "containmentFolder":    "unknown",
+
+    # These arguments are required
+    "rootFileName":          "root.rst",
+    "doxygenStripFromPath":  "../",
+    # Suggested optional arguments
+    "createTreeView":        True,
+    # TIP: if using the sphinx-bootstrap-theme, you need
+    # "treeViewIsBootstrap": True,
+    "exhaleExecutesDoxygen": True,
+    #"exhaleUseDoxyfile":     True,
+    "exhaleDoxygenStdin":    """
+EXCLUDE     = ../doc ../third_party/litex/litex/soc/software/compiler_rt ../third_party/litex/litex/soc/software/libcompiler_rt */__pycache__
+""",
+}
+
+# Monkey patch exhale.environment_ready to allow multiple doxygen runs with
+# different configs.
+exhale_projects_args = {
+    "firmware": {
+        "exhaleDoxygenStdin":   "INPUT = ../firmware"+exhale_args["exhaleDoxygenStdin"],
+        "containmentFolder":    "firmware-api",
+        "rootFileTitle":        "Firmware",
+    },
+    # Third Party Project Includes
+    "edid-decode": {
+        "exhaleDoxygenStdin":   "INPUT = ../third_party/edid-decode"+exhale_args["exhaleDoxygenStdin"],
+        "containmentFolder":    "third_party-edid-decode-api",
+        "rootFileTitle":        "edid-decode",
+    },
+    "libuip": {
+        "exhaleDoxygenStdin":   "INPUT = ../third_party/libuip"+exhale_args["exhaleDoxygenStdin"],
+        "containmentFolder":    "third_party-libuip-api",
+        "rootFileTitle":        "libuip",
+    },
+    "litedram": {
+        "exhaleDoxygenStdin":   "INPUT = ../third_party/litedram"+exhale_args["exhaleDoxygenStdin"],
+        "containmentFolder":    "third_party-litedram-api",
+        "rootFileTitle":        "LiteDRAM",
+    },
+    "liteeth": {
+        "exhaleDoxygenStdin":   "INPUT = ../third_party/liteeth"+exhale_args["exhaleDoxygenStdin"],
+        "containmentFolder":    "third_party-liteeth-api",
+        "rootFileTitle":        "LiteEth",
+    },
+    "litepcie": {
+        "exhaleDoxygenStdin":   "INPUT = ../third_party/litepcie"+exhale_args["exhaleDoxygenStdin"],
+        "containmentFolder":    "third_party-litepcie-api",
+        "rootFileTitle":        "LitePCIe",
+    },
+    "litesata": {
+        "exhaleDoxygenStdin":   "INPUT = ../third_party/litesata"+exhale_args["exhaleDoxygenStdin"],
+        "containmentFolder":    "third_party-litesata-api",
+        "rootFileTitle":        "LiteSATA",
+    },
+    "litescope": {
+        "exhaleDoxygenStdin":   "INPUT = ../third_party/litescope"+exhale_args["exhaleDoxygenStdin"],
+        "containmentFolder":    "third_party-litescope-api",
+        "rootFileTitle":        "LiteScope",
+    },
+    "liteusb": {
+        "exhaleDoxygenStdin":   "INPUT = ../third_party/liteusb"+exhale_args["exhaleDoxygenStdin"],
+        "containmentFolder":    "third_party-liteusb-api",
+        "rootFileTitle":        "LiteUSB",
+    },
+    "litevideo": {
+        "exhaleDoxygenStdin":   "INPUT = ../third_party/litevideo"+exhale_args["exhaleDoxygenStdin"],
+        "containmentFolder":    "third_party-litevideo-api",
+        "rootFileTitle":        "LiteVideo",
+    },
+    "litex": {
+        "exhaleDoxygenStdin":   "INPUT = ../third_party/litex"+exhale_args["exhaleDoxygenStdin"],
+        "containmentFolder":    "third_party-litex-api",
+        "rootFileTitle":        "LiteX",
+    },
+}
+
+import exhale
+import exhale.configs
+import exhale.utils
+import exhale.deploy
+
+import os
+import os.path
+from pprint import pprint
 
 
+def exhale_environment_ready(app):
+    default_project = app.config.breathe_default_project
+    default_exhale_args = dict(app.config.exhale_args)
+    for project in breathe_projects:
+        app.config.breathe_default_project = project
+        os.makedirs(breathe_projects[project], exist_ok=True)
+
+        project_exhale_args = exhale_projects_args.get(project, {})
+
+        app.config.exhale_args = dict(default_exhale_args)
+        app.config.exhale_args.update(project_exhale_args)
+        app.config.exhale_args["containmentFolder"] = os.path.realpath(app.config.exhale_args["containmentFolder"])
+        print("="*75)
+        print(project)
+        print("-"*50)
+        pprint(app.config.exhale_args)
+        print("="*75)
+
+        # First, setup the extension and verify all of the configurations.
+        exhale.configs.apply_sphinx_configurations(app)
+        ####### Next, perform any cleanup
+
+        # Generate the full API!
+        try:
+            exhale.deploy.explode()
+        except:
+            exhale.utils.fancyError("Exhale: could not generate reStructuredText documents :/")
+
+    app.config.breathe_default_project = default_project
+
+exhale.environment_ready = exhale_environment_ready
+
+
+# -- Intersphinx config ---------------------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
+intersphinx_mapping = {
+    'python' : ('https://docs.python.org/3/', (None, '_build/intersphinx/python.inv')),
+    'migen' : ('https://m-labs.hk/migen/manual/', (None, '_build/intersphinx/migen.inv')),
+}
+
+# -- ??? ------------------------------------------------------------------
+
+def linkcode_resolve(domain, info):
+    # FIXME: Make this work!
+    return None
+    if domain != 'py':
+        return None
+    if not info['module']:
+        return None
+    filename = info['module'].replace('.', '/')
+    return "http://somesite/sourcerepo/%s.py" % filename
+
+# -- Add path to find Python code -----------------------------------------
+
+import sys
+sys.path.append("..")
