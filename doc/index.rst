@@ -11,6 +11,21 @@ Welcome to LiteX Build Environment's documentation!
    :caption: Contents:
 
 
+API Documentation
+=================
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API Documentation:
+   :name: apitoc
+   :glob:
+
+   firmware-api
+
+   third_party-lite*-api
+
+   third_party-edid-decode-api
+   third_party-libuip-api
 
 Indices and tables
 ==================
@@ -18,3 +33,6 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+
+|release| - |today|
