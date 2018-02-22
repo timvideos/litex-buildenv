@@ -1,5 +1,5 @@
-docutils
-sphinx
+docutils==0.14
+sphinx==1.7.0
 sphinx-autobuild
 
 # Important core Sphinx extensions
