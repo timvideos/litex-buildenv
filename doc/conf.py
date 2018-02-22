@@ -20,9 +20,15 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
-import re
 import os, sys
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
+if on_rtd:
+    import subprocess
+    subprocess.check_call("git submodule update --init -r", shell=True)
+    subprocess.check_call("git submodule status", shell=True)
+
+import re
 import sphinx_rtd_theme
 
 
@@ -142,7 +148,6 @@ html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
 # Enable github links when not on readthedocs
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 if not on_rtd:
     html_context = {
         "display_github": True, # Integrate GitHub
