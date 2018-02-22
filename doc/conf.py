@@ -27,10 +27,13 @@ if on_rtd:
     import subprocess
     subprocess.check_call("git submodule update --init -r", shell=True)
     subprocess.check_call("git submodule status", shell=True)
+    subprocess.check_call("make autodoc", shell=True)
 
 import re
 import sphinx_rtd_theme
 
+
+autosummary_generate = True
 
 # -- General configuration ------------------------------------------------
 

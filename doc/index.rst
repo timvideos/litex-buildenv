@@ -11,6 +11,28 @@ Welcome to LiteX Build Environment's documentation!
    :caption: Contents:
 
 
+Python Documentation
+====================
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Python Documentation:
+   :name: pytoc
+   :glob:
+
+   apidoc/litex-buildenv
+
+   apidoc/third_party/litex/litex.rst
+
+   apidoc/third_party/litedram/litedram.rst
+   apidoc/third_party/liteeth/liteeth.rst
+   apidoc/third_party/litepcie/litepcie.rst
+   apidoc/third_party/litesata/litesata.rst
+   apidoc/third_party/litescope/litescope.rst
+   apidoc/third_party/liteusb/liteusb.rst
+   apidoc/third_party/litevideo/litevideo.rst
+
+
 API Documentation
 =================
 
