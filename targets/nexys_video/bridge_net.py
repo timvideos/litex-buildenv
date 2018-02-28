@@ -3,7 +3,7 @@ from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 from liteeth.core import LiteEthUDPIPCore
 from liteeth.frontend.etherbone import LiteEthEtherbone
 
-from litex.gen.fhdl.specials import Keep
+from migen.fhdl.specials import Keep
 
 from targets.nexys_video.base import BaseSoC
 

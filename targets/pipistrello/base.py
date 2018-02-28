@@ -1,8 +1,8 @@
 # Support for the Pipistrello - http://pipistrello.saanlima.com/
 from fractions import Fraction
 
-from litex.gen import *
-from litex.gen.genlib.resetsync import AsyncResetSynchronizer
+from migen import *
+from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *

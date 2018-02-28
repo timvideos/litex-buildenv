@@ -1,4 +1,4 @@
-from litex.gen import *
+from migen import *
 from litex.soc.cores.gpio import GPIOIn, GPIOOut
 
 from targets.utils import csr_map_update

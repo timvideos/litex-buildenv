@@ -1,4 +1,4 @@
-from litex.gen import *
+from migen import *
 
 from litevideo.output.common import *
 from litevideo.output.core import VideoOutCore

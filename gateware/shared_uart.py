@@ -5,7 +5,7 @@ UART which is connected to multiple sets of pins.
 
 import operator
 
-from litex.gen import *
+from migen import *
 
 from litex.soc.cores import uart
 
