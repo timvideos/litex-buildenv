@@ -1,6 +1,6 @@
 """Built In Self Test (BIST) modules for testing liteDRAM functionality."""
 
-from litex.gen import *
+from migen import *
 
 
 class LiteDRAMBISTCheckerScope(Module):

@@ -3,13 +3,13 @@
 FIXME: Refactor this properly...
 """
 
-from litex.gen.fhdl import *
-from litex.gen.fhdl.specials import TSTriple
+from migen.fhdl import *
+from migen.fhdl.specials import TSTriple
 
-from litex.gen.genlib.cdc import MultiReg
-from litex.gen.genlib.fsm import FSM, NextState
-from litex.gen.genlib.misc import chooser
-from litex.gen.genlib.misc import split, displacer, chooser
+from migen.genlib.cdc import MultiReg
+from migen.genlib.fsm import FSM, NextState
+from migen.genlib.misc import chooser
+from migen.genlib.misc import split, displacer, chooser
 
 from litex.soc.cores.gpio import GPIOIn, GPIOOut
 from litex.soc.interconnect.csr import *

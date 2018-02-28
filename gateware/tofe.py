@@ -1,6 +1,6 @@
 """Module for talking to TOFE boards."""
 
-from litex.gen.fhdl import *
+from migen.fhdl import *
 from litex.soc.cores.gpio import GPIOIn, GPIOOut
 from litex.soc.interconnect.csr import *
 

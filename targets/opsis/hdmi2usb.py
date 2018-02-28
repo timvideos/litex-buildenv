@@ -1,4 +1,4 @@
-from litex.gen.fhdl.decorators import ClockDomainsRenamer
+from migen.fhdl.decorators import ClockDomainsRenamer
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.interconnect import stream
 

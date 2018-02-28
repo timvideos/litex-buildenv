@@ -7,7 +7,7 @@ from litex.build.generic_platform import ConstraintError
 
 from litex.soc.interconnect.csr import AutoCSR
 from litex.soc.interconnect.csr_eventmanager import *
-from litex.gen.genlib.misc import WaitTimer
+from migen.genlib.misc import WaitTimer
 
 from litex.soc.cores.gpio import GPIOIn, GPIOOut
 
