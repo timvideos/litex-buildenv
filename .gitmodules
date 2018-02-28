@@ -28,3 +28,6 @@
 [submodule "third_party/flash_proxies"]
        path = third_party/flash_proxies
        url = https://github.com/jordens/bscan_spi_bitstreams
+[submodule "third_party/migen"]
+	path = third_party/migen
+	url = https://github.com/m-labs/migen.git
