@@ -17,6 +17,7 @@ OPENOCD_VERSION=0.10.0
 
 # lite modules
 LITE_REPOS="
+	migen
 	litex
 	litedram
 	liteeth
