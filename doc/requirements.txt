@@ -3,10 +3,10 @@ sphinx==1.7.0
 sphinx-autobuild
 
 # Important core Sphinx extensions
-sphinx_rtd_theme
-recommonmark
 breathe
 exhale
+recommonmark
+sphinx_rtd_theme
 sphinxcontrib-napoleon
 
 -e hg+https://mithro@bitbucket.org/mithro/sphinxcontrib-domaintools@mithro/use-dictitems-instead-of-dictiteritems-f-1519177628123#egg=sphinxcontrib-domaintools

@@ -276,6 +276,7 @@ minidom.parse = minidom_parse_with_fixup
 
 breathe_projects = {
     "firmware":     "_doxygen/firmware/xml",
+    "gateware":     "_doxygen/gateware/xml",
 
     "edid-decode":  "_doxygen/edid-decode/xml",
     "libuip":       "_doxygen/libuip/xml",
@@ -292,6 +293,7 @@ breathe_default_project = "firmware"
 
 breathe_projects_source = {
     "firmware":     "../firmware",
+    "gateware":     "../gateware",
 
     "edid-decode":  "../third_party/edid-decode",
     "libuip":       "../third_party/libuip",
@@ -324,6 +326,9 @@ exhale_args = {
     #"exhaleUseDoxyfile":     True,
     "exhaleDoxygenStdin":    """
 EXCLUDE     = ../doc ../third_party/litex/litex/soc/software/compiler_rt ../third_party/litex/litex/soc/software/libcompiler_rt */__pycache__
+
+OPTIMIZE_OUTPUT_VERILOG = YES
+HIDE_PORT               = NO
 """,
 }
 
@@ -334,6 +339,11 @@ exhale_projects_args = {
         "exhaleDoxygenStdin":   "INPUT = ../firmware"+exhale_args["exhaleDoxygenStdin"],
         "containmentFolder":    "firmware-api",
         "rootFileTitle":        "Firmware",
+    },
+    "gateware": {
+        "exhaleDoxygenStdin":   "INPUT = ../gateware"+exhale_args["exhaleDoxygenStdin"],
+        "containmentFolder":    "gateware-api",
+        "rootFileTitle":        "Gateware",
     },
     # Third Party Project Includes
     "edid-decode": {
