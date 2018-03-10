@@ -178,11 +178,13 @@ third_party/%/.git: .gitmodules
 # --------------------------------------
 ifeq ($(FIRMWARE),none)
 OVERRIDE_FIRMWARE=--override-firmware=none
+FIRMWARE_FBI=
 else
 OVERRIDE_FIRMWARE=--override-firmware=$(FIRMWARE_FILEBASE).fbi
+FIRMWARE_FBI=$(FIRMWARE_FILEBASE).fbi
 endif
 
-$(IMAGE_FILE): $(GATEWARE_FILEBASE).bin $(BIOS_FILE) $(FIRMWARE_FILEBASE).fbi
+$(IMAGE_FILE): $(GATEWARE_FILEBASE).bin $(BIOS_FILE) $(FIRMWARE_FBI)
 	$(PYTHON) mkimage.py \
 		$(MISOC_EXTRA_CMDLINE) $(LITEX_EXTRA_CMDLINE) $(MAKE_LITEX_EXTRA_CMDLINE) \
 		--override-gateware=$(GATEWARE_FILEBASE).bin \
@@ -337,7 +339,7 @@ bios-flash: $(BIOS_FILE) bios-flash-$(PLATFORM)
 # We can run the TFTP server as the user if port >= 1024
 # otherwise we need to run as root using sudo
 
-ATFTPD:=$(shell which atftpd)
+ATFTPD:=$(shell which atftpd 2>/dev/null)
 ifeq ($(ATFTPD),)
 ATFTPD:=/usr/sbin/atftpd
 endif
@@ -347,7 +349,7 @@ endif
 # even if run as current user, otherwise it reports
 # "cannot set groups for user $USER"
 #
-IN_TFTPD:=$(shell which in.tftpd)
+IN_TFTPD:=$(shell which in.tftpd 2>/dev/null)
 ifeq ($(IN_TFTPD),)
 IN_TFTPD:=/usr/sbin/in.tftpd
 endif

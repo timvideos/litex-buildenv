@@ -30,8 +30,26 @@ gateware-load-$(PLATFORM):
 	@echo "make gateware-flash"
 	@false
 
-gateware-flash-$(PLATFORM):
-	$(PYTHON) $$(which MimasV2Config.py) $(PROG_PORT) $(GATEWARE_FILEBASE).bin
+# On Mimas v2 both the gateware and the BIOS need to be in the same flash,
+# which means that they can only really usefully be updated together.  As
+# a result we should flash "Gateware + BIOS + no application" if the user
+# asks us to flash the gatware.  This mirrors the behaviour of embedding
+# the BIOS in the Gateware loaded via gateware-load, on other platforms,
+# eg, on the Arty.
+#
+GATEWARE_BIOS_FILE = $(TARGET_BUILD_DIR)/image-gateware+bios+none.bin
+
+gateware-flash-$(PLATFORM): $(GATEWARE_BIOS_FILE)
+	$(PYTHON) $$(which MimasV2Config.py) $(PROG_PORT) $(GATEWARE_BIOS_FILE)
+
+# To avoid duplicating the mkimage.py call here, if the user has not
+# already built a image-gateware+bios+none.bin, we call make recursively
+# to build one here, with the FIRMWARE=none override.
+#
+ifneq ($(GATEWARE_BIOS_FILE),$(IMAGE_FILE))
+$(GATEWARE_BIOS_FILE): $(GATEWARE_FILEBASE).bin $(BIOS_FILE) mkimage.py
+	FIRMWARE=none make image
+endif
 
 # Firmware
 firmware-load-$(PLATFORM):
