@@ -1,8 +1,8 @@
 import os
 
-from litex.gen import *
-from litex.gen.genlib.cdc import MultiReg
-from litex.gen.genlib.misc import chooser
+from migen import *
+from migen.genlib.cdc import MultiReg
+from migen.genlib.misc import chooser
 
 from litex.soc.interconnect import wishbone
 from litex.soc.interconnect import stream

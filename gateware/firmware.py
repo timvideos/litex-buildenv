@@ -1,7 +1,7 @@
 import os
 import struct
 
-from litex.gen import *
+from migen import *
 from litex.soc.interconnect import wishbone
 
 

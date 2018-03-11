@@ -1,4 +1,4 @@
-from litex.gen import *
+from migen import *
 
 from litepcie.phy.s7pciephy import S7PCIEPHY
 from litepcie.core import LitePCIeEndpoint, LitePCIeMSI

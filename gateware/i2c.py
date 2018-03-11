@@ -1,6 +1,6 @@
-from litex.gen import *
-from litex.gen.fhdl import *
-from litex.gen.fhdl.specials import TSTriple
+from migen import *
+from migen.fhdl import *
+from migen.fhdl.specials import TSTriple
 from litex.soc.interconnect.csr import *
 
 
