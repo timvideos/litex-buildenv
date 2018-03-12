@@ -113,8 +113,8 @@ jobs:
   - stage: Targets - Video
     env: C=lm32 P=atlys        T="video"
 
-  - stage: Targets - Video
-    env: C=lm32 P=netv2        T="video"
+  #- stage: Targets - Video
+  #  env: C=lm32 P=netv2        T="video"
 
   - stage: Targets - Video
     env: C=lm32 P=nexys_video  T="video"
