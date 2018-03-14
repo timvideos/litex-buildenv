@@ -31,20 +31,23 @@ if [ ! -f $STRACE_LOG ]; then
 fi
 
 STRACE_FILES=$BASE/strace.files.log
-#cat $STRACE_LOG | python $SETUP_DIR/package-xilinx-filter-strace.py $PREFIX > $STRACE_FILES
-$SETUP_DIR/package-xilinx-cluefs-filter.py $STRACE_LOG > $STRACE_FILES
+if [ ! -f $STRACE_LOG ]; then
+	#cat $STRACE_LOG | python $SETUP_DIR/package-xilinx-filter-strace.py $PREFIX > $STRACE_FILES
+	$SETUP_DIR/package-xilinx-cluefs-filter.py $STRACE_LOG > $STRACE_FILES
+fi
 
 XILINX_DIR=$BASE/xilinx-stripped
 if [ -d $XILINX_DIR ]; then
-  rm -rf $XILINX_DIR
+	rm -rf $XILINX_DIR
 fi
 
 echo ""
 echo "Creating directories"
 echo "--------------------------------------"
 mkdir -p $XILINX_DIR
-cat $STRACE_FILES | xargs -d '\n' \
-	cp -v --parents --no-dereference --preserve=all -t $XILINX_DIR || true
+#cat $STRACE_FILES | xargs -d '\n' \
+#	cp -v --parents --no-dereference --preserve=all -t $XILINX_DIR || true
+cat $STRACE_FILES | $TOP_DIR/.travis/copy-files.py $XILINX_DIR
 echo "--------------------------------------"
 
 FILENAME="$BASE/xilinx-tools-$(git describe).tar.bz2"
