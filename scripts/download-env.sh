@@ -63,7 +63,8 @@ if [ ! -z "$XILINX_PASSPHRASE" ]; then
 	echo $XILINX_PASSPHRASE >> $XILINX_PASSPHRASE_FILE
 
 	# Need gpg to do the unencryption
-	XILINX_DIR=$BUILD_DIR/Xilinx
+	export XILINX_DIR=$BUILD_DIR/Xilinx
+	export LIKELY_XILINX_LICENSE_DIR=$XILINX_DIR
 	if [ ! -d "$XILINX_DIR" -o ! -d "$XILINX_DIR/opt" ]; then
 		(
 			cd $BUILD_DIR
@@ -104,20 +105,73 @@ if [ ! -z "$XILINX_PASSPHRASE" ]; then
 			#make
 		)
 	fi
-	export MISOC_EXTRA_CMDLINE="-Ob toolchain_path $XILINX_DIR/opt/Xilinx/"
-	# Reserved MAC address from documentation block, see
-	# http://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
-	export XILINXD_LICENSE_FILE=$XILINX_DIR
-	export MACADDR=90:10:00:00:00:01
-	#export LD_PRELOAD=$XILINX_DIR/impersonate_macaddress/impersonate_macaddress.so
-	#ls -l $LD_PRELOAD
-
 	rm $XILINX_PASSPHRASE_FILE
 	trap - EXIT
-elif [ -z "$XILINX_DIR" ]; then
-	XILINX_DIR=/
 fi
+if [ -z "$LIKELY_XILINX_LICENSE_DIR" ]; then
+	LIKELY_XILINX_LICENSE_DIR="$HOME/.Xilinx"
+fi
+
+XILINX_SETTINGS_ISE='/opt/Xilinx/*/ISE_DS/settings64.sh'
+XILINX_SETTINGS_VIVADO='/opt/Xilinx/Vivado/*/settings64.sh'
+
+if [ -z "$XILINX_DIR" ]; then
+	LOCAL_XILINX_DIR=$BUILD_DIR/Xilinx
+	if [ -d "$LOCAL_XILINX_DIR/opt/Xilinx/" ]; then
+		# Reserved MAC address from documentation block, see
+		# http://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
+		export LIKELY_XILINX_LICENSE_DIR=$LOCAL_XILINX_DIR
+		export MACADDR=90:10:00:00:00:01
+		#export LD_PRELOAD=$XILINX_DIR/impersonate_macaddress/impersonate_macaddress.so
+		#ls -l $LD_PRELOAD
+		export XILINX_DIR=$LOCAL_XILINX_DIR
+	fi
+fi
+if [ -z "$LIKELY_XILINX_LICENSE_DIR" ]; then
+	LIKELY_XILINX_LICENSE_DIR="$HOME/.Xilinx"
+fi
+
 echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
+XILINX_SETTINGS_ISE=($XILINX_DIR/$XILINX_SETTINGS_ISE)
+if [ ${#XILINX_SETTINGS_ISE[@]} -gt 0 ]; then
+	echo -n "                             - Xilinx ISE toolchain found!"
+	if [ ${#XILINX_SETTINGS_ISE[@]} -gt 1 ]; then
+		echo -n " (${#XILINX_SETTINGS_ISE[@]} versions)"
+	fi
+	echo ""
+	export HAVE_XILINX_ISE=1
+else
+	export HAVE_XILINX_ISE=0
+fi
+XILINX_SETTINGS_VIVADO=($XILINX_DIR/$XILINX_SETTINGS_VIVADO)
+if [ ${#XILINX_SETTINGS_VIVADO[@]} -gt 0 ]; then
+	echo -n "                             - Xilinx Vivado toolchain found!"
+	if [ ${#XILINX_SETTINGS_VIVADO[@]} -gt 1 ]; then
+		echo -n " (${#XILINX_SETTINGS_VIVADO[@]} versions)"
+	fi
+	echo ""
+	export HAVE_XILINX_VIVADO=1
+else
+	export HAVE_XILINX_VIVADO=0
+fi
+if [ $HAVE_XILINX_ISE -eq 1 -o $HAVE_XILINX_VIVADO -eq 1 ]; then
+	export HAVE_XILINX_TOOLCHAIN=1
+else
+	export HAVE_XILINX_TOOLCHAIN=0
+fi
+if [ $HAVE_XILINX_TOOLCHAIN -eq 1 ]; then
+	export MISOC_EXTRA_CMDLINE="-Ob toolchain_path $XILINX_DIR/opt/Xilinx/"
+fi
+
+# Detect a likely lack of license early, but just warn if it's missing
+# just in case they've set it up elsewhere.
+if [ ! -e $LIKELY_XILINX_LICENSE_DIR/Xilinx.lic ]; then
+	echo "(WARNING) Please ensure you have installed Xilinx and have a license."
+	echo "(WARNING) Copy your Xilinx license to Xilinx.lic in $LIKELY_XILINX_LICENSE_DIR to suppress this warning."
+else
+	echo "          Xilinx license in: $LIKELY_XILINX_LICENSE_DIR"
+	XILINXD_LICENSE_FILE=$LIKELY_XILINX_LICENSE_DIR
+fi
 
 function check_exists {
 	TOOL=$1
@@ -342,7 +396,7 @@ echo "-----------------------"
 	git submodule update --recursive --init
 	git submodule foreach \
 		git submodule update --recursive --init
-	git status
+	git submodule status --recursive
 )
 
 # lite
