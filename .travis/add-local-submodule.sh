@@ -49,7 +49,7 @@ USER_URL="git://github.com/$REQUEST_USER/$ORIGIN_REPO.git"
 
 # Check if the user's repo exists
 echo -n "User's repo would be '$USER_URL' "
-if git ls-remote --exit-code --heads "$USER_URL" > /dev/null; then
+if git ls-remote --exit-code --heads "$USER_URL" > /dev/null 2>&1; then
 	echo "which exists!"
 else
 	echo "which does *not* exist!"
@@ -64,10 +64,12 @@ fi
 # If the submodule does exist, add a new remote.
 (
 	cd $SUBMODULE
-	git remote add user $USER_URL || git remote set-url user $USER_URL
+	git remote rm user >/dev/null 2>&1 || true
+	git remote add user $USER_URL
 	$(which git) fetch user
 
-	git remote add origin $ORIGIN_URL || git remote set-url origin $ORIGIN_URL
+	git remote rm origin >/dev/null 2>&1 || true
+	git remote add origin $ORIGIN_URL
 	$(which git) fetch origin
 )
 
