@@ -91,10 +91,13 @@ if [ ! -d $BUILD_DIR ]; then
 	return 1
 fi
 
-# Xilinx ISE
+SETTINGS_ISE='/opt/Xilinx/*/ISE_DS/settings64.sh'
+SETTINGS_VIVADO='/opt/Xilinx/Vivado/*/settings64.sh'
+
 if [ -z "$XILINX_DIR" ]; then
 	LOCAL_XILINX_DIR=$BUILD_DIR/Xilinx
-	if [ -f "$LOCAL_XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/xreport" ]; then
+
+	if [ -f "$LOCAL_XILINX_DIR/$SETTINGS_ISE" -o  -f "$LOCAL_XILINX_DIR/$SETTINGS_VIVADO" ]; then
 		# Reserved MAC address from documentation block, see
 		# http://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
 		export XILINXD_LICENSE_FILE=$LOCAL_XILINX_DIR
@@ -110,6 +113,12 @@ if [ ! -z "$XILINX_DIR" ]; then
 	export MISOC_EXTRA_CMDLINE="-Ob toolchain_path $XILINX_DIR/opt/Xilinx/"
 fi
 echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
+if [ -f $XILINX_DIR/$SETTINGS_ISE ]; then
+	echo "                            - Xilinx ISE toolchain found!"
+fi
+if [ -f $XILINX_DIR/$SETTINGS_VIVADO ]; then
+	echo "                            - Xilinx Vivado toolchain found!"
+fi
 
 function check_exists {
 	TOOL=$1
