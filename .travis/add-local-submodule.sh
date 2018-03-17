@@ -59,18 +59,21 @@ fi
 # If submodule doesn't exist, clone directly from the users repo
 if [ ! -e $SUBMODULE/.git ]; then
 	echo "Cloning '$ORIGIN_REPO' from repo '$USER_URL'"
-	$(which git) clone $USER_URL $SUBMODULE --origin user
+	git clone $USER_URL $SUBMODULE --origin user
 fi
 # If the submodule does exist, add a new remote.
 (
 	cd $SUBMODULE
+
 	git remote rm user >/dev/null 2>&1 || true
-	git remote add user $USER_URL
-	$(which git) fetch user
+	if [ "$USER_URL" != "$ORIGIN_URL" ]; then
+		git remote add user $USER_URL
+		git fetch user
+	fi
 
 	git remote rm origin >/dev/null 2>&1 || true
 	git remote add origin $ORIGIN_URL
-	$(which git) fetch origin
+	git fetch origin
 )
 
 # Checkout the submodule at the right revision
