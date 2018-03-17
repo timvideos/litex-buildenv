@@ -17,7 +17,7 @@ USER_SLUG="$1"
 SUBMODULE="$2"
 REV=$(git rev-parse HEAD)
 
-echo "Submodule $SUBMODULE @ $REV"
+echo "Submodule $SUBMODULE"
 
 # Get the pull request info
 REQUEST_USER="$(echo $USER_SLUG | perl -pe 's|^([^/]*)/.*|\1|')"
@@ -49,13 +49,15 @@ USER_URL="git://github.com/$REQUEST_USER/$ORIGIN_REPO.git"
 
 echo "Users repo would be '$USER_URL'"
 
+# If submodule doesn't exist, clone directly from the users repo
 if [ ! -e $SUBMODULE/.git ]; then
-	echo "Successfully cloned from user repo '$USER_URL'"
+	echo "Will clone '$ORIGIN_REPO' from user repo '$USER_URL'"
 	$(which git) clone $USER_URL $SUBMODULE --origin user || true
 	if [ -d $SUBMODULE/.git ]; then
 		echo "Successfully cloned from user repo '$ORIGIN_REPO'"
 	fi
 fi
+# If the submodule does exist, add a new remote.
 if [ -e $SUBMODULE/.git ]; then
 	(
 		cd $SUBMODULE
@@ -68,6 +70,7 @@ if [ -e $SUBMODULE/.git ]; then
 	)
 fi
 
+# Checkout the submodule at the right revision
 git submodule update --init $SUBMODULE
 
 # Call ourselves recursively.
