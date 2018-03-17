@@ -322,7 +322,18 @@ echo "Installing HDMI2USB-mode-switch (flashing and config tool)"
 pip install --upgrade git+https://github.com/timvideos/HDMI2USB-mode-switch.git
 check_import_version hdmi2usb.modeswitch $HDMI2USB_MODESWITCH_VERSION
 
-# git submodules
+# git commands
+echo ""
+echo "Updating git config"
+echo "-----------------------"
+(
+	git config status.submodulesummary 1
+	git config push.recurseSubmodules check
+	git config diff.submodule = log
+	git config checkout.recurseSubmodules 1
+	git config alias.sdiff '!'"git diff && git submodule foreach 'git diff'"
+	git config alias.spush 'push --recurse-submodules=on-demand'
+)
 echo ""
 echo "Updating git submodules"
 echo "-----------------------"
