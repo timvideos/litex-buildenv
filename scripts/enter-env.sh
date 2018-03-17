@@ -115,9 +115,20 @@ fi
 echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
 if [ -f $XILINX_DIR/$SETTINGS_ISE ]; then
 	echo "                            - Xilinx ISE toolchain found!"
+	HAVE_XILINX_ISE=1
+else
+	HAVE_XILINX_ISE=0
 fi
 if [ -f $XILINX_DIR/$SETTINGS_VIVADO ]; then
 	echo "                            - Xilinx Vivado toolchain found!"
+	HAVE_XILINX_VIVADO=1
+else
+	HAVE_XILINX_VIVADO=0
+fi
+if [ $HAVE_XILINX_ISE -eq 1 -o $HAVE_XILINX_VIVADO -eq 1 ]; then
+	HAVE_XILINX_TOOLCHAIN=1
+else
+	HAVE_XILINX_TOOLCHAIN=0
 fi
 
 function check_exists {
