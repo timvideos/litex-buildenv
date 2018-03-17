@@ -170,7 +170,7 @@ if [ ! -e $LIKELY_XILINX_LICENSE_DIR/Xilinx.lic ]; then
 	echo "(WARNING) Copy your Xilinx license to Xilinx.lic in $LIKELY_XILINX_LICENSE_DIR to suppress this warning."
 else
 	echo "          Xilinx license in: $LIKELY_XILINX_LICENSE_DIR"
-	XILINXD_LICENSE_FILE=$LIKELY_XILINX_LICENSE_DIR
+	export XILINXD_LICENSE_FILE=$LIKELY_XILINX_LICENSE_DIR
 fi
 
 function check_exists {
