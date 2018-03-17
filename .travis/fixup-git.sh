@@ -88,7 +88,7 @@ if [ z"$TRAVIS_REPO_SLUG" != z ]; then
 fi
 
 echo "---------------------------------------------"
-git show-ref
+git submodule status --recursive
 echo "---------------------------------------------"
 
 if [ z"$TRAVIS_BRANCH" != z ]; then
