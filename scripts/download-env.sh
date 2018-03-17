@@ -329,7 +329,7 @@ echo "-----------------------"
 (
 	git config status.submodulesummary 1
 	git config push.recurseSubmodules check
-	git config diff.submodule = log
+	git config diff.submodule log
 	git config checkout.recurseSubmodules 1
 	git config alias.sdiff '!'"git diff && git submodule foreach 'git diff'"
 	git config alias.spush 'push --recurse-submodules=on-demand'
