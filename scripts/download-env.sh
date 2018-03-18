@@ -125,6 +125,7 @@ if [ -z "$XILINX_DIR" ]; then
 		#export LD_PRELOAD=$XILINX_DIR/impersonate_macaddress/impersonate_macaddress.so
 		#ls -l $LD_PRELOAD
 		export XILINX_DIR=$LOCAL_XILINX_DIR
+		export XILINX_LOCAL_USER_DATA=no
 	fi
 fi
 if [ -z "$LIKELY_XILINX_LICENSE_DIR" ]; then
