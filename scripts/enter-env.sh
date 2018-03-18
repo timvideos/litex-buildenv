@@ -96,6 +96,7 @@ fi
 if [ -z "$LIKELY_XILINX_LICENSE_DIR" ]; then
 	LIKELY_XILINX_LICENSE_DIR="$HOME/.Xilinx"
 fi
+shopt -s nullglob
 
 echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
 XILINX_SETTINGS_ISE=($XILINX_DIR/$XILINX_SETTINGS_ISE)
