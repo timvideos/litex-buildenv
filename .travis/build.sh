@@ -12,14 +12,7 @@ elif [ -x /usr/bin/timelimit ]; then
 fi
 
 # Check for the Xilinx toolchain being downloaded
-XILINX_DOWNLOAD_DIR=build/Xilinx/opt/Xilinx
-ls -l .
-ls -l $XILINX_DOWNLOAD_DIR
-if [ -d $XILINX_DOWNLOAD_DIR ]; then
-       export HAVE_XILINX_TOOLCHAIN=1
-else
-       export HAVE_XILINX_TOOLCHAIN=0
-fi
+export XILINX_LOCAL_USER_DATA=no
 
 GIT_REVISION=$TRAVIS_BRANCH/$(git describe)
 ORIG_COMMITTER_NAME=$(git log -1 --pretty=%an)

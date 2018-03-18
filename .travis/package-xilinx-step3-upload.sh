@@ -27,7 +27,7 @@ mkdir -p $BASE
 	# Upload the tar bz
 	$TB_COMMAND -s . --sync --pattern-match ".*\.gpg"
 	# Upload the index file
-	md5sum *.gpg | sort -t- -k4,5n > index.txt
+	md5sum *.gpg | sort -t- -k3,3V -k4,4n > index.txt
 	cat index.txt
 	$TB_COMMAND -s . --sync --pattern-match "index.txt"
 )

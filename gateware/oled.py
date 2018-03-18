@@ -1,8 +1,8 @@
-from litex.gen import *
+from migen import *
 
 from litex.soc.interconnect.csr import *
 from litex.soc.cores.gpio import GPIOOut
-from litex.gen import *
+from migen import *
 from litex.soc.interconnect.csr import *
 
 

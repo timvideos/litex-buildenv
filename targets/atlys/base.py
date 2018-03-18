@@ -1,9 +1,9 @@
 # Support for the Digilent Atlys board - digilentinc.com/atlys/
 from fractions import Fraction
 
-from litex.gen import *
-from litex.gen.genlib.resetsync import AsyncResetSynchronizer
-from litex.gen.genlib.misc import WaitTimer
+from migen import *
+from migen.genlib.resetsync import AsyncResetSynchronizer
+from migen.genlib.misc import WaitTimer
 
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *

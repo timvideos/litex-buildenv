@@ -3,7 +3,7 @@ Module for info embedded in the gateware / board.
 """
 
 from litex.build.generic_platform import ConstraintError
-from litex.gen import *
+from migen import *
 from litex.soc.interconnect.csr import *
 
 from gateware.info import git

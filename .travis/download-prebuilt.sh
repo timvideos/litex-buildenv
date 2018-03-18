@@ -1,33 +1,63 @@
 #!/bin/bash
 
-# Clone prebuilt repo to copy results into
-if [ ! -z "$TRAVIS_PULL_REQUEST" -a "$TRAVIS_PULL_REQUEST" != "false" ]; then
-	# Don't do prebuilt for a pull request.
-	echo ""
-	echo ""
-	echo ""
-	echo "- Pull request, so no prebuilt pushing."
+# Script to clone prebuilt repo to copy results into.
 
-	# Only if run by travis display error
-elif [ -z "$GH_TOKEN" -a -z "$TRAVIS_BUILD_NUMBER" ]; then
+if [ ! -z "$TRAVIS" -a "$TRAVIS" = "true" ]; then
+	# Don't clone prebuilt on a pull request.
+	if [ ! -z "$TRAVIS_PULL_REQUEST" -a "$TRAVIS_PULL_REQUEST" != "false" ]; then
+		echo ""
+		echo ""
+		echo ""
+		echo "- Pull request, so no prebuilt pushing."
+
+	# Don't clone if no github authentication
+	elif [ -z "$GH_TOKEN" ]; then
+		echo ""
+		echo ""
+		echo ""
+		echo "- No Github token (GH_TOKEN) so unable to push built files"
+
+	# Don't clone if we don't know which branch we are on
+	elif [ -z "$TRAVIS_BRANCH" ]; then
+		echo ""
+		echo ""
+		echo ""
+		echo "- No branch name (\$TRAVIS_BRANCH), unable to copy built files"
+
+	# Don't clone if we don't know which repo we are using
+	elif [ -z "$TRAVIS_REPO_SLUG" ]; then
+		echo ""
+		echo ""
+		echo ""
+		echo "- No repo slug name (\$TRAVIS_REPO_SLUG), unable to copy built files"
+
+	else
+		# Look at repo we are running in to determine where to try pushing to if in a fork
+		PREBUILT_REPO=HDMI2USB-firmware-prebuilt
+		PREBUILT_REPO_OWNER=$(echo $TRAVIS_REPO_SLUG|awk -F'/' '{print $1}')
+	fi
+fi
+
+
+if [ -z "$PREBUILT_DIR" ]; then
 	echo ""
 	echo ""
 	echo ""
-	echo "- No Github token so unable to copy built files"
-elif [ -z "$TRAVIS_BRANCH" ]; then
+	echo "- No PREBUILT_DIR value found."
+
+elif [ -z "$PREBUILT_REPO" ]; then
 	echo ""
 	echo ""
 	echo ""
-	echo "- No branch name (\$TRAVIS_BRANCH), unable to copy built files"
-elif [ -z "$TRAVIS_REPO_SLUG" ]; then
+	echo "- No PREBUILT_REPO value found."
+
+elif [ -z "$PREBUILT_REPO_OWNER" ]; then
 	echo ""
 	echo ""
 	echo ""
-	echo "- No repo slug name (\$TRAVIS_REPO_SLUG), unable to copy built files"
-elif [ ! -z "$PREBUILT_DIR" ]; then
-	# Look at repo we are running in to determine where to try pushing to if in a fork
-	PREBUILT_REPO=HDMI2USB-firmware-prebuilt
-	PREBUILT_REPO_OWNER=$(echo $TRAVIS_REPO_SLUG|awk -F'/' '{print $1}')
+	echo "- No PREBUILT_REPO_OWNER value found."
+
+else
 	echo ""
 	echo ""
 	echo ""
@@ -54,9 +84,4 @@ elif [ ! -z "$PREBUILT_DIR" ]; then
 		ls -l $PREBUILT_DIR/archive
 	)
 	echo "============================================="
-else
-	echo ""
-	echo ""
-	echo ""
-	echo "- No PREBUILT_DIR value found."
 fi

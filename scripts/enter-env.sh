@@ -12,7 +12,6 @@ CALLED=$_
 SETUP_SRC="$(realpath ${BASH_SOURCE[0]})"
 SETUP_DIR="$(dirname "${SETUP_SRC}")"
 TOP_DIR="$(realpath "${SETUP_DIR}/..")"
-LIKELY_XILINX_LICENSE_LOCATION="$HOME/.Xilinx/Xilinx.lic"
 
 if [ $SOURCED = 0 ]; then
 	echo "You must source this script, rather than try and run it."
@@ -65,25 +64,12 @@ else
 	return 1
 fi
 
-# Detect a likely lack of license early, but just warn if it's missing
-# just in case they've set it up elsewhere.
-license_found=0
-if [ ! -e $LIKELY_XILINX_LICENSE_LOCATION ]; then
-	echo "(WARNING) Please ensure you have installed Xilinx and have a license."
-	echo "(WARNING) Copy your Xilinx license to $LIKELY_XILINX_LICENSE_LOCATION to suppress this warning."
-else
-	license_found=1
-fi
-
 . $SETUP_DIR/settings.sh
 
 echo "             This script is: $SETUP_SRC"
 echo "         Firmware directory: $TOP_DIR"
 echo "         Build directory is: $BUILD_DIR"
 echo "     3rd party directory is: $THIRD_DIR"
-if [ $license_found == 1 ]; then
-	echo "          Xilinx license in: $LIKELY_XILINX_LICENSE_LOCATION"
-fi
 
 # Check the build dir
 if [ ! -d $BUILD_DIR ]; then
@@ -91,25 +77,68 @@ if [ ! -d $BUILD_DIR ]; then
 	return 1
 fi
 
-# Xilinx ISE
+XILINX_SETTINGS_ISE='/opt/Xilinx/*/ISE_DS/settings64.sh'
+XILINX_SETTINGS_VIVADO='/opt/Xilinx/Vivado/*/settings64.sh'
+
 if [ -z "$XILINX_DIR" ]; then
 	LOCAL_XILINX_DIR=$BUILD_DIR/Xilinx
-	if [ -f "$LOCAL_XILINX_DIR/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/xreport" ]; then
+	if [ -d "$LOCAL_XILINX_DIR/opt/Xilinx/" ]; then
 		# Reserved MAC address from documentation block, see
 		# http://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
-		export XILINXD_LICENSE_FILE=$LOCAL_XILINX_DIR
+		export LIKELY_XILINX_LICENSE_DIR=$LOCAL_XILINX_DIR
 		export MACADDR=90:10:00:00:00:01
 		#export LD_PRELOAD=$XILINX_DIR/impersonate_macaddress/impersonate_macaddress.so
 		#ls -l $LD_PRELOAD
 		export XILINX_DIR=$LOCAL_XILINX_DIR
-	else
-		XILINX_DIR=/
+		export XILINX_LOCAL_USER_DATA=no
 	fi
 fi
-if [ ! -z "$XILINX_DIR" ]; then
+if [ -z "$LIKELY_XILINX_LICENSE_DIR" ]; then
+	LIKELY_XILINX_LICENSE_DIR="$HOME/.Xilinx"
+fi
+shopt -s nullglob
+
+echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
+XILINX_SETTINGS_ISE=($XILINX_DIR/$XILINX_SETTINGS_ISE)
+if [ ${#XILINX_SETTINGS_ISE[@]} -gt 0 ]; then
+	echo -n "                             - Xilinx ISE toolchain found!"
+	if [ ${#XILINX_SETTINGS_ISE[@]} -gt 1 ]; then
+		echo -n " (${#XILINX_SETTINGS_ISE[@]} versions)"
+	fi
+	echo ""
+	export HAVE_XILINX_ISE=1
+else
+	export HAVE_XILINX_ISE=0
+fi
+XILINX_SETTINGS_VIVADO=($XILINX_DIR/$XILINX_SETTINGS_VIVADO)
+if [ ${#XILINX_SETTINGS_VIVADO[@]} -gt 0 ]; then
+	echo -n "                             - Xilinx Vivado toolchain found!"
+	if [ ${#XILINX_SETTINGS_VIVADO[@]} -gt 1 ]; then
+		echo -n " (${#XILINX_SETTINGS_VIVADO[@]} versions)"
+	fi
+	echo ""
+	export HAVE_XILINX_VIVADO=1
+else
+	export HAVE_XILINX_VIVADO=0
+fi
+if [ $HAVE_XILINX_ISE -eq 1 -o $HAVE_XILINX_VIVADO -eq 1 ]; then
+	export HAVE_XILINX_TOOLCHAIN=1
+else
+	export HAVE_XILINX_TOOLCHAIN=0
+fi
+if [ $HAVE_XILINX_TOOLCHAIN -eq 1 ]; then
 	export MISOC_EXTRA_CMDLINE="-Ob toolchain_path $XILINX_DIR/opt/Xilinx/"
 fi
-echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
+
+# Detect a likely lack of license early, but just warn if it's missing
+# just in case they've set it up elsewhere.
+if [ ! -e $LIKELY_XILINX_LICENSE_DIR/Xilinx.lic ]; then
+	echo "(WARNING) Please ensure you have installed Xilinx and have a license."
+	echo "(WARNING) Copy your Xilinx license to Xilinx.lic in $LIKELY_XILINX_LICENSE_DIR to suppress this warning."
+else
+	echo "          Xilinx license in: $LIKELY_XILINX_LICENSE_DIR"
+	export XILINXD_LICENSE_FILE=$LIKELY_XILINX_LICENSE_DIR
+fi
 
 function check_exists {
 	TOOL=$1
@@ -167,7 +196,7 @@ echo ""
 echo "Checking environment"
 echo "---------------------------------"
 # Install and setup conda for downloading packages
-export PATH=$CONDA_DIR/bin:$PATH
+export PATH=$CONDA_DIR/bin:$PATH:/sbin
 
 eval $(cd $TOP_DIR; export HDMI2USB_ENV=1; make env || return 1) || return 1
 (
@@ -176,6 +205,8 @@ eval $(cd $TOP_DIR; export HDMI2USB_ENV=1; make env || return 1) || return 1
 	make info || return 1
 	echo
 ) || return 1
+
+
 
 # Check the Python version
 
@@ -190,8 +221,8 @@ echo "---------------------------------"
 
 # fxload
 if [ "$PLATFORM" == "opsis" -o "$PLATFORM" == "atlys" ]; then
-	# check sbin for fxload as well
-	export PATH=$PATH:/sbin
+
+
 
 	check_exists fxload || return 1
 fi
@@ -278,7 +309,7 @@ check_import_version hexfile $HEXFILE_VERSION || return 1
 
 check_import_version hdmi2usb.modeswitch $HDMI2USB_MODESWITCH_VERSION || return 1
 
-# git submodules
+# git commands
 echo ""
 echo "Checking git submodules"
 echo "-----------------------"
@@ -287,7 +318,7 @@ echo "-----------------------"
 
 
 
-	git status
+	git submodule status --recursive
 )
 
 # lite

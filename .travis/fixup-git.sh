@@ -2,6 +2,18 @@
 
 set -e
 
+# Disable prompting for passwords - works with git version 2.3 or above
+export GIT_TERMINAL_PROMPT=0
+# Harder core version of disabling the username/password prompt.
+GIT_CREDENTIAL_HELPER=$PWD/.git/git-credential-stop
+cat > $GIT_CREDENTIAL_HELPER <<EOF
+cat
+echo "username=git"
+echo "password=git"
+EOF
+chmod a+x $GIT_CREDENTIAL_HELPER
+git config credential.helper $GIT_CREDENTIAL_HELPER
+
 DF_BEFORE_GIT="$(($(stat -f --format="%a*%S" .)))"
 
 echo ""
@@ -76,7 +88,7 @@ if [ z"$TRAVIS_REPO_SLUG" != z ]; then
 fi
 
 echo "---------------------------------------------"
-git show-ref
+git submodule status --recursive
 echo "---------------------------------------------"
 
 if [ z"$TRAVIS_BRANCH" != z ]; then
