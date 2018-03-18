@@ -11,6 +11,9 @@ elif [ -x /usr/bin/timelimit ]; then
 	export GATEWARE_TIMEOUT_CMD="/usr/bin/timelimit -T $GATEWARE_KILLOUT -t $GATEWARE_TIMEOUT"
 fi
 
+# Check for the Xilinx toolchain being downloaded
+export XILINX_LOCAL_USER_DATA=no
+
 GIT_REVISION=$TRAVIS_BRANCH/$(git describe)
 ORIG_COMMITTER_NAME=$(git log -1 --pretty=%an)
 ORIG_COMMITTER_EMAIL=$(git log -1 --pretty=%ae)
