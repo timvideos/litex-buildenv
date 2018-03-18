@@ -95,11 +95,8 @@ def get_channel_spreadsheet():
             continue
         if i[0] != "GitHub":
             continue
-        if len(i) != 6:
-            print("Skipping row %s" % i)
-            continue
 
-        _, _, rev, name, conf, _ = i
+        _, _, rev, name, conf, *_ = i
         if not name:
             continue
         assert name not in rev_names, "{} is listed multiple times!".format(
