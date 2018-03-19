@@ -132,9 +132,11 @@ if [ -z "$LIKELY_XILINX_LICENSE_DIR" ]; then
 	LIKELY_XILINX_LICENSE_DIR="$HOME/.Xilinx"
 fi
 shopt -s nullglob
+XILINX_SETTINGS_ISE=($XILINX_DIR/$XILINX_SETTINGS_ISE)
+XILINX_SETTINGS_VIVADO=($XILINX_DIR/$XILINX_SETTINGS_VIVADO)
+shopt -u nullglob
 
 echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
-XILINX_SETTINGS_ISE=($XILINX_DIR/$XILINX_SETTINGS_ISE)
 if [ ${#XILINX_SETTINGS_ISE[@]} -gt 0 ]; then
 	echo -n "                             - Xilinx ISE toolchain found!"
 	if [ ${#XILINX_SETTINGS_ISE[@]} -gt 1 ]; then
@@ -145,7 +147,6 @@ if [ ${#XILINX_SETTINGS_ISE[@]} -gt 0 ]; then
 else
 	export HAVE_XILINX_ISE=0
 fi
-XILINX_SETTINGS_VIVADO=($XILINX_DIR/$XILINX_SETTINGS_VIVADO)
 if [ ${#XILINX_SETTINGS_VIVADO[@]} -gt 0 ]; then
 	echo -n "                             - Xilinx Vivado toolchain found!"
 	if [ ${#XILINX_SETTINGS_VIVADO[@]} -gt 1 ]; then
