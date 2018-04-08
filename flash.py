@@ -41,12 +41,12 @@ def main():
             filename = make.get_firmware(builddir, "flash")
 
         address_start = platform.gateware_size + make.BIOS_SIZE
-        address_end = platform.gateware_size
+        address_end = platform.spiflash_total_size
 
     elif args.mode == 'other':
-        filename = args.other
+        filename = args.other_file
         address_start = args.address
-        address_end = platform.gateware_size
+        address_end = platform.spiflash_total_size
 
     else:
         assert False, "Unknown flashing mode."
@@ -60,8 +60,8 @@ def main():
     file_size = len(open(filepath, 'rb').read())
 
     file_end = address_start+file_size
-    assert file_end < address_end, "File is too big!\n%s file doesn't fit in %s space." % (
-        address_end - address_start, file_size)
+    assert file_end < address_end, "File is too big!\n%s file doesn't fit in %s space (%s extra bytes)." % (
+        filename, file_size, address_end - address_start)
 
     prog = make.get_prog(args, platform)
     prog.flash(address_start, filepath)
