@@ -44,7 +44,7 @@ def main():
         address_end = platform.spiflash_total_size
 
     elif args.mode == 'other':
-        filename = args.other
+        filename = args.other_file
         address_start = args.address
         address_end = platform.spiflash_total_size
 
