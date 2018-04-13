@@ -191,6 +191,7 @@ static void ci_help(void)
 	wputs("mdio_status - show mdio status");
 #endif
 	wputs("pattern (p) - select next pattern");
+	wputs("version - show firmware version");
 	wputs("");
 	help_status();
 	wputs("");
