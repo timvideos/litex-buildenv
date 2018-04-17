@@ -41,7 +41,7 @@
 
  Bunch of packages are needed;
   * Libraries for talking to USB - libftdi, libusb, fxload
-  
+
   * udev rules.
 
   * Kernel modules for some boards. Mostly not needed....
@@ -77,7 +77,9 @@
  directory will totally remove the installed environment.
 
 ### Step 4 - Enter self contained environment & set environment variables.
-
+ * If you installed Xilinx to anywhere other than `/opt/Xilinx/`, run
+   `export XILINX_DIR=<path>`. This must be set before entering the
+   environment, as it is not updated from within it.
  * `source scripts/enter-env.sh` - enter-env checks that your environment is
    setup correctly and contains all the dependencies you need.
 
