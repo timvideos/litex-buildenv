@@ -61,7 +61,7 @@ conferences;
 
    ![Digilent Atlys Picture](https://hdmi2usb.tv/img/digilent-atlys-small.jpg)
 
- * [Numato Opsis](https://hdmi2usb.tv/numato-opsis/) - `PLATFORM=opsis` - https://crowdsupply.com/numato-lab/opsis
+ * [Numato Opsis](https://hdmi2usb.tv/numato-opsis/) - `PLATFORM=opsis` - https://numato.com/product/numato-opsis-fpga-based-open-video-platform
 
    The first production board made in conjunction with TimVideos.us project.
 
