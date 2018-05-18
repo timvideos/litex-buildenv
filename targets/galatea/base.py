@@ -1,27 +1,18 @@
 # Support for Numato Galatea - https://numato.com/product/galatea-pci-express-spartan-6-fpga-development-board
 from fractions import Fraction
 
-from litex.gen import *
-from litex.gen.genlib.resetsync import AsyncResetSynchronizer
-from litex.gen.genlib.misc import WaitTimer
+from migen import *
+from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
-from litex.soc.cores.gpio import GPIOIn, GPIOOut
-from litex.soc.interconnect.csr import AutoCSR
 
 from litedram.modules import MT41J128M16
 from litedram.phy import s6ddrphy
 from litedram.core import ControllerSettings
 
-from gateware import i2c
-from gateware import info
-from gateware import opsis_i2c
-from gateware import shared_uart
-from gateware import tofe
-from gateware import spi_flash
-
 from targets.utils import csr_map_update
+
 
 class _CRG(Module):
     def __init__(self, platform, clk_freq):
