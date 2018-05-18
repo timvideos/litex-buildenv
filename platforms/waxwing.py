@@ -69,29 +69,27 @@ _io = [
     ("user_btn", 5, Pins("V6"), IOStandard("LVCMOS33"), Misc("PULLUP")),
     ("user_btn", 6, Pins("T5"), IOStandard("LVCMOS33"), Misc("PULLUP")),
 
-    # TODO: Check and confirm pin maps below are correct or not
-    #
     ("vga_out", 0,
-     Subsignal("hsync_n", Pins("T18"), IOStandard("LVCMOS33"),
+     Subsignal("hsync_n", Pins("U8"), IOStandard("LVCMOS33"),
                Misc("SLEW=FAST")),
-     Subsignal("vsync_n", Pins("U16"), IOStandard("LVCMOS33"),
+     Subsignal("vsync_n", Pins("V8"), IOStandard("LVCMOS33"),
                Misc("SLEW=FAST")),
-     Subsignal("r", Pins("P18 U18 U17"), IOStandard("LVCMOS33"),
+     Subsignal("r", Pins("M8 R11 T11"), IOStandard("LVCMOS33"),
                Misc("SLEW=FAST")),
-     Subsignal("g", Pins("N15 N16 N14"), IOStandard("LVCMOS33"),
+     Subsignal("g", Pins("N7 P8 N8"), IOStandard("LVCMOS33"),
                Misc("SLEW=FAST")),
-     Subsignal("b", Pins("V16 P17"), IOStandard("LVCMOS33"),
+     Subsignal("b", Pins("P7 N6"), IOStandard("LVCMOS33"),
                Misc("SLEW=FAST"))),
 
     ("sevenseg", 0,
-     Subsignal("segment7", Pins("G16"), IOStandard("LVCMOS33")),  # A
-     Subsignal("segment6", Pins("L15"), IOStandard("LVCMOS33")),  # B
-     Subsignal("segment5", Pins("L16"), IOStandard("LVCMOS33")),  # C
-     Subsignal("segment4", Pins("K13"), IOStandard("LVCMOS33")),  # D
-     Subsignal("segment3", Pins("K12"), IOStandard("LVCMOS33")),  # E
-     Subsignal("segment2", Pins("G18"), IOStandard("LVCMOS33")),  # F
-     Subsignal("segment1", Pins("F18"), IOStandard("LVCMOS33")),  # G
-     Subsignal("segment0", Pins("L18"), IOStandard("LVCMOS33")),  # Dot
+     Subsignal("segment7", Pins("L18"), IOStandard("LVCMOS33")),  # A
+     Subsignal("segment6", Pins("F18"), IOStandard("LVCMOS33")),  # B
+     Subsignal("segment5", Pins("G18"), IOStandard("LVCMOS33")),  # C
+     Subsignal("segment4", Pins("K12"), IOStandard("LVCMOS33")),  # D
+     Subsignal("segment3", Pins("K13"), IOStandard("LVCMOS33")),  # E
+     Subsignal("segment2", Pins("L16"), IOStandard("LVCMOS33")),  # F
+     Subsignal("segment1", Pins("L15"), IOStandard("LVCMOS33")),  # G
+     Subsignal("segment0", Pins("G16"), IOStandard("LVCMOS33")),  # Dot
      Subsignal("enable0", Pins("F17"), IOStandard("LVCMOS33")),  # EN0
      Subsignal("enable1", Pins("L14"), IOStandard("LVCMOS33")),  # EN1
      Subsignal("enable2", Pins("M13"), IOStandard("LVCMOS33"))),  # EN2
@@ -149,18 +147,9 @@ _io = [
 ]
 
 _connectors = [
-    ("P3", "G13 H12 K14 J13 H16 H15 H14 H13 G14 F14 G18 G16 F16 F15 F18" #15 pins
-           "F17 E18 E16 D18 D17 C18 C17 A16 B16 A15 C15 C14 D14 A14 B14" #15 pins
-           "E13 F13 A13 C13 A12 B12 C11 D11 A11 B11 A10 C10 F9 G9 C9 D9" #16 pins
-           "A9 B9 C8 D8 A8 B8 A7 C7 A6 B6 C6 D6 A5 C5 A4 B4 A3 B3 A2 B2" #20 pins
-    ),
-
-    ("P2", "K12 K13 L14 M13 M14 N14 L12 L13 L15 L16 K15 K16 N15 N16 T17" #15 pins
-           "T18 P15 P16 U16 V16 U17 U18 T14 V14 U15 V15 T12 V12 U13 V13" #15 pins
-           "R11 T11 M11 N11 N10 P11 U11 V11 R10 T10 M10 N9 T9 V9 R8 T8"  #16 pins
-           "N7 P8 M8 N8 U7 V7 U8 V8 R7 T7 N6 P7 N5 P6 T6 V6 R5 T5 U5"    #19 pins
-           "V5 R3 T3 T4 V4"                                              # 5 pins
-    )
+    ("P3", "F15 F16 E16 E18 B12 A12 B11 A11"),
+    ("P4", "B6 A6 D11 C11 H15 H16 F13 E13"),
+    ("P5", "B4 A4 C5 A5 B3 A3 B2 A2"),
 ]
 
 
