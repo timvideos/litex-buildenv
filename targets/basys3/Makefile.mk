@@ -5,7 +5,7 @@ ifneq ($(PLATFORM),basys3)
 endif
 
 # Settings
-DEFAULT_TARGET = net
+DEFAULT_TARGET = base
 TARGET ?= $(DEFAULT_TARGET)
 
 PROG_PORT ?= /dev/ttyUSB0
