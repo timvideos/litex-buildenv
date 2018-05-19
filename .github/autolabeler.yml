@@ -1,14 +1,37 @@
 board-arty: ["targets/arty", "platforms/arty.py"]
 board-atlys: ["targets/atlys", "platforms/atlys.py"]
+board-basys3: ["targets/basys3", "platforms/basys3.py"]
+board-cmod_a7: ["targets/cmod_a7", "platforms/cmod_a7.py"]
+board-galatea: ["targets/galatea", "platforms/galatea.py"]
 board-mimasv2: ["targets/mimasv2", "platforms/mimasv2.py"]
 board-minispartan6: ["targets/minispartan6", "platforms/minispartan6.py"]
+board-neso: ["targets/neso", "platforms/neso.py"]
 board-netv2: ["targets/netv2", "platforms/netv2.py"]
 board-nexys-video: ["targets/nexys-video", "platforms/nexys-video.py"]
 board-opsis: ["targets/opsis", "platforms/opsis.py", "platforms/tofe_*.py"]
-board-pipstrello: ["targets/pipstrello", "platforms/pipstrello.py"]
+board-pipistrello: ["targets/pipistrello", "platforms/pipistrello.py"]
+board-saturn: ["targets/saturn", "platforms/saturn.py"]
+board-sim: ["targets/sim", "platforms/sim.py"]
+board-waxwing: ["targets/waxwing", "platforms/waxwing.py"]
 boards-all: ["targets/common/"]
-boards-artix7: ["targets/arty", "platforms/arty.py", "targets/netv2", "platforms/netv2.py", "targets/nexys-video", "platforms/nexys-video.py"]
-boards-spartan6: ["targets/atlys", "platforms/atlys.py", "targets/mimasv2", "platforms/mimasv2.py", "targets/minispartan6", "platforms/minispartan6.py", "targets/opsis", "platforms/opsis.py", "targets/pipstrello", "platforms/pipstrello.py"]
+boards-artix7: [
+        "targets/arty", "platforms/arty.py",
+        "targets/basys3", "platforms/basys3.py",
+        "targets/cmod_a7", "platforms/cmod_a7.py",
+        "targets/neso", "platforms/neso.py",
+        "targets/netv2", "platforms/netv2.py",
+        "targets/nexys-video", "platforms/nexys-video.py"
+        ]
+boards-spartan6: [
+        "targets/atlys", "platforms/atlys.py",
+        "targets/galatea", "platforms/galatea.py",
+        "targets/mimasv2", "platforms/mimasv2.py",
+        "targets/minispartan6", "platforms/minispartan6.py",
+        "targets/opsis", "platforms/opsis.py",
+        "targets/pipstrello", "platforms/pipstrello.py",
+        "targets/saturn", "platforms/saturn.py",
+        "targets/waxwing", "platforms/waxwing.py"
+        ]
 firmware-fpga: ["gateware/"]
 firmware-softcpu: ["firmware/"]
 hdmi2ethernet: ["targets/*/net.py", "targets/*/hdmi2eth.py", "firmware/uip/", "third_party/libuip/"]
