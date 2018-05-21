@@ -7,6 +7,7 @@ compiler:
 sudo: false
 addons:
   apt:
+    update: true
     packages:
     - build-essential
     - fxload
