@@ -313,6 +313,56 @@ to switch to serial mode and then back to the jtag mode like this;
 hdmi2usb-mode-switch --mode=serial
 hdmi2usb-mode-switch --mode=jtag
 ```
+Load the firmware
+```
+make firmware-load
+
+```
+If you see no output, press ‘Enter’ a few times. You can then kick off the firmware loading process again:
+```
+BIOS> serialboot
+Booting from serial...
+Press Q or ESC to abort boot completely.
+sL5DdSMmkekro
+[FLTERM] Received firmware download request from the device.
+[FLTERM] Uploading kernel (86484 bytes)...
+[FLTERM] Upload complete (10.6KB/s).
+[FLTERM] Booting the device.
+[FLTERM] Done.
+Executing booted program at 0x40000000
+HDMI2USB firmware booting...
+
+opsis_eeprom: Init...finished.
+
+hardware version info
+===============================================
+           DNA: 0137be87d98719f0
+           MAC: d8:80:39:57:04:94
+
+gateware version info
+===============================================
+      platform: opsis
+        target: video
+      revision: 5f07955beabcf9cebe0e896c4e51242075566cb6
+
+firmware version info
+===============================================
+      platform: opsis
+        target: video
+    git commit: 5f07955beabcf9cebe0e896c4e51242075566cb6
+    git branch: master
+  git describe: v0.0.4-203-g5f07955
+    git status:
+    --
+    ?? ../../../../HDMI2USB-mode-switch/
+    --
+
+         built: May 31 2018 10:43:25
+        uptime: 00:00:00
+-----------------------------------------------
+MDIO mode: 1000Mbps / link: down
+
+```
 
 ## 5) Testing
 
