@@ -85,51 +85,51 @@ _io = [
     ),
 
     ("eth_clocks", 0,
-        Subsignal("tx", Pins("AA14")),
-        Subsignal("rx", Pins("V13")),
-        IOStandard("LVCMOS25")
+        Subsignal("tx", Pins("U20")),
+        Subsignal("rx", Pins("W19")),
+        IOStandard("LVCMOS33")
     ),
     ("eth", 0,
-        Subsignal("rst_n", Pins("U7"), IOStandard("LVCMOS33")),
-        Subsignal("int_n", Pins("Y14")),
-        Subsignal("mdio", Pins("Y16")),
-        Subsignal("mdc", Pins("AA16")),
-        Subsignal("rx_ctl", Pins("W10")),
-        Subsignal("rx_data", Pins("AB16 AA15 AB15 AB11")),
-        Subsignal("tx_ctl", Pins("V10")),
-        Subsignal("tx_data", Pins("Y12 W12 W11 Y11")),
-        IOStandard("LVCMOS25")
+        Subsignal("rst_n", Pins("R14"), IOStandard("LVCMOS33")),
+        Subsignal("int_n", Pins("V19")),
+        Subsignal("mdio", Pins("P16")),
+        Subsignal("mdc", Pins("R19")),
+        Subsignal("rx_ctl", Pins("Y19")),
+        Subsignal("rx_data", Pins("AB18 W20 W17 V20")),
+        Subsignal("tx_ctl", Pins("T20")),
+        Subsignal("tx_data", Pins("V18 U18 V17 U17")),
+        IOStandard("LVCMOS33")
     ),
 
     ("hdmi_in", 0,
-        Subsignal("clk_p", Pins("V4"), IOStandard("TMDS_33")),
-        Subsignal("clk_n", Pins("W4"), IOStandard("TMDS_33")),
-        Subsignal("data0_p", Pins("Y3"), IOStandard("TMDS_33")),
-        Subsignal("data0_n", Pins("AA3"), IOStandard("TMDS_33")),
-        Subsignal("data1_p", Pins("W2"), IOStandard("TMDS_33")),
-        Subsignal("data1_n", Pins("Y2"), IOStandard("TMDS_33")),
-        Subsignal("data2_p", Pins("U2"), IOStandard("TMDS_33")),
-        Subsignal("data2_n", Pins("V2"), IOStandard("TMDS_33")),
-        Subsignal("scl", Pins("Y4"), IOStandard("LVCMOS33")),
-        Subsignal("sda", Pins("AB5"), IOStandard("LVCMOS33")),
-        Subsignal("hpd_en", Pins("AB12"), IOStandard("LVCMOS25")),
-        Subsignal("cec", Pins("AA5"), IOStandard("LVCMOS33")),  # FIXME
-        Subsignal("txen", Pins("R3"), IOStandard("LVCMOS33")),  # FIXME
+        Subsignal("clk_p", Pins("K4"), IOStandard("TMDS_33")),
+        Subsignal("clk_n", Pins("J4"), IOStandard("TMDS_33")),
+        Subsignal("data0_p", Pins("K1"), IOStandard("TMDS_33")),
+        Subsignal("data0_n", Pins("J1"), IOStandard("TMDS_33")),
+        Subsignal("data1_p", Pins("M1"), IOStandard("TMDS_33")),
+        Subsignal("data1_n", Pins("L1"), IOStandard("TMDS_33")),
+        Subsignal("data2_p", Pins("P2"), IOStandard("TMDS_33")),
+        Subsignal("data2_n", Pins("N2"), IOStandard("TMDS_33")),
+        Subsignal("scl", Pins("J2"), IOStandard("LVCMOS33")),
+        Subsignal("sda", Pins("H2"), IOStandard("LVCMOS33")),
+        Subsignal("hpd_en", Pins("G2"), IOStandard("LVCMOS33")),
+        Subsignal("cec", Pins("K2"), IOStandard("LVCMOS33")),  # FIXME
+        # Subsignal("txen", Pins("R3"), IOStandard("LVCMOS33")),  # FIXME
     ),
 
     ("hdmi_out", 0,
-        Subsignal("clk_p", Pins("T1"), IOStandard("TMDS_33")),
-        Subsignal("clk_n", Pins("U1"), IOStandard("TMDS_33")),
-        Subsignal("data0_p", Pins("W1"), IOStandard("TMDS_33")),
-        Subsignal("data0_n", Pins("Y1"), IOStandard("TMDS_33")),
-        Subsignal("data1_p", Pins("AA1"), IOStandard("TMDS_33")),
-        Subsignal("data1_n", Pins("AB1"), IOStandard("TMDS_33")),
-        Subsignal("data2_p", Pins("AB3"), IOStandard("TMDS_33")),
-        Subsignal("data2_n", Pins("AB2"), IOStandard("TMDS_33")),
-        Subsignal("scl", Pins("U3"), IOStandard("LVCMOS33")),
-        Subsignal("sda", Pins("V3"), IOStandard("LVCMOS33")),
-        Subsignal("cec", Pins("AA4"), IOStandard("LVCMOS33")),  # FIXME
-        Subsignal("hdp", Pins("AB13"), IOStandard("LVCMOS25")), # FIXME
+        Subsignal("clk_p", Pins("L3"), IOStandard("TMDS_33")),
+        Subsignal("clk_n", Pins("K3"), IOStandard("TMDS_33")),
+        Subsignal("data0_p", Pins("B1"), IOStandard("TMDS_33")),
+        Subsignal("data0_n", Pins("A1"), IOStandard("TMDS_33")),
+        Subsignal("data1_p", Pins("E1"), IOStandard("TMDS_33")),
+        Subsignal("data1_n", Pins("D1"), IOStandard("TMDS_33")),
+        Subsignal("data2_p", Pins("G1"), IOStandard("TMDS_33")),
+        Subsignal("data2_n", Pins("F1"), IOStandard("TMDS_33")),
+        Subsignal("scl", Pins("D2"), IOStandard("LVCMOS33")),
+        Subsignal("sda", Pins("C2"), IOStandard("LVCMOS33")),
+        Subsignal("cec", Pins("E2"), IOStandard("LVCMOS33")),  # FIXME
+        Subsignal("hdp", Pins("B2"), IOStandard("LVCMOS33")), # FIXME
     ),
 ]
 
