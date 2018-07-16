@@ -96,8 +96,8 @@ class BaseSoC(SoCSDRAM):
     def __init__(self, platform, spiflash="spiflash_1x", **kwargs):
         clk_freq = int(100e6)
         SoCSDRAM.__init__(self, platform, clk_freq,
-            integrated_rom_size=0x8000,
-            integrated_sram_size=0x8000,
+            integrated_rom_size=0x10000,
+            integrated_sram_size=0x10000,
             **kwargs)
 
         self.submodules.crg = _CRG(platform)
