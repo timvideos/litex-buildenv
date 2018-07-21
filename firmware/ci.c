@@ -173,7 +173,7 @@ static void help_debug(void)
 	wputs("  debug ddr                      - show DDR bandwidth");
 #endif
 	wputs("  debug dna                      - show Board's DNA");
-	wputs("  debug edid                     - dump monitor EDID");
+	wputs("  debug edid <port>              - dump monitor EDID");
 #ifdef CSR_CAS_BASE
 	wputs("  debug cas leds <value>         - change the status LEDs");
 	wputs("  debug cas switches             - read the control switches status");
@@ -1301,7 +1301,7 @@ void ci_service(void)
 			}
 #endif
 			if(found == 0)
-				wprintf("%s port has no EDID capabilities\n", token);
+				wprintf("no such port\n");
 #ifdef CSR_CAS_BASE
 		} else if(strcmp(token, "cas") == 0) {
 			token = get_token(&str);
