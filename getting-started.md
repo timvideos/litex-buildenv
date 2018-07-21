@@ -386,6 +386,21 @@ video_matrix connect input1 output1
 video_matrix connect input1 encoder
 ```
 
+The following commands are an example to view the video output on monitor 
+```
+H2U 00:01:28>i0 on
+Enabling input0
+H2U 00:02:24>i1 on
+Enabling input1
+H2U 00:02:26>o0 on
+Enabling output0
+H2U 00:02:30>o1 on
+Enabling output
+H2U 00:04:20>x c pattern output0 # You should see the pattern on the monitor
+Connecting pattern to output0
+H2U 00:04:48>x c input0 output0 #  You should see your desktop on the monior
+Connecting input0 to output0
+```
 View the video output on your computer with your preferred tool.
 
 The scripts/view-hdmi2usb.sh script will try and find a suitable tool to display.
