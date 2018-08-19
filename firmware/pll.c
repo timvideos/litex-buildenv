@@ -70,6 +70,8 @@ void pll_config_for_clock(int freq)
 	 * Reproducible both with DRP and initial reconfiguration.
 	 * Until this spartan6 weirdness is sorted out, just stick to 20x.
 	 */
+
+	(void) pll_config_10x[0]; // Dummy access to suppress to suppress -Werror=unused-const-variable.
 	program_data(pll_config_20x);
 #ifdef XILINX_SPARTAN6_WORKS_AMAZINGLY_WELL
 	if(freq < 2000)
