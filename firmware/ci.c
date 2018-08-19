@@ -710,7 +710,7 @@ static void video_mode_set(int mode)
 static void video_mode_secondary(char *str)
 {
 	char *token;
-	if((token = get_token(&str)) == '\0') return;
+	if((* (token = get_token(&str))) == '\0') return;
 
 	if(strcmp(token, "off") == 0) {
 		wprintf("Turning off secondary video mode\n");
