@@ -71,6 +71,7 @@ fi
 TARGET_MPY_BUILD_DIR="$(realpath $TARGET_BUILD_DIR/software/micropython)"
 
 # Build micropython
+export LANG=/usr/lib/locale/C.UTF-8/
 export CROSS_COMPILE=${CPU_ARCH}-elf-newlib-
 export BUILDINC_DIRECTORY="$(realpath $TARGET_BUILD_DIR/software/include)"
 export BUILD="$(realpath $TARGET_MPY_BUILD_DIR)"
