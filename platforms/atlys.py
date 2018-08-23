@@ -185,7 +185,7 @@ _io = [
         # NET "phymdc"    LOC = "F16"; # Bank = 1, Pin name = IO_L1N_A24_VREF,     Sch name = E-MDC
         Subsignal("mdc", Pins("F16")),
         # NET "phyrxdv"   LOC = "F17"; # Bank = 1, Pin name = IO_L35P_A11_M1A7,    Sch name = E-RXDV
-        Subsignal("dv", Pins("F17")),
+        Subsignal("rx_dv", Pins("F17")),
         # NET "phyrxer"   LOC = "F18"; # Bank = 1, Pin name = IO_L35N_A10_M1A2,    Sch name = E-RXER
         Subsignal("rx_er", Pins("F18")),
         # NET "phyRXD<0>" LOC = "G16"; # Bank = 1, Pin name = IO_L38P_A5_M1CLK,    Sch name = E-RXD0
