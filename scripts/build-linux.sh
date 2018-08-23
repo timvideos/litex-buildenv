@@ -33,8 +33,8 @@ make info
 set -x
 set -e
 
-if [ "$CPU" != or1k ]; then
-	echo "Linux is only supported on or1k at the moment."
+if [ "$CPU" != or1k -o "$CPU" != "vexriscv" ]; then
+	echo "Linux is only supported on or1k or vexriscv at the moment."
 	exit 1
 fi
 if [ "$CPU_VARIANT" != "linux" ]; then
@@ -48,8 +48,8 @@ if [ "$FIRMWARE" != "linux" ]; then
 fi
 
 # Install a toolchain with the newlib standard library
-if ! $CPU-elf-newlib-gcc --version > /dev/null 2>&1; then
-	conda install gcc-$CPU-elf-newlib
+if ! $CPU_ARCH-elf-newlib-gcc --version > /dev/null 2>&1; then
+	conda install gcc-$CPU_ARCH-elf-newlib
 fi
 
 # Get linux-litex is needed
@@ -128,8 +128,12 @@ LITEX_DT_BRANCH=master
 )
 
 # Build linux-litex
-export ARCH=openrisc
-export CROSS_COMPILE=$CPU-elf-newlib-
+if [ CPU = or1k ]; then
+	export ARCH=openrisc
+else
+	export ARCH=rv32
+fi
+export CROSS_COMPILE=$CPU_ARCH-elf-newlib-
 TARGET_LINUX_BUILD_DIR=$(dirname $TOP_DIR/$FIRMWARE_FILEBASE)
 (
 	cd $LINUX_SRC

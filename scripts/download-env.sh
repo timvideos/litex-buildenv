@@ -310,6 +310,13 @@ if [ "$PLATFORM" == "mimasv2" ]; then
 	check_exists MimasV2Config.py
 fi
 
+# Map to the C compiler
+if [ "$CPU" = "lm32" -o "$CPU" = "or1k" ]; then
+	CPU_ARCH=$CPU
+elif [ "$CPU" = "vexriscv" -o "$CPU" = "picorv32" ]; then
+	CPU_ARCH=riscv32-unknown
+fi
+
 # flterm
 echo
 echo "Installing flterm (serial terminal tool)"
@@ -318,21 +325,21 @@ check_exists flterm
 
 # binutils for the target
 echo
-echo "Installing binutils for ${CPU} (assembler, linker, and other tools)"
-conda install -y $CONDA_FLAGS binutils-${CPU}-elf=$BINUTILS_VERSION
-check_version ${CPU}-elf-ld $BINUTILS_VERSION
+echo "Installing binutils for ${CPU_ARCH} (assembler, linker, and other tools)"
+#conda install -y $CONDA_FLAGS binutils-${CPU_ARCH}-elf=$BINUTILS_VERSION
+check_version ${CPU_ARCH}-elf-ld $BINUTILS_VERSION
 
 # gcc for the target
 echo
-echo "Installing gcc for ${CPU} ('bare metal' C cross compiler)"
-conda install -y $CONDA_FLAGS gcc-${CPU}-elf-nostdc=$GCC_VERSION
-check_version ${CPU}-elf-gcc $GCC_VERSION
+echo "Installing gcc for ${CPU_ARCH} ('bare metal' C cross compiler)"
+#conda install -y $CONDA_FLAGS gcc-${CPU_ARCH}-elf-nostdc=$GCC_VERSION
+check_version ${CPU_ARCH}-elf-gcc $GCC_VERSION
 
 # gdb for the target
 #echo
-#echo "Installing gdb for ${CPU} (debugger)"
-#conda install -y $CONDA_FLAGS gdb-${CPU}-elf=$GDB_VERSION
-#check_version ${CPU}-elf-gdb $GDB_VERSION
+#echo "Installing gdb for ${CPU_ARCH} (debugger)"
+#conda install -y $CONDA_FLAGS gdb-${CPU_ARCH}-elf=$GDB_VERSION
+#check_version ${CPU_ARCH}-elf-gdb $GDB_VERSION
 
 # openocd for programming via Cypress FX2
 echo
