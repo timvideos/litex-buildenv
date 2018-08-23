@@ -94,6 +94,19 @@ FULL_CPU = $(CPU).$(CPU_VARIANT)
 MAKE_LITEX_EXTRA_CMDLINE += --cpu-variant=$(CPU_VARIANT)
 endif
 
+ifeq ($(CPU),lm32)
+CPU_ARCH=lm32
+endif
+ifeq ($(CPU),or1k)
+CPU_ARCH=or1k
+endif
+ifeq ($(CPU),vexriscv)
+CPU_ARCH=riscv32-unknown
+endif
+ifeq ($(CPU),picorv32)
+CPU_ARCH=riscv32-unknown
+endif
+
 # Include platform specific targets
 include targets/$(PLATFORM)/Makefile.mk
 TARGET ?= $(DEFAULT_TARGET)
@@ -412,6 +425,7 @@ env:
 	@echo "export PLATFORM_EXPANSION='$(PLATFORM_EXPANSION)'"
 	@echo "export TARGET='$(TARGET)'"
 	@echo "export DEFAULT_TARGET='$(DEFAULT_TARGET)'"
+	@echo "export CPU_ARCH='$(CPU_ARCH)'"
 	@echo "export CPU='$(CPU)'"
 	@echo "export CPU_VARIANT='$(CPU_VARIANT)'"
 	@echo "export FIRMWARE='$(FIRMWARE)'"
