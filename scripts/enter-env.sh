@@ -223,6 +223,20 @@ echo ""
 echo "Checking binaries in environment"
 echo "---------------------------------"
 
+# tinyfpga boards
+if [ "$PLATFORM" = "tinyfpga-b2" ]; then
+
+
+
+	check_exists tinyfpgab || return 1
+fi
+if [ "$PLATFORM" = "tinyfpga-bx" ]; then
+
+
+
+	check_exists tinyprog || return 1
+fi
+
 # fxload
 if [ "$PLATFORM" = "opsis" -o "$PLATFORM" = "atlys" ]; then
 
