@@ -272,6 +272,20 @@ echo ""
 echo "Installing programming tools in environment"
 echo "-----------------------------------------"
 
+# tinyfpga boards
+if [ "$PLATFORM" = "tinyfpga_b2" ]; then
+	echo
+	echo "Installing tinyprog (tool for TinyFPGA B2 boards)"
+	pip install tinyfpgab
+	check_exists tinyfpgab
+fi
+if [ "$PLATFORM" = "tinyfpga_bx" ]; then
+	echo
+	echo "Installing tinyprog (tool for TinyFPGA BX boards)"
+	pip install tinyprog
+	check_exists tinyprog
+fi
+
 # fxload
 if [ "$PLATFORM" = "opsis" -o "$PLATFORM" = "atlys" ]; then
 	echo

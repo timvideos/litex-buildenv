@@ -259,6 +259,20 @@ echo ""
 echo "Checking programming tools in environment"
 echo "-----------------------------------------"
 
+# tinyfpga boards
+if [ "$PLATFORM" = "tinyfpga_b2" ]; then
+
+
+
+	check_exists tinyfpgab || return 1
+fi
+if [ "$PLATFORM" = "tinyfpga_bx" ]; then
+
+
+
+	check_exists tinyprog || return 1
+fi
+
 # fxload
 if [ "$PLATFORM" = "opsis" -o "$PLATFORM" = "atlys" ]; then
 
