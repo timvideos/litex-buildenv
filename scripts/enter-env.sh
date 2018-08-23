@@ -224,7 +224,7 @@ echo "Checking binaries in environment"
 echo "---------------------------------"
 
 # fxload
-if [ "$PLATFORM" == "opsis" -o "$PLATFORM" == "atlys" ]; then
+if [ "$PLATFORM" = "opsis" -o "$PLATFORM" = "atlys" ]; then
 
 
 
@@ -233,7 +233,7 @@ fi
 
 # FIXME: Remove this once @jimmo has finished his new firmware
 # MimasV2Config.py
-if [ "$PLATFORM" == "mimasv2" ]; then
+if [ "$PLATFORM" = "mimasv2" ]; then
 	MIMASV2CONFIG=$BUILD_DIR/conda/bin/MimasV2Config.py
 
 
