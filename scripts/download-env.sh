@@ -326,20 +326,20 @@ check_exists flterm
 # binutils for the target
 echo
 echo "Installing binutils for ${CPU_ARCH} (assembler, linker, and other tools)"
-#conda install -y $CONDA_FLAGS binutils-${CPU_ARCH}-elf=$BINUTILS_VERSION
+conda install -y $CONDA_FLAGS binutils-${CPU_ARCH}-elf=$BINUTILS_VERSION
 check_version ${CPU_ARCH}-elf-ld $BINUTILS_VERSION
 
 # gcc for the target
 echo
 echo "Installing gcc for ${CPU_ARCH} ('bare metal' C cross compiler)"
-#conda install -y $CONDA_FLAGS gcc-${CPU_ARCH}-elf-nostdc=$GCC_VERSION
+conda install -y $CONDA_FLAGS gcc-${CPU_ARCH}-elf-nostdc=$GCC_VERSION
 check_version ${CPU_ARCH}-elf-gcc $GCC_VERSION
 
 # gdb for the target
-#echo
-#echo "Installing gdb for ${CPU_ARCH} (debugger)"
-#conda install -y $CONDA_FLAGS gdb-${CPU_ARCH}-elf=$GDB_VERSION
-#check_version ${CPU_ARCH}-elf-gdb $GDB_VERSION
+echo
+echo "Installing gdb for ${CPU_ARCH} (debugger)"
+conda install -y $CONDA_FLAGS gdb-${CPU_ARCH}-elf=$GDB_VERSION
+check_version ${CPU_ARCH}-elf-gdb $GDB_VERSION
 
 # openocd for programming via Cypress FX2
 echo
