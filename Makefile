@@ -407,6 +407,7 @@ flash: image-flash
 	@true
 
 env:
+	@echo "export FULL_PLATFORM='$(FULL_PLATFORM)'"
 	@echo "export PLATFORM='$(PLATFORM)'"
 	@echo "export PLATFORM_EXPANSION='$(PLATFORM_EXPANSION)'"
 	@echo "export TARGET='$(TARGET)'"
