@@ -290,7 +290,7 @@ echo "Installing binaries into environment"
 echo "---------------------------------"
 
 # fxload
-if [ "$PLATFORM" == "opsis" -o "$PLATFORM" == "atlys" ]; then
+if [ "$PLATFORM" = "opsis" -o "$PLATFORM" = "atlys" ]; then
 	echo
 	echo "Installing fxload (tool for Cypress FX2)"
 	# conda install fxload
