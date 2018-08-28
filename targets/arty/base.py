@@ -10,6 +10,7 @@ from litedram.modules import MT41K128M16
 from litedram.phy import a7ddrphy
 from litedram.core import ControllerSettings
 
+from gateware import cas
 from gateware import info
 from gateware import led
 from gateware import spi_flash
@@ -105,6 +106,7 @@ class BaseSoC(SoCSDRAM):
         "spiflash",
         "ddrphy",
         "info",
+        "cas",
 #        "leds",
 #        "rgb_leds",
     )
@@ -128,6 +130,7 @@ class BaseSoC(SoCSDRAM):
 
         # Basic peripherals
         self.submodules.info = info.Info(platform, self.__class__.__name__)
+        self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
 #        self.submodules.leds = led.ClassicLed(Cat(platform.request("user_led", i) for i in range(4)))
 #        self.submodules.rgb_leds = led.RGBLed(platform.request("rgb_leds"))
 
