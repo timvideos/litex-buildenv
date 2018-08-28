@@ -91,7 +91,7 @@ ifeq ($(CPU_VARIANT),)
 FULL_CPU = $(CPU)
 else
 FULL_CPU = $(CPU).$(CPU_VARIANT)
-MAKE_LITEX_EXTRA_CMDLINE += -Ot cpu_variant $(CPU_VARIANT)
+MAKE_LITEX_EXTRA_CMDLINE += --cpu-variant=$(CPU_VARIANT)
 endif
 
 # Include platform specific targets
