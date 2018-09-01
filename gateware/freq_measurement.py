@@ -15,7 +15,7 @@ class Sampler(Module):
 
         counter = Signal(counter_width)
         counter_inc = Signal(measure_width)
-        
+
         # use wrapping property of unsigned arithmeric to reset the counter
         # each cycle (reseting measure clock domain is unreliable)
         i_d = Signal(measure_width)
@@ -32,7 +32,7 @@ class Sampler(Module):
 
 
 class FrequencyMeasurement(Module, AutoCSR):
-    def __init__(self, measure_clock, measure_period, 
+    def __init__(self, measure_clock, measure_period,
             measure_width=6, counter_width=32):
         self.value = CSRStatus(counter_width)
 
