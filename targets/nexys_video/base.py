@@ -118,7 +118,7 @@ class BaseSoC(SoCSDRAM):
         self.add_wb_master(self.bridge.wishbone)
 
         self.submodules.uart_phy = RS232PHY(platform.request("serial"), self.clk_freq, 115200)
-        self.submodules.uart_multiplexer = UARTMultiplexer(uart_interfaces, self.uart_phy)
+        self.submodules.uart_multiplexer = RS232PHYMultiplexer(uart_interfaces, self.uart_phy)
         self.comb += self.uart_multiplexer.sel.eq(platform.request("user_sw", 0))
 
         # Basic peripherals
