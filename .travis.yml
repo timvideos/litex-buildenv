@@ -130,6 +130,15 @@ jobs:
   - stage: Targets
     env: C=or1k.linux F=linux P=arty        T="net"
 
+  - stage: Targets
+    env: C=or1k.linux F=linux P=atlys       T="net"
+
+  - stage: Targets
+    env: C=or1k.linux F=linux P=opsis       T="net"
+
+  - stage: Targets
+    env: C=or1k.linux F=linux P=nexys_video T="net"
+
   #--------------------------------------------
   # Video Targets
   #--------------------------------------------
