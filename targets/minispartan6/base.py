@@ -79,22 +79,27 @@ class BaseSoC(SoCSDRAM):
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
     mem_map = {
-        "spiflash":     0x20000000,  # (default shadow @0xa0000000)
+        "spiflash": 0x20000000,  # (default shadow @0xa0000000)
     }
     mem_map.update(SoCSDRAM.mem_map)
 
     def __init__(self, platform, **kwargs):
+        if 'integrated_rom_size' not in kwargs:
+            kwargs['integrated_rom_size']=0x8000
+        if 'integrated_sram_size' not in kwargs:
+            kwargs['integrated_sram_size']=0x4000
+
         clk_freq = 80*1000000
-        SoCSDRAM.__init__(self, platform, clk_freq,
-            integrated_rom_size=0x8000,
-            integrated_sram_size=0x8000,
-            **kwargs)
+        SoCSDRAM.__init__(self, platform, clk_freq, **kwargs)
+
         self.submodules.crg = _CRG(platform, clk_freq)
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
 
-        self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
+        # Basic peripherals
+
 
         self.submodules.info = info.Info(platform, self.__class__.__name__)
+        self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
 
 
         self.submodules.spiflash = spi_flash.SpiFlash(

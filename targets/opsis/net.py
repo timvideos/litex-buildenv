@@ -27,6 +27,10 @@ class NetSoC(BaseSoC):
     mem_map.update(BaseSoC.mem_map)
 
     def __init__(self, platform, *args, **kwargs):
+        # Need a larger integrated ROM on or1k to fit the BIOS with TFTP support.
+        if 'integrated_rom_size' not in kwargs and kwargs.get('cpu_type', 'lm32') == 'or1k':
+            kwargs['integrated_rom_size'] = 0x10000
+
         BaseSoC.__init__(self, platform, *args, **kwargs)
 
         self.submodules.ethphy = LiteEthPHYRGMII(
