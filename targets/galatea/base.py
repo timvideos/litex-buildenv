@@ -11,6 +11,8 @@ from litedram.modules import MT41J128M16
 from litedram.phy import s6ddrphy
 from litedram.core import ControllerSettings
 
+from gateware import info
+
 from targets.utils import csr_map_update
 
 
