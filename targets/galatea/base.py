@@ -173,11 +173,21 @@ class BaseSoC(SoCSDRAM):
     csr_peripherals = (
         "spiflash",
         "ddrphy",
+        "info",
     )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
+    # FIXME: Add spiflash
+    #mem_map = {
+    #    "spiflash": 0x20000000,  # (default shadow @0xa0000000)
+    #}
+    #mem_map.update(SoCSDRAM.mem_map)
+
     def __init__(self, platform, **kwargs):
-        clk_freq = 50*1000000
+        if 'integrated_rom_size' not in kwargs:
+            kwargs['integrated_rom_size']=0x8000
+        if 'integrated_sram_size' not in kwargs:
+            kwargs['integrated_sram_size']=0x4000
 
         if 'expansion' in kwargs:
             tofe_board_name = kwargs.get('expansion')
@@ -185,13 +195,15 @@ class BaseSoC(SoCSDRAM):
         else:
             tofe_board_name = None
 
-        SoCSDRAM.__init__(self, platform, clk_freq,
-            integrated_rom_size=0x8000,
-            integrated_sram_size=0x4000,
-            with_uart=True,
-            **kwargs)
+
+        clk_freq = 50*1000000
+        SoCSDRAM.__init__(self, platform, clk_freq, **kwargs)
+
         self.submodules.crg = _CRG(platform, clk_freq)
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
+
+        # Basic peripherals
+        self.submodules.info = info.Info(platform, self.__class__.__name__)
 
         # sdram
         sdram_module = MT41J128M16(self.clk_freq, "1:4")

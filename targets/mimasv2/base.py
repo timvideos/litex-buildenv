@@ -189,17 +189,20 @@ class BaseSoC(SoCSDRAM):
     mem_map.update(SoCSDRAM.mem_map)
 
     def __init__(self, platform, **kwargs):
+        if 'integrated_rom_size' not in kwargs:
+            kwargs['integrated_rom_size']=None
+        if 'integrated_sram_size' not in kwargs:
+            kwargs['integrated_sram_size']=0x4000
 
-        cpu_reset_address = self.mem_map["spiflash"]+platform.gateware_size
+        kwargs['cpu_reset_address']=self.mem_map["spiflash"]+platform.gateware_size
+        if os.environ.get('JIMMO', '0') == '0':
+            kwargs['uart_baudrate']=19200
+        else:
+            kwargs['uart_baudrate']=115200
 
         clk_freq = (83 + Fraction(1, 3))*1000*1000
-        SoCSDRAM.__init__(self, platform, clk_freq,
-            #integrated_rom_size=0x8000,
-            integrated_rom_size=None,
-            integrated_sram_size=0x4000,
-            uart_baudrate=(19200, 115200)[int(os.environ.get('JIMMO', '0'))],
-            cpu_reset_address=cpu_reset_address,
-            **kwargs)
+        SoCSDRAM.__init__(self, platform, clk_freq, **kwargs)
+
         self.submodules.crg = _CRG(platform, clk_freq)
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
 
@@ -219,7 +222,7 @@ class BaseSoC(SoCSDRAM):
 
         bios_size = 0x8000
         self.add_constant("ROM_DISABLE", 1)
-        self.add_memory_region("rom", cpu_reset_address, bios_size)
+        self.add_memory_region("rom", kwargs['cpu_reset_address'], bios_size)
         self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size+bios_size
 
         # sdram

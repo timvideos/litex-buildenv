@@ -188,11 +188,15 @@ class BaseSoC(SoCSDRAM):
 
 
     def __init__(self, platform, **kwargs):
+        if 'integrated_rom_size' not in kwargs:
+            kwargs['integrated_rom_size']=0x8000
+        if 'integrated_sram_size' not in kwargs:
+            kwargs['integrated_sram_size']=0x4000
+
         clk_freq = (83 + Fraction(1, 3))*1000*1000
-        SoCSDRAM.__init__(self, platform, clk_freq,
-            integrated_rom_size=0x8000,
-            integrated_sram_size=0x4000,
-            **kwargs)
+
+        SoCSDRAM.__init__(self, platform, clk_freq, **kwargs)
+
         self.submodules.crg = _CRG(platform, clk_freq)
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
 
