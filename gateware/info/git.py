@@ -10,7 +10,7 @@ def git_root():
     if sys.platform == "win32":
         # Git on Windows is likely to use Unix-style paths (`/c/path/to/repo`),
         # whereas directories passed to Python should be Windows-style paths
-        # (`C:/path/to/repo`) (because Python calls into the Windows API). 
+        # (`C:/path/to/repo`) (because Python calls into the Windows API).
         # `cygpath` converts between the two.
         git = subprocess.Popen(
             "git rev-parse --show-toplevel",
