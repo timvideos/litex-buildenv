@@ -14,7 +14,7 @@ to develop, but has now expanded to support multiple projects.
  * TBD: [LiteX Build Environment Docs](https://litex-buildenv.readthedocs.io)
 
  * Dependency documentation
-   - Migen - [[Website](http://m-labs.hk/migen/index.html)] [[User Guide](http://m-labs.hk/migen/manual/)] [Code Repository](https://github.com/m-labs/migen)
+   - Migen - [[Website](http://m-labs.hk/migen/index.html)] [[User Guide](http://m-labs.hk/migen/manual/)] [[Code Repository](https://github.com/m-labs/migen)]
    - [Enjoy Digital Website](http://www.enjoy-digital.fr/)
    - [LiteX GitHub Repository](https://github.com/enjoy-digital/litex)
 
