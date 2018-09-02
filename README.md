@@ -14,13 +14,13 @@ to develop, but has now expanded to support multiple projects.
  * TBD: [LiteX Build Environment Docs](https://litex-buildenv.readthedocs.io)
 
  * Dependency documentation
-  * Migen - [[Website](http://m-labs.hk/migen/index.html)] [[User Guide](http://m-labs.hk/migen/manual/)] [Code Repository](https://github.com/m-labs/migen)
-  * [Enjoy Digital Website](http://www.enjoy-digital.fr/)
-  * [LiteX GitHub Repository](https://github.com/enjoy-digital/litex)
+   - Migen - [[Website](http://m-labs.hk/migen/index.html)] [[User Guide](http://m-labs.hk/migen/manual/)] [Code Repository](https://github.com/m-labs/migen)
+   - [Enjoy Digital Website](http://www.enjoy-digital.fr/)
+   - [LiteX GitHub Repository](https://github.com/enjoy-digital/litex)
 
  * Projects using LiteX Build Environment:
-  * [HDMI2USB](http://hdmi2usb.tv/) - The HDMI2USB project develops affordable hardware options to record and stream HD videos (from HDMI & DisplayPort sources) for conferences, meetings and user groups.
-  * [FuPy](https://fupy.github.io) - The aim of the FuPy project is to make MicroPython run on FPGAs using the LiteX & Migen+MiSoC technologies. This allows you to do full stack development (FPGA gateware & soft CPU firmware) in Python!
+   - [HDMI2USB](http://hdmi2usb.tv/) - The HDMI2USB project develops affordable hardware options to record and stream HD videos (from HDMI & DisplayPort sources) for conferences, meetings and user groups.
+   - [FuPy](https://fupy.github.io) - The aim of the FuPy project is to make MicroPython run on FPGAs using the LiteX & Migen+MiSoC technologies. This allows you to do full stack development (FPGA gateware & soft CPU firmware) in Python!
 
 ---
 
