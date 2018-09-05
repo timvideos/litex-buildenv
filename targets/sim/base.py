@@ -17,27 +17,30 @@ from targets.utils import csr_map_update
 
 
 class BaseSoC(SoCSDRAM):
+    csr_peripherals = (
+        ,
+    )
+    csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
+
     mem_map = {
         "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
     }
     mem_map.update(SoCSDRAM.mem_map)
 
-    def __init__(self,
-                 platform,
-                 firmware_ram_size=0x10000,
-                 firmware_filename=None,
-                 **kwargs):
-
-        if not firmware_filename:
-            firmware_filename = "build/sim_{}_{}/software/firmware/firmware.fbi".format(
+    def __init__(self, platform, **kwargs):
+        if 'integrated_rom_size' not in kwargs:
+            kwargs['integrated_rom_size']=0x8000
+        if 'integrated_sram_size' not in kwargs:
+            kwargs['integrated_sram_size']=0x8000
+        if 'firmware_ram_size' not in kwargs:
+            kwargs['firmware_ram_size']=0x10000
+        if 'firmware_filename' not in kwargs:
+            kwargs['firmware_filename'] = "build/sim_{}_{}/software/firmware/firmware.fbi".format(
                 self.__class__.__name__.lower()[:-3], kwargs.get('cpu_type', 'lm32'))
 
-        SoCSDRAM.__init__(self, platform,
-            clk_freq=int((1/(platform.default_clk_period))*1000000000),
-            integrated_rom_size=0x8000,
-            integrated_sram_size=0x8000,
-            with_uart=False,
-            **kwargs)
+        clk_freq = int((1/(platform.default_clk_period))*1000000000)
+        SoCSDRAM.__init__(self, platform, clk_freq, with_uart=False, **kwargs)
+
         self.submodules.crg = CRG(platform.request(platform.default_clk_name))
 
         self.submodules.uart_phy = uart.RS232PHYModel(platform.request("serial"))

@@ -57,95 +57,108 @@ jobs:
   fail_fast: true
   allow_failures:
   - env: C=or1k P=mimasv2      T="base"
+  # FIXME: Rebuild Xilinx toolchain package
+  - env: C=lm32 P=neso         T="base"
+  - env: C=lm32 P=basys3       T="base"
+  - env: C=lm32 P=cmod_a7      T="base"
 
   include:
   #--------------------------------------------
   # Base targets
   #--------------------------------------------
   # lm32 Base targets
-  - stage: Targets - Base
+  - stage: Targets
     env: C=lm32 P=arty         T="base net"
 
-  - stage: Targets - Base
+  - stage: Targets
     env: C=lm32 P=atlys        T="base net"
 
-  - stage: Targets - Base
+  - stage: Targets
     env: C=lm32 P=mimasv2      T="base"
 
-  - stage: Targets - Base
+  - stage: Targets
     env: C=lm32 P=minispartan6 T="base"
 
-  - stage: Targets - Base
+  - stage: Targets
     env: C=lm32 P=netv2        T="base"
 
-  - stage: Targets - Base
+  - stage: Targets
     env: C=lm32 P=nexys_video  T="base net"
 
-  - stage: Targets - Base
+  - stage: Targets
     env: C=lm32 P=opsis        T="base net"
 
-  - stage: Targets - Base
+  - stage: Targets
     env: C=lm32 P=pipistrello  T="base"
 
-  - stage: Targets - Base
+  - stage: Targets
     env: C=lm32 P=saturn       T="base"
 
-  - stage: Targets - Base
+  - stage: Targets
     env: C=lm32 P=galatea      T="base"
 
-  - stage: Targets - Base
+  - stage: Targets
     env: C=lm32 P=neso         T="base"
 
-  - stage: Targets - Base
+  - stage: Targets
     env: C=lm32 P=waxwing      T="base"
 
-  - stage: Targets - Base
+  - stage: Targets
     env: C=lm32 P=basys3       T="base"
 
-  - stage: Targets - Base
+  - stage: Targets
     env: C=lm32 P=cmod_a7      T="base"
 
   # or1k base targets
-  - stage: Targets - Base
+  - stage: Targets
     env: C=or1k P=arty         T="base net"
 
-  - stage: Targets - Base
+  - stage: Targets
     env: C=or1k P=atlys        T="base net"
 
-  - stage: Targets - Base
+  - stage: Targets
     env: C=or1k P=mimasv2      T="base"
 
-  - stage: Targets - Base
+  - stage: Targets
     env: C=or1k P=opsis        T="base net"
 
-  - stage: Targets - Base
+  - stage: Targets
     env: C=or1k P=pipistrello  T="base"
 
   # Linux Targets
   #--------------------------------------------
-  - stage: Targets - Base
+  - stage: Targets
     env: C=or1k.linux F=linux P=arty        T="net"
+
+  - stage: Targets
+    env: C=or1k.linux F=linux P=atlys       T="net"
+
+  - stage: Targets
+    env: C=or1k.linux F=linux P=opsis       T="net"
+
+  - stage: Targets
+    env: C=or1k.linux F=linux P=nexys_video T="net"
 
   #--------------------------------------------
   # Video Targets
   #--------------------------------------------
-  - stage: Targets - Video
+  - stage: Targets
     env: C=lm32 P=atlys        T="video"
 
-  #- stage: Targets - Video
+  #- stage: Targets
   #  env: C=lm32 P=netv2        T="video"
 
-  - stage: Targets - Video
+  - stage: Targets
     env: C=lm32 P=nexys_video  T="video"
 
-  - stage: Targets - Video
+  - stage: Targets
     env: C=lm32 P=opsis        T="video"
 
   #--------------------------------------------
   # HDMI2USB Targets
   #--------------------------------------------
-  - stage: Targets - HDMI2USB
+  - stage: Targets
     env: C=lm32 P=atlys T="hdmi2usb"
 
-  - stage: Targets - HDMI2USB
+  - stage: Targets
     env: C=lm32 P=opsis T="hdmi2usb"

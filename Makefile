@@ -91,7 +91,7 @@ ifeq ($(CPU_VARIANT),)
 FULL_CPU = $(CPU)
 else
 FULL_CPU = $(CPU).$(CPU_VARIANT)
-MAKE_LITEX_EXTRA_CMDLINE += -Ot cpu_variant $(CPU_VARIANT)
+MAKE_LITEX_EXTRA_CMDLINE += --cpu-variant=$(CPU_VARIANT)
 endif
 
 # Include platform specific targets
@@ -407,6 +407,7 @@ flash: image-flash
 	@true
 
 env:
+	@echo "export FULL_PLATFORM='$(FULL_PLATFORM)'"
 	@echo "export PLATFORM='$(PLATFORM)'"
 	@echo "export PLATFORM_EXPANSION='$(PLATFORM_EXPANSION)'"
 	@echo "export TARGET='$(TARGET)'"

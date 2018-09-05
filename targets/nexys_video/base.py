@@ -101,12 +101,13 @@ class BaseSoC(SoCSDRAM):
     mem_map.update(SoCSDRAM.mem_map)
 
     def __init__(self, platform, spiflash="spiflash_1x", **kwargs):
+        if 'integrated_rom_size' not in kwargs:
+            kwargs['integrated_rom_size']=0x8000
+        if 'integrated_sram_size' not in kwargs:
+            kwargs['integrated_sram_size']=0x8000
+
         clk_freq = int(100e6)
-        SoCSDRAM.__init__(self, platform, clk_freq,
-            integrated_rom_size=0x8000,
-            integrated_sram_size=0x8000,
-            with_uart=False,
-            **kwargs)
+        SoCSDRAM.__init__(self, platform, clk_freq, with_uart=False, **kwargs)
 
         self.submodules.crg = _CRG(platform)
         self.crg.cd_sys.clk.attr.add("keep")
@@ -118,7 +119,7 @@ class BaseSoC(SoCSDRAM):
         self.add_wb_master(self.bridge.wishbone)
 
         self.submodules.uart_phy = RS232PHY(platform.request("serial"), self.clk_freq, 115200)
-        self.submodules.uart_multiplexer = UARTMultiplexer(uart_interfaces, self.uart_phy)
+        self.submodules.uart_multiplexer = RS232PHYMultiplexer(uart_interfaces, self.uart_phy)
         self.comb += self.uart_multiplexer.sel.eq(platform.request("user_sw", 0))
 
         # Basic peripherals

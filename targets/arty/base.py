@@ -10,6 +10,7 @@ from litedram.modules import MT41K128M16
 from litedram.phy import a7ddrphy
 from litedram.core import ControllerSettings
 
+from gateware import cas
 from gateware import info
 from gateware import led
 from gateware import spi_flash
@@ -23,7 +24,7 @@ class _CRG(Module):
         self.clock_domains.cd_sys4x = ClockDomain(reset_less=True)
         self.clock_domains.cd_sys4x_dqs = ClockDomain(reset_less=True)
         self.clock_domains.cd_clk200 = ClockDomain()
-        self.clock_domains.cd_clk100 = ClockDomain()        
+        self.clock_domains.cd_clk100 = ClockDomain()
         self.clock_domains.cd_clk50 = ClockDomain()
 
         clk100 = platform.request("clk100")
@@ -35,7 +36,7 @@ class _CRG(Module):
         pll_sys4x = Signal()
         pll_sys4x_dqs = Signal()
         pll_clk200 = Signal()
-        pll_clk100 = Signal()        
+        pll_clk100 = Signal()
         pll_clk50 = Signal()
         self.specials += [
             Instance("PLLE2_BASE",
@@ -74,7 +75,7 @@ class _CRG(Module):
             Instance("BUFG", i_I=pll_sys4x, o_O=self.cd_sys4x.clk),
             Instance("BUFG", i_I=pll_sys4x_dqs, o_O=self.cd_sys4x_dqs.clk),
             Instance("BUFG", i_I=pll_clk200, o_O=self.cd_clk200.clk),
-            Instance("BUFG", i_I=pll_clk100, o_O=self.cd_clk100.clk),            
+            Instance("BUFG", i_I=pll_clk100, o_O=self.cd_clk100.clk),
             Instance("BUFG", i_I=pll_clk50, o_O=self.cd_clk50.clk),
             AsyncResetSynchronizer(self.cd_sys, ~pll_locked | rst),
             AsyncResetSynchronizer(self.cd_clk200, ~pll_locked | rst),
@@ -105,6 +106,7 @@ class BaseSoC(SoCSDRAM):
         "spiflash",
         "ddrphy",
         "info",
+        "cas",
 #        "leds",
 #        "rgb_leds",
     )
@@ -116,11 +118,13 @@ class BaseSoC(SoCSDRAM):
     mem_map.update(SoCSDRAM.mem_map)
 
     def __init__(self, platform, spiflash="spiflash_1x", **kwargs):
+        if 'integrated_rom_size' not in kwargs:
+            kwargs['integrated_rom_size']=0x8000
+        if 'integrated_sram_size' not in kwargs:
+            kwargs['integrated_sram_size']=0x8000
+
         clk_freq = int(100e6)
-        SoCSDRAM.__init__(self, platform, clk_freq,
-            integrated_rom_size=0x8000,
-            integrated_sram_size=0x8000,
-            **kwargs)
+        SoCSDRAM.__init__(self, platform, clk_freq, **kwargs)
 
         self.submodules.crg = _CRG(platform)
         self.crg.cd_sys.clk.attr.add("keep")
@@ -128,6 +132,7 @@ class BaseSoC(SoCSDRAM):
 
         # Basic peripherals
         self.submodules.info = info.Info(platform, self.__class__.__name__)
+        self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
 #        self.submodules.leds = led.ClassicLed(Cat(platform.request("user_led", i) for i in range(4)))
 #        self.submodules.rgb_leds = led.RGBLed(platform.request("rgb_leds"))
 

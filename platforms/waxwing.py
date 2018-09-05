@@ -113,7 +113,7 @@ _io = [
      Subsignal("rst_n", Pins("P18")),
      Subsignal("mdio", Pins("V16")),
      Subsignal("mdc", Pins("T18")),
-     Subsignal("dv", Pins("N14")),
+     Subsignal("rx_dv", Pins("N14")),
      Subsignal("rx_er", Pins("P16")),
      Subsignal("rx_data", Pins("U17 U18 M18 M16")),
      Subsignal("tx_en", Pins("M14")),
