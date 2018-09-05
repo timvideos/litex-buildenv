@@ -34,14 +34,14 @@ set -x
 set -e
 
 QEMU_REMOTE="${QEMU_REMOTE:-https://github.com/timvideos/qemu-litex.git}"
+QEMU_BRANCH=${QEMU_BRANCH:-master}
 QEMU_REMOTE_NAME=timvideos-qemu-litex
 QEMU_REMOTE_BIT=$(echo $QEMU_REMOTE | sed -e's-^.*://--' -e's/.git$//')
-QEMU_BRANCH=${QEMU_BRANCH:-master}
 QEMU_SRC_DIR=$TOP_DIR/third_party/qemu-litex
 if [ ! -d "$QEMU_SRC_DIR" ]; then
 	(
 		cd $(dirname $QEMU_SRC_DIR)
-		git clone https://github.com/timvideos/qemu-litex.git
+		git clone ${QEMU_REMOTE} qemu-litex
 		cd $QEMU_SRC_DIR
 		git submodule update --init dtc
 	)
@@ -57,15 +57,19 @@ else
 		fi
 
 		# Get any new data
-		git fetch $CURRENT_QEMU_REMOTE_NAME
-
-		# Checkout master branch it not already on it
-		if [ "$(git rev-parse --abbrev-ref HEAD)" != "$QEMU_BRANCH" ]; then
-			git checkout $QEMU_BRANCH || \
-				git checkout "$CURRENT_QEMU_REMOTE_NAME/$QEMU_BRANCH" -b $QEMU_BRANCH
-		fi
+        git pull  $CURRENT_QEMU_REMOTE_NAME
 	)
 fi
+
+(
+	cd $QEMU_SRC_DIR
+
+	# Checkout master branch if not already on it
+	if [ "$(git rev-parse --abbrev-ref HEAD)" != "$QEMU_BRANCH" ]; then
+		git checkout $QEMU_BRANCH || \
+			git checkout "$CURRENT_QEMU_REMOTE_NAME/$QEMU_BRANCH" -b $QEMU_BRANCH
+	fi
+)
 
 TARGET_QEMU_BUILD_DIR=$TARGET_BUILD_DIR/qemu
 
@@ -74,7 +78,7 @@ case $CPU in
 		QEMU_CPU=lm32
 		;;
 	or1k)
-		QEMU_CPU=or32
+		QEMU_CPU=or1k
 		;;
 	*)
 		echo "CPU $CPU isn't supported at the moment."
