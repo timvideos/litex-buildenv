@@ -2,8 +2,8 @@
 
 if [ "`whoami`" = "root" ]
 then
-    echo "Running the script as root is not permitted"
-    exit 1
+	echo "Running the script as root is not permitted"
+	exit 1
 fi
 
 CALLED=$_
@@ -14,16 +14,16 @@ SCRIPT_DIR=$(dirname $SCRIPT_SRC)
 TOP_DIR=$(realpath $SCRIPT_DIR/..)
 
 if [ $SOURCED = 1 ]; then
-        echo "You must run this script, rather then try to source it."
-        echo "$SCRIPT_SRC"
-        return
+	echo "You must run this script, rather then try to source it."
+	echo "$SCRIPT_SRC"
+	return
 fi
 
 if [ -z "$HDMI2USB_ENV" ]; then
-        echo "You appear to not be inside the HDMI2USB environment."
+	echo "You appear to not be inside the HDMI2USB environment."
 	echo "Please enter environment with:"
 	echo "  source scripts/enter-env.sh"
-        exit 1
+	exit 1
 fi
 
 # Imports TARGET, PLATFORM, CPU and TARGET_BUILD_DIR from Makefile
@@ -57,7 +57,7 @@ else
 		fi
 
 		# Get any new data
-        git pull  $CURRENT_QEMU_REMOTE_NAME
+		git fetch $CURRENT_QEMU_REMOTE_NAME $QEMU_BRANCH
 	)
 fi
 
@@ -95,19 +95,21 @@ if [ ! -f "$TARGET_QEMU_BUILD_DIR/Makefile" ]; then
 	mkdir -p $TARGET_QEMU_BUILD_DIR
 	(
 		cd $TARGET_QEMU_BUILD_DIR
-		CFLAGS="-Wno-error" $QEMU_SRC_DIR/configure \
-			--target-list=$QEMU_ARCH \
-			--python=/usr/bin/python2 \
-			--enable-fdt \
-			--disable-kvm \
-			--disable-xen \
-			--enable-debug \
-			--enable-debug-info
+		CFLAGS=" \
+			-Wno-error \
+			-I$TOP_DIR/third_party/litex/litex/soc/software/include" \
+			$QEMU_SRC_DIR/configure \
+				--target-list=$QEMU_ARCH \
+				--python=/usr/bin/python2 \
+				--enable-fdt \
+				--disable-kvm \
+				--disable-xen \
+				--enable-debug \
+				--enable-debug-info
 
 		ln -s $(realpath $PWD/../software/include/generated) generated
 	)
 fi
-
 
 OLD_DIR=$PWD
 cd $TARGET_QEMU_BUILD_DIR
