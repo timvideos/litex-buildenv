@@ -65,6 +65,12 @@ include $(UIP_DIRECTORY)/Makefile.mk
 
 LDFLAGS += \
 
+ifeq ($(COPY_TO_MAIN_RAM), 1)
+LINKER_LD = linker.ld
+else
+LINKER_LD = linker-flash.ld
+endif
+
 all: firmware.bin firmware.fbi
 
 %.fbi: %.bin
@@ -74,11 +80,11 @@ all: firmware.bin firmware.fbi
 	$(OBJCOPY) -O binary $< $@
 	chmod -x $@
 
-firmware.elf: $(FIRMWARE_DIRECTORY)/linker.ld $(OBJECTS)
+firmware.elf: $(FIRMWARE_DIRECTORY)/$(LINKER_LD) $(OBJECTS)
 
 %.elf: ../libbase/crt0-$(CPU).o ../libbase/libbase-nofloat.a ../libcompiler_rt/libcompiler_rt.a ../uip/libuip.a
 	$(LD) $(LDFLAGS) \
-		-T $(FIRMWARE_DIRECTORY)/linker.ld \
+		-T $(FIRMWARE_DIRECTORY)/$(LINKER_LD) \
 		-N -o $@ \
                 ../libbase/crt0-$(CPU).o \
                 $(OBJECTS) \
