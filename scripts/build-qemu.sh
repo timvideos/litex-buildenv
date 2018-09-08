@@ -74,7 +74,7 @@ case $CPU in
 		QEMU_CPU=lm32
 		;;
 	or1k)
-		QEMU_CPU=or32
+		QEMU_CPU=or1k
 		;;
 	*)
 		echo "CPU $CPU isn't supported at the moment."
