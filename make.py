@@ -7,8 +7,6 @@ from litex.build.tools import write_to_file
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
-BIOS_SIZE = 0x8000
-
 
 def get_args(parser, platform='opsis', target='hdmi2usb'):
     parser.add_argument("--platform", action="store", default=os.environ.get('PLATFORM', platform))
@@ -52,6 +50,14 @@ def get_platform(args):
     return Platform(**dict(args.platform_option))
 
 
+def get_soc(args, platform):
+    exec("from targets.{}.{} import SoC".format(args.platform, args.target.lower(), args.target), globals())
+    soc = SoC(platform, ident=SoC.__name__, **soc_sdram_argdict(args), **dict(args.target_option))
+    if hasattr(soc, 'configure_iprange'):
+        soc.configure_iprange(args.iprange)
+    return soc
+
+
 def get_prog(args, platform):
     assert platform is not None
     prog = platform.create_programmer()
@@ -82,6 +88,14 @@ def get_bios(builddir, filetype="flash"):
         assert False, "Unknown file type %s" % filetype
 
 
+def get_bios_maxsize(args, soc):
+    for name, start, size in soc.get_memory_regions():
+        if name == 'rom':
+            return size
+    # FIXME: Hard coded value?
+    return 0x8000
+
+
 def get_firmware(builddir, filetype="flash"):
     basedir = os.path.join(builddir, "software", "firmware", "firmware")
     if filetype in ("load",):
@@ -104,10 +118,7 @@ def main():
 
     platform = get_platform(args)
 
-    exec("from targets.{}.{} import SoC".format(args.platform, args.target.lower(), args.target), globals())
-    soc = SoC(platform, ident=SoC.__name__, **soc_sdram_argdict(args), **dict(args.target_option))
-    if hasattr(soc, 'configure_iprange'):
-        soc.configure_iprange(args.iprange)
+    soc = get_soc(args, platform)
 
     builddir = get_builddir(args)
     testdir = get_testdir(args)
