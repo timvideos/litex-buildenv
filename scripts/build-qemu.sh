@@ -2,8 +2,8 @@
 
 if [ "`whoami`" = "root" ]
 then
-    echo "Running the script as root is not permitted"
-    exit 1
+	echo "Running the script as root is not permitted"
+	exit 1
 fi
 
 CALLED=$_
@@ -14,16 +14,16 @@ SCRIPT_DIR=$(dirname $SCRIPT_SRC)
 TOP_DIR=$(realpath $SCRIPT_DIR/..)
 
 if [ $SOURCED = 1 ]; then
-        echo "You must run this script, rather then try to source it."
-        echo "$SCRIPT_SRC"
-        return
+	echo "You must run this script, rather then try to source it."
+	echo "$SCRIPT_SRC"
+	return
 fi
 
 if [ -z "$HDMI2USB_ENV" ]; then
-        echo "You appear to not be inside the HDMI2USB environment."
+	echo "You appear to not be inside the HDMI2USB environment."
 	echo "Please enter environment with:"
 	echo "  source scripts/enter-env.sh"
-        exit 1
+	exit 1
 fi
 
 # Imports TARGET, PLATFORM, CPU and TARGET_BUILD_DIR from Makefile
