@@ -91,7 +91,12 @@ if [ ! -f "$TARGET_QEMU_BUILD_DIR/Makefile" ]; then
 	mkdir -p $TARGET_QEMU_BUILD_DIR
 	(
 		cd $TARGET_QEMU_BUILD_DIR
-		CFLAGS="-Wno-error" $QEMU_SRC_DIR/configure \
+		CFLAGS="\
+			$CFLAGS \
+			-Wno-error \
+			-I$TOP_DIR/third_party/litex/litex/soc/software/include \
+			" \
+		$QEMU_SRC_DIR/configure \
 			--target-list=$QEMU_ARCH \
 			--python=/usr/bin/python2 \
 			--enable-fdt \
