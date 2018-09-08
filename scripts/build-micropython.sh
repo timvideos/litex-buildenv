@@ -39,8 +39,8 @@ if [ "$FIRMWARE" != "micropython" ]; then
 fi
 
 # Install a toolchain with the newlib standard library
-if ! $CPU-elf-newlib-gcc --version > /dev/null 2>&1; then
-	conda install gcc-$CPU-elf-newlib
+if ! ${CPU_ARCH}-elf-newlib-gcc --version > /dev/null 2>&1; then
+	conda install gcc-${CPU_ARCH}-elf-newlib
 fi
 
 # Get micropython is needed
@@ -71,7 +71,7 @@ fi
 TARGET_MPY_BUILD_DIR="$(realpath $TARGET_BUILD_DIR/software/micropython)"
 
 # Build micropython
-export CROSS_COMPILE=$CPU-elf-newlib-
+export CROSS_COMPILE=${CPU_ARCH}-elf-newlib-
 export BUILDINC_DIRECTORY="$(realpath $TARGET_BUILD_DIR/software/include)"
 export BUILD="$(realpath $TARGET_MPY_BUILD_DIR)"
 OLD_DIR=$PWD

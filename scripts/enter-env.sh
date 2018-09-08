@@ -244,6 +244,13 @@ if [ "$PLATFORM" = "mimasv2" ]; then
 	check_exists MimasV2Config.py || return 1
 fi
 
+# Map to the C compiler
+if [ "$CPU" = "lm32" -o "$CPU" = "or1k" ]; then
+	CPU_ARCH=$CPU
+elif [ "$CPU" = "vexriscv" -o "$CPU" = "picorv32" ]; then
+	CPU_ARCH=riscv32-unknown
+fi
+
 # flterm
 
 
@@ -254,19 +261,19 @@ check_exists flterm || return 1
 
 
 
-check_version ${CPU}-elf-ld $BINUTILS_VERSION || return 1
+check_version ${CPU_ARCH}-elf-ld $BINUTILS_VERSION || return 1
 
 # gcc for the target
 
 
 
-check_version ${CPU}-elf-gcc $GCC_VERSION || return 1
+check_version ${CPU_ARCH}-elf-gcc $GCC_VERSION || return 1
 
 # gdb for the target
 #
 #
 #
-#check_version ${CPU}-elf-gdb $GDB_VERSION
+#check_version ${CPU_ARCH}-elf-gdb $GDB_VERSION
 
 # openocd for programming via Cypress FX2
 
