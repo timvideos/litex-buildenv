@@ -68,10 +68,12 @@ def main():
             "Firmware must be a MiSoC .fbi image.")
 
     platform = make.get_platform(args)
+    soc = make.get_soc(args, platform)
+    bios_size = make.get_bios_maxsize(args, soc)
 
     gateware_pos = 0
     bios_pos = platform.gateware_size
-    firmware_pos = platform.gateware_size + make.BIOS_SIZE
+    firmware_pos = platform.gateware_size + bios_size
 
     print()
     with open(output_file, "wb") as f:
@@ -97,7 +99,7 @@ def main():
             bios = "Skipped"
 
         # LiteX BIOS
-        assert len(bios_data) < make.BIOS_SIZE
+        assert len(bios_data) < bios_size
         f.seek(bios_pos)
         f.write(bios_data)
         print(("    BIOS @ 0x{:08x} ({:10} bytes) {:60}"

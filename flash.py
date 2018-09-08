@@ -18,6 +18,8 @@ def main():
 
     builddir = make.get_builddir(args)
     platform = make.get_platform(args)
+    soc = make.get_soc(args, platform)
+    bios_maxsize = make.get_bios_maxsize(args, soc)
 
     if args.mode == 'image':
         filename = make.get_image(builddir, "flash")
@@ -32,7 +34,7 @@ def main():
     elif args.mode == 'bios':
         filename = make.get_bios(builddir, "flash")
         address_start = platform.gateware_size
-        address_end = platform.gateware_size + make.BIOS_SIZE
+        address_end = platform.gateware_size + bios_maxsize
 
     elif args.mode == 'firmware':
         if args.override_firmware:
@@ -40,7 +42,7 @@ def main():
         else:
             filename = make.get_firmware(builddir, "flash")
 
-        address_start = platform.gateware_size + make.BIOS_SIZE
+        address_start = platform.gateware_size + bios_maxsize
         address_end = platform.spiflash_total_size
 
     elif args.mode == 'other':
