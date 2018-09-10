@@ -11,8 +11,10 @@ from litex.soc.integration.builder import *
 def get_args(parser, platform='opsis', target='hdmi2usb'):
     parser.add_argument("--platform", action="store", default=os.environ.get('PLATFORM', platform))
     parser.add_argument("--target", action="store", default=os.environ.get('TARGET', target))
-    parser.add_argument("--cpu-type", default=os.environ.get('CPU', 'lm32'))
-    parser.add_argument("--cpu-variant", default=os.environ.get('CPU_VARIANT', ''))
+
+    soc_sdram_args(parser)
+    parser.set_defaults(cpu_type=os.environ.get('CPU', 'lm32'))
+    parser.set_defaults(cpu_variant=os.environ.get('CPU_VARIANT', None))
 
     parser.add_argument("--iprange", default="192.168.100")
 
