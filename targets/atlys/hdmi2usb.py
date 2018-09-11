@@ -23,7 +23,11 @@ class HDMI2USBSoC(BaseSoC):
     def __init__(self, platform, *args, **kwargs):
         BaseSoC.__init__(self, platform, *args, **kwargs)
 
-        encoder_port = self.sdram.crossbar.get_port(mode="read", dw=128, reverse=True)
+        encoder_port = self.sdram.crossbar.get_port(
+            mode="read",
+            data_width=128,
+            reverse=True,
+        )
         self.submodules.encoder_reader = EncoderDMAReader(encoder_port)
         encoder_cdc = stream.AsyncFIFO([("data", 128)], 4)
         encoder_cdc = ClockDomainsRenamer({"write": "sys",

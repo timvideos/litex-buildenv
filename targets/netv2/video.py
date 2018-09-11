@@ -19,17 +19,31 @@ class VideoOutSoC(BaseSoC):
         mode = "ycbcr422"
 
         if mode == "ycbcr422":
-            hdmi_out0_dram_port = self.sdram.crossbar.get_port(mode="read", dw=16, cd="pix", reverse=True)
-            self.submodules.hdmi_out0 = VideoOut(platform.device,
-                                                 platform.request("hdmi_out"),
-                                                 hdmi_out0_dram_port,
-                                                 "ycbcr422")
+            hdmi_out0_dram_port = self.sdram.crossbar.get_port(
+                mode="read",
+                data_width=16,
+                clock_domain="pix",
+                reverse=True,
+            )
+            self.submodules.hdmi_out0 = VideoOut(
+                platform.device,
+                platform.request("hdmi_out"),
+                hdmi_out0_dram_port,
+                "ycbcr422",
+            )
         elif mode == "rgb":
-            hdmi_out0_dram_port = self.sdram.crossbar.get_port(mode="read", dw=32, cd="pix", reverse=True)
-            self.submodules.hdmi_out0 = VideoOut(platform.device,
-                                                 platform.request("hdmi_out"),
-                                                 hdmi_out0_dram_port,
-                                                 "rgb")
+            hdmi_out0_dram_port = self.sdram.crossbar.get_port(
+                mode="read",
+                data_width=32,
+                clock_domain="pix",
+                reverse=True,
+            )
+            self.submodules.hdmi_out0 = VideoOut(
+                platform.device,
+                platform.request("hdmi_out"),
+                hdmi_out0_dram_port,
+                "rgb",
+            )
 
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 10.0)
         self.platform.add_period_constraint(self.hdmi_out0.driver.clocking.cd_pix.clk, 10.0)
