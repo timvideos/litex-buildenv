@@ -136,7 +136,15 @@ def main():
         builder = Builder(soc, **buildargs)
         if not args.no_compile_firmware or args.override_firmware:
             builder.add_software_package("uip", "{}/firmware/uip".format(os.getcwd()))
-            builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
+
+            # FIXME: All platforms which current run their user programs from
+            # SPI flash lack the block RAM resources to run the default
+            # firmware. Check whether to use the stub or default firmware
+            # should be refined (perhaps soc attribute?).
+            if "main_ram" in (m[0] for m in soc.get_memory_regions()):
+                builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
+            else:
+                builder.add_software_package("stub", "{}/firmware/stub".format(os.getcwd()))
         vns = builder.build(**dict(args.build_option))
     else:
         vns = platform.build(soc, build_dir=os.path.join(builddir, "gateware"))
