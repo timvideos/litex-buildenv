@@ -79,10 +79,6 @@ class BaseSoC(SoCCore):
         platform.add_extension(reset)
         clk_freq = int(16e6)
 
-
-        # Basic peripherals
-        self.submodules.info = info.Info(platform, self.__class__.__name__)
-
         # Extra 0x28000 is due to bootloader bitstream.
         kwargs['cpu_reset_address']=self.mem_map["spiflash"]+platform.gateware_size+0x28000
         SoCCore.__init__(self, platform, clk_freq, **kwargs)
