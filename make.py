@@ -14,7 +14,7 @@ def get_args(parser, platform='opsis', target='hdmi2usb'):
 
     soc_sdram_args(parser)
     parser.set_defaults(cpu_type=os.environ.get('CPU', 'lm32'))
-    parser.set_defaults(cpu_variant=os.environ.get('CPU_VARIANT', None))
+    parser.set_defaults(cpu_variant=os.environ.get('CPU_VARIANT', None) or None)
 
     parser.add_argument("--iprange", default="192.168.100")
 
