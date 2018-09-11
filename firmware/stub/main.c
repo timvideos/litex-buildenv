@@ -115,8 +115,9 @@ int main(void)
 	irq_setie(1);
 	uart_init();
 
+	puts("Stub firmware booting...\n");
 	puts("\nLiteX-Buildenv Stub Firmware, built "__DATE__" "__TIME__"\n");
-	help();
+	puts("Type \"help\" for help\n");
 	ci_prompt();
 
 	while(1) {
