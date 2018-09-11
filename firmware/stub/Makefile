@@ -13,14 +13,14 @@ CFLAGS += \
 	-Wall \
 	-Werror \
 	-Wno-error=unused-function \
-	-Wno-error=unused-variable \
+	-Wno-error=unused-variable
 
 LDFLAGS += \
 
 LINKER_LD=linker.ld
 
 
-all: stub.bin stub.fbi
+all: firmware.bin firmware.fbi
 
 %.fbi: %.bin
 	$(PYTHON) -m litex.soc.tools.mkmscimg -f $< -o $@
@@ -29,7 +29,7 @@ all: stub.bin stub.fbi
 	$(OBJCOPY) -O binary $< $@
 	chmod -x $@
 
-stub.elf: $(STUB_DIRECTORY)/$(LINKER_LD) $(OBJECTS)
+firmware.elf: $(STUB_DIRECTORY)/$(LINKER_LD) $(OBJECTS)
 
 %.elf: ../libbase/crt0-$(CPU).o ../libbase/libbase-nofloat.a ../libcompiler_rt/libcompiler_rt.a
 	$(LD) $(LDFLAGS) \
