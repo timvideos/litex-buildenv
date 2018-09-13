@@ -35,8 +35,10 @@ set -e
 
 QEMU_REMOTE="${QEMU_REMOTE:-https://github.com/timvideos/qemu-litex.git}"
 QEMU_BRANCH=${QEMU_BRANCH:-master}
-QEMU_REMOTE_NAME=timvideos-qemu-litex
+# extract the important part, i.e. 'github.com/timvideos/qemu-litex'
 QEMU_REMOTE_BIT=$(echo $QEMU_REMOTE | sed -e's-^.*://--' -e's/.git$//')
+# create the name for remote, i.e. 'timvideos-qemu-litex'
+QEMU_REMOTE_NAME=$(echo $QEMU_REMOTE_BIT | sed -e's-^[^/]*/--' | sed -e's@/@-@')
 QEMU_SRC_DIR=$TOP_DIR/third_party/qemu-litex
 if [ ! -d "$QEMU_SRC_DIR" ]; then
 	(
@@ -52,7 +54,7 @@ fi
 
 	# Add the remote if it doesn't exist
 	CURRENT_QEMU_REMOTE_NAME=$(git remote -v | grep fetch | grep "$QEMU_REMOTE_BIT" | sed -e's/\t.*$//')
-	if [ x"$CURRENT_QEMU_REMOTE_NAME" = x ]; then
+	if [ x"$CURRENT_QEMU_REMOTE_NAME" != x"$QEMU_REMOTE_NAME" ]; then
 		git remote add $QEMU_REMOTE_NAME $QEMU_REMOTE
 		CURRENT_QEMU_REMOTE_NAME=$QEMU_REMOTE_NAME
 	fi
@@ -64,6 +66,9 @@ fi
 	if [ "$(git rev-parse --abbrev-ref HEAD)" != "$QEMU_BRANCH" ]; then
 		git checkout $QEMU_BRANCH || \
 			git checkout "$CURRENT_QEMU_REMOTE_NAME/$QEMU_BRANCH" -b $QEMU_BRANCH
+	else
+		# If we are already on it, make sure we get the latest changes
+		git reset --hard "$CURRENT_QEMU_REMOTE_NAME/$QEMU_BRANCH"
 	fi
 )
 
