@@ -137,7 +137,8 @@ if grep -q 'SPIFLASH_BASE' $TARGET_BUILD_DIR/software/include/generated/mem.h; t
 		echo "Platform has unknown SPI flash - assuming m25p16!"
 		SPIFLASH_MODEL=m25p16
 	fi
-	EXTRA_ARGS+=("-drive if=mtd,format=qcow2,file=$TARGET_BUILD_DIR/qemu.qcow2,serial=$SPIFLASH_MODEL")
+	EXTRA_ARGS+=("-drive if=mtd,format=qcow2,file=$TARGET_BUILD_DIR/qemu.qcow2")
+	EXTRA_ARGS+=("-global litex_ssi.spiflash=$SPIFLASH_MODEL")
 fi
 
 # Ethernet
