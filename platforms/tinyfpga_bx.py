@@ -56,7 +56,8 @@ class Platform(LatticePlatform):
 
     # TinyFPGA BX normally defines the user bitstream to begin at 0x28000
     # and user data to begin at 0x50000; follow the convention here.
-    gateware_size = 0x50000 - 0x28000
+    bootloader_size = 0x28000
+    gateware_size = 0x50000 - bootloader_size
 
     # FIXME: Create a "spi flash module" object in the same way we have SDRAM
     spiflash_model = "m25p16"

@@ -80,7 +80,7 @@ class BaseSoC(SoCCore):
         clk_freq = int(16e6)
 
         # Extra 0x28000 is due to bootloader bitstream.
-        kwargs['cpu_reset_address']=self.mem_map["spiflash"]+platform.gateware_size+0x28000
+        kwargs['cpu_reset_address']=self.mem_map["spiflash"]+platform.gateware_size+platform.bootloader_size
         SoCCore.__init__(self, platform, clk_freq, **kwargs)
 
         self.submodules.crg = _CRG(platform)
@@ -99,7 +99,7 @@ class BaseSoC(SoCCore):
         bios_size = 0x8000
         self.add_constant("ROM_DISABLE", 1)
         self.add_memory_region("rom", kwargs['cpu_reset_address'], bios_size)
-        self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size+bios_size+0x28000
+        self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size+bios_size+platform.bootloader_size
 
         # We don't have a DRAM, so use the remaining SPI flash for user
         # program.
