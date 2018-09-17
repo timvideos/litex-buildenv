@@ -74,10 +74,22 @@ jobs:
     env: C=lm32 P=atlys        T="base net"
 
   - stage: Targets
+    env: C=lm32 P=basys3       T="base"
+
+  - stage: Targets
+    env: C=lm32 P=cmod_a7      T="base"
+
+  - stage: Targets
+    env: C=lm32 P=galatea      T="base"
+
+  - stage: Targets
     env: C=lm32 P=mimasv2      T="base"
 
   - stage: Targets
     env: C=lm32 P=minispartan6 T="base"
+
+  - stage: Targets
+    env: C=lm32 P=neso         T="base"
 
   - stage: Targets
     env: C=lm32 P=netv2        T="base"
@@ -95,19 +107,7 @@ jobs:
     env: C=lm32 P=saturn       T="base"
 
   - stage: Targets
-    env: C=lm32 P=galatea      T="base"
-
-  - stage: Targets
-    env: C=lm32 P=neso         T="base"
-
-  - stage: Targets
     env: C=lm32 P=waxwing      T="base"
-
-  - stage: Targets
-    env: C=lm32 P=basys3       T="base"
-
-  - stage: Targets
-    env: C=lm32 P=cmod_a7      T="base"
 
   # or1k base targets
   - stage: Targets
@@ -134,10 +134,10 @@ jobs:
     env: C=or1k.linux F=linux P=atlys       T="net"
 
   - stage: Targets
-    env: C=or1k.linux F=linux P=opsis       T="net"
+    env: C=or1k.linux F=linux P=nexys_video T="net"
 
   - stage: Targets
-    env: C=or1k.linux F=linux P=nexys_video T="net"
+    env: C=or1k.linux F=linux P=opsis       T="net"
 
   #--------------------------------------------
   # Video Targets
