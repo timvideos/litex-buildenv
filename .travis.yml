@@ -109,6 +109,9 @@ jobs:
   - stage: Targets
     env: C=lm32 P=waxwing      T="base"
 
+  - stage: Targets
+    env: C=lm32.lite P=tinyfpga_bx F=stub T="base"
+
   # or1k base targets
   - stage: Targets
     env: C=or1k P=arty         T="base net"
