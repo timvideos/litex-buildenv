@@ -214,8 +214,10 @@ case $PLATFORM_TOOLCHAIN in
 			export HAVE_XILINX_VIVADO=0
 		fi
 		if [ $HAVE_XILINX_ISE -eq 1 -o $HAVE_XILINX_VIVADO -eq 1 ]; then
+			export HAVE_XILINX_TOOLCHAIN=1
 			export HAVE_FPGA_TOOLCHAIN=1
 		else
+			export HAVE_XILINX_TOOLCHAIN=0
 			export HAVE_FPGA_TOOLCHAIN=0
 		fi
 		if [ $HAVE_XILINX_TOOLCHAIN -eq 1 ]; then
