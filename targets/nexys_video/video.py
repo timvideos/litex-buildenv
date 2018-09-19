@@ -43,7 +43,8 @@ class VideoSoC(BaseSoC):
             hdmi_in0_pads,
             self.sdram.crossbar.get_port(mode="write"),
             fifo_depth=512,
-            device="xc7")
+            device="xc7",
+        )
 
         self.submodules.hdmi_in0_freq = FrequencyMeter(period=self.clk_freq)
 
@@ -66,16 +67,18 @@ class VideoSoC(BaseSoC):
 
         hdmi_out0_dram_port = self.sdram.crossbar.get_port(
             mode="read",
-            dw=dw,
-            cd="hdmi_out0_pix",
-            reverse=True)
+            data_width=dw,
+            clock_domain="hdmi_out0_pix",
+            reverse=True,
+        )
 
         self.submodules.hdmi_out0 = VideoOut(
             platform.device,
             hdmi_out0_pads,
             hdmi_out0_dram_port,
             mode=mode,
-            fifo_depth=4096)
+            fifo_depth=4096,
+        )
 
         self.platform.add_false_path_constraints(
             self.crg.cd_sys.clk,
@@ -135,7 +138,7 @@ class VideoSoCDebug(VideoSoC):
         self.comb += platform.request("user_led", 1).eq(pix1p25x_counter[26])
 
         pix5x_counter = Signal(32)
-        self.sync.hdmi_in0_pix5x += pix5x_counter.eq(pix5x_counter + 1)
+        self.sync.hdmi_in0_pix5x_o += pix5x_counter.eq(pix5x_counter + 1)
         self.comb += platform.request("user_led", 2).eq(pix5x_counter[26])
 
 

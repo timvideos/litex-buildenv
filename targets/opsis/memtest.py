@@ -21,8 +21,21 @@ class MemTestSoC(BaseSoC):
     def __init__(self, platform, *args, **kwargs):
         BaseSoC.__init__(self, platform, *args, **kwargs)
 
-        self.submodules.generator = LiteDRAMBISTGenerator(self.sdram.crossbar.get_port(mode="write", dw=32), random=False)
-        self.submodules.checker = LiteDRAMBISTChecker(self.sdram.crossbar.get_port(mode="read", dw=32, reverse=True), random=False)
+        self.submodules.generator = LiteDRAMBISTGenerator(
+            self.sdram.crossbar.get_port(
+                mode="write",
+                data_width=32,
+            ),
+            random=False,
+        )
+        self.submodules.checker = LiteDRAMBISTChecker(
+            self.sdram.crossbar.get_port(
+                mode="read",
+                data_width=32,
+                reverse=True,
+            ),
+            random=False,
+        )
         self.submodules.checker_scope = LiteDRAMBISTCheckerScope(self.checker)
 
         analyzer_signals = self.checker_scope.signals()

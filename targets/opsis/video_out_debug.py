@@ -20,13 +20,19 @@ class VideoDebugSoC(BaseSoC):
         BaseSoC.__init__(self, platform, *args, **kwargs)
         # hdmi out 0
         hdmi_out0_pads = platform.request("hdmi_out", 0)
-        dram_port = self.sdram.crossbar.get_port(mode="read", dw=16, cd="pix", reverse=True)
+        dram_port = self.sdram.crossbar.get_port(
+            mode="read",
+            data_width=16,
+            clock_domain="pix",
+            reverse=True,
+        )
         self.submodules.hdmi_out0 = VideoOut(
             platform.device,
             hdmi_out0_pads,
             dram_port,
             mode="ycbcr422",
-            fifo_depth=4096)
+            fifo_depth=4096,
+        )
         self.hdmi_out0.submodules.i2c = i2c.I2C(hdmi_out0_pads)
 
         # FIXME: Fix the HDMI out so this can be removed.

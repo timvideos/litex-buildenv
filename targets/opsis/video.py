@@ -57,7 +57,7 @@ class VideoSoC(BaseSoC):
             hdmi_in1_pads,
             self.sdram.crossbar.get_port(mode="write"),
             fifo_depth=512,
-            )
+        )
 
         self.submodules.hdmi_in1_freq = freq_measurement.FrequencyMeasurement(
             self.hdmi_in1.clocking.clk_input, measure_period=self.clk_freq)
@@ -69,16 +69,18 @@ class VideoSoC(BaseSoC):
 
         hdmi_out0_dram_port = self.sdram.crossbar.get_port(
             mode="read",
-            dw=dw,
-            cd="hdmi_out0_pix",
-            reverse=True)
+            data_width=dw,
+            clock_domain="hdmi_out0_pix",
+            reverse=True,
+        )
 
         self.submodules.hdmi_out0 = VideoOut(
             platform.device,
             hdmi_out0_pads,
             hdmi_out0_dram_port,
             mode=mode,
-            fifo_depth=4096)
+            fifo_depth=4096,
+        )
 
         self.hdmi_out0.submodules.i2c = i2c.I2C(hdmi_out0_pads)
 
@@ -87,9 +89,10 @@ class VideoSoC(BaseSoC):
 
         hdmi_out1_dram_port = self.sdram.crossbar.get_port(
             mode="read",
-            dw=dw,
-            cd="hdmi_out1_pix",
-            reverse=True)
+            data_width=dw,
+            clock_domain="hdmi_out1_pix",
+            reverse=True,
+        )
 
         self.submodules.hdmi_out1 = VideoOut(
             platform.device,
@@ -97,7 +100,8 @@ class VideoSoC(BaseSoC):
             hdmi_out1_dram_port,
             mode=mode,
             fifo_depth=4096,
-            external_clocking=self.hdmi_out0.driver.clocking)
+            external_clocking=self.hdmi_out0.driver.clocking,
+        )
 
         self.hdmi_out1.submodules.i2c = i2c.I2C(hdmi_out1_pads)
 
