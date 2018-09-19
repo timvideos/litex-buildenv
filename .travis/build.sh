@@ -144,7 +144,7 @@ function build() {
 	echo ""
 	echo "- make gateware ($TITLE)"
 	echo "---------------------------------------------"
-	if [ $HAVE_XILINX_TOOLCHAIN -eq 0 ]; then
+	if [ $HAVE_FPGA_TOOLCHAIN -eq 0 ]; then
 		echo "Skipping gateware"
 		make gateware-fake
 	else

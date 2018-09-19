@@ -16,6 +16,7 @@ unsigned int pattern_framebuffer_base(void) {
 	return FRAMEBUFFER_BASE_PATTERN;
 }
 
+#ifdef MAIN_RAM_BASE
 static const unsigned int color_bar[8] = {
 	YCBCR422_WHITE,
 	YCBCR422_YELLOW,
@@ -26,7 +27,9 @@ static const unsigned int color_bar[8] = {
 	YCBCR422_BLUE,
 	YCBCR422_BLACK
 };
+#endif
 
+#ifdef MAIN_RAM_BASE
 static const unsigned char font5x7[] = {
 	0x00, 0x00, 0x00, 0x00, 0x00,// (space)
 	0x00, 0x00, 0x5F, 0x00, 0x00,// !
@@ -125,6 +128,7 @@ static const unsigned char font5x7[] = {
 	0x08, 0x08, 0x2A, 0x1C, 0x08,// ->
 	0x08, 0x1C, 0x2A, 0x08, 0x08 // <-
 };
+#endif
 
 static int inc_color(int color) {
 	color++;
@@ -195,23 +199,23 @@ void pattern_fill_framebuffer(int h_active, int w_active)
 	for (i=0; i<h_active*2; i++) {
 		framebuffer[i] = YCBCR422_WHITE;
 	}
-	
+
 	for (i=(w_active-4)*h_active*2/4; i<h_active*w_active*2/4; i++) {
 		framebuffer[i] = YCBCR422_WHITE;
 	}
-	
+
 	for (i=0; i<w_active*2; i++) {
 		// do the left bar
 		for (j=0; j<2; j++) {
 			framebuffer[(i*h_active)+j] = YCBCR422_WHITE;
 			framebuffer[(i*h_active)+j + (1*h_active/2)] = YCBCR422_WHITE;
 		}
-		
+
 		// do the right bar
 		for (j=h_active-2; j<h_active; j++) {
 			framebuffer[(i*h_active)+j] = YCBCR422_WHITE;
 			framebuffer[(i*h_active)+j + (1*h_active/2)] = YCBCR422_WHITE;
-		}		
+		}
 	}
 
 	// Line 1 - uptime + version information
