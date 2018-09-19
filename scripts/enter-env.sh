@@ -77,73 +77,6 @@ if [ ! -d $BUILD_DIR ]; then
 	return 1
 fi
 
-XILINX_SETTINGS_ISE='/opt/Xilinx/*/ISE_DS/settings64.sh'
-XILINX_SETTINGS_VIVADO='/opt/Xilinx/Vivado/*/settings64.sh'
-
-if [ -z "$XILINX_DIR" ]; then
-	LOCAL_XILINX_DIR=$BUILD_DIR/Xilinx
-	if [ -d "$LOCAL_XILINX_DIR/opt/Xilinx/" ]; then
-		# Reserved MAC address from documentation block, see
-		# http://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
-		export LIKELY_XILINX_LICENSE_DIR=$LOCAL_XILINX_DIR
-		export MACADDR=90:10:00:00:00:01
-		#export LD_PRELOAD=$XILINX_DIR/impersonate_macaddress/impersonate_macaddress.so
-		#ls -l $LD_PRELOAD
-		export XILINX_DIR=$LOCAL_XILINX_DIR
-		export XILINX_LOCAL_USER_DATA=no
-	fi
-fi
-if [ -z "$LIKELY_XILINX_LICENSE_DIR" ]; then
-	LIKELY_XILINX_LICENSE_DIR="$HOME/.Xilinx"
-fi
-
-# Find Xilinx toolchain versions...
-shopt -s nullglob
-XILINX_SETTINGS_ISE=($XILINX_DIR/$XILINX_SETTINGS_ISE)
-XILINX_SETTINGS_VIVADO=($XILINX_DIR/$XILINX_SETTINGS_VIVADO)
-shopt -u nullglob
-
-# Tell user what we found...
-echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
-if [ ${#XILINX_SETTINGS_ISE[@]} -gt 0 ]; then
-	echo -n "                             - Xilinx ISE toolchain found!"
-	if [ ${#XILINX_SETTINGS_ISE[@]} -gt 1 ]; then
-		echo -n " (${#XILINX_SETTINGS_ISE[@]} versions)"
-	fi
-	echo ""
-	export HAVE_XILINX_ISE=1
-else
-	export HAVE_XILINX_ISE=0
-fi
-if [ ${#XILINX_SETTINGS_VIVADO[@]} -gt 0 ]; then
-	echo -n "                             - Xilinx Vivado toolchain found!"
-	if [ ${#XILINX_SETTINGS_VIVADO[@]} -gt 1 ]; then
-		echo -n " (${#XILINX_SETTINGS_VIVADO[@]} versions)"
-	fi
-	echo ""
-	export HAVE_XILINX_VIVADO=1
-else
-	export HAVE_XILINX_VIVADO=0
-fi
-if [ $HAVE_XILINX_ISE -eq 1 -o $HAVE_XILINX_VIVADO -eq 1 ]; then
-	export HAVE_XILINX_TOOLCHAIN=1
-else
-	export HAVE_XILINX_TOOLCHAIN=0
-fi
-if [ $HAVE_XILINX_TOOLCHAIN -eq 1 ]; then
-	export MISOC_EXTRA_CMDLINE="-Ob toolchain_path $XILINX_DIR/opt/Xilinx/"
-fi
-
-# Detect a likely lack of license early, but just warn if it's missing
-# just in case they've set it up elsewhere.
-if [ ! -e $LIKELY_XILINX_LICENSE_DIR/Xilinx.lic ]; then
-	echo "(WARNING) Please ensure you have installed Xilinx and have a license."
-	echo "(WARNING) Copy your Xilinx license to Xilinx.lic in $LIKELY_XILINX_LICENSE_DIR to suppress this warning."
-else
-	echo "          Xilinx license in: $LIKELY_XILINX_LICENSE_DIR"
-	export XILINXD_LICENSE_FILE=$LIKELY_XILINX_LICENSE_DIR
-fi
-
 function check_exists {
 	TOOL=$1
 	if which $TOOL >/dev/null; then
@@ -218,12 +151,112 @@ eval $(cd $TOP_DIR; export HDMI2USB_ENV=1; make env || return 1) || return 1
 
 check_version python 3.6 || return 1
 
+# FPGA toolchain
+################################################
 echo ""
-echo "Checking binaries in environment"
-echo "---------------------------------"
+echo "Checking FPGA toolchain"
+echo "---------------------------------------"
+PLATFORM_TOOLCHAIN=$(grep 'class Platform' $TOP_DIR/platforms/$PLATFORM.py | sed -e's/class Platform(//' -e's/Platform)://')
+echo ""
+echo "Platform Toolchain: $PLATFORM_TOOLCHAIN"
+case $PLATFORM_TOOLCHAIN in
+	Xilinx)
+		if [ -z "$LIKELY_XILINX_LICENSE_DIR" ]; then
+			LIKELY_XILINX_LICENSE_DIR="$HOME/.Xilinx"
+		fi
+
+		XILINX_SETTINGS_ISE='/opt/Xilinx/*/ISE_DS/settings64.sh'
+		XILINX_SETTINGS_VIVADO='/opt/Xilinx/Vivado/*/settings64.sh'
+
+		if [ -z "$XILINX_DIR" ]; then
+			LOCAL_XILINX_DIR=$BUILD_DIR/Xilinx
+			if [ -d "$LOCAL_XILINX_DIR/opt/Xilinx/" ]; then
+				# Reserved MAC address from documentation block, see
+				# http://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
+				export LIKELY_XILINX_LICENSE_DIR=$LOCAL_XILINX_DIR
+				export MACADDR=90:10:00:00:00:01
+				#export LD_PRELOAD=$XILINX_DIR/impersonate_macaddress/impersonate_macaddress.so
+				#ls -l $LD_PRELOAD
+				export XILINX_DIR=$LOCAL_XILINX_DIR
+				export XILINX_LOCAL_USER_DATA=no
+			fi
+		fi
+		if [ -z "$LIKELY_XILINX_LICENSE_DIR" ]; then
+			LIKELY_XILINX_LICENSE_DIR="$HOME/.Xilinx"
+		fi
+
+		# Find Xilinx toolchain versions...
+		shopt -s nullglob
+		XILINX_SETTINGS_ISE=($XILINX_DIR/$XILINX_SETTINGS_ISE)
+		XILINX_SETTINGS_VIVADO=($XILINX_DIR/$XILINX_SETTINGS_VIVADO)
+		shopt -u nullglob
+
+		# Tell user what we found...
+		echo "        Xilinx directory is: $XILINX_DIR/opt/Xilinx/"
+		if [ ${#XILINX_SETTINGS_ISE[@]} -gt 0 ]; then
+			echo -n "                             - Xilinx ISE toolchain found!"
+			if [ ${#XILINX_SETTINGS_ISE[@]} -gt 1 ]; then
+				echo -n " (${#XILINX_SETTINGS_ISE[@]} versions)"
+			fi
+			echo ""
+			export HAVE_XILINX_ISE=1
+		else
+			export HAVE_XILINX_ISE=0
+		fi
+		if [ ${#XILINX_SETTINGS_VIVADO[@]} -gt 0 ]; then
+			echo -n "                             - Xilinx Vivado toolchain found!"
+			if [ ${#XILINX_SETTINGS_VIVADO[@]} -gt 1 ]; then
+				echo -n " (${#XILINX_SETTINGS_VIVADO[@]} versions)"
+			fi
+			echo ""
+			export HAVE_XILINX_VIVADO=1
+		else
+			export HAVE_XILINX_VIVADO=0
+		fi
+		if [ $HAVE_XILINX_ISE -eq 1 -o $HAVE_XILINX_VIVADO -eq 1 ]; then
+			export HAVE_FPGA_TOOLCHAIN=1
+		else
+			export HAVE_FPGA_TOOLCHAIN=0
+		fi
+		if [ $HAVE_XILINX_TOOLCHAIN -eq 1 ]; then
+			export MISOC_EXTRA_CMDLINE="-Ob toolchain_path $XILINX_DIR/opt/Xilinx/"
+		fi
+
+		# Detect a likely lack of license early, but just warn if it's missing
+		# just in case they've set it up elsewhere.
+		if [ ! -e $LIKELY_XILINX_LICENSE_DIR/Xilinx.lic ]; then
+			echo "(WARNING) Please ensure you have installed Xilinx and have a license."
+			echo "(WARNING) Copy your Xilinx license to Xilinx.lic in $LIKELY_XILINX_LICENSE_DIR to suppress this warning."
+		else
+			echo "          Xilinx license in: $LIKELY_XILINX_LICENSE_DIR"
+			export XILINXD_LICENSE_FILE=$LIKELY_XILINX_LICENSE_DIR
+		fi
+		;;
+	Lattice)
+		export HAVE_FPGA_TOOLCHAIN=1
+		# yosys
+
+
+
+		check_exists yosys || return 1
+
+		# nextpnr
+
+
+
+		check_exists nextpnr-ice40 || return 1
+		;;
+	*)
+		;;
+esac
+
 
 # FPGA Programming tools
 ################################################
+echo ""
+echo "Checking programming tools in environment"
+echo "-----------------------------------------"
+
 # fxload
 if [ "$PLATFORM" = "opsis" -o "$PLATFORM" = "atlys" ]; then
 
@@ -258,33 +291,11 @@ check_exists flterm || return 1
 check_version openocd $OPENOCD_VERSION || return 1
 
 
-# FPGA toolchain
-################################################
-PLATFORM_TOOLCHAIN=$(grep 'class Platform' $TOP_DIR/platforms/$PLATFORM.py | sed -e's/class Platform(//' -e's/Platform)://')
-echo "Output - $TOP_DIR/platforms/$PLATFORM.py"
-echo "Platform Toolchain: $PLATFORM_TOOLCHAIN"
-case $PLATFORM_TOOLCHAIN in
-	Xilinx)
-		;;
-	Lattice)
-		# yosys
-
-
-
-		check_exists yosys || return 1
-
-		# nextpnr
-
-
-
-		check_exists nextpnr || return 1
-		;;
-	*)
-		;;
-esac
-
 # C compiler toolchain
 ################################################
+echo ""
+echo "Checking C compiler toolchain"
+echo "---------------------------------------"
 if [ "$CPU" = "lm32" -o "$CPU" = "or1k" ]; then
 	CPU_ARCH=$CPU
 elif [ "$CPU" = "vexriscv" -o "$CPU" = "picorv32" ]; then
@@ -309,6 +320,9 @@ check_version ${CPU_ARCH}-elf-gcc $GCC_VERSION || return 1
 #
 #check_version ${CPU_ARCH}-elf-gdb $GDB_VERSION
 
+
+# Python modules
+################################################
 echo ""
 echo "Checking Python modules in environment"
 echo "---------------------------------------"
