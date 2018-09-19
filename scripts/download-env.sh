@@ -289,6 +289,8 @@ echo ""
 echo "Installing binaries into environment"
 echo "---------------------------------"
 
+# FPGA Programming tools
+################################################
 # fxload
 if [ "$PLATFORM" = "opsis" -o "$PLATFORM" = "atlys" ]; then
 	echo
@@ -310,18 +312,51 @@ if [ "$PLATFORM" == "mimasv2" ]; then
 	check_exists MimasV2Config.py
 fi
 
-# Map to the C compiler
-if [ "$CPU" = "lm32" -o "$CPU" = "or1k" ]; then
-	CPU_ARCH=$CPU
-elif [ "$CPU" = "vexriscv" -o "$CPU" = "picorv32" ]; then
-	CPU_ARCH=riscv32-unknown
-fi
-
 # flterm
 echo
 echo "Installing flterm (serial terminal tool)"
 conda install -y $CONDA_FLAGS flterm
 check_exists flterm
+
+# openocd for programming via Cypress FX2
+echo
+echo "Installing openocd (jtag tool for programming and debug)"
+conda install -y $CONDA_FLAGS openocd=$OPENOCD_VERSION
+check_version openocd $OPENOCD_VERSION
+
+
+# FPGA toolchain
+################################################
+PLATFORM_TOOLCHAIN=$(grep 'class Platform' $TOP_DIR/platforms/$PLATFORM.py | sed -e's/class Platform(//' -e's/Platform)://')
+echo "Output - $TOP_DIR/platforms/$PLATFORM.py"
+echo "Platform Toolchain: $PLATFORM_TOOLCHAIN"
+case $PLATFORM_TOOLCHAIN in
+	Xilinx)
+		;;
+	Lattice)
+		# yosys
+		echo
+		echo "Installing yosys (FOSS Synthesis tool)"
+		conda install -y $CONDA_FLAGS yosys
+		check_exists yosys
+
+		# nextpnr
+		echo
+		echo "Installing nextpnr (FOSS Place and Route tool)"
+		conda install -y $CONDA_FLAGS nextpnr
+		check_exists nextpnr-ice40
+		;;
+	*)
+		;;
+esac
+
+# C compiler toolchain
+################################################
+if [ "$CPU" = "lm32" -o "$CPU" = "or1k" ]; then
+	CPU_ARCH=$CPU
+elif [ "$CPU" = "vexriscv" -o "$CPU" = "picorv32" ]; then
+	CPU_ARCH=riscv32-unknown
+fi
 
 # binutils for the target
 echo
@@ -340,12 +375,6 @@ check_version ${CPU_ARCH}-elf-gcc $GCC_VERSION
 #echo "Installing gdb for ${CPU_ARCH} (debugger)"
 #conda install -y $CONDA_FLAGS gdb-${CPU_ARCH}-elf=$GDB_VERSION
 #check_version ${CPU_ARCH}-elf-gdb $GDB_VERSION
-
-# openocd for programming via Cypress FX2
-echo
-echo "Installing openocd (jtag tool for programming and debug)"
-conda install -y $CONDA_FLAGS openocd=$OPENOCD_VERSION
-check_version openocd $OPENOCD_VERSION
 
 echo ""
 echo "Installing Python modules into environment"

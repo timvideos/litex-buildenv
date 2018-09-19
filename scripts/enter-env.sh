@@ -211,7 +211,6 @@ eval $(cd $TOP_DIR; export HDMI2USB_ENV=1; make env || return 1) || return 1
 ) || return 1
 
 
-
 # Check the Python version
 
 
@@ -223,6 +222,8 @@ echo ""
 echo "Checking binaries in environment"
 echo "---------------------------------"
 
+# FPGA Programming tools
+################################################
 # fxload
 if [ "$PLATFORM" = "opsis" -o "$PLATFORM" = "atlys" ]; then
 
@@ -244,18 +245,51 @@ if [ "$PLATFORM" = "mimasv2" ]; then
 	check_exists MimasV2Config.py || return 1
 fi
 
-# Map to the C compiler
-if [ "$CPU" = "lm32" -o "$CPU" = "or1k" ]; then
-	CPU_ARCH=$CPU
-elif [ "$CPU" = "vexriscv" -o "$CPU" = "picorv32" ]; then
-	CPU_ARCH=riscv32-unknown
-fi
-
 # flterm
 
 
 
 check_exists flterm || return 1
+
+# openocd for programming via Cypress FX2
+
+
+
+check_version openocd $OPENOCD_VERSION || return 1
+
+
+# FPGA toolchain
+################################################
+PLATFORM_TOOLCHAIN=$(grep 'class Platform' $TOP_DIR/platforms/$PLATFORM.py | sed -e's/class Platform(//' -e's/Platform)://')
+echo "Output - $TOP_DIR/platforms/$PLATFORM.py"
+echo "Platform Toolchain: $PLATFORM_TOOLCHAIN"
+case $PLATFORM_TOOLCHAIN in
+	Xilinx)
+		;;
+	Lattice)
+		# yosys
+
+
+
+		check_exists yosys || return 1
+
+		# nextpnr
+
+
+
+		check_exists nextpnr || return 1
+		;;
+	*)
+		;;
+esac
+
+# C compiler toolchain
+################################################
+if [ "$CPU" = "lm32" -o "$CPU" = "or1k" ]; then
+	CPU_ARCH=$CPU
+elif [ "$CPU" = "vexriscv" -o "$CPU" = "picorv32" ]; then
+	CPU_ARCH=riscv32-unknown
+fi
 
 # binutils for the target
 
@@ -274,12 +308,6 @@ check_version ${CPU_ARCH}-elf-gcc $GCC_VERSION || return 1
 #
 #
 #check_version ${CPU_ARCH}-elf-gdb $GDB_VERSION
-
-# openocd for programming via Cypress FX2
-
-
-
-check_version openocd $OPENOCD_VERSION || return 1
 
 echo ""
 echo "Checking Python modules in environment"
