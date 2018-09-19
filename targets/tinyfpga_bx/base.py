@@ -112,15 +112,11 @@ class BaseSoC(SoCCore):
         # Disable USB activity until we switch to a USB UART.
         self.comb += [platform.request("usb").pullup.eq(0)]
 
-
-        # Annotate build scripts with required options.
-        # Seed 2 in general works better than seed 1.
-        platform.toolchain.build_template[1] = \
-            "arachne-pnr -s 2 -q -l {pnr_pkg_opts} -p {build_name}.pcf {build_name}.blif -o {build_name}.txt"
-        # Force success; icetime fails, but bitstream works anyway.
-        platform.toolchain.build_template[2] = \
-            "icetime {icetime_pkg_opts} -c 0.0 -t -p {build_name}.pcf -r {build_name}.tim {build_name}.txt"
-        # Disable final power-down of SPI flash.
+        # Arachne-pnr is unsupported- it has trouble routing this design
+        # on this particular board reliably. That said, annotate the build
+        # template anyway just in case.
+        # Disable final deep-sleep power down so firmware words are loaded
+        # onto softcore's address bus.
         platform.toolchain.build_template[3] = "icepack -s {build_name}.txt {build_name}.bin"
         platform.toolchain.nextpnr_build_template[2] = "icepack -s {build_name}.txt {build_name}.bin"
 
