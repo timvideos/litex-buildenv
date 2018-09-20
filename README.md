@@ -37,7 +37,7 @@ to develop, but has now expanded to support multiple projects.
 ## [Boards](https://github.com/litex-buildenv/wiki/Boards)
 
 The LiteX Build Environment supports a
-[large number of FPGA boards](https://github.com/litex-buildenv/wiki/Boards),
+[large number of FPGA boards](https://github.com/timvideos/litex-buildenv/wiki/Boards),
 but not all boards can be used for all projects.
 
 ## [Firmware](https://github.com/litex-buildenv/wiki/Firmware)
