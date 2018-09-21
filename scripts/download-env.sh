@@ -272,6 +272,20 @@ echo ""
 echo "Installing programming tools in environment"
 echo "-----------------------------------------"
 
+# tinyfpga boards
+if [ "$PLATFORM" = "tinyfpga_b2" ]; then
+	echo
+	echo "Installing tinyprog (tool for TinyFPGA B2 boards)"
+	pip install tinyfpgab
+	check_exists tinyfpgab
+fi
+if [ "$PLATFORM" = "tinyfpga_bx" ]; then
+	echo
+	echo "Installing tinyprog (tool for TinyFPGA BX boards)"
+	pip install tinyprog
+	check_exists tinyprog
+fi
+
 # fxload
 if [ "$PLATFORM" = "opsis" -o "$PLATFORM" = "atlys" ]; then
 	echo
@@ -282,7 +296,7 @@ fi
 
 # FIXME: Remove this once @jimmo has finished his new firmware
 # MimasV2Config.py
-if [ "$PLATFORM" == "mimasv2" ]; then
+if [ "$PLATFORM" = "mimasv2" ]; then
 	MIMASV2CONFIG=$BUILD_DIR/conda/bin/MimasV2Config.py
 	echo
 	echo "Installing MimasV2Config.py (mimasv2 flashing tool)"
