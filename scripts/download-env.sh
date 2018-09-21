@@ -296,7 +296,7 @@ fi
 
 # FIXME: Remove this once @jimmo has finished his new firmware
 # MimasV2Config.py
-if [ "$PLATFORM" == "mimasv2" ]; then
+if [ "$PLATFORM" = "mimasv2" ]; then
 	MIMASV2CONFIG=$BUILD_DIR/conda/bin/MimasV2Config.py
 	echo
 	echo "Installing MimasV2Config.py (mimasv2 flashing tool)"
