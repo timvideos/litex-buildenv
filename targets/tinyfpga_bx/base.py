@@ -24,14 +24,9 @@ serial =  [
     )
 ]
 
-reset = [
-    ("rst", 0, Pins("GPIO:6"), IOStandard("LVCMOS33")),
-]
-
 class _CRG(Module):
     def __init__(self, platform):
         clk16 = platform.request("clk16")
-        rst = platform.request("rst")
 
         self.clock_domains.cd_sys = ClockDomain()
         self.reset = Signal()
@@ -52,7 +47,7 @@ class _CRG(Module):
             If(reset_delay != 0,
                 reset_delay.eq(reset_delay - 1)
             )
-        self.specials += AsyncResetSynchronizer(self.cd_por, rst | self.reset)
+        self.specials += AsyncResetSynchronizer(self.cd_por, self.reset)
 
 
 class BaseSoC(SoCCore):
@@ -76,7 +71,6 @@ class BaseSoC(SoCCore):
         # FIXME: Force either lite or minimal variants of CPUs; full is too big.
 
         platform.add_extension(serial)
-        platform.add_extension(reset)
         clk_freq = int(16e6)
 
         # Extra 0x28000 is due to bootloader bitstream.
