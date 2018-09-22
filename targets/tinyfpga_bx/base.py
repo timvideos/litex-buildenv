@@ -10,7 +10,7 @@ from litex.build.generic_platform import Pins, Subsignal, IOStandard
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 
-from gateware import info
+from gateware import cas
 from gateware import spi_flash
 
 from targets.utils import csr_map_update
@@ -58,7 +58,7 @@ class _CRG(Module):
 class BaseSoC(SoCCore):
     csr_peripherals = (
         "spiflash",
-        "info",
+        "cas",
     )
     csr_map_update(SoCCore.csr_map, csr_peripherals)
 
@@ -85,6 +85,9 @@ class BaseSoC(SoCCore):
 
         self.submodules.crg = _CRG(platform)
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
+
+        # Control and Status
+        self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
 
         # SPI flash peripheral
         self.submodules.spiflash = spi_flash.SpiFlashSingle(
