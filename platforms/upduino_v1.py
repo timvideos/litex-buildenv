@@ -1,5 +1,16 @@
 #!/usr/bin/env python3
 
+"""
+[UPDuino V1](http://gnarlygrey.atspace.cc/development-platform.html#upduino)
+
+ * Lattice UltraPlus FPGA
+  - 5.3K LUTs, 1Mb SPRAM, 120Kb DPRAM, 8 Multipliers
+ * Stacks onto Arduino Nano and Arduino Pro Mini Boards (same header spacing)
+ * 34 GPIO on 0.1” headers
+ * SPI Flash, RGB LED, 3.3V and 1.2V Regulators
+
+"""
+
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticePlatform
 
@@ -24,4 +35,5 @@ class Platform(LatticePlatform):
         LatticePlatform.__init__(self, "ice40-up5k-sg48", _io, toolchain="icestorm")
 
     def create_programmer(self):
+        # https://github.com/fupy/issues-wiki/wiki/Programming-the-UPduino-with-OpenOCD
         raise SystemError("Unsupported")

@@ -1,5 +1,17 @@
 #!/usr/bin/env python3
 
+"""
+[UPDuino V2](http://gnarlygrey.atspace.cc/development-platform.html#upduino_v2)
+
+ * Lattice UltraPlus FPGA
+   - 5.3K LUTs, 1Mb SPRAM, 120Kb DPRAM, 8 Multipliers
+ * FTDI FT232H USB to SPI Device for FPGA programming
+ * 12Mhz Crystal Oscillator Clock Source
+ * 34 GPIO on 0.1” headers
+ * SPI Flash, RGB LED, 3.3V and 1.2V Regulators
+
+"""
+
 from litex.build.generic_platform import *
 from litex.build.lattice import LatticePlatform
 
