@@ -31,11 +31,11 @@ all: firmware.bin firmware.fbi
 
 firmware.elf: $(STUB_DIRECTORY)/$(LINKER_LD) $(OBJECTS)
 
-%.elf: ../libbase/crt0-$(CPU).o ../libbase/libbase-nofloat.a ../libcompiler_rt/libcompiler_rt.a
+%.elf: ../libbase/crt0-$(CPU)-xip.o ../libbase/libbase-nofloat.a ../libcompiler_rt/libcompiler_rt.a
 	$(LD) $(LDFLAGS) \
 		-T $(STUB_DIRECTORY)/$(LINKER_LD) \
 		-N -o $@ \
-        ../libbase/crt0-$(CPU).o \
+        ../libbase/crt0-$(CPU)-xip.o \
         $(OBJECTS) \
         -L../libbase \
 		-lbase-nofloat \

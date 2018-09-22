@@ -28,7 +28,7 @@ SECTIONS
 		_erodata = .;
 	} > user_flash
 
-	.data :
+	.data : AT (ADDR(.rodata) + SIZEOF (.rodata))
 	{
 		. = ALIGN(4);
 		_fdata = .;
@@ -36,7 +36,7 @@ SECTIONS
 		*(.data1)
 		_gp = ALIGN(16);
 		*(.sdata .sdata.* .gnu.linkonce.s.*)
-		_edata = .;
+		_edata = ALIGN(16); /* Make sure _edata is >= _gp. */
 	} > sram
 
 	.bss :
