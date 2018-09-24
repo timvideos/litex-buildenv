@@ -172,7 +172,7 @@ echo ""
 echo "Platform Toolchain: $PLATFORM_TOOLCHAIN"
 case $PLATFORM_TOOLCHAIN in
 	Xilinx)
-		$TOP_DIR/.travis/download-xilinx.sh
+		. $TOP_DIR/.travis/download-xilinx.sh
 
 		if [ -z "$LIKELY_XILINX_LICENSE_DIR" ]; then
 			LIKELY_XILINX_LICENSE_DIR="$HOME/.Xilinx"
