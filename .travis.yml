@@ -61,6 +61,8 @@ jobs:
   - env: C=lm32 P=neso         T="base"
   - env: C=lm32 P=basys3       T="base"
   - env: C=lm32 P=cmod_a7      T="base"
+  - env: C=vexriscv.lite P=tinyfpga_bx F=stub T="base"
+  - env: C=picorv32      P=tinyfpga_bx F=stub T="base"
 
   include:
   #--------------------------------------------
@@ -127,6 +129,32 @@ jobs:
 
   - stage: Targets
     env: C=or1k P=pipistrello  T="base"
+
+  # vexriscv Base targets
+  - stage: Targets
+    env: C=vexriscv P=arty     T="base net"
+
+  - stage: Targets
+    env: C=vexriscv P=mimasv2  T="base"
+
+  - stage: Targets
+    env: C=vexriscv P=opsis    T="base net"
+
+  - stage: Targets
+    env: C=vexriscv.lite P=tinyfpga_bx F=stub T="base"
+
+  # picorv32 Base targets
+  - stage: Targets
+    env: C=picorv32 P=arty     T="base net"
+
+  - stage: Targets
+    env: C=picorv32 P=mimasv2  T="base"
+
+  - stage: Targets
+    env: C=picorv32 P=opsis    T="base net"
+
+  - stage: Targets
+    env: C=picorv32 P=tinyfpga_bx F=stub T="base"
 
   # Linux Targets
   #--------------------------------------------
