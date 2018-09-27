@@ -41,7 +41,7 @@ set -e
 GITHUB_URL=https://github.com/timvideos/HDMI2USB-firmware-prebuilt/
 
 UPSTREAM_BRANCH=master
-UPSTREAM_REMOTE=$(git remote -v | grep fetch | grep 'github.com/timvideos' | sed -e's/\t.*$//')
+UPSTREAM_REMOTE=$(git remote -v | grep fetch | grep 'timvideos/HDMI2USB-litex-firmware' | sed -e's/\t.*$//')
 #UPSTREAM_GITREV=$(git merge-base $UPSTREAM_REMOTE/$UPSTREAM_BRANCH HEAD)
 UPSTREAM_GITREV=$(git show-branch --merge-base $UPSTREAM_REMOTE/$UPSTREAM_BRANCH HEAD)
 UPSTREAM_GITDESC=$(git describe $UPSTREAM_GITREV)
@@ -74,6 +74,17 @@ SHA256SUM_FILE="sha256sum.txt"
 	sha256sum -c $SHA256SUM_FILE
 )
 
+# Rewriting the paths in the files.
+(
+	cd $TARGET_BUILD_DIR
+	echo ""
+	echo "Rewriting paths in files..."
+	for FILE in $(awk '{ print $2 }' $SHA256SUM_FILE); do
+		echo "$FILE: Done"
+		sed -i -e"s%/home/travis/build/timvideos/HDMI2USB-litex-firmware%$TOP_DIR%" $FILE
+	done
+)
+
 echo ""
-echo "Done"
+echo "Gateware downloaded!"
 echo ""
