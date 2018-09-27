@@ -41,7 +41,7 @@ set -e
 GITHUB_URL=https://github.com/timvideos/HDMI2USB-firmware-prebuilt/
 
 UPSTREAM_BRANCH=master
-UPSTREAM_REMOTE=$(git remote -v | grep fetch | grep 'github.com/timvideos' | sed -e's/\t.*$//')
+UPSTREAM_REMOTE=$(git remote -v | grep fetch | grep 'timvideos/HDMI2USB-litex-firmware' | sed -e's/\t.*$//')
 #UPSTREAM_GITREV=$(git merge-base $UPSTREAM_REMOTE/$UPSTREAM_BRANCH HEAD)
 UPSTREAM_GITREV=$(git show-branch --merge-base $UPSTREAM_REMOTE/$UPSTREAM_BRANCH HEAD)
 UPSTREAM_GITDESC=$(git describe $UPSTREAM_GITREV)
