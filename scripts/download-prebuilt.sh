@@ -74,6 +74,17 @@ SHA256SUM_FILE="sha256sum.txt"
 	sha256sum -c $SHA256SUM_FILE
 )
 
+# Rewriting the paths in the files.
+(
+	cd $TARGET_BUILD_DIR
+	echo ""
+	echo "Rewriting paths in files..."
+	for FILE in $(awk '{ print $2 }' $SHA256SUM_FILE); do
+		echo "$FILE: Done"
+		sed -i -e"s%/home/travis/build/timvideos/HDMI2USB-litex-firmware%$TOP_DIR%" $FILE
+	done
+)
+
 echo ""
-echo "Done"
+echo "Gateware downloaded!"
 echo ""
