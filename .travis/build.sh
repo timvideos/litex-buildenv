@@ -26,22 +26,36 @@ function filelist() {
 }
 
 function build() {
-	export FULL_PLATFORM=$1
-	export TARGET=$2
-	export FULL_CPU=$3
+	SPLIT_REGEX="^\([^.]*\)\.\?\(.*\)\$"
 
-	if [ x"$4" != x"" ]; then
-		FIRMWARE=$4
-	else
-		unset $FIRMWARE
-	fi
-	export FIRMWARE
-
-	if [ -z "$FULL_PLATFORM" -o -z "$TARGET" -o -z "$FULL_CPU" ]; then
-		echo "usage: build FULL_PLATFORM TARGET FULL_CPU FIRMWARE"
-		echo "  got: build '$FULL_PLATFORM' '$TARGET' '$FULL_CPU' '$FIRMWARE'"
+	if [ -z "$1" -o -z "$2" -o -z "$3" ]; then
+		echo "usage: setup FULL_PLATFORM TARGET FULL_CPU FIRMWARE"
+		echo "  got: setup '$1' '$2' '$3' '$4'"
 		return 1
 	fi
+
+	#export FULL_PLATFORM=$1
+	export PLATFORM="$(echo $1 | sed -e"s/$SPLIT_REGEX/\1/")"
+	export PLATFORM_EXPANSION="$(echo $1 | sed -e"s/$SPLIT_REGEX/\2/")"
+
+	export TARGET="$2"
+
+	#export FULL_CPU=$3
+	export CPU="$(echo $3 | sed -e"s/$SPLIT_REGEX/\1/")"
+	export CPU_VARIANT="$(echo $3 | sed -e"s/$SPLIT_REGEX/\2/")"
+
+	if [ x$4 != x ]; then
+		FIRMWARE="$4"
+	else
+		unset FIRMWARE
+	fi
+
+	echo "--"
+	echo "PLATFORM=$PLATFORM PLATFORM_EXPANSION=$PLATFORM_EXPANSION"
+	echo "TARGET=$TARGET"
+	echo "CPU=$CPU CPU_VARIANT=$CPU_VARIANT"
+	echo "FIRMWARE=$FIRMWARE"
+	echo "--"
 
 	(
 	# Imports TARGET, PLATFORM, CPU and TARGET_BUILD_DIR from Makefile
