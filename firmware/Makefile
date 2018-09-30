@@ -102,6 +102,9 @@ firmware.elf: $(FIRMWARE_DIRECTORY)/$(LINKER_LD) $(OBJECTS)
 boot-helper-$(CPU).S: $(BIOS_DIRECTORY)/boot-helper-$(CPU).S
 	cp $< $@
 
+boot-helper-$(CPU).o: boot-helper-$(CPU).S
+	$(assemble)
+
 %.o: $(FIRMWARE_DIRECTORY)/%.c
 	$(compile)
 

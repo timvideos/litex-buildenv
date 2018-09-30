@@ -6,14 +6,14 @@ if [ -z "$PLATFORMS" ]; then
 		PLATFORMS=$(ls targets/ | grep -v ".py" | grep -v "common" | grep -v "$SKIP_PLATFORMS" | sed -e"s+targets/++")
 	else
 		PLATFORMS="$PLATFORM"
+		unset PLATFORM
 	fi
 fi
 echo "Running with PLATFORMS='$PLATFORMS'"
 
 if [ -z "$CPUS" ]; then
 	if [ -z "$CPU" ]; then
-		#CPUS="lm32 or1k riscv32"
-		CPUS="lm32 or1k"
+		CPUS="lm32 or1k picorv32 vexriscv"
 	else
 		CPUS="$CPU"
 		unset CPU

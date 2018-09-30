@@ -496,7 +496,7 @@ help:
 	@echo "                        (current: $(TARGET), default: $(DEFAULT_TARGET))"
 	@echo ""
 	@echo " CPU describes which soft-CPU to use on the FPGA."
-	@echo " CPU=lm32 OR or1k"
+	@echo " CPU=lm32 OR or1k OR picorv32 OR vexriscv"
 	@echo "                        (current: $(CPU), default: $(DEFAULT_CPU))"
 	@echo ""
 	@echo " CPU_VARIANT describes which soft-CPU variant to use on the FPGA."

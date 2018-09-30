@@ -237,7 +237,7 @@ class BaseSoC(SoCSDRAM):
         if 'integrated_rom_size' not in kwargs:
             kwargs['integrated_rom_size']=0x8000
         if 'integrated_sram_size' not in kwargs:
-            kwargs['integrated_sram_size']=0x4000
+            kwargs['integrated_sram_size']=0x8000
 
         clk_freq = 50*1000000
 

@@ -328,7 +328,7 @@ echo "---------------------------------------"
 if [ "$CPU" = "lm32" -o "$CPU" = "or1k" ]; then
 	CPU_ARCH=$CPU
 elif [ "$CPU" = "vexriscv" -o "$CPU" = "picorv32" ]; then
-	CPU_ARCH=riscv32-unknown
+	CPU_ARCH=riscv32
 fi
 
 # binutils for the target

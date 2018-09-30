@@ -55,11 +55,11 @@ fi
 # Get linux-litex is needed
 LINUX_SRC="$TOP_DIR/third_party/linux"
 LINUX_LOCAL="$LINUX_GITLOCAL" # Local place to clone from
-LINUX_REMOTE="${LINUX_REMOTE:-https://github.com/mithro/linux-litex.git}"
-LINUX_REMOTE_NAME=mithro-linux-litex
+LINUX_REMOTE="${LINUX_REMOTE:-https://github.com/timvideos/linux-litex.git}"
+LINUX_REMOTE_NAME=timvideos-linux-litex
 LINUX_REMOTE_BIT=$(echo $LINUX_REMOTE | sed -e's-^.*://--' -e's/.git$//')
 LINUX_CLONE_FROM="${LINUX_LOCAL:-$LINUX_REMOTE}"
-LINUX_BRANCH=${LINUX_BRANCH:-litex-minimal}
+LINUX_BRANCH=${LINUX_BRANCH:-master}
 (
 	# Download the Linux source for the first time
 	if [ ! -d "$LINUX_SRC" ]; then
@@ -93,9 +93,9 @@ LINUX_BRANCH=${LINUX_BRANCH:-litex-minimal}
 
 # Get litex-devicetree
 LITEX_DT_SRC="$TOP_DIR/third_party/litex-devicetree"
-LITEX_DT_REMOTE="${LITEX_DT_REMOTE:-https://github.com/mithro/litex-devicetree.git}"
+LITEX_DT_REMOTE="${LITEX_DT_REMOTE:-https://github.com/timvideos/litex-devicetree.git}"
 LITEX_DT_REMOTE_BIT=$(echo $LITEX_DT_REMOTE | sed -e's-^.*://--' -e's/.git$//')
-LITEX_DT_REMOTE_NAME=mithro-litex-devicetree
+LITEX_DT_REMOTE_NAME=timvideos-litex-devicetree
 LITEX_DT_BRANCH=master
 (
 	# Download the Linux source for the first time
