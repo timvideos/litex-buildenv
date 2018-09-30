@@ -59,7 +59,7 @@ LINUX_REMOTE="${LINUX_REMOTE:-https://github.com/timvideos/linux-litex.git}"
 LINUX_REMOTE_NAME=timvideos-linux-litex
 LINUX_REMOTE_BIT=$(echo $LINUX_REMOTE | sed -e's-^.*://--' -e's/.git$//')
 LINUX_CLONE_FROM="${LINUX_LOCAL:-$LINUX_REMOTE}"
-LINUX_BRANCH=${LINUX_BRANCH:-master}
+LINUX_BRANCH=${LINUX_BRANCH:-master-litex}
 (
 	# Download the Linux source for the first time
 	if [ ! -d "$LINUX_SRC" ]; then
