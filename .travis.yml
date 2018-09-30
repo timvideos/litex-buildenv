@@ -140,9 +140,6 @@ jobs:
   - stage: Targets
     env: C=vexriscv P=opsis    T="base net"
 
-  - stage: Targets
-    env: C=vexriscv.lite P=tinyfpga_bx F=stub T="base"
-
   # picorv32 Base targets
   - stage: Targets
     env: C=picorv32 P=arty     T="base net"
