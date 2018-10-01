@@ -66,9 +66,11 @@ include $(UIP_DIRECTORY)/Makefile.mk
 LDFLAGS += \
 
 ifeq ($(COPY_TO_MAIN_RAM), 1)
-LINKER_LD = linker.ld
+CRT0 = ../libbase/crt0-$(CPU)-ctr.o
+LINKER_LD = linker-ctr.ld
 else
-LINKER_LD = linker-flash.ld
+CRT0 = ../libbase/crt0-$(CPU)-xip.o
+LINKER_LD = linker-xip.ld
 endif
 
 all: firmware.bin firmware.fbi
@@ -82,11 +84,11 @@ all: firmware.bin firmware.fbi
 
 firmware.elf: $(FIRMWARE_DIRECTORY)/$(LINKER_LD) $(OBJECTS)
 
-%.elf: ../libbase/crt0-$(CPU).o ../libbase/libbase-nofloat.a ../libcompiler_rt/libcompiler_rt.a ../uip/libuip.a
+%.elf: $(CRT0) ../libbase/libbase-nofloat.a ../libcompiler_rt/libcompiler_rt.a ../uip/libuip.a
 	$(LD) $(LDFLAGS) \
 		-T $(FIRMWARE_DIRECTORY)/$(LINKER_LD) \
 		-N -o $@ \
-                ../libbase/crt0-$(CPU).o \
+                $(CRT0) \
                 $(OBJECTS) \
                 -L../libbase \
 		-lbase-nofloat \
