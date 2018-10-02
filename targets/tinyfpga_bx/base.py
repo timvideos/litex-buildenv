@@ -10,7 +10,7 @@ from litex.build.generic_platform import Pins, Subsignal, IOStandard
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 
-from gateware import info
+from gateware import cas
 from gateware import spi_flash
 
 from targets.utils import csr_map_update
@@ -24,14 +24,9 @@ serial =  [
     )
 ]
 
-reset = [
-    ("rst", 0, Pins("GPIO:6"), IOStandard("LVCMOS33")),
-]
-
 class _CRG(Module):
     def __init__(self, platform):
         clk16 = platform.request("clk16")
-        rst = platform.request("rst")
 
         self.clock_domains.cd_sys = ClockDomain()
         self.reset = Signal()
@@ -52,13 +47,13 @@ class _CRG(Module):
             If(reset_delay != 0,
                 reset_delay.eq(reset_delay - 1)
             )
-        self.specials += AsyncResetSynchronizer(self.cd_por, rst | self.reset)
+        self.specials += AsyncResetSynchronizer(self.cd_por, self.reset)
 
 
 class BaseSoC(SoCCore):
     csr_peripherals = (
         "spiflash",
-        "info",
+        "cas",
     )
     csr_map_update(SoCCore.csr_map, csr_peripherals)
 
@@ -76,7 +71,6 @@ class BaseSoC(SoCCore):
         # FIXME: Force either lite or minimal variants of CPUs; full is too big.
 
         platform.add_extension(serial)
-        platform.add_extension(reset)
         clk_freq = int(16e6)
 
         # Extra 0x28000 is due to bootloader bitstream.
@@ -85,6 +79,9 @@ class BaseSoC(SoCCore):
 
         self.submodules.crg = _CRG(platform)
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
+
+        # Control and Status
+        self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
 
         # SPI flash peripheral
         self.submodules.spiflash = spi_flash.SpiFlashSingle(
