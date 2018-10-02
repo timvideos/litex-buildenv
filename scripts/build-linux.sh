@@ -30,7 +30,7 @@ fi
 eval $(make env)
 make info
 
-set -x
+#set -x
 set -e
 
 if [ "$CPU" != or1k -a "$CPU" != "vexriscv" ]; then
