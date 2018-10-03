@@ -59,6 +59,16 @@ if [ ! -d $TARGET_BUILD_DIR/software/include/generated ]; then
 	make firmware
 fi
 
+# Copy in some litex platform specific files that MicroPython may need
+# in order to build; these need to end up in top level include directory
+# so that they are found by compiler/assembler.
+#
+LITEX_INCLUDE_BASE="$PWD/third_party/litex/litex/soc/software/include/base"
+
+for FILE in system.h csr-defs.h spr-defs.h; do
+	cp -p "$LITEX_INCLUDE_BASE/$FILE" "$TARGET_BUILD_DIR/software/include"
+done
+
 # Setup the micropython build directory
 TARGET_MPY_BUILD_DIR=$TARGET_BUILD_DIR/software/micropython
 if [ ! -e "$TARGET_MPY_BUILD_DIR/generated" ]; then
