@@ -120,7 +120,7 @@ class Platform(XilinxPlatform):
     spiflash_page_size = 256
     spiflash_sector_size = 0x10000
 
-    def __init__(self, toolchain="vivado", programmer="openocd"):
+    def __init__(self, toolchain=os.environ.get("TOOLCHAIN", "vivado"), programmer="openocd"):
         XilinxPlatform.__init__(self, "xc7a35t-csg324-1", _io,
                                 toolchain=toolchain)
         self.toolchain.bitstream_commands = \
