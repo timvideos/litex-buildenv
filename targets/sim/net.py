@@ -22,7 +22,7 @@ class NetSoC(BaseSoC):
     csr_map.update(BaseSoC.csr_map)
 
     interrupt_map = {
-        "ethmac": 2,
+        "ethmac": 3,
     }
     interrupt_map.update(BaseSoC.interrupt_map)
 
@@ -48,7 +48,9 @@ class NetSoC(BaseSoC):
         while len(iprange) < 4:
             iprange.append(0)
         # Our IP address
-        self._configure_ip("LOCALIP", iprange[:-1]+[50])
+        localip = iprange[:-1]+[50]
+        self._configure_ip("LOCALIP", localip)
+        self.localip = ".".join(map(str, localip))
         # IP address of tftp host
         self._configure_ip("REMOTEIP", iprange[:-1]+[100])
 

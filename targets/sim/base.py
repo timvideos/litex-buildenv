@@ -1,4 +1,6 @@
 # Support for simulation via verilator
+import os
+
 from migen import *
 from migen.genlib.io import CRG
 
@@ -17,11 +19,6 @@ from targets.utils import csr_map_update
 
 
 class BaseSoC(SoCSDRAM):
-    csr_peripherals = (
-        ,
-    )
-    csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
-
     mem_map = {
         "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
     }
@@ -32,11 +29,12 @@ class BaseSoC(SoCSDRAM):
             kwargs['integrated_rom_size']=0x8000
         if 'integrated_sram_size' not in kwargs:
             kwargs['integrated_sram_size']=0x8000
-        if 'firmware_ram_size' not in kwargs:
-            kwargs['firmware_ram_size']=0x10000
-        if 'firmware_filename' not in kwargs:
-            kwargs['firmware_filename'] = "build/sim_{}_{}/software/firmware/firmware.fbi".format(
-                self.__class__.__name__.lower()[:-3], kwargs.get('cpu_type', 'lm32'))
+
+        firmware_ram_size=0x20000
+        firmware_filename="{}/build/sim_{}_{}/software/firmware/firmware.fbi".format(
+                os.getcwd(),
+                self.__class__.__name__.lower()[:-3],
+                kwargs.get('cpu_type', 'lm32'))
 
         clk_freq = int((1/(platform.default_clk_period))*1000000000)
         SoCSDRAM.__init__(self, platform, clk_freq, with_uart=False, **kwargs)
@@ -75,6 +73,5 @@ class BaseSoC(SoCSDRAM):
         self.add_constant("MEMTEST_DATA_SIZE", 1024)
         self.add_constant("MEMTEST_ADDR_SIZE", 1024)
         self.add_constant("SIMULATION", 1)
-
 
 SoC = BaseSoC
