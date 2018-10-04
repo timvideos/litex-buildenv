@@ -17,10 +17,6 @@ image-flash-$(PLATFORM):
 gateware-load-$(PLATFORM):
 	@echo "TinyFPGA BX doesn't support loading, use the flash target instead."
 	@echo "make gateware-flash"
-	@echo $(GATEWARE_FILEBASE)
-	@echo $(GATEWARE_BIOS_FILE)
-	@echo $(IMAGE_FILE)
-	@echo $(BIOS_FILE)
 	@false
 
 # As with Mimasv2, if the user asks to flash the gateware only, the BIOS must
