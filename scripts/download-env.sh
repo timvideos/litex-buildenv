@@ -214,6 +214,7 @@ case $PLATFORM_TOOLCHAIN in
 			echo ""
 			export HAVE_XILINX_ISE=1
 		else
+			echo "                             - *No* Xilinx ISE toolchain found"
 			export HAVE_XILINX_ISE=0
 		fi
 		if [ ${#XILINX_SETTINGS_VIVADO[@]} -gt 0 ]; then
@@ -224,12 +225,14 @@ case $PLATFORM_TOOLCHAIN in
 			echo ""
 			export HAVE_XILINX_VIVADO=1
 		else
+			echo "                             - *No* Xilinx Vivado toolchain found!"
 			export HAVE_XILINX_VIVADO=0
 		fi
 		if [ $HAVE_XILINX_ISE -eq 1 -o $HAVE_XILINX_VIVADO -eq 1 ]; then
 			export HAVE_XILINX_TOOLCHAIN=1
 			export HAVE_FPGA_TOOLCHAIN=1
 		else
+			echo "                             - *No* Xilinx toolchain found!"
 			export HAVE_XILINX_TOOLCHAIN=0
 			export HAVE_FPGA_TOOLCHAIN=0
 		fi

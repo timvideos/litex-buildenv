@@ -59,7 +59,10 @@ function build() {
 
 	(
 	# Imports TARGET, PLATFORM, CPU and TARGET_BUILD_DIR from Makefile
+	echo "- Entering environment"
+	echo "---------------------------------------------"
 	source scripts/enter-env.sh || exit 1
+	echo "============================================="
 	echo ""
 	echo ""
 	echo ""

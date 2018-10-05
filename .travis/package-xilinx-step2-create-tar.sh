@@ -31,10 +31,7 @@ if [ ! -f $STRACE_LOG ]; then
 fi
 
 STRACE_FILES=$BASE/strace.files.log
-if [ ! -f $STRACE_LOG ]; then
-	#cat $STRACE_LOG | python $SETUP_DIR/package-xilinx-filter-strace.py $PREFIX > $STRACE_FILES
-	$SETUP_DIR/package-xilinx-cluefs-filter.py $STRACE_LOG > $STRACE_FILES
-fi
+$SETUP_DIR/package-xilinx-cluefs-filter.py $STRACE_LOG > $STRACE_FILES
 
 XILINX_DIR=$BASE/xilinx-stripped
 if [ -d $XILINX_DIR ]; then
