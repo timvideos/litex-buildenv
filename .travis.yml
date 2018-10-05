@@ -55,14 +55,6 @@ notifications:
 
 jobs:
   fail_fast: true
-  allow_failures:
-  - env: C=or1k P=mimasv2      T="base"
-  # FIXME: Rebuild Xilinx toolchain package
-  - env: C=lm32 P=neso         T="base"
-  - env: C=lm32 P=basys3       T="base"
-  - env: C=lm32 P=cmod_a7      T="base"
-  - env: C=vexriscv.lite P=tinyfpga_bx F=stub T="base"
-  - env: C=picorv32      P=tinyfpga_bx F=stub T="base"
 
   include:
   #--------------------------------------------
