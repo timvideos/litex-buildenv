@@ -251,6 +251,14 @@ case $PLATFORM_TOOLCHAIN in
 
 		check_exists nextpnr-ice40 || return 1
 		;;
+	Sim)
+		export HAVE_FPGA_TOOLCHAIN=1
+		# verilator
+
+
+
+		check_exists verilator || return 1
+		;;
 	*)
 		;;
 esac
