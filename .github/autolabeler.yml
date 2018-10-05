@@ -3,6 +3,7 @@ board-atlys: ["targets/atlys", "platforms/atlys.py"]
 board-basys3: ["targets/basys3", "platforms/basys3.py"]
 board-cmod_a7: ["targets/cmod_a7", "platforms/cmod_a7.py"]
 board-galatea: ["targets/galatea", "platforms/galatea.py"]
+board-ice40_hx8k_b_env: ["targets/ice40_hx8k_b_evn", "platforms/ice40_hx8k_b_env.py"]
 board-mimasv2: ["targets/mimasv2", "platforms/mimasv2.py"]
 board-minispartan6: ["targets/minispartan6", "platforms/minispartan6.py"]
 board-neso: ["targets/neso", "platforms/neso.py"]
@@ -12,6 +13,7 @@ board-opsis: ["targets/opsis", "platforms/opsis.py", "platforms/tofe_*.py"]
 board-pipistrello: ["targets/pipistrello", "platforms/pipistrello.py"]
 board-saturn: ["targets/saturn", "platforms/saturn.py"]
 board-sim: ["targets/sim", "platforms/sim.py"]
+board-tinyfpga_bx: ["targets/tinyfpga_bx", "platforms/tinyfpga_bx.py"]
 board-waxwing: ["targets/waxwing", "platforms/waxwing.py"]
 boards-all: ["targets/common/"]
 boards-artix7: [
@@ -21,6 +23,10 @@ boards-artix7: [
         "targets/neso", "platforms/neso.py",
         "targets/netv2", "platforms/netv2.py",
         "targets/nexys-video", "platforms/nexys-video.py"
+        ]
+boards-ice40: [
+        "targets/ice40_hx8k_b_evn", "platforms/ice40_hx8k_b_env.py",
+        "targets/tinyfpga_bx", "platforms/tinyfpga_bx.py",
         ]
 boards-spartan6: [
         "targets/atlys", "platforms/atlys.py",
