@@ -11,11 +11,7 @@ HEXFILE_VERSION=0.1
 
 # Conda package versions
 BINUTILS_VERSION=2.31.1
-if [ "$CPU" != "or1k" ]; then
 GCC_VERSION=8.2.0
-else
-GCC_VERSION=5.4.0
-fi
 SDCC_VERSION=3.5.0
 OPENOCD_VERSION=0.10.0
 
