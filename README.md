@@ -49,7 +49,14 @@ but not all boards can be used for all projects.
 
 ## [Gateware](https://github.com/timvideos/litex-buildenv/wiki/Gateware)
 
-FIXME: Put stuff here.
+The Gateware is the configuration which generates our FPGA bitstream.  It
+is generally defined by a `platform` and a `target`.  You can find details
+for these under the `platform` and `target` directories in this project.
+
+ * `Platform` - Represents the FPGA platform/devboard for which we will build
+   the bitstream. (i.e. `sim` (Verilator Simulator), `arty` , `opsis`)
+ * `Target` - There are multiple targets for each platform, this represents an
+   SoC configuration for our target application. (i.e. `base`, `net`, `video`)
 
 ## [Environment](https://github.com/timvideos/litex-buildenv/wiki/Environment)
 
