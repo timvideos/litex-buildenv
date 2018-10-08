@@ -26,42 +26,66 @@ to develop, but has now expanded to support multiple projects.
 
 ## Important Terminology
 
- * [Gateware](https://github.com/litex-buildenv/wiki/Gateware) - The FPGA configuration.
- * [Soft CPU](https://github.com/litex-buildenv/wiki/Soft-CPU) - A CPU running inside the FPGA.
- * [Firmware](https://github.com/litex-buildenv/wiki/Firmware) - The software running on the `soft CPU` inside the FPGA.
+ * [Gateware](https://github.com/timvideos/litex-buildenv/wiki/Gateware) - The FPGA configuration.
+ * [Soft CPU](https://github.com/timvideos/litex-buildenv/wiki/Soft-CPU) - A CPU running inside the FPGA.
+ * [Firmware](https://github.com/timvideos/litex-buildenv/wiki/Firmware) - The software running on the `soft CPU` inside the FPGA.
 
 ## Structure
 
 ![LiteX BuildEnv Structure Image](https://docs.google.com/drawings/d/e/2PACX-1vTfB_DQ3PXJWKrERnzkGoWdKsTfuI3Kk-9rF1oBDB8NM44qZefU_O_H7rdNoN5cIWZmqzfIm1ftz52B/pub?w=419&h=485)
 
-## [Boards](https://github.com/litex-buildenv/wiki/Boards)
+## [Boards](https://github.com/timvideos/litex-buildenv/wiki/Boards)
 
 The LiteX Build Environment supports a
 [large number of FPGA boards](https://github.com/timvideos/litex-buildenv/wiki/Boards),
 but not all boards can be used for all projects.
 
-## [Firmware](https://github.com/litex-buildenv/wiki/Firmware)
+## [Firmware](https://github.com/timvideos/litex-buildenv/wiki/Firmware)
 
- * [HDMI2USB](https://github.com/litex-buildenv/wiki/HDMI2USB) - The firmware currently used for the HDMI2USB project.
- * [Bare Metal](https://github.com/litex-buildenv/wiki/Bare-Metal) - Your own firmware running directly on the soft CPU in the FPGA.
- * [Zephyr](https://github.com/litex-buildenv/wiki/Zephyr) - Support for [Zephyr RTOS](https://www.zephyrproject.org/).
- * [Linux](https://github.com/litex-buildenv/wiki/Linux) - Support for Linux.
+ * [HDMI2USB](https://github.com/timvideos/litex-buildenv/wiki/HDMI2USB) - The firmware currently used for the HDMI2USB project.
+ * [Bare Metal](https://github.com/timvideos/litex-buildenv/wiki/Bare-Metal) - Your own firmware running directly on the soft CPU in the FPGA.
+ * [Zephyr](https://github.com/timvideos/litex-buildenv/wiki/Zephyr) - Support for [Zephyr RTOS](https://www.zephyrproject.org/).
+ * [Linux](https://github.com/timvideos/litex-buildenv/wiki/Linux) - Support for Linux.
 
-## [Gateware](https://github.com/litex-buildenv/wiki/Gateware)
+## [Gateware](https://github.com/timvideos/litex-buildenv/wiki/Gateware)
 
-FIXME: Put stuff here.
+The Gateware is the configuration which generates our FPGA bitstream.  It
+is generally defined by a `platform` and a `target`.  You can find details
+for these under the `platform` and `target` directories in this project.
 
-## [Environment](https://github.com/litex-buildenv/wiki/Environment)
+ * `Platform` - Represents the FPGA platform/devboard for which we will build
+   the bitstream. (i.e. `sim` (Verilator Simulator), `arty` , `opsis`)
+ * `Target` - There are multiple targets for each platform, this represents an
+   SoC configuration for our target application. (i.e. `base`, `net`, `video`)
 
-FIXME: Put stuff here.
+## [Environment](https://github.com/timvideos/litex-buildenv/wiki/Environment)
 
-## [Applications](https://github.com/litex-buildenv/wiki/Applications)
+The environment is the shell setup and software packages provided by `litex-buildenv`
+which allow for litex based FPGA development.  It provides development, build
+and troubleshooting capabilities.
+
+To bootstrap or update your environment one generally does:
+
+```
+# Download the debian packages needed to support litex environment.  Usually
+# we only do this once.
+./scripts/download-env-root.sh
+
+# Download/update the litex specific packages (python, verilator, submodules etc)
+./scripts/download-env.sh
+
+# Enter the Dev/Debug/Build environment
+export PLATFORM=arty TARGET=net CPU=or1k
+source ./script/enter-env.sh
+```
+
+## [Applications](https://github.com/timvideos/litex-buildenv/wiki/Applications)
 
 FIXME: Put stuff here.
 
 ![LiteX Application Relationship](https://docs.google.com/drawings/d/e/2PACX-1vTLVQXwkH3p5ZvN-7nIMxRXOyFEsg2x5_yrd3wREw3vaWr3Mc-_P7kfTbeQ--BN0k5VjQgxHchliyno/pub?w=1398&h=838)
 
-## [Other Topics](https://github.com/litex-buildenv/wiki/Other-Topics)
+## [Other Topics](https://github.com/timvideos/litex-buildenv/wiki/Other-Topics)
 
 FIXME: Put stuff here.
 
