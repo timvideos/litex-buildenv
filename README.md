@@ -60,7 +60,24 @@ for these under the `platform` and `target` directories in this project.
 
 ## [Environment](https://github.com/timvideos/litex-buildenv/wiki/Environment)
 
-FIXME: Put stuff here.
+The environment is the shell setup and software packages provided by `litex-buildenv`
+which allow for litex based FPGA development.  It provides development, build
+and troubleshooting capabilities.
+
+To bootstrap or update your environment one generally does:
+
+```
+# Download the debian packages needed to support litex environment.  Usually
+# we only do this once.
+./scripts/download-env-root.sh
+
+# Download/update the litex specific packages (python, verilator, submodules etc)
+./scripts/download-env.sh
+
+# Enter the Dev/Debug/Build environment
+export PLATFORM=arty TARGET=net CPU=or1k
+source ./script/enter-env.sh
+```
 
 ## [Applications](https://github.com/timvideos/litex-buildenv/wiki/Applications)
 
