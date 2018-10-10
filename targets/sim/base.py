@@ -31,10 +31,15 @@ class BaseSoC(SoCSDRAM):
             kwargs['integrated_sram_size']=0x8000
 
         firmware_ram_size=0x20000
+
+        full_cpu = kwargs.get('cpu_type', 'lm32')
+        if 'cpu_variant' in kwargs:
+            full_cpu = "{}.{}".format(full_cpu, kwargs['cpu_variant'])
+
         firmware_filename="{}/build/sim_{}_{}/software/firmware/firmware.fbi".format(
                 os.getcwd(),
                 self.__class__.__name__.lower()[:-3],
-                kwargs.get('cpu_type', 'lm32'))
+                full_cpu)
 
         clk_freq = int((1/(platform.default_clk_period))*1000000000)
         SoCSDRAM.__init__(self, platform, clk_freq, with_uart=False, **kwargs)
