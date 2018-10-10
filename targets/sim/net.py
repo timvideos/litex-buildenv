@@ -43,16 +43,20 @@ class NetSoC(BaseSoC):
         self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)
         self.add_memory_region("ethmac", self.mem_map["ethmac"] | self.shadow_base, 0x2000)
 
+        # Disable the flash boot address under the net target, so we boot from
+        # net
+        self.flash_boot_address = None
+
     def configure_iprange(self, iprange):
         iprange = [int(x) for x in iprange.split(".")]
         while len(iprange) < 4:
             iprange.append(0)
         # Our IP address
-        localip = iprange[:-1]+[50]
-        self._configure_ip("LOCALIP", localip)
-        self.localip = ".".join(map(str, localip))
+        self._configure_ip("LOCALIP", iprange[:-1]+[50])
         # IP address of tftp host
-        self._configure_ip("REMOTEIP", iprange[:-1]+[100])
+        remoteip = iprange[:-1]+[100]
+        self.remoteip = ".".join(map(str, remoteip))
+        self._configure_ip("REMOTEIP", remoteip)
 
     def _configure_ip(self, ip_type, ip):
         for i, e in enumerate(ip):

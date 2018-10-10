@@ -55,9 +55,9 @@ class Platform(SimPlatform):
     def build(self, fragment, **kwargs):
         scfg = SimConfig(default_clk="sys_clk")
         scfg.add_module("serial2console", "serial")
-        if hasattr(fragment, 'localip'):
-            scfg.add_module('ethernet', "eth", args={ "interface": "tap1",
-                                                      "ip": fragment.localip })
+        if hasattr(fragment, 'remoteip'):
+            scfg.add_module('ethernet', "eth", args={ "interface": "tap0",
+                                                      "ip": fragment.remoteip })
         kwargs['sim_config'] = scfg
         # Do not run the simulator after we build it
         kwargs['run'] = False

@@ -46,26 +46,8 @@ bios-flash-$(PLATFORM):
 
 # Extra commands
 help-$(PLATFORM):
-	@echo " make $(PLATFORM)-setup"
-	@echo " make $(PLATFORM)-teardown"
+	@true
 
 reset-$(PLATFORM):
 	@echo "Unsupported."
 	@false
-
-$(PLATFORM)-setup:
-	sudo true
-	sudo openvpn --mktun --dev tap0
-	sudo ifconfig tap0 $(TFTP_IPRANGE).100 up
-	sudo mknod /dev/net/tap0 c 10 200
-	sudo chown $(shell whoami) /dev/net/tap0
-	make tftpd_start
-
-$(PLATFORM)-teardown:
-	sudo true
-	make tftpd_stop
-	sudo rm -f /dev/net/tap0
-	sudo ifconfig tap0 down
-	sudo openvpn --rmtun --dev tap0
-
-.PHONY: $(PLATFORM)-setup $(PLATFORM)-teardown
