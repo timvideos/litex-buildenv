@@ -273,9 +273,9 @@ static char *readstr(void)
 					break;
 				case 0x07:
 					break;
-				case '\n':
-					break;
 				case '\r':
+					break;
+				case '\n':
 					s[ptr] = 0x00;
 					wputs("");
 					ptr = 0;
