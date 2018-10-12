@@ -8,14 +8,17 @@ endif
 DEFAULT_TARGET = base
 TARGET ?= $(DEFAULT_TARGET)
 
+PROG_PORT ?= /dev/ttyUSB1
+COMM_PORT ?= /dev/ttyUSB0
+BAUD ?= 115200
+
 # Image
 image-flash-$(PLATFORM): image-flash-py
 	@true
 
 # Gateware
 gateware-load-$(PLATFORM):
-	@echo "Unsupported."
-	@false
+	openocd -f board/numato_$(PLATFORM).cfg -c "init; pld load 0 $(TARGET_BUILD_DIR)/gateware/top.bit; exit"
 
 gateware-flash-$(PLATFORM): gateware-flash-py
 	@true
