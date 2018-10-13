@@ -236,7 +236,7 @@ static char *readstr(void)
 	if(telnet_active) {
 		if(telnet_readchar_nonblock()) {
 			c[0] = telnet_readchar();
-			c[1] = 0;
+			c[1] = '\0';
 			switch(c[0]) {
 				case 0x7f:
 				case 0x08:
@@ -249,7 +249,7 @@ static char *readstr(void)
 				case '\r':
 					break;
 				case '\n':
-					s[ptr] = 0x00;
+					s[ptr] = '\0';
 					ptr = 0;
 					return s;
 				default:
@@ -263,7 +263,7 @@ static char *readstr(void)
 	} else {
 		if(readchar_nonblock()) {
 			c[0] = readchar();
-			c[1] = 0;
+			c[1] = '\0';
 
 			/* Check if we have anything to skip.  */
 			if (c[0] == skip_if_next) {
@@ -289,7 +289,7 @@ static char *readstr(void)
 				case '\n':
 					if (skip_if_next == '\0')
 						skip_if_next = '\r';
-					s[ptr] = 0x00;
+					s[ptr] = '\0';
 					wputs("");
 					ptr = 0;
 					return s;
@@ -317,7 +317,7 @@ static char *get_token_generic(char **str, char delimiter)
 		*str = *str+strlen(*str);
 		return d;
 	}
-	*c = 0;
+	*c = '\0';
 	d = *str;
 	*str = c+1;
 	return d;
