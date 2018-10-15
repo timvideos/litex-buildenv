@@ -10,6 +10,7 @@ from litex.build.generic_platform import Pins, Subsignal, IOStandard
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 
+from gateware import up5kspram
 from gateware import cas
 from gateware import spi_flash
 
@@ -59,7 +60,7 @@ class BaseSoC(SoCCore):
         if 'integrated_rom_size' not in kwargs:
             kwargs['integrated_rom_size']=0
         if 'integrated_sram_size' not in kwargs:
-            kwargs['integrated_sram_size']=0x2000
+            kwargs['integrated_sram_size']=0
 
         # FIXME: Force either lite or minimal variants of CPUs; full is too big.
         platform.add_extension(up5k.serial)
@@ -90,6 +91,11 @@ class BaseSoC(SoCCore):
         self.add_constant("ROM_DISABLE", 1)
         self.add_memory_region("rom", kwargs['cpu_reset_address'], bios_size)
         self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size+bios_size
+
+        # SPRAM- UP5K has single port RAM, might as well use it as SRAM to
+        # free up scarce block RAM.
+        self.submodules.spram = up5kspram.Up5kSPRAM()
+        self.register_mem("sram", 0x10000000, self.spram.bus, 0x8000)
 
         # We don't have a DRAM, so use the remaining SPI flash for user
         # program.
