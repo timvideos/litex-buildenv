@@ -83,6 +83,9 @@ jobs:
     env: C=lm32.lite P=ice40_up5k_b_evn F=stub T="base"
 
   - stage: Targets
+    env: C=lm32.minimal P=ice40_up5k_b_evn F=stub T="base"
+
+  - stage: Targets
     env: C=lm32 P=mimasv2      T="base"
 
   - stage: Targets
