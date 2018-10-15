@@ -59,7 +59,7 @@ class BaseSoC(SoCCore):
         if 'integrated_rom_size' not in kwargs:
             kwargs['integrated_rom_size']=0
         if 'integrated_sram_size' not in kwargs:
-            kwargs['integrated_sram_size']=0x2800
+            kwargs['integrated_sram_size']=0x2000
 
         # FIXME: Force either lite or minimal variants of CPUs; full is too big.
         platform.add_extension(up5k.serial)
