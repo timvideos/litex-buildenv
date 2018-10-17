@@ -264,6 +264,14 @@ case $PLATFORM_TOOLCHAIN in
 		conda install -y $CONDA_FLAGS nextpnr
 		check_exists nextpnr-ice40
 		;;
+	Sim)
+		export HAVE_FPGA_TOOLCHAIN=1
+		# verilator
+		echo
+		echo "Installing verilator (Verilog Simulator tool)"
+		conda install -y $CONDA_FLAGS verilator
+		check_exists verilator
+		;;
 	*)
 		;;
 esac

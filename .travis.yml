@@ -18,6 +18,8 @@ addons:
     - python-yaml
     - realpath
     - util-linux
+    - libevent-dev
+    - libjson-c-dev
 
 git:
   submodules: false
@@ -185,3 +187,13 @@ jobs:
 
   - stage: Targets
     env: C=lm32 P=opsis T="hdmi2usb"
+
+  #--------------------------------------------
+  # SIM/Verilator Targets
+  #--------------------------------------------
+  - stage: Targets
+    env: C=or1k P=sim T="base"
+
+  - stage: Targets
+    env: C=or1k P=sim T="base net"
+
