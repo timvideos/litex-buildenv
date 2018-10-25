@@ -29,6 +29,11 @@ spiflash = [
     ),
 ]
 
+# The ICE40UP5K-B-EVN does not use the provided FT2232H chip to provide a
+# UART port. One must use their own USB-to-serial cable instead to get a UART.
+# We have chosen to use 37A and 36B for "tx" and "rx" respectively on Header B
+# to implement UART connections. The board comes unpopulated and will need to
+# have headers soldered.
 serial = [
     ("serial", 0,
         Subsignal("tx", Pins("J2:0")),
