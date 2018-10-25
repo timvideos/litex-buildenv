@@ -55,6 +55,8 @@ notifications:
 
 jobs:
   fail_fast: true
+  allow_failures:
+  - env: C=picorv32 P=tinyfpga_bx F=stub T="base"
 
   include:
   #--------------------------------------------
