@@ -2,34 +2,25 @@ language:
  - c
 
 compiler:
-  - gcc
+ - gcc
 
 sudo: false
 addons:
   apt:
     update: true
     packages:
-    - build-essential
-    - fxload
-    - gnupg
-    - libftdi-dev
-    - libreadline-dev
-    - libusb-1.0-0-dev
-    - python-yaml
-    - realpath
-    - util-linux
+     - build-essential
+     - fxload
+     - gnupg
+     - libftdi-dev
+     - libreadline-dev
+     - libusb-1.0-0-dev
+     - python-yaml
+     - realpath
+     - util-linux
 
 git:
   submodules: false
-
-env:
-  global:
-   - HDMI2USB_UDEV_IGNORE=1
-   - CLEAN_CHECK=1
-   - PREBUILT_DIR="/tmp/HDMI2USB-firmware-prebuilt"
-   # Travis reports incorrect the hosts number of processors, override to 2
-   # cores.
-   - JOBS=2
 
 install:
  - export CPUS="$C" && echo "CPUS='$CPUS'"
@@ -44,6 +35,91 @@ script:
 after_success:
  - $PWD/.travis/update-prebuilt-list.sh
 
+env:
+  global:
+   - HDMI2USB_UDEV_IGNORE=1
+   - CLEAN_CHECK=1
+   - PREBUILT_DIR="/tmp/HDMI2USB-firmware-prebuilt"
+   # Travis reports incorrect the hosts number of processors, override to 2
+   # cores.
+   - JOBS=2
+  matrix:
+   #--------------------------------------------
+   # Base targets
+   #--------------------------------------------
+   # lm32 Base targets
+   - C=lm32         P=arty             T="base net"
+   - C=lm32         P=atlys            T="base net"
+   - C=lm32         P=basys3           T="base"
+   - C=lm32         P=cmod_a7          T="base"
+   - C=lm32         P=galatea          T="base"
+   - C=lm32         P=mimas_a7         T="base net"
+   - C=lm32         P=mimasv2          T="base"
+   - C=lm32         P=minispartan6     T="base"
+   - C=lm32         P=neso             T="base"
+   - C=lm32         P=netv2            T="base"
+   - C=lm32         P=nexys_video      T="base net"
+   - C=lm32         P=opsis            T="base net"
+   - C=lm32         P=pipistrello      T="base"
+   - C=lm32         P=saturn           T="base"
+   - C=lm32         P=waxwing          T="base"
+   # lm32 lite
+   - C=lm32.lite    P=ice40_hx8k_b_evn T="base"      F=stub
+   - C=lm32.lite    P=ice40_up5k_b_evn T="base"      F=stub
+   - C=lm32.lite    P=tinyfpga_bx      T="base"      F=stub
+   # lm32 minimal
+   - C=lm32.minimal P=ice40_hx8k_b_evn T="base"      F=stub
+   - C=lm32.minimal P=ice40_up5k_b_evn T="base"      F=stub
+   - C=lm32.minimal P=tinyfpga_bx      T="base"      F=stub
+   # or1k base targets
+   - C=or1k         P=arty             T="base net"
+   - C=or1k         P=atlys            T="base net"
+   - C=or1k         P=mimas_a7         T="base net"
+   - C=or1k         P=mimasv2          T="base"
+   - C=or1k         P=opsis            T="base net"
+   - C=or1k         P=pipistrello      T="base"
+   # vexriscv Base targets
+   - C=vexriscv     P=arty             T="base net"
+   - C=vexriscv     P=mimas_a7         T="base net"
+   - C=vexriscv     P=mimasv2          T="base"
+   - C=vexriscv     P=opsis            T="base net"
+   # picorv32 Base targets
+   - C=picorv32     P=arty             T="base net"
+   - C=picorv32     P=mimas_a7         T="base net"
+   - C=picorv32     P=mimasv2          T="base"
+   - C=picorv32     P=opsis            T="base net"
+   - C=picorv32     P=tinyfpga_bx      T="base"      F=stub
+   #--------------------------------------------
+   # Linux Targets
+   #--------------------------------------------
+   - C=or1k.linux   P=arty             T="net"       F=linux
+   - C=or1k.linux   P=atlys            T="net"       F=linux
+   - C=or1k.linux   P=nexys_video      T="net"       F=linux
+   - C=or1k.linux   P=opsis            T="net"       F=linux
+   #--------------------------------------------
+   # Video Targets
+   #--------------------------------------------
+   - C=lm32         P=atlys            T="video"
+   - C=lm32         P=netv2            T="video"
+   - C=lm32         P=nexys_video      T="video"
+   - C=lm32         P=opsis            T="video"
+   #--------------------------------------------
+   # HDMI2USB Targets
+   #--------------------------------------------
+   - C=lm32         P=atlys            T="hdmi2usb"
+   - C=lm32         P=opsis            T="hdmi2usb"
+
+jobs:
+  fail_fast: true
+  allow_failures:
+   # mimas_a7 needs toolchain rebuild
+   - env: C=lm32         P=mimas_a7         T="base net"
+   - env: C=or1k         P=mimas_a7         T="base net"
+   - env: C=vexriscv     P=mimas_a7         T="base net"
+   - env: C=picorv32     P=mimas_a7         T="base net"
+   # picorv32 config doesn't really fit on tinyfpga_bx
+   - env: C=picorv32     P=tinyfpga_bx      T="base"      F=stub
+
 notifications:
  email:
   - hdmi2usb-spam@googlegroups.com
@@ -52,157 +128,3 @@ notifications:
    - "chat.freenode.net#hdmi2usb"
   template:
    - "[%{repository_slug}/%{branch}#%{build_number}] (%{commit}): %{message} (%{build_url})"
-
-jobs:
-  fail_fast: true
-  allow_failures:
-  - env: C=picorv32 P=tinyfpga_bx F=stub T="base"
-  - env: C=lm32 P=mimas_a7     T="base"
-  - env: C=or1k P=mimas_a7     T="base"
-  - env: C=vexriscv P=mimas_a7 T="base"
-  - env: C=picorv32 P=mimas_a7 T="base"
-
-  include:
-  #--------------------------------------------
-  # Base targets
-  #--------------------------------------------
-  # lm32 Base targets
-  - stage: Targets
-    env: C=lm32 P=arty         T="base net"
-
-  - stage: Targets
-    env: C=lm32 P=atlys        T="base net"
-
-  - stage: Targets
-    env: C=lm32 P=basys3       T="base"
-
-  - stage: Targets
-    env: C=lm32 P=cmod_a7      T="base"
-
-  - stage: Targets
-    env: C=lm32 P=galatea      T="base"
-
-  - stage: Targets
-    env: C=lm32.lite P=ice40_hx8k_b_evn F=stub T="base"
-
-  - stage: Targets
-    env: C=lm32.minimal P=ice40_up5k_b_evn F=stub T="base"
-
-  - stage: Targets
-    env: C=lm32 P=mimasv2      T="base"
-
-  - stage: Targets
-    env: C=lm32 P=minispartan6 T="base"
-
-  - stage: Targets
-    env: C=lm32 P=neso         T="base"
-
-  - stage: Targets
-    env: C=lm32 P=netv2        T="base"
-
-  - stage: Targets
-    env: C=lm32 P=nexys_video  T="base net"
-
-  - stage: Targets
-    env: C=lm32 P=opsis        T="base net"
-
-  - stage: Targets
-    env: C=lm32 P=pipistrello  T="base"
-
-  - stage: Targets
-    env: C=lm32 P=saturn       T="base"
-
-  - stage: Targets
-    env: C=lm32 P=waxwing      T="base"
-
-  - stage: Targets
-    env: C=lm32.lite P=tinyfpga_bx F=stub T="base"
-
-  - stage: Targets
-    env: C=lm32 P=mimas_a7     T="base net"
-
-  # or1k base targets
-  - stage: Targets
-    env: C=or1k P=arty         T="base net"
-
-  - stage: Targets
-    env: C=or1k P=atlys        T="base net"
-
-  - stage: Targets
-    env: C=or1k P=mimasv2      T="base"
-
-  - stage: Targets
-    env: C=or1k P=opsis        T="base net"
-
-  - stage: Targets
-    env: C=or1k P=pipistrello  T="base"
-
-  - stage: Targets
-    env: C=or1k P=mimas_a7     T="base net"
-
-  # vexriscv Base targets
-  - stage: Targets
-    env: C=vexriscv P=arty     T="base net"
-
-  - stage: Targets
-    env: C=vexriscv P=mimasv2  T="base"
-
-  - stage: Targets
-    env: C=vexriscv P=opsis    T="base net"
-
-  - stage: Targets
-    env: C=vexriscv P=mimas_a7 T="base net"
-
-  # picorv32 Base targets
-  - stage: Targets
-    env: C=picorv32 P=arty     T="base net"
-
-  - stage: Targets
-    env: C=picorv32 P=mimasv2  T="base"
-
-  - stage: Targets
-    env: C=picorv32 P=opsis    T="base net"
-
-  - stage: Targets
-    env: C=picorv32 P=tinyfpga_bx F=stub T="base"
-
-  - stage: Targets
-    env: C=picorv32 P=mimas_a7 T="base net"
-
-  # Linux Targets
-  #--------------------------------------------
-  - stage: Targets
-    env: C=or1k.linux F=linux P=arty        T="net"
-
-  - stage: Targets
-    env: C=or1k.linux F=linux P=atlys       T="net"
-
-  - stage: Targets
-    env: C=or1k.linux F=linux P=nexys_video T="net"
-
-  - stage: Targets
-    env: C=or1k.linux F=linux P=opsis       T="net"
-
-  #--------------------------------------------
-  # Video Targets
-  #--------------------------------------------
-  - stage: Targets
-    env: C=lm32 P=atlys        T="video"
-
-  #- stage: Targets
-  #  env: C=lm32 P=netv2        T="video"
-
-  #- stage: Targets
-  #  env: C=lm32 P=nexys_video  T="video"
-
-  - stage: Targets
-    env: C=lm32 P=opsis        T="video"
-
-  #--------------------------------------------
-  # HDMI2USB Targets
-  #--------------------------------------------
-  - stage: Targets
-    env: C=lm32 P=atlys T="hdmi2usb"
-
-  - stage: Targets
-    env: C=lm32 P=opsis T="hdmi2usb"
