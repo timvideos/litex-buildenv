@@ -119,6 +119,10 @@ jobs:
    - env: C=picorv32     P=mimas_a7         T="base net"
    # picorv32 config doesn't really fit on tinyfpga_bx
    - env: C=picorv32     P=tinyfpga_bx      T="base"      F=stub
+   # Rework for new netv2 hardware
+   - env: C=lm32         P=netv2            T="video"
+   # Issue #454 - missing `pix5x_o` clock
+   - env: C=lm32         P=nexys_video      T="video"
 
 notifications:
  email:
