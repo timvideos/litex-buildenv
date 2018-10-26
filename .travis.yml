@@ -57,6 +57,10 @@ jobs:
   fail_fast: true
   allow_failures:
   - env: C=picorv32 P=tinyfpga_bx F=stub T="base"
+  - env: C=lm32 P=mimas_a7     T="base"
+  - env: C=or1k P=mimas_a7     T="base"
+  - env: C=vexriscv P=mimas_a7 T="base"
+  - env: C=picorv32 P=mimas_a7 T="base"
 
   include:
   #--------------------------------------------
