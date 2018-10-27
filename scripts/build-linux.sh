@@ -30,7 +30,7 @@ fi
 eval $(make env)
 make info
 
-set -x
+#set -x
 set -e
 
 if [ "$CPU" != or1k -a "$CPU" != "vexriscv" ]; then
@@ -67,7 +67,7 @@ LINUX_BRANCH=${LINUX_BRANCH:-master-litex}
 		cd $(dirname $LINUX_SRC)
 		echo "Downloading Linux source tree."
 		echo "If you already have a local git checkout you can set 'LINUX_GITLOCAL' to speed up this step."
-		git clone $LINUX_CLONE_FROM $LINUX_SRC
+		git clone $LINUX_CLONE_FROM $LINUX_SRC --branch $LINUX_BRANCH
 	)
 	fi
 
@@ -86,8 +86,11 @@ LINUX_BRANCH=${LINUX_BRANCH:-master-litex}
 
 	# Checkout or1k-linux branch it not already on it
 	if [ "$(git rev-parse --abbrev-ref HEAD)" != "$LINUX_BRANCH" ]; then
-		git checkout $LINUX_BRANCH || \
+		if git rev-parse --abbrev-ref $LINUX_BRANCH > /dev/null 2>&1; then
+			git checkout $LINUX_BRANCH
+		else
 			git checkout "$CURRENT_LINUX_REMOTE_NAME/$LINUX_BRANCH" -b $LINUX_BRANCH
+		fi
 	fi
 )
 
