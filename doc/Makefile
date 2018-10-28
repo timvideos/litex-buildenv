@@ -104,11 +104,12 @@ apidoc:
 	sphinx-apidoc $(SPHINX_APIDOC) -o apidoc/third_party/liteusb ../third_party/liteusb/liteusb
 	sphinx-apidoc $(SPHINX_APIDOC) -o apidoc/third_party/litevideo ../third_party/litevideo/litevideo
 
+.PHONY: apidoc
+
 inv: $(INTERSPHINX_FILES)
 	@true
 
 .PHONY: inv
-
 
 tools:
 	rm -rf tools
