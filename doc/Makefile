@@ -112,6 +112,17 @@ inv: $(INTERSPHINX_FILES)
 
 .PHONY: inv
 
+# Wiki Documentation
+#--------------------------------------------
+wiki:
+	if [ ! -d wiki ]; then \
+		git clone git+ssh://github.com/timvideos/litex-buildenv.wiki.git wiki; \
+	else \
+		cd wiki; git pull; \
+	fi
+
+.PHONY: wiki
+
 # Use sphinx-apidoc to auto-extract docstring
 #--------------------------------------------
 SPHINX_APIDOC = --follow-links --separate --module-first --append-syspath
