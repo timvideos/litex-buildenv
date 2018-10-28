@@ -359,6 +359,20 @@ exhale_projects_args = {
     },
 }
 
+# -- Allow relative links in markdown -------------------------------------
+
+from markdown_links import MarkdownLinks
+def setup(app):
+    MarkdownLinks.find_links()
+    app.add_config_value(
+        'recommonmark_config', {
+            'github_code_repo': 'https://github.com/timvideos/litex-buildenv',
+            'url_resolver': lambda url: github_doc_root + url,
+            'auto_toc_tree_section': 'Contents',
+        }, True)
+    app.add_transform(MarkdownLinks)
+
+
 # -- Intersphinx config ---------------------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.

@@ -37,3 +37,4 @@ sphinxcontrib-wavedrom
 
 -e git+https://github.com/mithro/sphinx-contrib-mithro#egg=harden_xml&subdirectory=harden_xml
 -e git+https://github.com/mithro/sphinx-contrib-mithro#egg=sphinx-contrib-exhale-multiproject&subdirectory=sphinx-contrib-exhale-multiproject
+-e git+https://github.com/mithro/sphinx-contrib-mithro#egg=sphinx-contrib-markdown-links&subdirectory=sphinx-contrib-markdown-links
