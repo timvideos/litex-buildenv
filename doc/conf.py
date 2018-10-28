@@ -224,12 +224,15 @@ texinfo_documents = [
 
 # -- Breathe + Exhale config for C++ API Documentation --------------------
 
+import exhale_multiproject_monkeypatch
+
 breathe_projects = {
     "firmware":     "_doxygen/firmware/xml",
     "gateware":     "_doxygen/gateware/xml",
 
     "edid-decode":  "_doxygen/edid-decode/xml",
     "libuip":       "_doxygen/libuip/xml",
+
     "litedram":     "_doxygen/litedram/xml",
     "liteeth":      "_doxygen/liteeth/xml",
     "litepcie":     "_doxygen/litepcie/xml",
@@ -238,6 +241,7 @@ breathe_projects = {
     "liteusb":      "_doxygen/liteusb/xml",
     "litevideo":    "_doxygen/litevideo/xml",
     "litex":        "_doxygen/litex/xml",
+    "migen":        "_doxygen/migen/xml",
 }
 breathe_default_project = "firmware"
 
@@ -247,6 +251,7 @@ breathe_projects_source = {
 
     "edid-decode":  "../third_party/edid-decode",
     "libuip":       "../third_party/libuip",
+
     "litedram":     "../third_party/litedram",
     "liteeth":      "../third_party/liteeth",
     "litepcie":     "../third_party/litepcie",
@@ -255,6 +260,7 @@ breathe_projects_source = {
     "liteusb":      "../third_party/liteusb",
     "litevideo":    "../third_party/litevideo",
     "litex":        "../third_party/litex",
+    "migen":        "../third_party/migen",
 }
 
 # Setup the exhale extension
@@ -275,7 +281,7 @@ exhale_args = {
     "exhaleExecutesDoxygen": True,
     #"exhaleUseDoxyfile":     True,
     "exhaleDoxygenStdin":    """
-EXCLUDE     = ../doc ../third_party/litex/litex/soc/software/compiler_rt ../third_party/litex/litex/soc/software/libcompiler_rt */__pycache__
+EXCLUDE     = ../doc ../third_party/litex/litex/soc/software/compiler_rt ../third_party/litex/litex/soc/software/libcompiler_rt */__pycache__ */_build
 
 OPTIMIZE_OUTPUT_VERILOG = YES
 HIDE_PORT               = NO
@@ -346,50 +352,12 @@ exhale_projects_args = {
         "containmentFolder":    "third_party-litex-api",
         "rootFileTitle":        "LiteX",
     },
+    "migen": {
+        "exhaleDoxygenStdin":   "INPUT = ../third_party/migen"+exhale_args["exhaleDoxygenStdin"],
+        "containmentFolder":    "third_party-migen-api",
+        "rootFileTitle":        "Migen",
+    },
 }
-
-import exhale
-import exhale.configs
-import exhale.utils
-import exhale.deploy
-
-import os
-import os.path
-from pprint import pprint
-
-
-def exhale_environment_ready(app):
-    default_project = app.config.breathe_default_project
-    default_exhale_args = dict(app.config.exhale_args)
-    for project in breathe_projects:
-        app.config.breathe_default_project = project
-        os.makedirs(breathe_projects[project], exist_ok=True)
-
-        project_exhale_args = exhale_projects_args.get(project, {})
-
-        app.config.exhale_args = dict(default_exhale_args)
-        app.config.exhale_args.update(project_exhale_args)
-        app.config.exhale_args["containmentFolder"] = os.path.realpath(app.config.exhale_args["containmentFolder"])
-        print("="*75)
-        print(project)
-        print("-"*50)
-        pprint(app.config.exhale_args)
-        print("="*75)
-
-        # First, setup the extension and verify all of the configurations.
-        exhale.configs.apply_sphinx_configurations(app)
-        ####### Next, perform any cleanup
-
-        # Generate the full API!
-        try:
-            exhale.deploy.explode()
-        except:
-            exhale.utils.fancyError("Exhale: could not generate reStructuredText documents :/")
-
-    app.config.breathe_default_project = default_project
-
-exhale.environment_ready = exhale_environment_ready
-
 
 # -- Intersphinx config ---------------------------------------------------
 
