@@ -17,7 +17,6 @@ addons:
      - libreadline-dev
      - libusb-1.0-0-dev
      - python-yaml
-     - python3-sphinxcontrib.spelling
      - realpath
      - util-linux
 
