@@ -73,7 +73,7 @@ extensions = [
     'sphinxcontrib.makedomain',         # https://bitbucket.org/klorenz/sphinxcontrib-makedomain
     'sphinxcontrib.manpage',            # :linuxman:ls(1)
     'sphinxcontrib.spelling',           # Spell checking!
-    'sphinxcontrib_trio',               # Better abstract and similar detection
+    #'sphinxcontrib_trio',               # Better abstract and similar detection
     'sphinx_git',                       # .. git_changelog::
     'sphinx_autodoc_typehints',         # 
     # FPGA Specific

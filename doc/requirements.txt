@@ -25,7 +25,7 @@ sphinxcontrib-makedomain
 sphinxcontrib-manpage
 sphinxcontrib-spelling
 # Weirdly named Sphinx extensions
-sphinxcontrib-trio
+#sphinxcontrib-trio
 sphinx-git
 sphinx-autodoc-typehints
 sphinx-autodoc-napoleon-typehints
