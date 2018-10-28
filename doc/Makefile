@@ -1,5 +1,7 @@
 # Minimal makefile for Sphinx documentation
-#
+
+# Use the "source" keyword which only works in bash?
+SHELL := /bin/bash
 
 # Disable make's inbuilt rules
 .SUFFIXES:
