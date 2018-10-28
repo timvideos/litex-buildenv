@@ -98,12 +98,10 @@ inv: $(INTERSPHINX_FILES)
 
 # Use sphinx-apidoc to auto-extract docstring
 #--------------------------------------------
-
 SPHINX_APIDOC = --follow-links --separate --module-first --append-syspath
 apidoc:
 	rm -rf apidoc
 	sphinx-apidoc $(SPHINX_APIDOC) --implicit-namespaces -e -o apidoc/litex-buildenv ../ ../third_party ../doc ../build
-	sphinx-apidoc $(SPHINX_APIDOC) -o apidoc/third_party/litex ../third_party/litex/litex
 	sphinx-apidoc $(SPHINX_APIDOC) -o apidoc/third_party/litedram ../third_party/litedram/litedram
 	sphinx-apidoc $(SPHINX_APIDOC) -o apidoc/third_party/liteeth ../third_party/liteeth/liteeth
 	sphinx-apidoc $(SPHINX_APIDOC) -o apidoc/third_party/litepcie ../third_party/litepcie/litepcie
@@ -111,6 +109,8 @@ apidoc:
 	sphinx-apidoc $(SPHINX_APIDOC) -o apidoc/third_party/litescope ../third_party/litescope/litescope
 	sphinx-apidoc $(SPHINX_APIDOC) -o apidoc/third_party/liteusb ../third_party/liteusb/liteusb
 	sphinx-apidoc $(SPHINX_APIDOC) -o apidoc/third_party/litevideo ../third_party/litevideo/litevideo
+	sphinx-apidoc $(SPHINX_APIDOC) -o apidoc/third_party/litex ../third_party/litex/litex
+	sphinx-apidoc $(SPHINX_APIDOC) -o apidoc/third_party/litex ../third_party/migen/migen
 
 .PHONY: apidoc
 
