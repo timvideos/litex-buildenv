@@ -40,7 +40,9 @@ $(VENV_ROOT)/requirements.stamp: requirements.txt $(VENV_ROOT)/bin/activate | $(
 $(VENV_ROOT)/lite.stamp: $(VENV_ROOT)/bin/activate | $(VENV_ROOT)
 	$(ACTIVATE); \
 		for mod in ../third_party/lite*; do \
-			pip install $$mod; \
+			if [ -f $$mod/setup.py ]; then \
+				pip install $$mod; \
+			fi; \
 		done
 	@touch $(VENV_ROOT)/lite.stamp
 
