@@ -91,6 +91,14 @@ $(INTERSPHINX_FILES): conf.py Makefile
 	@du -h $@
 	@touch $@
 
+inv: $(INTERSPHINX_FILES)
+	@true
+
+.PHONY: inv
+
+# Use sphinx-apidoc to auto-extract docstring
+#--------------------------------------------
+
 SPHINX_APIDOC = --follow-links --separate --module-first --append-syspath
 apidoc:
 	rm -rf apidoc
@@ -105,11 +113,6 @@ apidoc:
 	sphinx-apidoc $(SPHINX_APIDOC) -o apidoc/third_party/litevideo ../third_party/litevideo/litevideo
 
 .PHONY: apidoc
-
-inv: $(INTERSPHINX_FILES)
-	@true
-
-.PHONY: inv
 
 tools:
 	rm -rf tools
