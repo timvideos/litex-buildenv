@@ -34,3 +34,5 @@ sphinx-autodoc-napoleon-typehints
 symbolator
 sphinxcontrib-wavedrom
 # sphinxcontrib-gtkwave
+
+-e git+https://github.com/mithro/sphinx-contrib-mithro#egg=harden_xml&subdirectory=harden_xml

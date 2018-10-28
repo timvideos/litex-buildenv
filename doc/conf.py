@@ -16,13 +16,13 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('.'))
 
-import os, sys
+import harden_xml
+
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-
 if on_rtd:
     import subprocess
     subprocess.check_call("git submodule update --init -r", shell=True)
@@ -221,56 +221,6 @@ texinfo_documents = [
      author, 'LiteXBuildEnv', 'Environment for building Lite X based applications.',
      'Miscellaneous'),
 ]
-
-# -- Monkey patch things to make things safer -----------------------------
-
-# Monkey patch codecs.open to default to our errors='replacer' when errors
-# isn't specified.
-import codecs
-from html import entities as html_entities
-
-def replacer(exc):
-    logging.warn("Error: {}".format(exc), exc_info=exc)
-    l = []
-    for c in exc.object[exc.start:exc.end]:
-        if isinstance(exc, UnicodeEncodeError):
-            c = ord(c)
-        elif isinstance(exc, UnicodeDecodeError):
-            pass
-        else:
-            raise TypeError("don't know how to handle %r" % exc)
-        try:
-            l.append("&%s;" % html_entities.codepoint2name[c])
-        except KeyError:
-            l.append("&#%d;" % c)
-    return ("".join(l), exc.end)
-
-codecs.register_error("replacer", replacer)
-
-_codecs_open = codecs.open
-def codecs_open_replace_errors(*args, **kw):
-    if "errors" not in kw and len(args) < 4:
-        kw['errors'] = 'replacer'
-    return _codecs_open(*args, **kw)
-codecs.open = codecs_open_replace_errors
-
-# MonkeyPatch minidom.parse to deal with broken XML "Doxygen for Verilog"
-# occasionally produced.
-import logging
-from lxml import etree as ET
-from xml.dom import minidom
-from xml.parsers import expat
-_minidom_parse = minidom.parse
-
-def minidom_parse_with_fixup(inFilename, *args, **kw):
-    try:
-        return _minidom_parse(inFilename, *args, **kw)
-    except expat.ExpatError as e:
-        logging.warn("Fixing up XML in {}".format(inFilename), exc_info=e)
-        fixxml = ET.parse(codecs.open(inFilename, 'r', "utf-8"), ET.XMLParser(recover=True))
-        fixstr = ET.tostring(fixxml, method="xml", encoding='utf-8', xml_declaration=True)
-        return minidom.parseString(fixstr, *args, **kw)
-minidom.parse = minidom_parse_with_fixup
 
 # -- Breathe + Exhale config for C++ API Documentation --------------------
 
