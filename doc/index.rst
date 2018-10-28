@@ -19,6 +19,7 @@ Welcome to LiteX Build Environment's documentation!
 
    apidoc/litex-buildenv
 
+   apidoc/third_party/migen/migen.rst
    apidoc/third_party/litex/litex.rst
 
    apidoc/third_party/litedram/litedram.rst
@@ -35,6 +36,7 @@ Welcome to LiteX Build Environment's documentation!
    :name: modtoc
 
    apidoc/litex-buildenv/modules.rst
+   apidoc/third_party/migen/modules.rst
    apidoc/third_party/litex/modules.rst
    apidoc/third_party/liteusb/modules.rst
    apidoc/third_party/litedram/modules.rst
@@ -50,12 +52,31 @@ Welcome to LiteX Build Environment's documentation!
    :name: apitoc
    :glob:
 
+   gateware-api/root.rst
    firmware-api/root.rst
 
-   third_party-lite*-api/root.rst
+   third_party-migen-api/root.rst
+   third_party-litex-api/root.rst
+   third_party-litedram-api/root.rst
+   third_party-liteeth-api/root.rst
+   third_party-litepcie-api/root.rst
+   third_party-litesata-api/root.rst
+   third_party-litescope-api/root.rst
+   third_party-liteusb-api/root.rst
+   third_party-litevideo-api/root.rst
 
    third_party-edid-decode-api/root.rst
    third_party-libuip-api/root.rst
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Wiki Documentation:
+   :name: wikitoc
+   :glob:
+
+   wiki/Home.md
+   wiki/_Sidebar.md
+
 
 Indices and tables
 ==================
