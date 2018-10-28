@@ -93,20 +93,9 @@ SPHINXSUBCMD = $(SPHINXRUN) -M $$@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(
 
 # Get the intersphinx inventory files.
 #-------------------------------------------
-INTERSPHINX_FILES := $(shell $(ACTIVATE) && python -c "import conf; print('\n'.join(n[-1][-1] for n in conf.intersphinx_mapping.values()))")
-# Python only method for downloading the inv files.
-#@URL="$(shell $(ACTIVATE); python3 -c "import conf; print([n[0] for n in conf.intersphinx_mapping.values() if n[-1][-1] == '$@'][0])")"; \
-#    $(ACTIVATE); python -c "import urllib.request; url='$${URL}objects.inv'; print('Downloading '+url+' -> $@'); urllib.request.urlretrieve(url, '$@')"
-$(INTERSPHINX_FILES): conf.py Makefile
+inv:
 	@mkdir -p _build/intersphinx/
-	@rm -f $@
-	@URL="$(shell $(ACTIVATE); python3 -c "import conf; print([n[0]+'/objects.inv' for n in conf.intersphinx_mapping.values() if n[-1][-1] == '$@'][0])")"; \
-		wget "$$URL" -O "$@"
-	@du -h $@
-	@touch $@
-
-inv: $(INTERSPHINX_FILES)
-	@true
+	@./inv.py
 
 .PHONY: inv
 
