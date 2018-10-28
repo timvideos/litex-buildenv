@@ -63,6 +63,18 @@ clean:
 	rm -rf _doxygen verilog
 	@$(ACTIVATE); $(SPHINXRUN) -M clean "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
+testenv:
+	@$(ACTIVATE); $(VENV_ROOT)/bin/python3 -c "import sys; print(sys.path)"
+	@# Test the import of third_party python libraries
+	@$(ACTIVATE); \
+		for moddir in ../third_party/migen ../third_party/lite*; do \
+			if [ -f $$moddir/setup.py ]; then \
+				export mod="$$(basename $$moddir)"; python -c "import $$mod; print($$mod)"; \
+			fi; \
+		done
+	@# Test the import of top level gateware module
+	@$(ACTIVATE); $(VENV_ROOT)/bin/python3 -c "import gateware; print(gateware)"
+
 SPHINXRUN = $(ACTIVATE); $(VENV_ROOT)/bin/python3 $(VENV_ROOT)/bin/sphinx-build
 
 .PHONY: distclean clean
