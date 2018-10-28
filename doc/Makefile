@@ -5,6 +5,7 @@
 .SUFFIXES:
 
 # You can set these variables from the command line.
+TOPDIR        = $(realpath ..)
 BUILDDIR      = _build
 VENV_ROOT     = $(BUILDDIR)/_venv
 SPHINXOPTS    =
@@ -23,6 +24,9 @@ help: $(SPHINXBUILD)
 #-------------------------------------------
 $(VENV_ROOT):
 	mkdir -p $<
+
+PYTHONPATH = $(TOPDIR)
+export PYTHONPATH
 
 $(VENV_ROOT)/bin/activate:
 	virtualenv -p python3 $(VENV_ROOT)
