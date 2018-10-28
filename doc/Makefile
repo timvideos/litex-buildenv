@@ -112,7 +112,7 @@ inv: $(INTERSPHINX_FILES)
 #--------------------------------------------
 wiki:
 	if [ ! -d wiki ]; then \
-		git clone git+ssh://github.com/timvideos/litex-buildenv.wiki.git wiki; \
+		git clone https://github.com/timvideos/litex-buildenv.wiki.git wiki; \
 	else \
 		cd wiki; git pull; \
 	fi
