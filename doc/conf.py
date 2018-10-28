@@ -361,6 +361,7 @@ exhale_projects_args = {
 
 # -- Allow relative links in markdown -------------------------------------
 
+from recommonmark.transform import AutoStructify
 from markdown_links import MarkdownLinks
 def setup(app):
     MarkdownLinks.find_links()
@@ -370,6 +371,7 @@ def setup(app):
             'url_resolver': lambda url: github_doc_root + url,
             'auto_toc_tree_section': 'Contents',
         }, True)
+    app.add_transform(AutoStructify)
     app.add_transform(MarkdownLinks)
 
 
