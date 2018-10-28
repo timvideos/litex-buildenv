@@ -13,6 +13,9 @@ SPHINXBUILD   = $(VENV_ROOT)/bin/sphinx-build
 SPHINXPROJ    = LiteXBuildEnvironment
 SOURCEDIR     = .
 
+THIRD_PARTY_MODDIRS = $(dir $(wildcard $(TOPDIR)/third_party/*/setup.py))
+THIRD_PARTY_MODULES = $(notdir $(patsubst %/,%,$(THIRD_PARTY_MODDIRS)))
+
 # Put it first so that "make" without argument is like "make help".
 #-------------------------------------------
 help: $(SPHINXBUILD)
@@ -41,17 +44,13 @@ $(VENV_ROOT)/requirements.stamp: requirements.txt $(VENV_ROOT)/bin/activate | $(
 	$(ACTIVATE); pip install -r requirements.txt
 	@touch $(VENV_ROOT)/requirements.stamp
 
-$(VENV_ROOT)/lite.stamp: $(VENV_ROOT)/bin/activate | $(VENV_ROOT)
-	$(ACTIVATE); \
-		for mod in ../third_party/lite*; do \
-			if [ -f $$mod/setup.py ]; then \
-				pip install $$mod; \
-			fi; \
+$(VENV_ROOT)/third_party.stamp: $(VENV_ROOT)/bin/activate | $(VENV_ROOT)
+	$(ACTIVATE); for MODDIR in $(THIRD_PARTY_MODDIRS); do \
+			pip install $$MODDIR; \
 		done
-	@touch $(VENV_ROOT)/lite.stamp
+	@touch $(VENV_ROOT)/third_party.stamp
 
-
-$(SPHINXBUILD): $(VENV_ROOT)/requirements.stamp $(VENV_ROOT)/lite.stamp
+$(SPHINXBUILD): $(VENV_ROOT)/requirements.stamp $(VENV_ROOT)/third_party.stamp
 	@touch $<
 
 distclean:
@@ -66,11 +65,8 @@ clean:
 testenv:
 	@$(ACTIVATE); $(VENV_ROOT)/bin/python3 -c "import sys; print(sys.path)"
 	@# Test the import of third_party python libraries
-	@$(ACTIVATE); \
-		for moddir in ../third_party/migen ../third_party/lite*; do \
-			if [ -f $$moddir/setup.py ]; then \
-				export mod="$$(basename $$moddir)"; python -c "import $$mod; print($$mod)"; \
-			fi; \
+	@$(ACTIVATE); for MODULE in $(THIRD_PARTY_MODULES); do \
+			python -c "import $$MODULE; print($$MODULE)"; \
 		done
 	@# Test the import of top level gateware module
 	@$(ACTIVATE); $(VENV_ROOT)/bin/python3 -c "import gateware; print(gateware)"
@@ -130,23 +126,8 @@ apidoc:
 	rm -rf apidoc
 	# Top level like "gateware" and similar
 	$(ACTIVATE); sphinx-apidoc $(SPHINX_APIDOC) -e -o apidoc/litex-buildenv ../ ../third_party ../doc ../build
-	# migen
-	$(ACTIVATE); sphinx-apidoc $(SPHINX_APIDOC) -o apidoc/third_party/migen ../third_party/migen/migen
-	# litex
-	$(ACTIVATE); sphinx-apidoc $(SPHINX_APIDOC) -o apidoc/third_party/litex ../third_party/litex/litex
-	# liteXXX modules
-	$(ACTIVATE); sphinx-apidoc $(SPHINX_APIDOC) -o apidoc/third_party/litedram ../third_party/litedram/litedram
-	$(ACTIVATE); sphinx-apidoc $(SPHINX_APIDOC) -o apidoc/third_party/liteeth ../third_party/liteeth/liteeth
-	$(ACTIVATE); sphinx-apidoc $(SPHINX_APIDOC) -o apidoc/third_party/litepcie ../third_party/litepcie/litepcie
-	$(ACTIVATE); sphinx-apidoc $(SPHINX_APIDOC) -o apidoc/third_party/litesata ../third_party/litesata/litesata
-	$(ACTIVATE); sphinx-apidoc $(SPHINX_APIDOC) -o apidoc/third_party/litescope ../third_party/litescope/litescope
-	$(ACTIVATE); sphinx-apidoc $(SPHINX_APIDOC) -o apidoc/third_party/liteusb ../third_party/liteusb/liteusb
-	$(ACTIVATE); sphinx-apidoc $(SPHINX_APIDOC) -o apidoc/third_party/litevideo ../third_party/litevideo/litevideo
+	@$(ACTIVATE); for MODULE in $(THIRD_PARTY_MODULES); do \
+			sphinx-apidoc $(SPHINX_APIDOC) -o apidoc/third_party/$$MODULE ../third_party/$$MODULE/$$MODULE; \
+		done
 
 .PHONY: apidoc
-
-tools:
-	rm -rf tools
-	$(ACTIVATE); sphinx-apidoc --implicit-namespaces -o tools ../utils
-
-.PHONY: utils
