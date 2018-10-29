@@ -18,6 +18,18 @@ from targets.utils import csr_map_update
 import platforms.ice40_up5k_b_evn as up5k
 
 
+# Alternate serial port, using the second 6-pin PMOD port. Follows Digilent
+# PMOD Specification Type 4, so e.g. PMOD USBUART can be used.
+pmod_serial = [
+    ("serial", 0,
+        Subsignal("rx", Pins("PMOD:6")),
+        Subsignal("tx", Pins("PMOD:5")),
+        Subsignal("rts", Pins("PMOD:4")),
+        Subsignal("cts", Pins("PMOD:7")),
+        IOStandard("LVCMOS33"),
+    ),
+]
+
 class _CRG(Module):
     def __init__(self, platform):
         clk12 = platform.request("clk12")
@@ -63,7 +75,7 @@ class BaseSoC(SoCCore):
             kwargs['integrated_sram_size']=0
 
         # FIXME: Force either lite or minimal variants of CPUs; full is too big.
-        platform.add_extension(up5k.serial)
+        platform.add_extension(pmod_serial)
         platform.add_extension(up5k.spiflash)
         clk_freq = int(12e6)
 
