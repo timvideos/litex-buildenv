@@ -10,6 +10,7 @@ from litex.soc.interconnect.csr_eventmanager import *
 from migen.genlib.misc import WaitTimer
 
 from litex.soc.cores.gpio import GPIOIn, GPIOOut
+from gateware.led import RGBLed
 
 class ControlAndStatus(Module, AutoCSR):
     def __init__(self, platform, clk_freq):
@@ -21,6 +22,26 @@ class ControlAndStatus(Module, AutoCSR):
                 user_leds.append(platform.request("user_led", len(user_leds)))
             except ConstraintError:
                 break
+
+        rgb_leds = []
+        while True:
+            try:
+                rgb_leds.append(platform.request("rgb_led", len(rgb_leds)))
+            except ConstraintError:
+                break
+        for rgb in rgb_leds:
+            # TODO: Common anode only for now. Support common cathode.
+            r_n = Signal()
+            g_n = Signal()
+            b_n = Signal()
+
+            self.comb += [
+                rgb.r.eq(~r_n),
+                rgb.g.eq(~g_n),
+                rgb.b.eq(~b_n),
+            ]
+
+            user_leds.extend([r_n, g_n, b_n])
 
         if user_leds:
             leds = Signal(len(user_leds))
