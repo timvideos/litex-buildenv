@@ -74,8 +74,7 @@ class BaseSoC(SoCCore):
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
 
         # Control and Status
-        # TODO: Add RGB LED support to ControlAndStatus
-        # self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
+        self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
 
         # SPI flash peripheral
         self.submodules.spiflash = spi_flash.SpiFlashSingle(
