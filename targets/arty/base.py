@@ -156,6 +156,8 @@ class BaseSoC(SoCSDRAM):
         self.add_memory_region(
             "spiflash", self.mem_map["spiflash"] | self.shadow_base, 16*1024*1024)
 
+        bios_size = 0x8000
+        self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size+bios_size
 
         # sdram
         sdram_module = MT41K128M16(self.clk_freq, "1:4")
