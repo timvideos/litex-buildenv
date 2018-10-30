@@ -76,7 +76,11 @@ endif
 all: firmware.bin firmware.fbi
 
 %.fbi: %.bin
+ifeq ($(CPUENDIANNESS), little)
+	$(PYTHON) -m litex.soc.tools.mkmscimg -f --little $< -o $@
+else
 	$(PYTHON) -m litex.soc.tools.mkmscimg -f $< -o $@
+endif
 
 %.bin: %.elf
 	$(OBJCOPY) -O binary $< $@
