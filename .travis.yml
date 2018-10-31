@@ -66,10 +66,12 @@ env:
    # lm32 lite
    - C=lm32.lite    P=ice40_hx8k_b_evn T="base"      F=stub
    - C=lm32.lite    P=ice40_up5k_b_evn T="base"      F=stub
+   - C=lm32.lite    P=icebreaker       T="base"      F=stub
    - C=lm32.lite    P=tinyfpga_bx      T="base"      F=stub
    # lm32 minimal
    - C=lm32.minimal P=ice40_hx8k_b_evn T="base"      F=stub
    - C=lm32.minimal P=ice40_up5k_b_evn T="base"      F=stub
+   - C=lm32.minimal P=icebreaker       T="base"      F=stub
    - C=lm32.minimal P=tinyfpga_bx      T="base"      F=stub
    # or1k base targets
    - C=or1k         P=arty             T="base net"
