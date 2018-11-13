@@ -18,8 +18,8 @@ from targets.utils import csr_map_update
 
 serial =  [
     ("serial", 0,
-        Subsignal("tx", Pins("GPIO:2")),
-        Subsignal("rx", Pins("GPIO:1")),
+        Subsignal("rx", Pins("GPIO:0")), # Pin 1 - A2 - Silkscreen 1
+        Subsignal("tx", Pins("GPIO:1")), # Pin 2 - A1 - Silkscreen 2
         IOStandard("LVCMOS33")
     )
 ]

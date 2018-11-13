@@ -39,16 +39,6 @@ _connectors = [
 ]
 
 
-# Default peripherals
-serial = [
-    ("serial", 0,
-        Subsignal("tx", Pins("GPIO:0")),
-        Subsignal("rx", Pins("GPIO:1")),
-        IOStandard("LVCMOS33")
-    )
-]
-
-
 class Platform(LatticePlatform):
     name = "tinyfpga_bx"
     default_clk_name = "clk16"
