@@ -31,10 +31,11 @@ _io = [
 ]
 
 _connectors = [
-    # A2-H2, Pins 1-13
-    # H9-A6, Pins 14-24
-    # G1-J2, Pins 25-31
+    # Putting the USB connector at top (similar to TinyFPGA BX documentation card).
+    # A2-H2, Pins 1-13,  GPIO:0  --> GPIO:12 - Left side, starting at top going down.
+    # H9-A6, Pins 14-24, GPIO:13 --> GPIO:23 - Right side, starting at bottom going up.
     ("GPIO", "A2 A1 B1 C2 C1 D2 D1 E2 E1 G2 H1 J1 H2 H9 D9 D8 C9 A9 B8 A8 B7 A7 B6 A6"),
+    # G1-J2, Pins 25-31  EXTRA:0 --> EXTRA:6 - Pads on the bottom of the board.
     ("EXTRA", "G1 J3 J4 G9 J9 E8 J2")
 ]
 
