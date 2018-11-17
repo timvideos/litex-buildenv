@@ -76,7 +76,7 @@ To bootstrap or update your environment one generally does:
 
 # Enter the Dev/Debug/Build environment
 export PLATFORM=arty TARGET=net CPU=or1k
-source ./script/enter-env.sh
+source ./scripts/enter-env.sh
 ```
 
 ## [Applications](https://github.com/timvideos/litex-buildenv/wiki/Applications)
