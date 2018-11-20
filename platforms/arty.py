@@ -115,7 +115,7 @@ class Platform(XilinxPlatform):
     # module objects.
     spiflash_model = "n25q128a13"
     spiflash_read_dummy_bits = 10
-    spiflash_clock_div = 4
+    spiflash_clock_div = 2
     spiflash_total_size = int((128/8)*1024*1024) # 128Mbit
     spiflash_page_size = 256
     spiflash_sector_size = 0x10000

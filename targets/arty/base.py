@@ -149,13 +149,16 @@ class BaseSoC(SoCSDRAM):
         self.submodules.spiflash = spi_flash.SpiFlash(
                 spiflash_pads,
                 dummy=spiflash_dummy[spiflash],
-                div=2)
+                div=platform.spiflash_clock_div,
+                endianness=self.cpu.endianness)
         self.add_constant("SPIFLASH_PAGE_SIZE", 256)
         self.add_constant("SPIFLASH_SECTOR_SIZE", 0x10000)
         self.add_wb_slave(mem_decoder(self.mem_map["spiflash"]), self.spiflash.bus)
         self.add_memory_region(
             "spiflash", self.mem_map["spiflash"] | self.shadow_base, 16*1024*1024)
 
+        bios_size = 0x8000
+        self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size+bios_size
 
         # sdram
         sdram_module = MT41K128M16(self.clk_freq, "1:4")
