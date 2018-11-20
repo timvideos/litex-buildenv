@@ -103,11 +103,11 @@ CPU_ARCH=or1k
 CPU_ENDIANNESS=big
 endif
 ifeq ($(CPU),vexriscv)
-CPU_ARCH=riscv32-unknown
+CPU_ARCH=riscv32
 CPU_ENDIANNESS=little
 endif
 ifeq ($(CPU),picorv32)
-CPU_ARCH=riscv32-unknown
+CPU_ARCH=riscv32
 CPU_ENDIANNESS=little
 endif
 
