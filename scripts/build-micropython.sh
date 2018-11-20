@@ -39,18 +39,8 @@ if [ "$FIRMWARE" != "micropython" ]; then
 fi
 
 # Install a toolchain with the newlib standard library
-if [ "$CPU_ARCH" = "riscv32-unknown" ]; then
-    # There is no "riscv32-unknown-elf-newlib-gcc".
-    if ! riscv32-elf-newlib-gcc --version > /dev/null 2>&1; then
-        conda install gcc-riscv32-elf-newlib
-    fi
-    CROSS_COMPILE=riscv32-elf-newlib-
-else
-    # lm32/or1k follow "-unknown-elf-newlib-gcc" convention.
-    if ! ${CPU_ARCH}-elf-newlib-gcc --version > /dev/null 2>&1; then
-        conda install gcc-${CPU_ARCH}-elf-newlib
-    fi
-    CROSS_COMPILE=${CPU_ARCH}-elf-newlib-
+if ! ${CPU_ARCH}-elf-newlib-gcc --version > /dev/null 2>&1; then
+	conda install gcc-${CPU_ARCH}-elf-newlib
 fi
 
 # Get micropython is needed
@@ -91,7 +81,7 @@ fi
 TARGET_MPY_BUILD_DIR="$(realpath $TARGET_BUILD_DIR/software/micropython)"
 
 # Build micropython
-export CROSS_COMPILE
+export CROSS_COMPILE=${CPU_ARCH}-elf-newlib-
 export BUILDINC_DIRECTORY="$(realpath $TARGET_BUILD_DIR/software/include)"
 export BUILD="$(realpath $TARGET_MPY_BUILD_DIR)"
 OLD_DIR=$PWD
