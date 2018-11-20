@@ -91,6 +91,8 @@ env:
    - C=picorv32     P=mimasv2          T="base"
    - C=picorv32     P=opsis            T="base net"
    - C=picorv32     P=tinyfpga_bx      T="base"      F=stub
+   # picorv32 minimal
+   - C=picorv32.minimal P=icebreaker   T="base"      F=stub
    #--------------------------------------------
    # Linux Targets
    #--------------------------------------------
