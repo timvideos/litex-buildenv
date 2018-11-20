@@ -149,7 +149,8 @@ class BaseSoC(SoCSDRAM):
         self.submodules.spiflash = spi_flash.SpiFlash(
                 spiflash_pads,
                 dummy=spiflash_dummy[spiflash],
-                div=2)
+                div=platform.spiflash_clock_div,
+                endianness=self.cpu.endianness)
         self.add_constant("SPIFLASH_PAGE_SIZE", 256)
         self.add_constant("SPIFLASH_SECTOR_SIZE", 0x10000)
         self.add_wb_slave(mem_decoder(self.mem_map["spiflash"]), self.spiflash.bus)
