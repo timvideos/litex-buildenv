@@ -1,9 +1,14 @@
 #!/bin/bash
 
+if [ ! -n "$BASH_VERSION" ] ; then
+    echo "This script has to be sourced in bash"
+    return 1 2> /dev/null || exit 1
+fi
+
 if [ "`whoami`" = "root" ]
 then
     echo "Running the script as root is not permitted"
-    exit 1
+    return 1 2> /dev/null || exit 1
 fi
 
 CALLED=$_
@@ -34,14 +39,14 @@ fi
 if echo "${SETUP_DIR}" | grep -q ' '; then
 	echo "You appear to have whitespace characters in the path to this script."
 	echo "Please move this repository to another path that does not contain whitespace."
-	exit 1
+	return 1
 fi
 
 # Conda does not support ':' in the path (it fails to install python).
 if echo "${SETUP_DIR}" | grep -q ':'; then
 	echo "You appear to have ':' characters in the path to this script."
 	echo "Please move this repository to another path that does not contain this character."
-	exit 1
+	return 1
 fi
 
 # Check ixo-usb-jtag *isn't* installed
