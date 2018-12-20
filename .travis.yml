@@ -117,11 +117,6 @@ env:
 jobs:
   fail_fast: true
   allow_failures:
-   # mimas_a7 needs toolchain rebuild
-   - env: C=lm32         P=mimas_a7         T="base net"
-   - env: C=or1k         P=mimas_a7         T="base net"
-   - env: C=vexriscv     P=mimas_a7         T="base net"
-   - env: C=picorv32     P=mimas_a7         T="base net"
    # picorv32 config doesn't really fit on tinyfpga_bx
    - env: C=picorv32     P=tinyfpga_bx      T="base"      F=stub
    # Rework for new netv2 hardware
