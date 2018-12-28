@@ -285,7 +285,7 @@ fi
 if [ "$PLATFORM" = "tinyfpga_bx" ]; then
 	echo
 	echo "Installing tinyprog (tool for TinyFPGA BX boards)"
-	pip install tinyprog
+	pip install "git+https://github.com/tinyfpga/TinyFPGA-Bootloader#egg=tinyprog&subdirectory=programmer&subdirectory=programmer"
 	check_exists tinyprog
 fi
 
