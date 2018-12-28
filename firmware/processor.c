@@ -410,6 +410,19 @@ static void fb_clkgen_write(int cmd, int data)
 // Artix-7 MMCM clocking
 static void fb_clkgen_write(int m, int d)
 {
+	/* MMCM VCO range for slowest speed grade Artix-7 is 600MHz-1200MHz
+	   Warn if the VCO strays outside these limits.
+	*/
+	if ((((m*100)/d) > 1200) || (((m*100)/d) < 600)) {
+		wprintf(
+			"WARNING: VCO freq (%uMHz) outside 600MHz-1200MHz range\n"
+			"          M: %d, D: %d\n",
+			(m*100)/d, m, d);
+	} else {
+		wprintf(
+			"INFO: VCO freq: %uMHz, M: %d, D: %d\n", (m*100)/d, m, d);
+	}
+
 	/* clkfbout_mult = m */
 	if(m%2)
 		hdmi_out0_driver_clocking_mmcm_write(0x14, 0x1000 | ((m/2)<<6) | (m/2 + 1));
@@ -459,7 +472,7 @@ static void fb_get_clock_md(unsigned int pixel_clock, unsigned int *best_m, unsi
 #elif CSR_HDMI_OUT0_DRIVER_CLOCKING_MMCM_RESET_ADDR
 	// Artix 7
 	pixel_clock = pixel_clock * 10;
-	ideal_d = 10000;
+	ideal_d = 1000;
 	max_d = 128;
 	max_m = 128;
 #else
