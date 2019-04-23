@@ -383,6 +383,36 @@ check_version ${CPU_ARCH}-elf-gcc $GCC_VERSION
 #conda install -y $CONDA_FLAGS gdb-${CPU_ARCH}-elf=$GDB_VERSION
 #check_version ${CPU_ARCH}-elf-gdb $GDB_VERSION
 
+# Zephyr SDK
+################################################
+if [ "$FIRMWARE" = "zephyr" ]; then
+	SCRIPT_NAME="zephyr-sdk-$ZEPHYR_SDK_VERSION-setup.run"
+	LOCAL_LOCATION="$BUILD_DIR/zephyr_sdk"
+
+	DETECTED_SDK_LOCATION=""
+	for DIR in "$LOCAL_LOCATION" "$ZEPHYR_SDK_INSTALL_DIR"; do
+		if [ -d "$DIR" ]; then
+			cat "$DIR/sdk_version" | grep -q $ZEPHYR_SDK_VERSION && DETECTED_SDK_LOCATION="$DIR"
+		fi
+	done
+
+	echo
+	if [ -d "$DETECTED_SDK_LOCATION" ]; then
+		echo "Zephyr SDK $ZEPHYR_SDK_VERSION found in: $DETECTED_SDK_LOCATION"
+		echo "---------------------------------------"
+	else
+		echo "Installing Zephyr SDK $ZEPHYR_SDK_VERSION"
+		echo "---------------------------------------"
+		(
+			mkdir -p "$LOCAL_LOCATION"
+			wget https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v$ZEPHYR_SDK_VERSION/$SCRIPT_NAME -O "$LOCAL_LOCATION/$SCRIPT_NAME"
+			cd "$LOCAL_LOCATION"
+			chmod u+x $SCRIPT_NAME
+			./$SCRIPT_NAME -- -y -d "$PWD"
+			rm $SCRIPT_NAME
+		)
+	fi
+fi
 
 # Python modules
 ################################################
@@ -424,6 +454,24 @@ echo
 echo "Installing HDMI2USB-mode-switch (flashing and config tool)"
 pip install --upgrade git+https://github.com/timvideos/HDMI2USB-mode-switch.git
 check_import_version hdmi2usb.modeswitch $HDMI2USB_MODESWITCH_VERSION
+
+if [ "$FIRMWARE" = "zephyr" ]; then
+	# yaml for parsing configuration in Zephyr SDK
+	echo
+	echo "Installing yaml (python module)"
+	conda install -y $CONDA_FLAGS pyyaml
+	check_import yaml
+
+	# elftools for Zephyr SDK
+	echo "Installing elftools (python module)"
+	pip install pyelftools
+	check_import elftools
+
+	# west tool for building Zephyr
+	echo "Installing west (pyhton module)"
+	pip install west
+	check_import west
+fi
 
 # git commands
 echo ""

@@ -15,6 +15,9 @@ GCC_VERSION=8.2.0
 SDCC_VERSION=3.5.0
 OPENOCD_VERSION=0.10.0
 
+# Other tools versions
+ZEPHYR_SDK_VERSION=0.10.0
+
 # lite modules
 LITE_REPOS="
 	migen
