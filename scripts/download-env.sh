@@ -106,12 +106,40 @@ function check_import_version {
 }
 
 function fix_conda {
-	for py in $(find $CONDA_DIR -name envs_manager.py); do
-		START_SUM=$(sha256sum $py | sed -e's/ .*//')
-		sed -i -e"s^expand(join('~', '.conda', 'environments.txt'))^join('$CONDA_DIR', 'environments.txt')^" $py
-		END_SUM=$(sha256sum $py | sed -e's/ .*//')
+	for CONDA_SITE_PACKAGES in $(realpath $CONDA_DIR/lib/python*/site-packages/); do
+		CONDA_COMMON_PATH="$CONDA_SITE_PACKAGES/conda/common/path.py"
+		if [ ! -e $CONDA_COMMON_PATH ]; then
+			continue
+		fi
+		if grep -q "def expanduser" $CONDA_COMMON_PATH; then
+			echo "In $CONDA_SITE_PACKAGES conda/common/path.py is already patched."
+			continue
+		fi
+		START_SUM=$(sha256sum $CONDA_COMMON_PATH | sed -e's/ .*//')
+		(echo -n "In $CONDA_SITE_PACKAGES " && cd $CONDA_SITE_PACKAGES && patch -p1 || exit 1) <<EOF
+diff --git a/conda/common/path.py b/conda/common/path.py
+index 0228a3d0b..ffb879a39 100644
+--- a/conda/common/path.py
++++ b/conda/common/path.py
+@@ -42,6 +42,10 @@ def is_path(value):
+     return re.match(PATH_MATCH_REGEX, value)
+ 
+ 
++def expanduser(path):
++    return expandvars(path.replace('~', '${CONDA_DIR}'))
++
++
+ def expand(path):
+     # if on_win and PY2:
+     #     path = ensure_fs_path_encoding(path)
+
+EOF
+		END_SUM=$(sha256sum $CONDA_COMMON_PATH | sed -e's/ .*//')
 		if [ $START_SUM != $END_SUM ]; then
 			sed -i -e"s/$START_SUM/$END_SUM/" $(find $CONDA_DIR -name paths.json)
+		else
+			echo "Unable to patch conda path module!"
+			return 1
 		fi
 	done
 }
@@ -132,7 +160,10 @@ export PATH=$CONDA_DIR/bin:$PATH:/sbin
 		# -p to specify the install location
 		# -b to enable batch mode (no prompts)
 		# -f to not return an error if the location specified by -p already exists
-		./Miniconda3-latest-Linux-x86_64.sh -p $CONDA_DIR -b -f
+		(
+			export HOME=$CONDA_DIR
+			./Miniconda3-latest-Linux-x86_64.sh -p $CONDA_DIR -b -f || exit 1
+		)
 		fix_conda
 		conda config --system --set always_yes yes
 		conda config --system --set changeps1 no
