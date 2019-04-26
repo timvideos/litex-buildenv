@@ -94,6 +94,8 @@ env:
    # picorv32 minimal
    - C=picorv32.minimal P=arty         T="base net"
    - C=picorv32.minimal P=icebreaker   T="base"      F=stub
+   # minerva target
+   - C=minerva      P=arty             T="base net"
    #--------------------------------------------
    # Linux Targets
    #--------------------------------------------
