@@ -322,7 +322,7 @@ echo "Checking C compiler toolchain"
 echo "---------------------------------------"
 if [ "$CPU" = "lm32" -o "$CPU" = "or1k" ]; then
 	CPU_ARCH=$CPU
-elif [ "$CPU" = "vexriscv" -o "$CPU" = "picorv32" ]; then
+elif [ "$CPU" = "vexriscv" -o "$CPU" = "picorv32" -o "$CPU" = "minerva" ]; then
 	CPU_ARCH=riscv32
 fi
 
