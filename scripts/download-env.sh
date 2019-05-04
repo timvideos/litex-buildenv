@@ -319,6 +319,12 @@ if [ "$PLATFORM" = "tinyfpga_bx" ]; then
 	pip install "git+https://github.com/tinyfpga/TinyFPGA-Bootloader#egg=tinyprog&subdirectory=programmer&subdirectory=programmer"
 	check_exists tinyprog
 fi
+if [ "$PLATFORM" = "icebreaker" -o "$PLATFORM" = "ice40_hx8k_b_evn" -o "$PLATFORM" = "ice40_up5k_b_evn" ]; then
+	echo
+	echo "Installing iceprog (tool for FTDI)"
+	conda install iceprog
+	check_exists iceprog
+fi
 
 # fxload
 if [ "$PLATFORM" = "opsis" -o "$PLATFORM" = "atlys" ]; then
