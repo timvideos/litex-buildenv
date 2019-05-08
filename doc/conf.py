@@ -363,11 +363,14 @@ exhale_projects_args = {
 
 from recommonmark.transform import AutoStructify
 from markdown_links import MarkdownLinks
+
+github_doc_root = 'https://github.com/timvideos/litex-buildenv'
+
 def setup(app):
     MarkdownLinks.find_links()
     app.add_config_value(
         'recommonmark_config', {
-            'github_code_repo': 'https://github.com/timvideos/litex-buildenv',
+            'github_code_repo': github_doc_root,
             'url_resolver': lambda url: github_doc_root + url,
             'auto_toc_tree_section': 'Contents',
         }, True)
