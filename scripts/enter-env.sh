@@ -154,7 +154,7 @@ eval $(cd $TOP_DIR; export HDMI2USB_ENV=1; make env || return 1) || return 1
 
 
 
-check_version python 3.6 || return 1
+check_version python ${PYTHON_VERSION} || return 1
 
 # FPGA toolchain
 ################################################

@@ -184,14 +184,14 @@ eval $(cd $TOP_DIR; export HDMI2USB_ENV=1; make env || return 1) || exit 1
 	echo
 ) || exit 1
 
-echo "python ==3.6" > $CONDA_DIR/conda-meta/pinned # Make sure it stays at version 3.6
+echo "python ==${PYTHON_VERSION}" > $CONDA_DIR/conda-meta/pinned # Make sure it stays at given version
 
 # Check the Python version
 echo
-echo "Installing python3.6"
-conda install -y $CONDA_FLAGS python=3.6
+echo "Installing python${PYTHON_VERSION}"
+conda install -y $CONDA_FLAGS python=${PYTHON_VERSION}
 fix_conda
-check_version python 3.6
+check_version python ${PYTHON_VERSION}
 
 # FPGA toolchain
 ################################################
