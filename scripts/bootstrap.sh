@@ -9,49 +9,60 @@ fi
 if [ -z "$GITHUB_USER" ]; then
   GITHUB_USER=timvideos
 fi
-GIT_REPO=https://github.com/$GITHUB_USER/HDMI2USB-litex-firmware.git
+if [ -z "$GITHUB_REPO" ]; then
+  GITHUB_REPO=HDMI2USB-litex-firmware
+fi
+
+GIT_REPO=https://github.com/$GITHUB_USER/$GITHUB_REPO.git
 if [ -z "$GIT_BRANCH" ]; then
   GIT_BRANCH=master
 fi
 
 TMOUT=5
 
-if ! git help > /dev/null 2>&1; then
- yn=y
- #read -p "Install git to checkout the repository? (y/n) " yn
- if [ "$yn" = "y" -o "$yn" = "Y" ]; then
-   sudo apt-get install -y git || exit 1
- else
-   echo "Aborting.."
-   exit 1
- fi
+if ! realpath --help > /dev/null 2>&1; then
+ echo "realpath not found - aborting.."
+ exit 1
 fi
 
-if [ -e HDMI2USB-litex-firmware ]; then
- echo "Existing checkout found (see HDMI2USB-litex-firmware directory), please remove before running."
+if ! git help > /dev/null 2>&1; then
+ echo "git not found - aborting.."
  exit 1
+fi
+
+if [ -e $GITHUB_REPO ]; then
+ cd $GITHUB_REPO || exit 1
 else
  git clone --recurse-submodules $GIT_REPO || exit 1
- cd HDMI2USB-litex-firmware
+ cd $GITHUB_REPO
  git checkout $GIT_BRANCH || exit 1
 fi
 
-yn=y
-#read -p "Need to install packages as root. Continue? (y/n) " yn
-if [ "$yn" = "y" -o "$yn" = "Y" -o -z "$yn" ]; then
-  sudo -E ./scripts/download-env-root.sh || exit 1
+# Setup things needed by download-env.sh script
+if lsb_release -i | grep -v "Debian|Ubuntu"; then
+ ./scripts/debian-setup.sh
 else
-  echo "Aborting.."
+ if ! wget --help > /dev/null 2>&1; then
+  echo "wget not found - aborting.."
   exit 1
+ fi
+
+ if ! make --help > /dev/null 2>&1; then
+  echo "make not found - aborting.."
+  exit 1
+ fi
+
+ if ! grep --help > /dev/null 2>&1; then
+  echo "grep not found - aborting.."
+  exit 1
+ fi
+
+ if ! sed --help > /dev/null 2>&1; then
+  echo "sed not found - aborting.."
+  exit 1
+ fi
 fi
+
 ./scripts/download-env.sh || exit 1
 
-# Check to see whether they've installed a Xilinx license file yet
-if [ ! -e "$HOME/.Xilinx/Xilinx.lic" ]; then
-  echo "Bootstrap: Set up complete."
-  echo "Bootstrap: Failed to find a license file in ~/.Xilinx/Xilinx.lic"
-  echo "Bootstrap: You can't build HDMI2USB-litex-firmware without Xilinx ISE Design Suite"
-  echo "Bootstrap: See scripts/README.md for instructions on how to obtain a license"
-else
-  echo "Bootstrap: Set up complete, you're good to go!";
-fi
+echo "Bootstrap: Set up complete, you're good to go!";
