@@ -344,6 +344,28 @@ check_version ${CPU_ARCH}-elf-gcc $GCC_VERSION || return 1
 #
 #check_version ${CPU_ARCH}-elf-gdb $GDB_VERSION
 
+# Zephyr SDK
+################################################
+if [ "$FIRMWARE" = "zephyr" ]; then
+	SCRIPT_NAME="zephyr-sdk-$ZEPHYR_SDK_VERSION-setup.run"
+	LOCAL_LOCATION="$BUILD_DIR/zephyr_sdk"
+
+	DETECTED_SDK_LOCATION=""
+	for DIR in "$LOCAL_LOCATION" "$ZEPHYR_SDK_INSTALL_DIR"; do
+		if [ -d "$DIR" ]; then
+			cat "$DIR/sdk_version" | grep -q $ZEPHYR_SDK_VERSION && DETECTED_SDK_LOCATION="$DIR"
+		fi
+	done
+
+	echo
+	if [ -d "$DETECTED_SDK_LOCATION" ]; then
+		echo "Zephyr SDK $ZEPHYR_SDK_VERSION found in: $DETECTED_SDK_LOCATION"
+
+	else
+		echo "Zephyr SDK not found. Please run download-env.sh"
+		return 1
+	fi
+fi
 
 # Python modules
 ################################################
@@ -385,6 +407,24 @@ check_import_version hexfile $HEXFILE_VERSION || return 1
 
 
 check_import_version hdmi2usb.modeswitch $HDMI2USB_MODESWITCH_VERSION || return 1
+
+if [ "$FIRMWARE" = "zephyr" ]; then
+	# yaml for parsing configuration in Zephyr SDK
+
+
+
+	check_import yaml || return 1
+
+	# elftools for Zephyr SDK
+
+
+	check_import elftools || return 1
+
+	# west tool for building Zephyr
+
+
+	check_import west || return 1
+fi
 
 # git commands
 echo ""
