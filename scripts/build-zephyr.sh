@@ -55,7 +55,7 @@ case $CPU in
 	vexriscv)
 		case "$CPU_VARIANT" in
 			lite* | standard* | full* | linux*)
-				TARGET_BOARD=arty_litex_vexriscv
+				TARGET_BOARD=litex_vexriscv
 				ZEPHYR_REPO=https://github.com/antmicro/zephyr
 				ZEPHYR_REPO_BRANCH=litex-vexriscv
 				;;
