@@ -68,11 +68,13 @@ env:
    - C=lm32.lite    P=ice40_up5k_b_evn T="base"      F=stub
    - C=lm32.lite    P=icebreaker       T="base"      F=stub
    - C=lm32.lite    P=tinyfpga_bx      T="base"      F=stub
+   - C=lm32.lite    P=upduino_v1       T="base"      F=stub
    # lm32 minimal
    - C=lm32.minimal P=ice40_hx8k_b_evn T="base"      F=stub
    - C=lm32.minimal P=ice40_up5k_b_evn T="base"      F=stub
    - C=lm32.minimal P=icebreaker       T="base"      F=stub
    - C=lm32.minimal P=tinyfpga_bx      T="base"      F=stub
+   - C=lm32.minimal P=upduino_v1       T="base"      F=stub
    # or1k base targets
    - C=or1k         P=arty             T="base net"
    - C=or1k         P=atlys            T="base net"
@@ -85,6 +87,8 @@ env:
    - C=vexriscv     P=mimas_a7         T="base net"
    - C=vexriscv     P=mimasv2          T="base"
    - C=vexriscv     P=opsis            T="base net"
+   # vexriscv lite
+   - C=vexriscv.lite P=upduino_v1      T="base"
    # picorv32 Base targets
    - C=picorv32     P=arty             T="base net"
    - C=picorv32     P=mimas_a7         T="base net"
