@@ -7,6 +7,8 @@ endif
 # Settings
 DEFAULT_TARGET = base
 TARGET ?= $(DEFAULT_TARGET)
+DEFAULT_FIRMWARE = micropython
+FIRMWARE ?= $(DEFAULT_FIRMWARE)
 BAUD ?= 115200
 
 # Image

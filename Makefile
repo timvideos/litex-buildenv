@@ -15,7 +15,7 @@ export PYTHON
 SPLIT_REGEX := ^\([^.]*\)\.\?\(.*\)$$
 
 # The platform to run on. It is made up of FPGA_MAIN_BOARD.EXPANSION_BOARD
-DEFAULT_PLATFORM = opsis
+DEFAULT_PLATFORM = tinyfpga_bx
 DEFAULT_PLATFORM_EXPANSION =
 
 ifneq ($(FULL_PLATFORM),)
@@ -80,7 +80,18 @@ ifneq ($(FULL_CPU),)
     endif
 endif
 
+# On our default platform, and CPU, we need a minimal CPU variation to fit,
+# so we default the variant to minimal on the default platform; on any other
+# platform we default to the standard CPU.  We want this to end up in
+# the prompt, so we do not set it as the DEFAULT_CPU_VARIANT, but apply
+# it later.
+#
 CPU ?= $(DEFAULT_CPU)
+ifeq ($(PLATFORM),$(DEFAULT_PLATFORM))
+  ifeq ($(CPU),$(DEFAULT_CPU))
+CPU_VARIANT ?= minimal
+  endif
+endif
 CPU_VARIANT ?= $(DEFAULT_CPU_VARIANT)
 
 ifeq ($(CPU),)
@@ -119,9 +130,10 @@ ifeq ($(TARGET),)
 endif
 export TARGET
 
-FIRMWARE ?= firmware
+DEFAULT_FIRMWARE ?= firmware
+FIRMWARE ?= $(DEFAULT_FIRMWARE)
 ifeq ($(FIRMWARE),)
-    FIRMWARE = firmware
+    FIRMWARE = $(DEFAULT_FIRMWARE)
 endif
 export FIRMWARE
 
@@ -437,6 +449,7 @@ env:
 	@echo "export CPU='$(CPU)'"
 	@echo "export CPU_VARIANT='$(CPU_VARIANT)'"
 	@echo "export FIRMWARE='$(FIRMWARE)'"
+	@echo "export DEFAULT_FIRMWARE='$(DEFAULT_FIRMWARE)'"
 	@echo "export OVERRIDE_FIRMWARE='$(OVERRIDE_FIRMWARE)'"
 	@echo "export PROG='$(PROG)'"
 	@echo "export TARGET_BUILD_DIR='$(TARGET_BUILD_DIR)'"
@@ -463,7 +476,7 @@ info:
 	@echo "                Target: $(TARGET) (default: $(DEFAULT_TARGET))"
 	@echo "                   CPU: $(FULL_CPU) (default: $(DEFAULT_CPU))"
 	@if [ x"$(FIRMWARE)" != x"firmware" ]; then \
-		echo "               Firmare: $(FIRMWARE) (default: firmware)"; \
+		echo "              Firmware: $(FIRMWARE) (default: $(DEFAULT_FIRMWARE))"; \
 	fi
 
 prompt:
