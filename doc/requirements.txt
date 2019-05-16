@@ -1,0 +1,40 @@
+docutils==0.14
+sphinx==1.7.0
+sphinx-autobuild
+
+# Important core Sphinx extensions
+breathe
+exhale
+recommonmark
+sphinx_rtd_theme
+sphinxcontrib-napoleon
+
+-e hg+https://mithro@bitbucket.org/mithro/sphinxcontrib-domaintools@mithro/use-dictitems-instead-of-dictiteritems-f-1519177628123#egg=sphinxcontrib-domaintools
+
+# Unimportant Sphinx extensions
+#sphinxcontrib-ansi
+sphinxcontrib-argdoc
+sphinxcontrib-autoprogram
+sphinxcontrib-cheader
+#sphinxcontrib-cheeseshop
+#sphinxcontrib-cmakedomain
+sphinxcontrib-documentedlist
+sphinxcontrib-examplecode
+sphinxcontrib-inlinesyntaxhighlight
+sphinxcontrib-makedomain
+sphinxcontrib-manpage
+sphinxcontrib-spelling
+# Weirdly named Sphinx extensions
+#sphinxcontrib-trio
+sphinx-git
+sphinx-autodoc-typehints
+sphinx-autodoc-napoleon-typehints
+
+# Sphinx extensions for support HDL stuff.
+symbolator
+sphinxcontrib-wavedrom
+# sphinxcontrib-gtkwave
+
+-e git+https://github.com/mithro/sphinx-contrib-mithro#egg=harden_xml&subdirectory=harden_xml
+-e git+https://github.com/mithro/sphinx-contrib-mithro#egg=sphinx-contrib-exhale-multiproject&subdirectory=sphinx-contrib-exhale-multiproject
+-e git+https://github.com/mithro/sphinx-contrib-mithro#egg=sphinx-contrib-markdown-links&subdirectory=sphinx-contrib-markdown-links
