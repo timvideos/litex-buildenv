@@ -15,6 +15,11 @@ export PYTHON
 SPLIT_REGEX := ^\([^.]*\)\.\?\(.*\)$$
 
 # The platform to run on. It is made up of FPGA_MAIN_BOARD.EXPANSION_BOARD
+#
+# 2019-05-15 - Default platform is tinyfpga_bx as it is widely available
+#              and has open source tooling; change to icebreaker later in 2019
+# FIXME:       (See https://github.com/timvideos/litex-buildenv/issues/134)
+#
 DEFAULT_PLATFORM = tinyfpga_bx
 DEFAULT_PLATFORM_EXPANSION =
 
