@@ -85,18 +85,7 @@ ifneq ($(FULL_CPU),)
     endif
 endif
 
-# On our default platform, and CPU, we need a minimal CPU variation to fit,
-# so we default the variant to minimal on the default platform; on any other
-# platform we default to the standard CPU.  We want this to end up in
-# the prompt, so we do not set it as the DEFAULT_CPU_VARIANT, but apply
-# it later.
-#
 CPU ?= $(DEFAULT_CPU)
-ifeq ($(PLATFORM),$(DEFAULT_PLATFORM))
-  ifeq ($(CPU),$(DEFAULT_CPU))
-CPU_VARIANT ?= minimal
-  endif
-endif
 CPU_VARIANT ?= $(DEFAULT_CPU_VARIANT)
 
 ifeq ($(CPU),)

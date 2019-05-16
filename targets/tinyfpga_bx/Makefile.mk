@@ -11,6 +11,21 @@ DEFAULT_FIRMWARE = micropython
 FIRMWARE ?= $(DEFAULT_FIRMWARE)
 BAUD ?= 115200
 
+# Default to minimal CPU variant on TinyFPGA BX for space reasons, unless
+# it is explicitly set to something else (and if we change it, we need to
+# reset FULL_CPU for conssitency); at the time that we are evaluated,
+# CPU_VARIANT has already been explicitly set to an empty string so ?=
+# cannot be used.
+#
+ifeq ($(CPU),lm32)
+  ifeq ($(CPU_VARIANT),)
+CPU_VARIANT = minimal
+  endif
+  ifneq ($(CPU_VARIANT),)
+FULL_CPU = $(CPU).$(CPU_VARIANT)
+  endif
+endif
+
 # Image
 image-flash-$(PLATFORM):
 	tinyprog --program-image $(IMAGE_FILE)
