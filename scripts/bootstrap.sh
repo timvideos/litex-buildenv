@@ -39,7 +39,7 @@ else
 fi
 
 # Setup things needed by download-env.sh script
-if lsb_release -i | grep -v "Debian|Ubuntu"; then
+if lsb_release -i | grep -q "Debian|Ubuntu"; then
  ./scripts/debian-setup.sh
 else
  if ! wget --help > /dev/null 2>&1; then
