@@ -10,7 +10,7 @@ if [ -z "$GITHUB_USER" ]; then
   GITHUB_USER=timvideos
 fi
 if [ -z "$GITHUB_REPO" ]; then
-  GITHUB_REPO=HDMI2USB-litex-firmware
+  GITHUB_REPO=litex-buildenv
 fi
 
 GIT_REPO=https://github.com/$GITHUB_USER/$GITHUB_REPO.git
