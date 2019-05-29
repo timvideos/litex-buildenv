@@ -469,11 +469,13 @@ if [ "$FIRMWARE" = "zephyr" ]; then
 	check_import yaml
 
 	# elftools for Zephyr SDK
+	echo
 	echo "Installing elftools (python module)"
 	pip install pyelftools
 	check_import elftools
 
 	# west tool for building Zephyr
+	echo
 	echo "Installing west (pyhton module)"
 	pip install west
 	check_import west
