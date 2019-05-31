@@ -1,37 +1,17 @@
 #!/bin/bash
 
-if [ "`whoami`" = "root" ]
-then
-	echo "Running the script as root is not permitted"
-	exit 1
-fi
-
-CALLED=$_
-[[ "${BASH_SOURCE[0]}" != "${0}" ]] && SOURCED=1 || SOURCED=0
-
 SCRIPT_SRC=$(realpath ${BASH_SOURCE[0]})
 SCRIPT_DIR=$(dirname $SCRIPT_SRC)
 TOP_DIR=$(realpath $SCRIPT_DIR/..)
-
-if [ $SOURCED = 1 ]; then
+if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
 	echo "You must run this script, rather then try to source it."
 	echo "$SCRIPT_SRC"
-	return
-fi
-
-if [ -z "$HDMI2USB_ENV" ]; then
-	echo "You appear to not be inside the HDMI2USB environment."
-	echo "Please enter environment with:"
-	echo "  source scripts/enter-env.sh"
 	exit 1
 fi
 
-# Imports TARGET, PLATFORM, CPU and TARGET_BUILD_DIR from Makefile
-eval $(make env)
-make info
+source $SCRIPT_DIR/build-common.sh
 
-set -x
-set -e
+init
 
 QEMU_REMOTE="${QEMU_REMOTE:-https://github.com/timvideos/qemu-litex.git}"
 QEMU_BRANCH=${QEMU_BRANCH:-master}
@@ -125,14 +105,17 @@ QEMU_IMAGE_FILE=$IMAGE_FILE.4qemu
 $TARGET_QEMU_BUILD_DIR/qemu-img convert -f raw $QEMU_IMAGE_FILE -O qcow2 -S 16M $TARGET_BUILD_DIR/qemu.qcow2
 
 # BIOS
-if grep -q 'ROM_BASE 0x00000000' $TARGET_BUILD_DIR/software/include/generated/mem.h; then
+ROM_BASE=$(parse_generated_header "mem.h" ROM_BASE)
+if [ ! -z "$ROM_BASE" ]; then
 	echo "Platform has BIOS ROM, adding BIOS"
 	EXTRA_ARGS+=("-bios $BIOS_FILE")
 fi
 
 # SPI Flash
-if grep -q 'SPIFLASH_BASE' $TARGET_BUILD_DIR/software/include/generated/mem.h; then
-	SPIFLASH_MODEL=$(grep spiflash_model platforms/$PLATFORM.py | sed -e's/[^"]*"//' -e's/".*$//')
+SPIFLASH_BASE=$(parse_generated_header "mem.h" SPIFLASH_BASE)
+SPIFLASH_MODEL=$(grep spiflash_model platforms/$PLATFORM.py | sed -e's/[^"]*"//' -e's/".*$//')
+echo $SPIFLASH_MODEL
+if [ ! -z "$SPIFLASH_BASE" ]; then
 	if [ -z "$SPIFLASH_MODEL" ]; then
 		echo "Platform has unknown SPI flash - assuming m25p16!"
 		SPIFLASH_MODEL=m25p16
@@ -142,51 +125,15 @@ if grep -q 'SPIFLASH_BASE' $TARGET_BUILD_DIR/software/include/generated/mem.h; t
 fi
 
 # Ethernet
-if grep -q ETHMAC_BASE $TARGET_BUILD_DIR/software/include/generated/csr.h; then
+ETH_BASE_ADDRESS=$(parse_generated_header "csr.h" CSR_ETHMAC_BASE)
+if [ ! -z "$ETH_BASE_ADDRESS" ]; then
 	QEMU_NETWORK=${QEMU_NETWORK:-tap}
 	case $QEMU_NETWORK in
 	tap)
 		echo "Using tun device for QEmu networking, (may need sudo)..."
-		# Make the tap0 dev node exists
-		if [ ! -e /dev/net/tap0 ]; then
-			sudo true
-			sudo mknod /dev/net/tap0 c 10 200
-			sudo chown $(whoami) /dev/net/tap0
-		fi
 
-		# Check that the tap0 network interface exists
-		if [ ! -e /sys/class/net/tap0 ]; then
-			sudo true
-			if sudo which openvpn > /dev/null; then
-				sudo openvpn --mktun --dev tap0 --user $(whoami)
-			elif sudo which tunctl > /dev/null; then
-				sudo tunctl -t tap0 -u $(whoami)
-			else
-				echo "Unable to find tool to create tap0 device!"
-				exit 1
-			fi
-		fi
-
-		# Check the tap0 device if configure and up
-		if sudo which ifconfig > /dev/null; then
-			if ! ifconfig tap0 | grep -q "UP" || ! ifconfig tap0 | grep -q "$TFTP_IPRANGE.100"; then
-				sudo true
-				sudo ifconfig tap0 $TFTP_IPRANGE.100 netmask 255.255.255.0 up
-			fi
-		elif sudo which ip > /dev/null; then
-			if ! ip addr show tap0 | grep -q "UP" || ! ip addr show tap0 | grep -q "$TFTP_IPRANGE.100"; then
-				sudo true
-				sudo ip addr add $TFTP_IPRANGE.100/24 dev tap0
-				sudo ip link set dev tap0 up
-			fi
-		else
-			echo "Unable to find tool to configure tap0 address"
-			exit 1
-		fi
-
-		# Restart tftpd
-		make tftpd_stop
-		make tftpd_start
+		configure_tap
+		start_tftp
 
 		EXTRA_ARGS+=("-net nic -net tap,ifname=tap0,script=no,downscript=no")
 		;;
@@ -222,9 +169,6 @@ fi
 
 # Allow gdb connections
 EXTRA_ARGS+=("-gdb tcp::10001")
-
-SPIFLASH_MODEL=$(grep spiflash_model platforms/$PLATFORM.py | sed -e's/[^"]*"//' -e's/".*$//')
-echo $SPIFLASH_MODEL
 
 $TARGET_QEMU_BUILD_DIR/$QEMU_ARCH/qemu-system-$QEMU_CPU \
 	-M litex \
