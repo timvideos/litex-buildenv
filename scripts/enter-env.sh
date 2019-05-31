@@ -424,6 +424,9 @@ if [ "$FIRMWARE" = "zephyr" ]; then
 
 
 	check_import west || return 1
+
+	# pykwalify for building Zephyr
+	check_import pykwalify.core || return 1
 fi
 
 # git commands
