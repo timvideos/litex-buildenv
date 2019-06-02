@@ -45,7 +45,7 @@ static const unsigned char config_defaults[CONFIG_KEY_COUNT] = {
 	true,  // Input1
 	// Output config
 	true, VIDEO_IN_DEFAULT, // Output 0
-	true, VIDEO_IN_DEFAULT, // Output 1
+	true, VIDEO_IN_PATTERN, // Output 1
 	// Encoder
 	true, VIDEO_IN_DEFAULT, 85, 25, true,
 	// Networking - MAC Address
