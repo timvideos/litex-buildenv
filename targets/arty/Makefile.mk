@@ -28,7 +28,7 @@ firmware-load-$(PLATFORM):
 	flterm --port=$(COMM_PORT) --kernel=$(FIRMWARE_FILEBASE).bin --speed=$(BAUD)
 
 
-firmware-flash-$(PLATFORM): firmwage-flash-py
+firmware-flash-$(PLATFORM): firmware-flash-py
 	@true
 
 firmware-connect-$(PLATFORM):
