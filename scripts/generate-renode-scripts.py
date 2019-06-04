@@ -35,12 +35,15 @@ def generate_ethmac(peripheral, **kwargs):
     result = """
 ethmac: Network.LiteX_Ethernet @ {{
     sysbus <{}, +0x100>;
-    sysbus new Bus.BusMultiRegistration {{ address: {}; size: {}; region: "buffer" }}
+    sysbus new Bus.BusMultiRegistration {{ address: {};
+                                           size: {};
+                                           region: "buffer" }}
 }}
 """.format(peripheral['address'], buf['address'], buf['size'])
 
     if 'interrupt' in peripheral['constants']:
-        result += '    -> cpu@{}\n'.format(peripheral['constants']['interrupt'])
+        result += '    -> cpu@{}\n'.format(
+                peripheral['constants']['interrupt'])
 
     return result
 
@@ -57,7 +60,9 @@ def generate_memory_region(region_descriptor):
     return """
 {}: Memory.MappedMemory @ sysbus {}
     size: {}
-""".format(region_descriptor['name'], region_descriptor['address'], region_descriptor['size'])
+""".format(region_descriptor['name'],
+           region_descriptor['address'],
+           region_descriptor['size'])
 
 def generate_silencer(peripheral, **kwargs):
     """ Silences access to a memory region.
@@ -100,7 +105,8 @@ def generate_peripheral(peripheral, **kwargs):
 
     Args:
         peripheral (dict): peripheral description
-        kwargs (dict): additional parameters, including 'model' and 'properties'
+        kwargs (dict): additional parameterss, including
+                       'model' and 'properties'
 
     Returns:
         string: repl definition of the peripheral
@@ -126,7 +132,8 @@ def generate_repl():
     """ Generates platform definition.
 
     Returns:
-        string: platform defition containing all supported peripherals and memory regions
+        string: platform defition containing all supported
+                peripherals and memory regions
     """
     result = ""
 
@@ -140,7 +147,8 @@ def generate_repl():
             'handler': generate_peripheral,
             'model': 'Timers.LiteX_Timer',
             'properties': {
-                'frequency': lambda: constants['system_clock_frequency']['value']
+                'frequency':
+                    lambda: constants['system_clock_frequency']['value']
             }
         },
         'ethmac': {
@@ -166,7 +174,8 @@ def generate_repl():
 
     for name, peripheral in peripherals.items():
         if name not in name_to_handler:
-            print('Skipping unsupported peripheral {} at {}'.format(name, peripheral['address']))
+            print('Skipping unsupported peripheral {} at {}'
+                  .format(name, peripheral['address']))
             continue
 
         h = name_to_handler[name]
@@ -181,10 +190,13 @@ def parse_csv(data):
         data (list): list of CSV file lines
     """
 
-    # scan for CSRs first, so it's easier to resolve CSR-related constants in the second pass
+    # scan for CSRs first, so it's easier to resolve CSR-related constants
+    # in the second pass
     for _type, _name, _address, _, __ in data:
         if _type == 'csr_base':
-            peripherals[_name] = {'name': _name, 'address': _address, 'constants': {}}
+            peripherals[_name] = {'name': _name,
+                                  'address': _address,
+                                  'constants': {}}
 
     for _type, _name, _val, _val2, _ in data:
         if _type == 'csr_base':
@@ -197,14 +209,17 @@ def parse_csv(data):
             found = False
             for _csr_name in peripherals:
                 if _name.startswith(_csr_name):
-                    peripherals[_csr_name]['constants'][_name[len(_csr_name)+1:]] = _val
+                    local_name = _name[len(_csr_name)+1:]
+                    peripherals[_csr_name]['constants'][local_name] = _val
                     found = True
                     break
             if not found:
                 # if it's not a CSR-related constant, it must be a global one
                 constants[_name] = {'name': _name, 'value': _val}
         elif _type == 'memory_region':
-            mem_regions[_name] = {'name': _name, 'address': _val, 'size': _val2}
+            mem_regions[_name] = {'name': _name,
+                                  'address': _val,
+                                  'size': _val2}
         else:
             print('Skipping unexpected CSV entry: {} {}'.format(_type, _name))
 
@@ -213,11 +228,14 @@ def generate_resc(repl_file, host_tap_interface=None, bios_binary=None):
 
     Args:
         repl_file (string): path to Renode platform definition file
-        host_tap_interface (string): name of the tap interface on host machine or None if no network should be configured
-        bios_binary (string): path to the binary file of LiteX BIOS or None if it should not be loaded into ROM
+        host_tap_interface (string): name of the tap interface on host machine
+                                     or None if no network should be configured
+        bios_binary (string): path to the binary file of LiteX BIOS or None
+                              if it should not be loaded into ROM
 
     Returns:
-        string: platform defition containing all supported peripherals and memory regions
+        string: platform defition containing all supported peripherals
+                and memory regions
     """
     cpu_type = constants['config_cpu_type']['value']
 
@@ -254,7 +272,8 @@ def print_or_save(filepath, lines):
     """ Prints given string on standard output or to the file.
 
     Args:
-        filepath (string): path to the file lines should be written to or '-' to write to a standard output
+        filepath (string): path to the file lines should be written to
+                           or '-' to write to a standard output
         lines (string): content to be printed/written
     """
     if filepath == '-':
@@ -265,11 +284,16 @@ def print_or_save(filepath, lines):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('conf_file', help='CSV configuration generated by LiteX')
-    parser.add_argument('--resc', action='store', help='Output script file')
-    parser.add_argument('--repl', action='store', help='Output platform definition file')
-    parser.add_argument('--configure-network', action='store', help='Generate virtual network and connect it with host interface')
-    parser.add_argument('--bios-binary', action='store', help='Path to the BIOS binary')
+    parser.add_argument('conf_file',
+                        help='CSV configuration generated by LiteX')
+    parser.add_argument('--resc', action='store',
+                        help='Output script file')
+    parser.add_argument('--repl', action='store',
+                        help='Output platform definition file')
+    parser.add_argument('--configure-network', action='store',
+                        help='Generate virtual network and connect it to host')
+    parser.add_argument('--bios-binary', action='store',
+                        help='Path to the BIOS binary')
     args = parser.parse_args()
 
     with open(args.conf_file) as csvfile:
@@ -280,8 +304,10 @@ if __name__ == '__main__':
 
     if args.resc:
         if not args.repl:
-            print("In order to generate RESC file you need to generated REPL as well!")
+            print("REPL is needed when generating RESC file")
             sys.exit(1)
         else:
-            print_or_save(args.resc, generate_resc(args.repl, args.configure_network, args.bios_binary))
+            print_or_save(args.resc, generate_resc(args.repl,
+                                                   args.configure_network,
+                                                   args.bios_binary))
 
