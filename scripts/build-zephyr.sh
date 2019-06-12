@@ -56,8 +56,6 @@ case $CPU in
 		case "$CPU_VARIANT" in
 			lite* | standard* | full* | linux*)
 				TARGET_BOARD=litex_vexriscv
-				ZEPHYR_REPO=https://github.com/antmicro/zephyr
-				ZEPHYR_REPO_BRANCH=litex-vexriscv
 				;;
 			*)
 				echo "Zephyr needs a CPU_VARIANT set to at least 'lite' for the support of 'ecall' instruction."
