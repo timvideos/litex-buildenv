@@ -20,11 +20,53 @@ mem_regions = {}
 peripherals = {}
 constants = {}
 
-def generate_ethmac(peripheral, **kwargs):
+def generate_sysbus_registration(address, shadow_base, size=None,
+                                 skip_braces=False):
+    """ Generates system bus registration information
+    consisting of base aaddress and optional shadow
+    address.
+
+    Args:
+        address (int): peripheral's base address
+        shadow_base (int or None): shadow base address
+        size (int or None): peripheral's size, if None the value provided
+                            by the peripheral in runtime is taken
+        skip_braces (bool): determines if the registration info should
+                            be put in braces
+
+    Returns:
+        string: registration information
+    """
+
+    def generate_registration_entry(address, size=None):
+        if size:
+            return "sysbus <{}, +{}>".format(hex(address), hex(size))
+        return "sysbus {}".format(hex(address))
+
+    if shadow_base:
+        shadowed_address = address | int(shadow_base, 0)
+
+        if shadowed_address == address:
+            address &= ~int(shadow_base, 0)
+
+        result = "{}; {}".format(
+            generate_registration_entry(address, size),
+            generate_registration_entry(shadowed_address, size))
+    else:
+        result = generate_registration_entry(address, size)
+
+    if not skip_braces:
+        result = "{{ {} }}".format(result)
+
+    return result
+
+
+def generate_ethmac(peripheral, shadow_base, **kwargs):
     """ Generates definition of 'ethmac' peripheral.
 
     Args:
         peripheral (dict): peripheral description
+        shadow_base (int or None): shadow base address
         kwargs (dict): additional parameters, including 'buffer'
 
     Returns:
@@ -34,12 +76,17 @@ def generate_ethmac(peripheral, **kwargs):
 
     result = """
 ethmac: Network.LiteX_Ethernet @ {{
-    sysbus <{}, +0x100>;
+    {};
     sysbus new Bus.BusMultiRegistration {{ address: {};
                                            size: {};
                                            region: "buffer" }}
 }}
-""".format(peripheral['address'], buf['address'], buf['size'])
+""".format(generate_sysbus_registration(int(peripheral['address'], 0),
+                                        shadow_base,
+                                        0x100,
+                                        skip_braces=True),
+           buf['address'],
+           buf['size'])
 
     if 'interrupt' in peripheral['constants']:
         result += '    -> cpu@{}\n'.format(
@@ -47,28 +94,32 @@ ethmac: Network.LiteX_Ethernet @ {{
 
     return result
 
-def generate_memory_region(region_descriptor):
+def generate_memory_region(region_descriptor, shadow_base):
     """ Generates definition of memory region.
 
     Args:
         region_descriptor (dict): memory region description
+        shadow_base (int or None): shadow base address
 
     Returns:
         string: repl definition of the memory region
     """
 
     return """
-{}: Memory.MappedMemory @ sysbus {}
+{}: Memory.MappedMemory @ {}
     size: {}
 """.format(region_descriptor['name'],
-           region_descriptor['address'],
+           generate_sysbus_registration(int(region_descriptor['address'], 0),
+                                        shadow_base),
            region_descriptor['size'])
 
-def generate_silencer(peripheral, **kwargs):
+def generate_silencer(peripheral, shadow_base, **kwargs):
     """ Silences access to a memory region.
 
     Args:
         peripheral (dict): peripheral description
+        shadow_base (int or None): unused, just for compatibility with other
+                                   functions
         kwargs (dict): additional parameters, not used
 
     Returns:
@@ -100,21 +151,24 @@ cpu: CPU.PicoRV32 @ sysbus
     else:
         raise Exception('Unsupported cpu type: {}'.format(kind))
 
-def generate_peripheral(peripheral, **kwargs):
+def generate_peripheral(peripheral, shadow_base, **kwargs):
     """ Generates definition of a peripheral.
 
     Args:
         peripheral (dict): peripheral description
+        shadow_base (int or None): shadow base address
         kwargs (dict): additional parameterss, including
                        'model' and 'properties'
 
     Returns:
         string: repl definition of the peripheral
     """
-    result = '\n{}: {} @ sysbus {}\n'.format(
+
+    result = '\n{}: {} @ {}\n'.format(
         peripheral['name'],
         kwargs['model'],
-        peripheral['address'])
+        generate_sysbus_registration(int(peripheral['address'], 0),
+                                     shadow_base))
 
     for constant, val in peripheral['constants'].items():
         if constant == 'interrupt':
@@ -166,9 +220,13 @@ def generate_repl():
         }
     }
 
+    shadow_base = (constants['shadow_base']['value']
+                   if 'shadow_base' in constants
+                   else None)
+
     for mem_region in mem_regions.values():
         if mem_region['name'] not in non_generated_mem_regions:
-            result += generate_memory_region(mem_region)
+            result += generate_memory_region(mem_region, shadow_base)
 
     result += generate_cpu()
 
@@ -179,7 +237,7 @@ def generate_repl():
             continue
 
         h = name_to_handler[name]
-        result += h['handler'](peripheral, **h)
+        result += h['handler'](peripheral, shadow_base, **h)
 
     return result
 
