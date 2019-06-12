@@ -282,6 +282,11 @@ def print_or_save(filepath, lines):
         with open(filepath, 'w') as f:
             f.write(lines)
 
+def remove_comments(data):
+    for line in data:
+        if not line.lstrip().startswith('#'):
+            yield line
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('conf_file',
@@ -297,7 +302,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     with open(args.conf_file) as csvfile:
-        parse_csv(list(csv.reader(csvfile)))
+        parse_csv(list(csv.reader(remove_comments(csvfile))))
 
     if args.repl:
         print_or_save(args.repl, generate_repl())
