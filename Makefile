@@ -306,9 +306,9 @@ $(FIRMWARE_FILEBASE).bin: firmware-cmd
 
 $(FIRMWARE_FILEBASE).fbi: $(FIRMWARE_FILEBASE).bin
 ifeq ($(CPU_ENDIANNESS), little)
-	$(PYTHON) -m litex.soc.tools.mkmscimg -f --little $< -o $@
+	$(PYTHON) -m litex.soc.software.mkmscimg -f --little $< -o $@
 else
-	$(PYTHON) -m litex.soc.tools.mkmscimg -f $< -o $@
+	$(PYTHON) -m litex.soc.software.mkmscimg -f $< -o $@
 endif
 
 firmware: $(FIRMWARE_FILEBASE).bin
