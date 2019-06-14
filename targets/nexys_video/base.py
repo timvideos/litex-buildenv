@@ -87,6 +87,8 @@ class BaseSoC(SoCSDRAM):
         "ddrphy",
         "info",
         "oled",
+        "uart",
+        "uart_phy",
     )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 

@@ -220,6 +220,7 @@ class BaseSoC(SoCSDRAM):
         "fx2_hack",
         "tofe",
         "opsis_i2c",
+        "uart",
     )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
