@@ -10,18 +10,19 @@ necessary to emulate the given configuration of the LiteX SoC.
 
 import sys
 import csv
+import zlib
 import argparse
 
 # this memory region is defined and handled
 # directly by LiteEth model in Renode
-non_generated_mem_regions = ['ethmac']
+non_generated_mem_regions = ['ethmac', 'spiflash']
 
 mem_regions = {}
 peripherals = {}
 constants = {}
 
 def generate_sysbus_registration(address, shadow_base, size=None,
-                                 skip_braces=False):
+                                 skip_braces=False, region=None):
     """ Generates system bus registration information
     consisting of base aaddress and optional shadow
     address.
@@ -33,12 +34,18 @@ def generate_sysbus_registration(address, shadow_base, size=None,
                             by the peripheral in runtime is taken
         skip_braces (bool): determines if the registration info should
                             be put in braces
+        region (str or None): name of the region, if None the default
+                              one is assumed
 
     Returns:
         string: registration information
     """
 
-    def generate_registration_entry(address, size=None):
+    def generate_registration_entry(address, size=None, name=None):
+        if name:
+            if not size:
+                raise Exception('Size must be provided when registering non-default region')
+            return 'sysbus new Bus.BusMultiRegistration {{ address: {}; size: {}; region: "{}" }}'.format(hex(address), hex(size), name)
         if size:
             return "sysbus <{}, +{}>".format(hex(address), hex(size))
         return "sysbus {}".format(hex(address))
@@ -50,10 +57,10 @@ def generate_sysbus_registration(address, shadow_base, size=None,
             address &= ~int(shadow_base, 0)
 
         result = "{}; {}".format(
-            generate_registration_entry(address, size),
-            generate_registration_entry(shadowed_address, size))
+            generate_registration_entry(address, size, region),
+            generate_registration_entry(shadowed_address, size, region))
     else:
-        result = generate_registration_entry(address, size)
+        result = generate_registration_entry(address, size, region)
 
     if not skip_braces:
         result = "{{ {} }}".format(result)
@@ -77,16 +84,16 @@ def generate_ethmac(peripheral, shadow_base, **kwargs):
     result = """
 ethmac: Network.LiteX_Ethernet @ {{
     {};
-    sysbus new Bus.BusMultiRegistration {{ address: {};
-                                           size: {};
-                                           region: "buffer" }}
+    {}
 }}
 """.format(generate_sysbus_registration(int(peripheral['address'], 0),
                                         shadow_base,
                                         0x100,
                                         skip_braces=True),
-           buf['address'],
-           buf['size'])
+           generate_sysbus_registration(int(buf['address'], 0),
+                                        shadow_base,
+                                        int(buf['size'], 0),
+                                        skip_braces=True, region='buffer'))
 
     if 'interrupt' in peripheral['constants']:
         result += '    -> cpu@{}\n'.format(
@@ -182,6 +189,39 @@ def generate_peripheral(peripheral, shadow_base, **kwargs):
 
     return result
 
+def generate_spiflash(peripheral, shadow_base, **kwargs):
+    """ Generates definition of an SPI controller with attached flash memory.
+
+    Args:
+        peripheral (dict): peripheral description
+        shadow_base (int or None): shadow base address
+        kwargs (dict): additional parameterss, including
+                       'model' and 'properties'
+
+    Returns:
+        string: repl definition of the peripheral
+    """
+
+    flash_size = 0x2000000
+
+    result = """
+spi: SPI.LiteX_SPI @ {{
+    {};
+    {}
+}}
+""".format(
+        generate_sysbus_registration(int(peripheral['address'], 0),
+                                     shadow_base, skip_braces=True),
+        generate_sysbus_registration(0xa0000000, shadow_base, size=flash_size,
+                                     skip_braces=True, region='xip'))
+
+    result += """
+flash: SPI.Micron_MT25Q @ spi
+    size: {}
+""".format(flash_size)
+
+    return result
+
 def generate_repl():
     """ Generates platform definition.
 
@@ -217,6 +257,9 @@ def generate_repl():
         },
         'ethphy': {
             'handler': generate_silencer
+        },
+        'spiflash': {
+            'handler': generate_spiflash
         }
     }
 
@@ -281,7 +324,23 @@ def parse_csv(data):
         else:
             print('Skipping unexpected CSV entry: {} {}'.format(_type, _name))
 
-def generate_resc(repl_file, host_tap_interface=None, bios_binary=None):
+def calculate_offset(address, base, shadow_base=0):
+    """ Calculates an offset between two addresses, taking optional
+        shadow base into consideration.
+
+    Args:
+        address (int): first address
+        base (int): second address
+        shadow_base (int): mask of shadow address that is applied to `base`
+
+    Returns:
+        The minimal non-negative offset between `address` and `base`
+        calculated with and without applying the `shadow_base`.
+    """
+
+    return min(a - base for a in (address, (address | shadow_base), (address & ~shadow_base)) if a >= base)
+
+def generate_resc(repl_file, host_tap_interface=None, bios_binary=None, firmware_binary=None):
     """ Generates platform definition.
 
     Args:
@@ -290,6 +349,8 @@ def generate_resc(repl_file, host_tap_interface=None, bios_binary=None):
                                      or None if no network should be configured
         bios_binary (string): path to the binary file of LiteX BIOS or None
                               if it should not be loaded into ROM
+        firmware_binary (string): path to the firmware binary file or None
+                                  if it should not be loaded into flash
 
     Returns:
         string: platform defition containing all supported peripherals
@@ -322,6 +383,34 @@ emulation CreateTap "{}" "tap"
 connector Connect ethmac switch
 connector Connect host.tap switch
 """.format(host_tap_interface)
+    elif firmware_binary and 'flash_boot_address' in constants:
+        # load firmware binary to spiflash to boot from there
+
+        firmware_data = open(firmware_binary, 'rb').read()
+        crc32 = zlib.crc32(firmware_data)
+
+        flash_boot_address = int(constants['flash_boot_address']['value'], 0)
+        flash_base = int(mem_regions['spiflash']['address'], 0)
+        shadow_base = (int(constants['shadow_base']['value'], 0)
+                       if 'shadow_base' in constants
+                       else 0)
+        firmware_image_offset = calculate_offset(flash_boot_address, flash_base, shadow_base)
+
+        # this is a new file with padding, length & CRC prepended
+        firmware_binary_crc = firmware_binary + '.with_crc'
+        with open(firmware_binary_crc, 'wb') as with_crc:
+            # pad the file with 0's at the beginning - the
+            # firmware image might not be located at the
+            # beginning of the flash
+            with_crc.write((0).to_bytes(firmware_image_offset, byteorder='little'))
+            # 4 bytes: the length of the image
+            with_crc.write(len(firmware_data).to_bytes(4, byteorder='little'))
+            # 4 bytes: the CRC of the image
+            with_crc.write(crc32.to_bytes(4, byteorder='little'))
+            # the image itself
+            with_crc.write(firmware_data)
+
+        result += 'spi.flash UseDataFromFile @{}\n'.format(firmware_binary_crc)
 
     result += 'start'
     return result
@@ -357,6 +446,8 @@ if __name__ == '__main__':
                         help='Generate virtual network and connect it to host')
     parser.add_argument('--bios-binary', action='store',
                         help='Path to the BIOS binary')
+    parser.add_argument('--firmware-binary', action='store',
+                        help='Path to the binary to load into boot flash')
     args = parser.parse_args()
 
     with open(args.conf_file) as csvfile:
@@ -372,5 +463,5 @@ if __name__ == '__main__':
         else:
             print_or_save(args.resc, generate_resc(args.repl,
                                                    args.configure_network,
-                                                   args.bios_binary))
-
+                                                   args.bios_binary,
+                                                   args.firmware_binary))

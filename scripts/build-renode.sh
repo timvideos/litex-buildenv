@@ -94,6 +94,7 @@ python $SCRIPT_DIR/generate-renode-scripts.py $LITEX_CONFIG_FILE \
 	--repl "$RENODE_REPL" \
 	--resc "$RENODE_RESC" \
 	--bios-binary "$TARGET_BUILD_DIR/software/bios/bios.bin" \
+	--firmware-binary "$TARGET_BUILD_DIR/software/$FIRMWARE/firmware.bin" \
 	--configure-network ${TAP_INTERFACE:-""}
 
 $RENODE_BIN "$RENODE_RESC"
