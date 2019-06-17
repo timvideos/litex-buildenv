@@ -492,6 +492,7 @@ echo ""
 echo "Updating git config"
 echo "-----------------------"
 (
+	cd $TOP_DIR
 	git config status.submodulesummary 1
 	git config push.recurseSubmodules check
 	git config diff.submodule log
