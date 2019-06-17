@@ -224,11 +224,6 @@ class BaseSoC(SoCSDRAM):
     )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
-    interrupt_map = {
-        "uart": 2,
-    }
-    interrupt_map.update(SoCSDRAM.interrupt_map)
-
     mem_map = {
         "spiflash":     0x20000000,  # (default shadow @0xa0000000)
     }
@@ -299,6 +294,8 @@ class BaseSoC(SoCSDRAM):
                 self.submodules.tofe = tofe.TOFEBoard(tofe_board_name)(platform, self.suart)
             else:
                 self.submodules.tofe = tofe.TOFEBoard(tofe_board_name)(platform)
+
+        self.add_interrupt("uart")
 
 
 SoC = BaseSoC
