@@ -39,9 +39,9 @@ if ! $RENODE_FOUND; then
 			wget $RENODE_URL
 			tar -xf $RENODE_PACKAGE
 		)
-		
+
 		chmod u+x $RENODE_BIN
-		echo "Renode downloaded and installed locally: $RENODE_BIN" 
+		echo "Renode downloaded and installed locally: $RENODE_BIN"
 	fi
 fi
 
