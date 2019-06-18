@@ -19,12 +19,6 @@ class PCIeDMASoC(BaseSoC):
     }
     csr_map.update(BaseSoC.csr_map)
 
-    interrupt_map = {
-        "dma_writer": 0,
-        "dma_reader": 1,
-    }
-    interrupt_map.update(BaseSoC.interrupt_map)
-
     BaseSoC.mem_map["csr"] = 0x00000000
     BaseSoC.mem_map["rom"] = 0x20000000
 
@@ -51,12 +45,16 @@ class PCIeDMASoC(BaseSoC):
         # pcie msi
         self.submodules.msi = LitePCIeMSI()
         self.comb += self.msi.source.connect(self.pcie_phy.msi)
+
+        self.add_interrupt("dma_writer")
+        self.add_interrupt("dma_reader")
+
         self.interrupts = {
             "dma_writer":    self.dma.writer.irq,
             "dma_reader":    self.dma.reader.irq
         }
         for k, v in sorted(self.interrupts.items()):
-            self.comb += self.msi.irqs[self.interrupt_map[k]].eq(v)
+            self.comb += self.msi.irqs[self.soc_interrupt_map[k]].eq(v)
 
         # flash the led on pcie clock
         counter = Signal(32)

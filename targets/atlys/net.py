@@ -14,11 +14,6 @@ class NetSoC(BaseSoC):
     )
     csr_map_update(BaseSoC.csr_map, csr_peripherals)
 
-    interrupt_map = {
-        "ethmac": 3,
-    }
-    interrupt_map.update(BaseSoC.interrupt_map)
-
     mem_map = {
         "ethmac": 0x30000000,  # (shadow @0xb0000000)
     }
@@ -62,6 +57,8 @@ NET "{eth_clocks_tx}" CLOCK_DEDICATED_ROUTE = FALSE;
             eth_clocks_rx=platform.lookup_request("eth_clocks").rx,
             eth_clocks_tx=platform.lookup_request("eth_clocks").tx,
             )
+
+        self.add_interrupt("ethmac")
 
     def configure_iprange(self, iprange):
         iprange = [int(x) for x in iprange.split(".")]

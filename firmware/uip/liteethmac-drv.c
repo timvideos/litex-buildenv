@@ -10,9 +10,9 @@
 #include <string.h>
 #include <system.h>
 #include <hw/flags.h>
-#include <hw/ethmac_mem.h>
 #include <console.h>
 #include <generated/csr.h>
+#include <generated/mem.h>
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -33,6 +33,11 @@ static ethernet_buffer *txbuffer0;
 static ethernet_buffer *txbuffer1;
 
 #ifdef ETHMAC_BASE
+
+#define ETHMAC_RX0_BASE ETHMAC_BASE
+#define ETHMAC_RX1_BASE (ETHMAC_BASE+0x0800)
+#define ETHMAC_TX0_BASE (ETHMAC_BASE+0x1000)
+#define ETHMAC_TX1_BASE (ETHMAC_BASE+0x1800)
 
 void liteethmac_init(void)
 {

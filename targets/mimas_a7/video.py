@@ -18,11 +18,6 @@ class VideoSoC(BaseSoC):
     )
     csr_map_update(BaseSoC.csr_map, csr_peripherals)
 
-    interrupt_map = {
-        "hdmi_in0": 4,
-    }
-    interrupt_map.update(BaseSoC.interrupt_map)
-
     def __init__(self, platform, *args, **kwargs):
         BaseSoC.__init__(self, platform, *args, **kwargs)
 
@@ -90,6 +85,8 @@ class VideoSoC(BaseSoC):
 
         for name, value in sorted(self.platform.hdmi_infos.items()):
             self.add_constant(name, value)
+
+        self.add_interrupt("hdmi_in0")
 
 
 class VideoSoCDebug(VideoSoC):

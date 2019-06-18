@@ -7,7 +7,7 @@ def period_ns(freq):
 
 def csr_map_update(csr_map, csr_peripherals):
     csr_map.update(dict((n, v)
-        for v, n in enumerate(csr_peripherals, start=max(csr_map.values()) + 1)))
+        for v, n in enumerate(csr_peripherals, start=(max(csr_map.values()) + 1) if csr_map else 0)))
 
 
 def csr_map_update_print(csr_map, csr_peripherals):

@@ -15,11 +15,6 @@ class NetSoC(BaseSoC):
     )
     csr_map_update(BaseSoC.csr_map, csr_peripherals)
 
-    interrupt_map = {
-        "ethmac": 3,
-    }
-    interrupt_map.update(BaseSoC.interrupt_map)
-
     mem_map = {
         "ethmac": 0x30000000,  # (shadow @0xb0000000)
     }
@@ -50,6 +45,8 @@ class NetSoC(BaseSoC):
             self.crg.cd_sys.clk,
             self.ethphy.crg.cd_eth_rx.clk,
             self.ethphy.crg.cd_eth_tx.clk)
+
+        self.add_interrupt("ethmac")
 
     def configure_iprange(self, iprange):
         iprange = [int(x) for x in iprange.split(".")]

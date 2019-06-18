@@ -100,11 +100,6 @@ class BaseSoC(SoCSDRAM):
         "msi":           24,
     }
     csr_map.update(SoCSDRAM.csr_map)
-    interrupt_map = {
-        "dma_writer": 0,
-        "dma_reader": 1
-    }
-    interrupt_map.update(SoCSDRAM.interrupt_map)
 
     def __init__(self, platform, **kwargs):
 
@@ -146,6 +141,9 @@ class BaseSoC(SoCSDRAM):
         counter = Signal(32)
         self.sync += counter.eq(counter + 1)
         self.comb += platform.request("user_led", 0).eq(counter[26])
+
+        self.add_interrupt("dma_writer")
+        self.add_interrupt("dma_reader")
 
 
 SoC = BaseSoC

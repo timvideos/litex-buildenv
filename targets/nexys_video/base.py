@@ -87,13 +87,10 @@ class BaseSoC(SoCSDRAM):
         "ddrphy",
         "info",
         "oled",
+        "uart",
+        "uart_phy",
     )
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
-
-    interrupt_map = {
-        "uart": 2,
-    }
-    interrupt_map.update(SoCSDRAM.interrupt_map)
 
     mem_map = {
         "spiflash": 0x20000000,  # (default shadow @0xa0000000)
@@ -158,6 +155,8 @@ class BaseSoC(SoCSDRAM):
         self.add_wb_slave(mem_decoder(self.mem_map["spiflash"]), self.spiflash.bus)
         self.add_memory_region(
             "spiflash", self.mem_map["spiflash"] | self.shadow_base, 16*1024*1024)
+
+        self.add_interrupt("uart")
 
 
 SoC = BaseSoC
