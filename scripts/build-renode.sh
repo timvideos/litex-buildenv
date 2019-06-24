@@ -14,7 +14,17 @@ source $SCRIPT_DIR/build-common.sh
 init
 
 RENODE_BIN=${RENODE_BIN:-renode}
-if ! command -v $RENODE_BIN 2>&1 1>/dev/null; then
+RENODE_FOUND=false
+
+if [ -x "$RENODE_BIN" ]; then
+	RENODE_FOUND=true
+fi
+
+if command -v "$RENODE_BIN" 2>&1 1>/dev/null; then
+	RENODE_FOUND=true
+fi
+
+if ! $RENODE_FOUND; then
 	# Download prebuilt renode Release if none is currently installed
 
 	RENODE_PACKAGE=renode-latest.pkg.tar.xz
