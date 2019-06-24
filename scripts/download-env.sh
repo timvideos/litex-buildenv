@@ -482,6 +482,11 @@ if [ "$FIRMWARE" = "zephyr" ]; then
 	conda install -y $CONDA_FLAGS pyyaml
 	check_import yaml
 
+	# gperf for Zephyr SDK
+	echo
+	echo "Installing gperf"
+	conda install -y $CONDA_FLAGS gperf
+
 	# elftools for Zephyr SDK
 	echo
 	echo "Installing elftools (python module)"
