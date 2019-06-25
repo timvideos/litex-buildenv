@@ -499,6 +499,11 @@ if [ "$FIRMWARE" = "zephyr" ]; then
 	echo "Installing pykwalify (python module)"
 	pip install pykwalify
 	check_import pykwalify.core
+
+	# cmake for building Zephyr
+	echo
+	echo "Installing cmake (python module)"
+	pip install "cmake==$CMAKE_VERSION"
 fi
 
 # git commands
