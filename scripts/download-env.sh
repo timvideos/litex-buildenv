@@ -487,6 +487,11 @@ if [ "$FIRMWARE" = "zephyr" ]; then
 	echo "Installing gperf"
 	conda install -y $CONDA_FLAGS gperf
 
+	# ninja for Zephyr SDK
+	echo
+	echo "Installing ninja"
+	conda install -y $CONDA_FLAGS ninja
+
 	# elftools for Zephyr SDK
 	echo
 	echo "Installing elftools (python module)"
