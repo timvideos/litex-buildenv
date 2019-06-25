@@ -490,13 +490,13 @@ if [ "$FIRMWARE" = "zephyr" ]; then
 
 	# west tool for building Zephyr
 	echo
-	echo "Installing west (pyhton module)"
+	echo "Installing west (python module)"
 	pip install west
 	check_import west
 
 	# pykwalify for building Zephyr
 	echo
-	echo "Installing pykwalify (pyhton module)"
+	echo "Installing pykwalify (python module)"
 	pip install pykwalify
 	check_import pykwalify.core
 fi
