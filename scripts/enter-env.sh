@@ -320,8 +320,10 @@ check_version openocd $OPENOCD_VERSION || return 1
 echo ""
 echo "Checking C compiler toolchain"
 echo "---------------------------------------"
-if [ "$CPU" = "lm32" -o "$CPU" = "or1k" ]; then
-	CPU_ARCH=$CPU
+if [ "$CPU" = "lm32" ]; then
+	CPU_ARCH=lm32
+elif [ "$CPU" = "mor1kx" ]; then
+	CPU_ARCH=or1k
 elif [ "$CPU" = "vexriscv" -o "$CPU" = "picorv32" -o "$CPU" = "minerva" ]; then
 	CPU_ARCH=riscv32
 fi

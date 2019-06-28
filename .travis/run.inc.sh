@@ -13,7 +13,7 @@ echo "Running with PLATFORMS='$PLATFORMS'"
 
 if [ -z "$CPUS" ]; then
 	if [ -z "$CPU" ]; then
-		CPUS="lm32 or1k picorv32 vexriscv"
+		CPUS="lm32 mor1kx picorv32 vexriscv"
 	else
 		CPUS="$CPU"
 		unset CPU
