@@ -138,12 +138,12 @@ version_data:
 
 # Generated hdmi_in1 from hdmi_in0
 $(FIRMBUILD_DIRECTORY)/hdmi_in1.h: $(FIRMWARE_DIRECTORY)/hdmi_in0.h $(FIRMWARE_DIRECTORY)/hdmi_in.sh
-	bash $(FIRMWARE_DIRECTORY)/hdmi_in.sh 1
+	bash $(FIRMWARE_DIRECTORY)/hdmi_in.sh 1 0x536fc56f
 	# Check the files exist
 	[ -e $(FIRMBUILD_DIRECTORY)/hdmi_in1.h ]
 
 $(FIRMBUILD_DIRECTORY)/hdmi_in1.c: $(FIRMWARE_DIRECTORY)/hdmi_in0.c $(FIRMWARE_DIRECTORY)/hdmi_in.sh
-	bash $(FIRMWARE_DIRECTORY)/hdmi_in.sh 1
+	bash $(FIRMWARE_DIRECTORY)/hdmi_in.sh 1 0x536fc56f
 	# Check the files exist
 	[ -e $(FIRMBUILD_DIRECTORY)/hdmi_in1.c ]
 

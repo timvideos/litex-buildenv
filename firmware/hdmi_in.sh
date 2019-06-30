@@ -21,6 +21,7 @@ fi
 FIRMWARE_DIR=$SCRIPT_DIR
 
 X=$1
+HEXCOLOR=$2
 
 set -e
 
@@ -39,6 +40,7 @@ cat $FIRMWARE_DIR/hdmi_in0.c | sed \
 	-e"s/IN0/IN$X/g" \
 	-e"s/in0/in$X/g" \
 	-e"s/dvisampler0/dvisampler$X/g" \
+    -e"s/framebuffer\[i\] = 0x.*/framebuffer[i] = ${HEXCOLOR};/g" \
 	> $TMPFILE_C
 
 if ! cmp -s $TMPFILE_H hdmi_in$X.h; then

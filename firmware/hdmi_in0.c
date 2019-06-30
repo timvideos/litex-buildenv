@@ -167,7 +167,7 @@ void hdmi_in0_clear_framebuffers(void)
 	flush_l2_cache();
 	volatile unsigned int *framebuffer = (unsigned int *)(MAIN_RAM_BASE + HDMI_IN0_FRAMEBUFFERS_BASE);
 	for(i=0; i<(FRAMEBUFFER_SIZE*FRAMEBUFFER_COUNT)/4; i++) {
-		framebuffer[i] = 0x80108010; /* black in YCbCr 4:2:2*/
+		framebuffer[i] = 0x8254d554; /* Debian Red in YCbCr */
 	}
 }
 
