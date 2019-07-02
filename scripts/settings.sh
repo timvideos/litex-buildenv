@@ -5,6 +5,7 @@ BUILD_DIR=$TOP_DIR/build
 THIRD_DIR=$TOP_DIR/third_party
 CONDA_DIR=$BUILD_DIR/conda
 
+CONDA_VERSION=4.6.14
 PYTHON_VERSION=3.7
 
 # Python module versions

@@ -144,6 +144,18 @@ EOF
 	done
 }
 
+function pin_conda_package {
+	CONDA_PACKAGE_NAME=$1
+	CONDA_PACKAGE_VERSION=$2
+	echo "Pinning ${CONDA_PACKAGE_NAME} to ${CONDA_PACKAGE_VERSION}"
+	CONDA_PIN_FILE=$CONDA_DIR/conda-meta/pinned
+	CONDA_PIN_TMP=$CONDA_DIR/conda-meta/pinned.tmp
+	touch ${CONDA_PIN_FILE}
+	cat ${CONDA_PIN_FILE} | grep -v ${CONDA_PACKAGE_NAME} > ${CONDA_PIN_TMP} || true
+	echo "${CONDA_PACKAGE_NAME} ==${CONDA_PACKAGE_VERSION}" >> ${CONDA_PIN_TMP}
+	cat ${CONDA_PIN_TMP} | sort > ${CONDA_PIN_FILE}
+}
+
 echo ""
 echo "Initializing environment"
 echo "---------------------------------"
@@ -156,6 +168,7 @@ export PATH=$CONDA_DIR/bin:$PATH:/sbin
 		cd $BUILD_DIR
 		# FIXME: Get the miniconda people to add a "self check" mode
 		wget --no-verbose --continue https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+		#wget --continue https://repo.anaconda.com/miniconda/Miniconda3-${CONDA_VERSION}-Linux-x86_64.sh -O Miniconda3-latest-Linux-x86_64.sh
 		chmod a+x Miniconda3-latest-Linux-x86_64.sh
 		# -p to specify the install location
 		# -b to enable batch mode (no prompts)
@@ -169,6 +182,7 @@ export PATH=$CONDA_DIR/bin:$PATH:/sbin
 		conda config --system --set changeps1 no
 		conda config --system --add envs_dirs $CONDA_DIR/envs
 		conda config --system --add pkgs_dirs $CONDA_DIR/pkgs
+		pin_conda_package conda ${CONDA_VERSION}
 		conda update -q conda
 	fi
 	fix_conda
@@ -184,7 +198,7 @@ eval $(cd $TOP_DIR; export HDMI2USB_ENV=1; make env || return 1) || exit 1
 	echo
 ) || exit 1
 
-echo "python ==${PYTHON_VERSION}" > $CONDA_DIR/conda-meta/pinned # Make sure it stays at given version
+pin_conda_package python ${PYTHON_VERSION}
 
 # Check the Python version
 echo
