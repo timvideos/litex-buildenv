@@ -193,6 +193,15 @@ function build() {
 		./scripts/build-micropython.sh || exit 1
 		echo "============================================="
 		;;
+	zephyr)
+		echo ""
+		echo ""
+		echo ""
+		echo "- make firmware ($TITLE - $FIRMWARE)"
+		echo "---------------------------------------------"
+		./scripts/build-zephyr.sh || exit 1
+		echo "============================================="
+		;;
 	*)
 		echo ""
 		echo ""
@@ -249,6 +258,7 @@ function build() {
 		# Extra firmware
 		SAVE+=("software/micropython/firmware.*")	# MicroPython
 		SAVE+=("software/linux/firmware.*")		# Linux
+		SAVE+=("software/zephyr/firmware.*")		# Zephyr
 		# CSV files with csr/litescope/etc descriptions
 		SAVE+=("test/")
 

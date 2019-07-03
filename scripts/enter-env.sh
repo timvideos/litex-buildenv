@@ -344,6 +344,12 @@ check_version ${CPU_ARCH}-elf-gcc $GCC_VERSION || return 1
 #
 #check_version ${CPU_ARCH}-elf-gdb $GDB_VERSION
 
+# Cmake Version
+################################################
+if [ "$FIRMWARE" = "zephyr" ]; then
+	check_version cmake $CMAKE_VERSION || return 1
+fi
+
 # Zephyr SDK
 ################################################
 if [ "$FIRMWARE" = "zephyr" ]; then
