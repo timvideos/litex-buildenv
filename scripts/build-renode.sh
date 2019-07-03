@@ -14,7 +14,17 @@ source $SCRIPT_DIR/build-common.sh
 init
 
 RENODE_BIN=${RENODE_BIN:-renode}
-if ! command -v $RENODE_BIN 2>&1 1>/dev/null; then
+RENODE_FOUND=false
+
+if [ -x "$RENODE_BIN" ]; then
+	RENODE_FOUND=true
+fi
+
+if command -v "$RENODE_BIN" 2>&1 1>/dev/null; then
+	RENODE_FOUND=true
+fi
+
+if ! $RENODE_FOUND; then
 	# Download prebuilt renode Release if none is currently installed
 
 	RENODE_PACKAGE=renode-latest.linux-portable.tar.gz
@@ -29,7 +39,8 @@ if ! command -v $RENODE_BIN 2>&1 1>/dev/null; then
 			wget $RENODE_URL
 			tar -xf $RENODE_PACKAGE
 		)
-		RENODE_BIN=`find $RENODE_LOCATION -executable -type f -name renode`
+
+		chmod u+x $RENODE_BIN
 		echo "Renode downloaded and installed locally: $RENODE_BIN"
 	fi
 fi
@@ -83,6 +94,7 @@ python $SCRIPT_DIR/generate-renode-scripts.py $LITEX_CONFIG_FILE \
 	--repl "$RENODE_REPL" \
 	--resc "$RENODE_RESC" \
 	--bios-binary "$TARGET_BUILD_DIR/software/bios/bios.bin" \
+	--firmware-binary "$TARGET_BUILD_DIR/software/$FIRMWARE/firmware.bin" \
 	--configure-network ${TAP_INTERFACE:-""}
 
 $RENODE_BIN "$RENODE_RESC"
