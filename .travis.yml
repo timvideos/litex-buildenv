@@ -119,6 +119,10 @@ env:
    #--------------------------------------------
    - C=lm32         P=atlys            T="hdmi2usb"
    - C=lm32         P=opsis            T="hdmi2usb"
+   #--------------------------------------------
+   # Zephyr Targets
+   #--------------------------------------------
+   - C=vexriscv.lite P=arty            T="net"       F=zephyr
 
 jobs:
   fail_fast: true

@@ -482,6 +482,16 @@ if [ "$FIRMWARE" = "zephyr" ]; then
 	conda install -y $CONDA_FLAGS pyyaml
 	check_import yaml
 
+	# gperf for Zephyr SDK
+	echo
+	echo "Installing gperf"
+	conda install -y $CONDA_FLAGS gperf
+
+	# ninja for Zephyr SDK
+	echo
+	echo "Installing ninja"
+	conda install -y $CONDA_FLAGS ninja
+
 	# elftools for Zephyr SDK
 	echo
 	echo "Installing elftools (python module)"
@@ -490,15 +500,20 @@ if [ "$FIRMWARE" = "zephyr" ]; then
 
 	# west tool for building Zephyr
 	echo
-	echo "Installing west (pyhton module)"
+	echo "Installing west (python module)"
 	pip install west
 	check_import west
 
 	# pykwalify for building Zephyr
 	echo
-	echo "Installing pykwalify (pyhton module)"
+	echo "Installing pykwalify (python module)"
 	pip install pykwalify
 	check_import pykwalify.core
+
+	# cmake for building Zephyr
+	echo
+	echo "Installing cmake (python module)"
+	pip install "cmake==$CMAKE_VERSION"
 fi
 
 # git commands
