@@ -76,12 +76,12 @@ env:
    - C=lm32.minimal P=tinyfpga_bx      T="base"      F=stub
    - C=lm32.minimal P=upduino_v1       T="base"      F=stub
    # or1k base targets
-   - C=or1k         P=arty             T="base net"
-   - C=or1k         P=atlys            T="base net"
-   - C=or1k         P=mimas_a7         T="base net"
-   - C=or1k         P=mimasv2          T="base"
-   - C=or1k         P=opsis            T="base net"
-   - C=or1k         P=pipistrello      T="base"
+   - C=mor1kx       P=arty             T="base net"
+   - C=mor1kx       P=atlys            T="base net"
+   - C=mor1kx       P=mimas_a7         T="base net"
+   - C=mor1kx       P=mimasv2          T="base"
+   - C=mor1kx       P=opsis            T="base net"
+   - C=mor1kx       P=pipistrello      T="base"
    # vexriscv Base targets
    - C=vexriscv     P=arty             T="base net"
    - C=vexriscv     P=mimas_a7         T="base net"
@@ -103,10 +103,10 @@ env:
    #--------------------------------------------
    # Linux Targets
    #--------------------------------------------
-   - C=or1k.linux   P=arty             T="net"       F=linux
-   - C=or1k.linux   P=atlys            T="net"       F=linux
-   - C=or1k.linux   P=nexys_video      T="net"       F=linux
-   - C=or1k.linux   P=opsis            T="net"       F=linux
+   - C=mor1kx.linux P=arty             T="net"       F=linux
+   - C=mor1kx.linux P=atlys            T="net"       F=linux
+   - C=mor1kx.linux P=nexys_video      T="net"       F=linux
+   - C=mor1kx.linux P=opsis            T="net"       F=linux
    #--------------------------------------------
    # Video Targets
    #--------------------------------------------

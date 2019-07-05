@@ -98,7 +98,7 @@ ifeq ($(CPU),lm32)
 CPU_ARCH=lm32
 CPU_ENDIANNESS=big
 endif
-ifeq ($(CPU),or1k)
+ifeq ($(CPU),mor1kx)
 CPU_ARCH=or1k
 CPU_ENDIANNESS=big
 endif
@@ -504,7 +504,7 @@ help:
 	@echo "                        (current: $(TARGET), default: $(DEFAULT_TARGET))"
 	@echo ""
 	@echo " CPU describes which soft-CPU to use on the FPGA."
-	@echo " CPU=lm32 OR or1k OR picorv32 OR vexriscv"
+	@echo " CPU=lm32 OR mor1kx OR picorv32 OR vexriscv"
 	@echo "                        (current: $(CPU), default: $(DEFAULT_CPU))"
 	@echo ""
 	@echo " CPU_VARIANT describes which soft-CPU variant to use on the FPGA."

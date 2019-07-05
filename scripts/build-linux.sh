@@ -33,8 +33,8 @@ make info
 #set -x
 set -e
 
-if [ "$CPU" != or1k -a "$CPU" != "vexriscv" ]; then
-	echo "Linux is only supported on or1k or vexriscv at the moment."
+if [ "$CPU" != mor1kx -a "$CPU" != "vexriscv" ]; then
+	echo "Linux is only supported on mor1kx or vexriscv at the moment."
 	exit 1
 fi
 if [ "$CPU_VARIANT" != "linux" ]; then
@@ -131,10 +131,13 @@ LITEX_DT_BRANCH=master
 )
 
 # Build linux-litex
-if [ ${CPU_ARCH} = or1k ]; then
+if [ ${CPU} = mor1kx ]; then
 	export ARCH=openrisc
-else
+elif [ ${CPU} = vexriscv ]; then
 	export ARCH=rv32
+else
+	echo "Unknown CPU"
+	exit 1
 fi
 export CROSS_COMPILE=${CPU_ARCH}-elf-newlib-
 TARGET_LINUX_BUILD_DIR=$(dirname $TOP_DIR/$FIRMWARE_FILEBASE)
