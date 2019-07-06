@@ -76,6 +76,19 @@ if [ -z "${CPU_ARCH}" ]; then
 	exit 1
 fi
 
+# Figure out the PLATFORM value
+PLATFORMS=$(ls targets/ | grep -v ".py" | grep -v "common" | sed -e"s+targets/++")
+if [ -z "$PLATFORM" -o ! -e targets/$PLATFORM ]; then
+	echo
+	echo "Unknown platform '$PLATFORM'"
+	echo
+	echo "Valid platforms are:"
+	for PLATFORM in $PLATFORMS; do
+		echo " * $PLATFORM"
+	done
+	exit 1
+fi
+
 function check_exists {
 	TOOL=$1
 	if which $TOOL >/dev/null; then
