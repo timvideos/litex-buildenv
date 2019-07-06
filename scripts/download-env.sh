@@ -500,11 +500,13 @@ if [ "$FIRMWARE" = "zephyr" ]; then
 	echo
 	echo "Installing gperf"
 	conda install -y $CONDA_FLAGS gperf
+	check_exists gperf
 
 	# ninja for Zephyr SDK
 	echo
 	echo "Installing ninja"
 	conda install -y $CONDA_FLAGS ninja
+	check_exists ninja
 
 	# elftools for Zephyr SDK
 	echo
@@ -528,6 +530,7 @@ if [ "$FIRMWARE" = "zephyr" ]; then
 	echo
 	echo "Installing cmake (python module)"
 	pip install "cmake==$CMAKE_VERSION"
+	check_version cmake $CMAKE_VERSION
 fi
 
 # git commands

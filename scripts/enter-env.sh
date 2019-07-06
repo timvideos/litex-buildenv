@@ -358,12 +358,6 @@ check_version ${CPU_ARCH}-elf-gcc $GCC_VERSION || return 1
 #
 #check_version ${CPU_ARCH}-elf-gdb $GDB_VERSION
 
-# Cmake Version
-################################################
-if [ "$FIRMWARE" = "zephyr" ]; then
-	check_version cmake $CMAKE_VERSION || return 1
-fi
-
 # Zephyr SDK
 ################################################
 if [ "$FIRMWARE" = "zephyr" ]; then
@@ -379,8 +373,8 @@ if [ "$FIRMWARE" = "zephyr" ]; then
 
 	echo
 	if [ -d "$DETECTED_SDK_LOCATION" ]; then
-		echo "Zephyr SDK $ZEPHYR_SDK_VERSION found in: $DETECTED_SDK_LOCATION"
 
+		true
 	else
 		echo "Zephyr SDK not found. Please run download-env.sh"
 		return 1
@@ -435,7 +429,20 @@ if [ "$FIRMWARE" = "zephyr" ]; then
 
 	check_import yaml || return 1
 
+	# gperf for Zephyr SDK
+
+
+
+	check_exists gperf || return 1
+
+	# ninja for Zephyr SDK
+
+
+
+	check_exists ninja || return 1
+
 	# elftools for Zephyr SDK
+
 
 
 	check_import elftools || return 1
@@ -443,10 +450,20 @@ if [ "$FIRMWARE" = "zephyr" ]; then
 	# west tool for building Zephyr
 
 
+
 	check_import west || return 1
 
 	# pykwalify for building Zephyr
+
+
+
 	check_import pykwalify.core || return 1
+
+	# cmake for building Zephyr
+
+
+
+	check_version cmake $CMAKE_VERSION || return 1
 fi
 
 # git commands
