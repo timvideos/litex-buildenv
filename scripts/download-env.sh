@@ -213,11 +213,11 @@ export PATH=$CONDA_DIR/bin:$PATH:/sbin
 	conda info
 )
 
-eval $(cd $TOP_DIR; export HDMI2USB_ENV=1; make env || return 1) || exit 1
+eval $(cd $TOP_DIR; export HDMI2USB_ENV=1; make env || exit 1) || exit 1
 (
 	cd $TOP_DIR
 	export HDMI2USB_ENV=1
-	make info || return 1
+	make info || exit 1
 	echo
 ) || exit 1
 
