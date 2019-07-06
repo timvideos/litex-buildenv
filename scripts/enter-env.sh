@@ -84,11 +84,13 @@ fi
 
 # Figure out the cpu architecture
 if [ "$CPU" = "lm32" ]; then
-	CPU_ARCH=lm32
+	export CPU_ARCH=lm32
 elif [ "$CPU" = "mor1kx" ]; then
-	CPU_ARCH=or1k
+	export CPU_ARCH=or1k
 elif [ "$CPU" = "vexriscv" -o "$CPU" = "picorv32" -o "$CPU" = "minerva" ]; then
-	CPU_ARCH=riscv32
+	export CPU_ARCH=riscv32
+elif [ "$CPU" = "none" ]; then
+	export CPU_ARCH=$(gcc -dumpmachine)
 else
 	echo
 	echo "Unknown CPU value '$CPU'. Valid values are;"
@@ -97,7 +99,11 @@ else
 	echo " * CPU='vexriscv'  - RISC-V"
 	echo " * CPU='picorv32'  - RISC-V"
 	echo " * CPU='minerva'   - RISC-V"
-	echo " * CPU='none'      - No CPU in use"
+	echo " * CPU='none'      - None or host CPU in use"
+	return 1
+fi
+if [ -z "${CPU_ARCH}" ]; then
+	echo "Internal error, no CPU_ARCH value found."
 	return 1
 fi
 
