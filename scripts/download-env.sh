@@ -536,6 +536,7 @@ echo "Updating git submodules"
 echo "-----------------------"
 (
 	cd $TOP_DIR
+	git submodule sync --recursive
 	git submodule update --recursive --init
 	git submodule foreach \
 		git submodule update --recursive --init
