@@ -68,7 +68,7 @@ else
 	echo " * CPU='vexriscv'  - RISC-V"
 	echo " * CPU='picorv32'  - RISC-V"
 	echo " * CPU='minerva'   - RISC-V"
-	echo " * CPU='none'      - No CPU in use"
+	echo " * CPU='none'      - None or host CPU in use"
 	exit 1
 fi
 if [ -z "${CPU_ARCH}" ]; then
