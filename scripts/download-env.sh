@@ -53,6 +53,25 @@ if [ ! -d $BUILD_DIR ]; then
 	mkdir -p $BUILD_DIR
 fi
 
+# Figure out the cpu architecture
+if [ "$CPU" = "lm32" ]; then
+	CPU_ARCH=lm32
+elif [ "$CPU" = "mor1kx" ]; then
+	CPU_ARCH=or1k
+elif [ "$CPU" = "vexriscv" -o "$CPU" = "picorv32" -o "$CPU" = "minerva" ]; then
+	CPU_ARCH=riscv32
+else
+	echo
+	echo "Unknown CPU value '$CPU'. Valid values are;"
+	echo " * CPU='lm32'      - LatticeMico"
+	echo " * CPU='mor1kx'    - OpenRISC"
+	echo " * CPU='vexriscv'  - RISC-V"
+	echo " * CPU='picorv32'  - RISC-V"
+	echo " * CPU='minerva'   - RISC-V"
+	echo " * CPU='none'      - No CPU in use"
+	exit 1
+fi
+
 function check_exists {
 	TOOL=$1
 	if which $TOOL >/dev/null; then
@@ -379,13 +398,6 @@ check_version openocd $OPENOCD_VERSION
 echo ""
 echo "Installing C compiler toolchain"
 echo "---------------------------------------"
-if [ "$CPU" = "lm32" ]; then
-	CPU_ARCH=lm32
-elif [ "$CPU" = "mor1kx" ]; then
-	CPU_ARCH=or1k
-elif [ "$CPU" = "vexriscv" -o "$CPU" = "picorv32" -o "$CPU" = "minerva" ]; then
-	CPU_ARCH=riscv32
-fi
 
 # binutils for the target
 echo
