@@ -1,5 +1,0 @@
-- Add DMA Writer/Reader to/from DDR3.
-- Test Host Memory <--> DDR3 Memory DMAs.
-- Test Host Memory --> DDR3 --> VideoOut
-- Implement HDMI In
-- Test VideoIn --> DDR3 --> Host Memory

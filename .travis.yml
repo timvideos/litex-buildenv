@@ -57,7 +57,6 @@ env:
    - C=lm32         P=mimasv2          T="base"
    - C=lm32         P=minispartan6     T="base"
    - C=lm32         P=neso             T="base"
-   - C=lm32         P=netv2            T="base"
    - C=lm32         P=nexys_video      T="base net"
    - C=lm32         P=opsis            T="base net"
    - C=lm32         P=pipistrello      T="base"
@@ -111,7 +110,6 @@ env:
    # Video Targets
    #--------------------------------------------
    - C=lm32         P=atlys            T="video"
-   - C=lm32         P=netv2            T="video"
    - C=lm32         P=nexys_video      T="video"
    - C=lm32         P=opsis            T="video"
    #--------------------------------------------
@@ -129,8 +127,6 @@ jobs:
   allow_failures:
    # picorv32 config doesn't really fit on tinyfpga_bx
    - env: C=picorv32     P=tinyfpga_bx      T="base"      F=stub
-   # Rework for new netv2 hardware
-   - env: C=lm32         P=netv2            T="video"
    # Issue #454 - missing `pix5x_o` clock
    - env: C=lm32         P=nexys_video      T="video"
 
