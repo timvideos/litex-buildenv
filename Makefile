@@ -465,6 +465,7 @@ info:
 	@if [ x"$(FIRMWARE)" != x"firmware" ]; then \
 		echo "               Firmare: $(FIRMWARE) (default: firmware)"; \
 	fi
+	@echo "          Architecture: $(CPU_ARCH)"
 
 prompt:
 	@echo -n "P=$(FULL_PLATFORM)"
