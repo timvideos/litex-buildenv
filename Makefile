@@ -94,20 +94,25 @@ FULL_CPU = $(CPU).$(CPU_VARIANT)
 MAKE_LITEX_EXTRA_CMDLINE += --cpu-variant=$(CPU_VARIANT)
 endif
 
+ifeq ($(CPU_ARCH),)
+    $(error "Internal error: CPU_ARCH not set.")
+endif
 ifeq ($(CPU),lm32)
-CPU_ARCH=lm32
 CPU_ENDIANNESS=big
 endif
 ifeq ($(CPU),mor1kx)
-CPU_ARCH=or1k
 CPU_ENDIANNESS=big
 endif
 ifeq ($(CPU),vexriscv)
-CPU_ARCH=riscv32
 CPU_ENDIANNESS=little
 endif
 ifeq ($(CPU),picorv32)
-CPU_ARCH=riscv32
+CPU_ENDIANNESS=little
+endif
+ifeq ($(CPU),minerva)
+CPU_ENDIANNESS=little
+endif
+ifeq ($(CPU),none)
 CPU_ENDIANNESS=little
 endif
 
@@ -465,6 +470,7 @@ info:
 	@if [ x"$(FIRMWARE)" != x"firmware" ]; then \
 		echo "               Firmare: $(FIRMWARE) (default: firmware)"; \
 	fi
+	@echo "          Architecture: $(CPU_ARCH)"
 
 prompt:
 	@echo -n "P=$(FULL_PLATFORM)"

@@ -82,6 +82,44 @@ if [ ! -d $BUILD_DIR ]; then
 	return 1
 fi
 
+# Figure out the cpu architecture
+if [ "$CPU" = "lm32" ]; then
+	export CPU_ARCH=lm32
+elif [ "$CPU" = "mor1kx" ]; then
+	export CPU_ARCH=or1k
+elif [ "$CPU" = "vexriscv" -o "$CPU" = "picorv32" -o "$CPU" = "minerva" ]; then
+	export CPU_ARCH=riscv32
+elif [ "$CPU" = "none" ]; then
+	export CPU_ARCH=$(gcc -dumpmachine)
+else
+	echo
+	echo "Unknown CPU value '$CPU'. Valid values are;"
+	echo " * CPU='lm32'      - LatticeMico"
+	echo " * CPU='mor1kx'    - OpenRISC"
+	echo " * CPU='vexriscv'  - RISC-V"
+	echo " * CPU='picorv32'  - RISC-V"
+	echo " * CPU='minerva'   - RISC-V"
+	echo " * CPU='none'      - None or host CPU in use"
+	return 1
+fi
+if [ -z "${CPU_ARCH}" ]; then
+	echo "Internal error, no CPU_ARCH value found."
+	return 1
+fi
+
+# Figure out the PLATFORM value
+PLATFORMS=$(ls targets/ | grep -v ".py" | grep -v "common" | sed -e"s+targets/++")
+if [ -z "$PLATFORM" -o ! -e targets/$PLATFORM ]; then
+	echo
+	echo "Unknown platform '$PLATFORM'"
+	echo
+	echo "Valid platforms are:"
+	for PLATFORM in $PLATFORMS; do
+		echo " * $PLATFORM"
+	done
+	return 1
+fi
+
 function check_exists {
 	TOOL=$1
 	if which $TOOL >/dev/null; then
@@ -140,11 +178,11 @@ echo "---------------------------------"
 # Install and setup conda for downloading packages
 export PATH=$CONDA_DIR/bin:$PATH:/sbin
 
-eval $(cd $TOP_DIR; export HDMI2USB_ENV=1; make env || return 1) || return 1
+eval $(cd $TOP_DIR; export HDMI2USB_ENV=1; make env || exit 1) || return 1
 (
 	cd $TOP_DIR
 	export HDMI2USB_ENV=1
-	make info || return 1
+	make info || exit 1
 	echo
 ) || return 1
 
@@ -320,13 +358,6 @@ check_version openocd $OPENOCD_VERSION || return 1
 echo ""
 echo "Checking C compiler toolchain"
 echo "---------------------------------------"
-if [ "$CPU" = "lm32" ]; then
-	CPU_ARCH=lm32
-elif [ "$CPU" = "mor1kx" ]; then
-	CPU_ARCH=or1k
-elif [ "$CPU" = "vexriscv" -o "$CPU" = "picorv32" -o "$CPU" = "minerva" ]; then
-	CPU_ARCH=riscv32
-fi
 
 # binutils for the target
 
@@ -346,12 +377,6 @@ check_version ${CPU_ARCH}-elf-gcc $GCC_VERSION || return 1
 #
 #check_version ${CPU_ARCH}-elf-gdb $GDB_VERSION
 
-# Cmake Version
-################################################
-if [ "$FIRMWARE" = "zephyr" ]; then
-	check_version cmake $CMAKE_VERSION || return 1
-fi
-
 # Zephyr SDK
 ################################################
 if [ "$FIRMWARE" = "zephyr" ]; then
@@ -367,8 +392,8 @@ if [ "$FIRMWARE" = "zephyr" ]; then
 
 	echo
 	if [ -d "$DETECTED_SDK_LOCATION" ]; then
-		echo "Zephyr SDK $ZEPHYR_SDK_VERSION found in: $DETECTED_SDK_LOCATION"
 
+		true
 	else
 		echo "Zephyr SDK not found. Please run download-env.sh"
 		return 1
@@ -423,7 +448,20 @@ if [ "$FIRMWARE" = "zephyr" ]; then
 
 	check_import yaml || return 1
 
+	# gperf for Zephyr SDK
+
+
+
+	check_exists gperf || return 1
+
+	# ninja for Zephyr SDK
+
+
+
+	check_exists ninja || return 1
+
 	# elftools for Zephyr SDK
+
 
 
 	check_import elftools || return 1
@@ -431,10 +469,20 @@ if [ "$FIRMWARE" = "zephyr" ]; then
 	# west tool for building Zephyr
 
 
+
 	check_import west || return 1
 
 	# pykwalify for building Zephyr
+
+
+
 	check_import pykwalify.core || return 1
+
+	# cmake for building Zephyr
+
+
+
+	check_version cmake $CMAKE_VERSION || return 1
 fi
 
 # git commands

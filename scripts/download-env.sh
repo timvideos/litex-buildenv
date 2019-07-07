@@ -53,6 +53,42 @@ if [ ! -d $BUILD_DIR ]; then
 	mkdir -p $BUILD_DIR
 fi
 
+# Figure out the cpu architecture
+if [ "$CPU" = "lm32" ]; then
+	export CPU_ARCH=lm32
+elif [ "$CPU" = "mor1kx" ]; then
+	export CPU_ARCH=or1k
+elif [ "$CPU" = "vexriscv" -o "$CPU" = "picorv32" -o "$CPU" = "minerva" ]; then
+	export CPU_ARCH=riscv32
+else
+	echo
+	echo "Unknown CPU value '$CPU'. Valid values are;"
+	echo " * CPU='lm32'      - LatticeMico"
+	echo " * CPU='mor1kx'    - OpenRISC"
+	echo " * CPU='vexriscv'  - RISC-V"
+	echo " * CPU='picorv32'  - RISC-V"
+	echo " * CPU='minerva'   - RISC-V"
+	echo " * CPU='none'      - None or host CPU in use"
+	exit 1
+fi
+if [ -z "${CPU_ARCH}" ]; then
+	echo "Internal error, no CPU_ARCH value found."
+	exit 1
+fi
+
+# Figure out the PLATFORM value
+PLATFORMS=$(ls targets/ | grep -v ".py" | grep -v "common" | sed -e"s+targets/++")
+if [ -z "$PLATFORM" -o ! -e targets/$PLATFORM ]; then
+	echo
+	echo "Unknown platform '$PLATFORM'"
+	echo
+	echo "Valid platforms are:"
+	for PLATFORM in $PLATFORMS; do
+		echo " * $PLATFORM"
+	done
+	exit 1
+fi
+
 function check_exists {
 	TOOL=$1
 	if which $TOOL >/dev/null; then
@@ -190,11 +226,11 @@ export PATH=$CONDA_DIR/bin:$PATH:/sbin
 	conda info
 )
 
-eval $(cd $TOP_DIR; export HDMI2USB_ENV=1; make env || return 1) || exit 1
+eval $(cd $TOP_DIR; export HDMI2USB_ENV=1; make env || exit 1) || exit 1
 (
 	cd $TOP_DIR
 	export HDMI2USB_ENV=1
-	make info || return 1
+	make info || exit 1
 	echo
 ) || exit 1
 
@@ -379,13 +415,6 @@ check_version openocd $OPENOCD_VERSION
 echo ""
 echo "Installing C compiler toolchain"
 echo "---------------------------------------"
-if [ "$CPU" = "lm32" ]; then
-	CPU_ARCH=lm32
-elif [ "$CPU" = "mor1kx" ]; then
-	CPU_ARCH=or1k
-elif [ "$CPU" = "vexriscv" -o "$CPU" = "picorv32" -o "$CPU" = "minerva" ]; then
-	CPU_ARCH=riscv32
-fi
 
 # binutils for the target
 echo
@@ -488,11 +517,13 @@ if [ "$FIRMWARE" = "zephyr" ]; then
 	echo
 	echo "Installing gperf"
 	conda install -y $CONDA_FLAGS gperf
+	check_exists gperf
 
 	# ninja for Zephyr SDK
 	echo
 	echo "Installing ninja"
 	conda install -y $CONDA_FLAGS ninja
+	check_exists ninja
 
 	# elftools for Zephyr SDK
 	echo
@@ -516,6 +547,7 @@ if [ "$FIRMWARE" = "zephyr" ]; then
 	echo
 	echo "Installing cmake (python module)"
 	pip install "cmake==$CMAKE_VERSION"
+	check_version cmake $CMAKE_VERSION
 fi
 
 # git commands
@@ -536,6 +568,7 @@ echo "Updating git submodules"
 echo "-----------------------"
 (
 	cd $TOP_DIR
+	git submodule sync --recursive
 	git submodule update --recursive --init
 	git submodule foreach \
 		git submodule update --recursive --init
