@@ -1207,7 +1207,7 @@ void ci_service(void)
 			help_encoder();
 	}
 #endif
-	else if((strcmp(token, "p") == 0) || (strcmp(token, "p") == 0)) {
+	else if((strcmp(token, "pattern") == 0) || (strcmp(token, "p") == 0)) {
 		pattern_next();
 		wprintf("Pattern now %d\n", pattern);
 	}
