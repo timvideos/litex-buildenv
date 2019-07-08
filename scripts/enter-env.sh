@@ -83,6 +83,9 @@ if [ ! -d $BUILD_DIR ]; then
 fi
 
 # Figure out the cpu architecture
+if [ -z "$CPU" ]; then
+	export CPU=vexriscv
+fi
 if [ "$CPU" = "lm32" ]; then
 	export CPU_ARCH=lm32
 elif [ "$CPU" = "mor1kx" ]; then
