@@ -58,55 +58,6 @@ class _CRG(Module):
         self.specials += AsyncResetSynchronizer(self.cd_por, reset)
 
 
-class _SBLED(Module, AutoCSR):
-    def __init__(self, pads):
-
-        rgba_pwm = Signal(3)
-
-        self.dat = CSRStorage(8)
-        self.addr = CSRStorage(4)
-        self.ctrl = CSRStorage(4)
-
-        self.specials += Instance("SB_RGBA_DRV",
-            i_CURREN = self.ctrl.storage[1],
-            i_RGBLEDEN = self.ctrl.storage[2],
-            i_RGB0PWM = rgba_pwm[0],
-            i_RGB1PWM = rgba_pwm[1],
-            i_RGB2PWM = rgba_pwm[2],
-            o_RGB0 = pads.rgb0,
-            o_RGB1 = pads.rgb1,
-            o_RGB2 = pads.rgb2,
-            p_CURRENT_MODE = "0b1",
-            p_RGB0_CURRENT = "0b000011",
-            p_RGB1_CURRENT = "0b000001",
-            p_RGB2_CURRENT = "0b000011",
-        )
-
-        self.specials += Instance("SB_LEDDA_IP",
-            i_LEDDCS = self.dat.re,
-            i_LEDDCLK = ClockSignal(),
-            i_LEDDDAT7 = self.dat.storage[7],
-            i_LEDDDAT6 = self.dat.storage[6],
-            i_LEDDDAT5 = self.dat.storage[5],
-            i_LEDDDAT4 = self.dat.storage[4],
-            i_LEDDDAT3 = self.dat.storage[3],
-            i_LEDDDAT2 = self.dat.storage[2],
-            i_LEDDDAT1 = self.dat.storage[1],
-            i_LEDDDAT0 = self.dat.storage[0],
-            i_LEDDADDR3 = self.addr.storage[3],
-            i_LEDDADDR2 = self.addr.storage[2],
-            i_LEDDADDR1 = self.addr.storage[1],
-            i_LEDDADDR0 = self.addr.storage[0],
-            i_LEDDDEN = self.dat.re,
-            i_LEDDEXE = self.ctrl.storage[0],
-            # o_LEDDON = led_is_on, # Indicates whether LED is on or not
-            # i_LEDDRST = ResetSignal(), # This port doesn't actually exist
-            o_PWMOUT0 = rgba_pwm[0], 
-            o_PWMOUT1 = rgba_pwm[1], 
-            o_PWMOUT2 = rgba_pwm[2],
-            o_LEDDON = Signal(), 
-        )
-
 class BaseSoC(SoCCore):
     csr_peripherals = (
         "spiflash",
