@@ -38,7 +38,8 @@ _io = [
 _connectors = [
     ("PMOD1A", "4 2 47 45 3 48 46 44"),
     ("PMOD1B", "43 38 34 31 42 36 32 28"),
-    ("PMOD2",  "27 25 21 19 26 23 20 18")
+    ("PMOD2",  "27 25 21 19 26 23 20 18"),
+    ("RGBLED", "39 40 41"),
 ]
 
 # The attached LED/button section can be either used standalone or as a PMOD.
@@ -62,6 +63,15 @@ break_off_pmod = [
      ("user_ledg", 1, Pins("PMOD2:1"), IOStandard("LVCMOS33")),
      ("user_ledg", 2, Pins("PMOD2:5"), IOStandard("LVCMOS33")),
      ("user_ledg", 3, Pins("PMOD2:2"), IOStandard("LVCMOS33"))
+]
+
+rgb_led = [
+    ("rgbled", 0, 
+     Subsignal("rgb0", Pins("RGBLED:0")),
+     Subsignal("rgb1", Pins("RGBLED:1")),
+     Subsignal("rgb2", Pins("RGBLED:2")),
+     IOStandard("LVCMOS33")
+    ),
 ]
 
 
