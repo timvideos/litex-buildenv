@@ -92,7 +92,7 @@ class BaseSoC(SoCCore):
         # SPRAM- UP5K has single port RAM, might as well use it as SRAM to
         # free up scarce block RAM.
         self.submodules.spram = ice40.SPRAM(size=128*1024)
-        self.register_mem("sram", 0x10000000, self.spram.bus, 0x20000)
+        self.register_mem("sram", self.mem_map["sram"], self.spram.bus, 0x20000)
 
         # We don't have a DRAM, so use the remaining SPI flash for user
         # program.
