@@ -54,12 +54,17 @@ if [ ! -d $BUILD_DIR ]; then
 fi
 
 # Figure out the cpu architecture
+if [ -z "$CPU" ]; then
+	export CPU=vexriscv
+fi
 if [ "$CPU" = "lm32" ]; then
 	export CPU_ARCH=lm32
 elif [ "$CPU" = "mor1kx" ]; then
 	export CPU_ARCH=or1k
 elif [ "$CPU" = "vexriscv" -o "$CPU" = "picorv32" -o "$CPU" = "minerva" ]; then
 	export CPU_ARCH=riscv32
+elif [ "$CPU" = "none" ]; then
+	export CPU_ARCH=$(gcc -dumpmachine)
 else
 	echo
 	echo "Unknown CPU value '$CPU'. Valid values are;"
