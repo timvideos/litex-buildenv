@@ -40,6 +40,7 @@ if ! $RENODE_FOUND; then
 			tar -xf $RENODE_PACKAGE
 		)
 
+		RENODE_BIN=`find $RENODE_LOCATION -executable -type f -name renode`
 		chmod u+x $RENODE_BIN
 		echo "Renode downloaded and installed locally: $RENODE_BIN"
 	fi
