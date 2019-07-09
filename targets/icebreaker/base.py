@@ -9,8 +9,9 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 from litex.build.generic_platform import Pins, Subsignal, IOStandard
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
+from litex.soc.interconnect.csr import AutoCSR, CSRStatus, CSRStorage
 
-from gateware import up5kspram
+from gateware import ice40
 from gateware import cas
 from gateware import spi_flash
 
@@ -104,6 +105,11 @@ class BaseSoC(SoCCore):
         self.register_mem("spiflash", self.mem_map["spiflash"],
             self.spiflash.bus, size=platform.spiflash_total_size)
 
+        # rgb led connector
+        platform.add_extension(icebreaker.rgb_led)
+        self.submodules.rgbled = ice40.LED(platform.request("rgbled", 0))
+        self.add_csr("rgbled")
+
         bios_size = 0x8000
         self.add_constant("ROM_DISABLE", 1)
         self.add_memory_region("rom", kwargs['cpu_reset_address'], bios_size)
@@ -111,8 +117,8 @@ class BaseSoC(SoCCore):
 
         # SPRAM- UP5K has single port RAM, might as well use it as SRAM to
         # free up scarce block RAM.
-        self.submodules.spram = up5kspram.Up5kSPRAM(size=128*1024)
-        self.register_mem("sram", 0x10000000, self.spram.bus, 0x20000)
+        self.submodules.spram = ice40.SPRAM(size=128*1024)
+        self.register_mem("sram", self.mem_map["sram"], self.spram.bus, 0x20000)
 
         # We don't have a DRAM, so use the remaining SPI flash for user
         # program.

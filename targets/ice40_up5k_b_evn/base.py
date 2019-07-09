@@ -10,8 +10,8 @@ from litex.build.generic_platform import Pins, Subsignal, IOStandard
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 
-from gateware import up5kspram
 from gateware import cas
+from gateware import ice40
 from gateware import spi_flash
 
 from targets.utils import csr_map_update
@@ -105,8 +105,8 @@ class BaseSoC(SoCCore):
 
         # SPRAM- UP5K has single port RAM, might as well use it as SRAM to
         # free up scarce block RAM.
-        self.submodules.spram = up5kspram.Up5kSPRAM(size=128*1024)
-        self.register_mem("sram", 0x10000000, self.spram.bus, 0x20000)
+        self.submodules.spram = ice40.SPRAM(size=128*1024)
+        self.register_mem("sram", self.mem_map["sram"], self.spram.bus, 0x20000)
 
         # We don't have a DRAM, so use the remaining SPI flash for user
         # program.
@@ -120,5 +120,6 @@ class BaseSoC(SoCCore):
         # onto softcore's address bus.
         platform.toolchain.build_template[3] = "icepack -s {build_name}.txt {build_name}.bin"
         platform.toolchain.nextpnr_build_template[2] = "icepack -s {build_name}.txt {build_name}.bin"
+
 
 SoC = BaseSoC
