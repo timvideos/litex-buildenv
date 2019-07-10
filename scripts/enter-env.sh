@@ -111,8 +111,8 @@ if [ -z "${CPU_ARCH}" ]; then
 fi
 
 # Figure out the PLATFORM value
-PLATFORMS=$(ls targets/ | grep -v ".py" | grep -v "common" | sed -e"s+targets/++")
-if [ -z "$PLATFORM" -o ! -e targets/$PLATFORM ]; then
+PLATFORMS=$(ls ${TOP_DIR}/targets/ | grep -v ".py" | grep -v "common" | sed -e"s+targets/++")
+if [ -z "$PLATFORM" -o ! -e ${TOP_DIR}/targets/$PLATFORM ]; then
 	echo
 	echo "Unknown platform '$PLATFORM'"
 	echo
