@@ -44,94 +44,79 @@ env:
    # cores.
    - JOBS=2
   matrix:
+   # C=cpu.variant      TC="toolchain" P=platform         T="target1 t2"  F=firmware
    #--------------------------------------------
    # Bare-metal firmware, base targets
    #--------------------------------------------
-   #
-   # LatticeMico32 Targets
-   # - Full CPU
-   - C=lm32         P=arty             T="base net"
-   - C=lm32         P=atlys            T="base net"
-   - C=lm32         P=basys3           T="base"
-   - C=lm32         P=cmod_a7          T="base"
-   - C=lm32         P=galatea          T="base"
-   - C=lm32         P=mimas_a7         T="base net"
-   - C=lm32         P=mimasv2          T="base"
-   - C=lm32         P=minispartan6     T="base"
-   - C=lm32         P=neso             T="base"
-   - C=lm32         P=nexys_video      T="base net"
-   - C=lm32         P=opsis            T="base net"
-   - C=lm32         P=pipistrello      T="base"
-   - C=lm32         P=saturn           T="base"
-   - C=lm32         P=waxwing          T="base"
-   # - Lite CPU
-   - C=lm32.lite    P=ice40_hx8k_b_evn T="base"      F=stub
-   - C=lm32.lite    P=ice40_up5k_b_evn T="base"      F=stub
-   - C=lm32.lite    P=icebreaker       T="base"      F=stub
-   - C=lm32.lite    P=tinyfpga_bx      T="base"      F=stub
-   - C=lm32.lite    P=upduino_v1       T="base"      F=stub
-   - C=lm32.lite    P=arty             T="base net"            # Xilinx Vivado test
-   - C=lm32.lite    P=opsis            T="base net"            # Xilinx ISE test
-   # - Minimal CPU
-   - C=lm32.minimal P=ice40_hx8k_b_evn T="base"      F=stub
-   - C=lm32.minimal P=ice40_up5k_b_evn T="base"      F=stub
-   - C=lm32.minimal P=icebreaker       T="base"      F=stub
-   - C=lm32.minimal P=tinyfpga_bx      T="base"      F=stub
-   - C=lm32.minimal P=upduino_v1       T="base"      F=stub
-   - C=lm32.minimal P=arty             T="base net"            # Xilinx Vivado test
-   - C=lm32.minimal P=opsis            T="base net"            # Xilinx ISE test
-   #
-   # or1k base targets
-   - C=mor1kx       P=arty             T="base net"
-   - C=mor1kx       P=atlys            T="base net"
-   - C=mor1kx       P=mimas_a7         T="base net"
-   - C=mor1kx       P=mimasv2          T="base"
-   - C=mor1kx       P=opsis            T="base net"
-   - C=mor1kx       P=pipistrello      T="base"
-   #
-   # vexriscv Targets
-   # - Full CPU
-   - C=vexriscv     P=arty             T="base net"
-   - C=vexriscv     P=mimas_a7         T="base net"
-   - C=vexriscv     P=mimasv2          T="base"
-   - C=vexriscv     P=opsis            T="base net"
-   # - Lite CPU
-   - C=vexriscv.lite P=ice40_hx8k_b_evn T="base"      F=stub
-   - C=vexriscv.lite P=ice40_up5k_b_evn T="base"      F=stub
-   - C=vexriscv.lite P=icebreaker       T="base"      F=stub
-   - C=vexriscv.lite P=tinyfpga_bx      T="base"      F=stub
-   - C=vexriscv.lite P=upduino_v1       T="base"      F=stub
-   - C=vexriscv.lite P=arty             T="base net"            # Xilinx Vivado test
-   - C=vexriscv.lite P=opsis            T="base net"            # Xilinx ISE test
-   #
+   # LatticeMico32
+   - C=lm32             TC="vivado"    P=arty              T="base net"
+   - C=lm32             TC="vivado"    P=basys3            T="base"
+   - C=lm32             TC="vivado"    P=cmod_a7           T="base"
+   - C=lm32             TC="vivado"    P=mimas_a7          T="base net"
+   - C=lm32             TC="vivado"    P=neso              T="base"
+   - C=lm32             TC="vivado"    P=nexys_video       T="base net"
+   - C=lm32             TC="ise"       P=atlys             T="base net"
+   - C=lm32             TC="ise"       P=galatea           T="base"
+   - C=lm32             TC="ise"       P=mimasv2           T="base"
+   - C=lm32             TC="ise"       P=minispartan6      T="base"
+   - C=lm32             TC="ise"       P=opsis             T="base net"
+   - C=lm32             TC="ise"       P=pipistrello       T="base"
+   - C=lm32             TC="ise"       P=saturn            T="base"
+   - C=lm32             TC="ise"       P=waxwing           T="base"
+   - C=lm32.lite        TC="icestorm"  P=ice40_hx8k_b_evn  T="base"       F=stub
+   - C=lm32.lite        TC="icestorm"  P=ice40_up5k_b_evn  T="base"       F=stub
+   - C=lm32.lite        TC="icestorm"  P=icebreaker        T="base"       F=stub
+   - C=lm32.lite        TC="icestorm"  P=tinyfpga_bx       T="base"       F=stub
+   - C=lm32.lite        TC="icestorm"  P=upduino_v1        T="base"       F=stub
+   - C=lm32.lite        TC="vivado"    P=arty              T="base net"
+   - C=lm32.lite                       P=opsis             T="base net"
+   - C=lm32.minimal     TC="icestorm"  P=ice40_hx8k_b_evn  T="base"       F=stub
+   - C=lm32.minimal     TC="icestorm"  P=ice40_up5k_b_evn  T="base"       F=stub
+   - C=lm32.minimal     TC="icestorm"  P=icebreaker        T="base"       F=stub
+   - C=lm32.minimal     TC="icestorm"  P=tinyfpga_bx       T="base"       F=stub
+   - C=lm32.minimal     TC="icestorm"  P=upduino_v1        T="base"       F=stub
+   - C=lm32.minimal     TC="vivado"    P=arty              T="base net"
+   - C=lm32.minimal     TC="ise"       P=opsis             T="base net"
+   # OpenRISC1000
+   - C=mor1kx           TC="vivado"    P=arty              T="base net"
+   - C=mor1kx           TC="vivado"    P=mimas_a7          T="base net"
+   - C=mor1kx           TC="vivado"    P=atlys             T="base net"
+   - C=mor1kx           TC="ise"       P=mimasv2           T="base"
+   - C=mor1kx           TC="ise"       P=opsis             T="base net"
+   - C=mor1kx           TC="ise"       P=pipistrello       T="base"
+   # VexRISCV
+   - C=vexriscv         TC="vivado"    P=arty              T="base net"
+   - C=vexriscv         TC="vivado"    P=mimas_a7          T="base net"
+   - C=vexriscv         TC="ise"       P=mimasv2           T="base"
+   - C=vexriscv         TC="ise"       P=opsis             T="base net"
+   - C=vexriscv.lite    TC="icestorm"  P=ice40_hx8k_b_evn  T="base"       F=stub
+   - C=vexriscv.lite    TC="icestorm"  P=ice40_up5k_b_evn  T="base"       F=stub
+   - C=vexriscv.lite    TC="icestorm"  P=icebreaker        T="base"       F=stub
+   - C=vexriscv.lite    TC="icestorm"  P=tinyfpga_bx       T="base"       F=stub
+   - C=vexriscv.lite    TC="icestorm"  P=upduino_v1        T="base"       F=stub
+   - C=vexriscv.lite    TC="vivado"    P=arty              T="base net"
+   - C=vexriscv.lite    TC="ise"       P=opsis             T="base net"
    # PicoRV32
-   # - Full CPU
-   - C=picorv32     P=arty             T="base net"
-   - C=picorv32     P=mimas_a7         T="base net"
-   - C=picorv32     P=mimasv2          T="base"
-   - C=picorv32     P=opsis            T="base net"
-   - C=picorv32     P=tinyfpga_bx      T="base"      F=stub
-   # - Minimal CPU
-   - C=picorv32.minimal P=icebreaker   T="base"      F=stub
-   - C=picorv32.minimal P=arty         T="base net"             # Xilinx Vivado test
-   - C=picorv32.minimal P=opsis        T="base net"             # Xilinx ISE test
-   #
+   - C=picorv32         TC="vivado"    P=arty              T="base net"
+   - C=picorv32         TC="vivado"    P=mimas_a7          T="base net"
+   - C=picorv32         TC="ise"       P=opsis             T="base net"
+   - C=picorv32.minimal TC="icestorm"  P=icebreaker        T="base"       F=stub
+   - C=picorv32.minimal TC="vivado"    P=arty              T="base net"
+   - C=picorv32.minimal TC="ise"       P=opsis             T="base net"
    # minerva target
-   - C=minerva      P=arty             T="base net"
-   #
+   - C=minerva          TC="vivado"    P=arty              T="base net"
+   - C=minerva          TC="ise"       P=opsis             T="base net"
    #--------------------------------------------
    # Video Targets
    #--------------------------------------------
-   - C=lm32         P=atlys            T="video"
-   - C=lm32         P=nexys_video      T="video"
-   - C=lm32         P=opsis            T="video"
-   #
+   - C=lm32             TC="vivado"    P=nexys_video       T="video"
+   - C=lm32             TC="ise"       P=atlys             T="video"
+   - C=lm32             TC="ise"       P=opsis             T="video"
    #--------------------------------------------
    # HDMI2USB Targets
    #--------------------------------------------
-   - C=lm32         P=atlys            T="hdmi2usb"
-   - C=lm32         P=opsis            T="hdmi2usb"
-   #
+   - C=lm32             TC="ise"       P=atlys             T="hdmi2usb"
+   - C=lm32             TC="ise"       P=opsis             T="hdmi2usb"
    #--------------------------------------------
    # MicroPython Targets
    #--------------------------------------------
@@ -139,21 +124,22 @@ env:
    #--------------------------------------------
    # Linux Targets
    #--------------------------------------------
-   - C=mor1kx.linux P=arty             T="net"       F=linux
-   - C=mor1kx.linux P=atlys            T="net"       F=linux
-   - C=mor1kx.linux P=nexys_video      T="net"       F=linux
-   - C=mor1kx.linux P=opsis            T="net"       F=linux
-   #
+   - C=mor1kx.linux     TC="vivado"    P=arty              T="net"        F=linux
+   - C=mor1kx.linux     TC="vivado"    P=nexys_video       T="net"        F=linux
+   - C=mor1kx.linux     TC="ise"       P=atlys             T="net"        F=linux
+   - C=mor1kx.linux     TC="ise"       P=opsis             T="net"        F=linux
+   # FIXME: Add vexriscv.linux
+   # FIXME: Add rocket.linux
    #--------------------------------------------
    # Zephyr Targets
    #--------------------------------------------
-   - C=vexriscv.lite P=arty            T="net"       F=zephyr
+   - C=vexriscv.lite    TC="icestorm"  P=icebreaker        T="base"       F=zephyr
+   - C=vexriscv.lite    TC="vivado"    P=arty              T="net"        F=zephyr
+   - C=vexriscv.lite    TC="ise"       P=atlys             T="net"        F=zephyr
 
 jobs:
   fail_fast: true
   allow_failures:
-   # picorv32 config doesn't really fit on tinyfpga_bx
-   - env: C=picorv32     P=tinyfpga_bx      T="base"      F=stub
    # Issue #454 - missing `pix5x_o` clock
    - env: C=lm32         P=nexys_video      T="video"
 
