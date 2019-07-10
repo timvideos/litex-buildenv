@@ -107,7 +107,7 @@ class BaseSoC(SoCCore):
 
         # rgb led connector
         platform.add_extension(icebreaker.rgb_led)
-        self.submodules.rgbled = ice40.LED(platform.request("rgbled", 0))
+        self.submodules.rgbled = ice40.LED(icebreaker.rgb_led_defs, platform.request("rgbled", 0))
         self.add_csr("rgbled")
 
         bios_size = 0x8000
