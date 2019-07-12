@@ -31,3 +31,6 @@
 [submodule "third_party/migen"]
 	path = third_party/migen
 	url = https://github.com/m-labs/migen.git
+[submodule "third_party/litex-renode"]
+	path = third_party/litex-renode
+	url = https://github.com/litex-hub/litex-renode.git
