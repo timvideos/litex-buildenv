@@ -91,7 +91,7 @@ RENODE_RESC="$RENODE_SCRIPTS_DIR/litex_buildenv.resc"
 RENODE_REPL="$RENODE_SCRIPTS_DIR/litex_buildenv.repl"
 
 mkdir -p $RENODE_SCRIPTS_DIR
-python $SCRIPT_DIR/generate-renode-scripts.py $LITEX_CONFIG_FILE \
+python $TOP_DIR/third_party/litex-renode/generate-renode-scripts.py $LITEX_CONFIG_FILE \
 	--repl "$RENODE_REPL" \
 	--resc "$RENODE_RESC" \
 	--bios-binary "$TARGET_BUILD_DIR/software/bios/bios.bin" \
