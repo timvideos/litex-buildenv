@@ -5,6 +5,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
+from litex.soc.interconnect import wishbone
 
 from litedram.modules import MT41K128M16
 from litedram.phy import a7ddrphy
@@ -121,6 +122,7 @@ class BaseSoC(SoCSDRAM):
 
     mem_map = {
         "spiflash": 0x20000000,  # (default shadow @0xa0000000)
+        "emulator_ram": 0x50000000,  # (default shadow @0xd0000000)
     }
     mem_map.update(SoCSDRAM.mem_map)
 
@@ -163,6 +165,11 @@ class BaseSoC(SoCSDRAM):
         self.add_wb_slave(mem_decoder(self.mem_map["spiflash"]), self.spiflash.bus)
         self.add_memory_region(
             "spiflash", self.mem_map["spiflash"] | self.shadow_base, 16*1024*1024)
+
+        if self.cpu_type == "vexriscv" and self.cpu_variant == "linux":
+            size = 0x4000
+            self.submodules.emulator_ram = wishbone.SRAM(size)
+            self.register_mem("emulator_ram", self.mem_map["emulator_ram"], self.emulator_ram.bus, size)
 
         bios_size = 0x8000
         self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size+bios_size
