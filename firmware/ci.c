@@ -582,7 +582,7 @@ static void status_service(void)
 {
 	static int last_event;
 
-	if(elapsed(&last_event, SYSTEM_CLOCK_FREQUENCY)) {
+	if(elapsed(&last_event, CONFIG_CLOCK_FREQUENCY)) {
 		if(status_enabled) {
 			status_print();
 			wputchar('\n');
@@ -1008,7 +1008,7 @@ static void debug_ddr(void)
 	sdram_controller_bandwidth_update_write(1);
 	nr = sdram_controller_bandwidth_nreads_read();
 	nw = sdram_controller_bandwidth_nwrites_read();
-	f = SYSTEM_CLOCK_FREQUENCY;
+	f = CONFIG_CLOCK_FREQUENCY;
 	burstbits = (2*DFII_NPHASES) << DFII_PIX_DATA_SIZE;
 	rdb = (nr*f >> (24 - log2(burstbits)))/1000000ULL;
 	wrb = (nw*f >> (24 - log2(burstbits)))/1000000ULL;

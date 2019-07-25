@@ -13,7 +13,7 @@ void uptime_service(void)
 {
 	static int last_event;
 
-	if(elapsed(&last_event, SYSTEM_CLOCK_FREQUENCY)) {
+	if(elapsed(&last_event, CONFIG_CLOCK_FREQUENCY)) {
 		uptime_seconds++;
 	}
 }

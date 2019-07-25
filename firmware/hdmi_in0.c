@@ -204,7 +204,7 @@ static int wait_idelays(void)
 	while(hdmi_in0_data0_cap_dly_busy_read()
 	  || hdmi_in0_data1_cap_dly_busy_read()
 	  || hdmi_in0_data2_cap_dly_busy_read()) {
-		if(elapsed(&ev, SYSTEM_CLOCK_FREQUENCY >> 6) == 0) {
+		if(elapsed(&ev, CONFIG_CLOCK_FREQUENCY >> 6) == 0) {
 			wprintf("dvisampler0: IDELAY busy timeout (%hhx %hhx %hhx)\n",
 				hdmi_in0_data0_cap_dly_busy_read(),
 				hdmi_in0_data1_cap_dly_busy_read(),
@@ -402,7 +402,7 @@ static int hdmi_in0_clocking_locked_filtered(void)
 				lock_status = 1;
 				break;
 			case 1:
-				if(elapsed(&lock_start_time, SYSTEM_CLOCK_FREQUENCY/4))
+				if(elapsed(&lock_start_time, CONFIG_CLOCK_FREQUENCY/4))
 					lock_status = 2;
 				break;
 			case 2:
@@ -432,7 +432,7 @@ void hdmi_in0_service(int freq)
 		} else {
 			if(hdmi_in0_locked) {
 				if(hdmi_in0_clocking_locked_filtered()) {
-					if(elapsed(&last_event, SYSTEM_CLOCK_FREQUENCY/2)) {
+					if(elapsed(&last_event, CONFIG_CLOCK_FREQUENCY/2)) {
 						hdmi_in0_adjust_phase();
 						if(hdmi_in0_debug)
 							hdmi_in0_print_status();
