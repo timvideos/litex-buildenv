@@ -27,7 +27,12 @@ typedef unsigned int uip_stats_t;
 #endif
 
 /* uIP configuration */
+#if defined(__lm32__) || defined(__or1k__)
 #define UIP_CONF_BYTE_ORDER	UIP_BIG_ENDIAN
+#else
+#define UIP_CONF_BYTE_ORDER	UIP_LITTLE_ENDIAN
+#endif
+
 #define UIP_CONF_LLH_LEN	14
 #define UIP_CONF_BROADCAST	1
 #define UIP_CONF_LOGGING	1
