@@ -219,13 +219,13 @@ export PATH=$CONDA_DIR/bin:$PATH:/sbin
 			./Miniconda3-latest-Linux-x86_64.sh -p $CONDA_DIR -b -f || exit 1
 		)
 		fix_conda
-		conda config --system --set always_yes yes
-		conda config --system --set changeps1 no
 		conda config --system --add envs_dirs $CONDA_DIR/envs
 		conda config --system --add pkgs_dirs $CONDA_DIR/pkgs
-		pin_conda_package conda ${CONDA_VERSION}
-		conda update -q conda
 	fi
+	conda config --system --set always_yes yes
+	conda config --system --set changeps1 no
+	pin_conda_package conda ${CONDA_VERSION}
+	conda update -q conda
 	fix_conda
 	conda config --system --add channels timvideos
 	conda info
