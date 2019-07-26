@@ -23,6 +23,24 @@ function init {
 }
 
 function configure_tap {
+
+	# Make the /dev/net exists, otherwise /dev/net/tun or /dev/net/tap0
+	# can't exist.
+	if [ ! -e /dev/net ]; then
+		sudo true
+		sudo mkdir /dev/net
+	fi
+
+	# Make the tun dev node exists
+	if [ ! -e /dev/net/tun ]; then
+		sudo true
+		sudo modprobe tun
+		if [ ! -e /dev/net/tun ]; then
+			sudo mknod /dev/net/tun c 10 200
+			sudo chown $(whoami) /dev/net/tun
+		fi
+	fi
+
 	# Make the tap0 dev node exists
 	if [ ! -e /dev/net/tap0 ]; then
 		sudo true
