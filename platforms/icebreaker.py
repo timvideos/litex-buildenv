@@ -76,11 +76,10 @@ rgb_led = [
 
 # 8mA (0b00000011) seems reasonable current to use here
 rgb_led_defs = {
-    "R" : { "CURRENT" : "0b00000011", "SIGNAL_INDEX" : 0 },
-    "G" : { "CURRENT" : "0b00000011", "SIGNAL_INDEX" : 1 },
-    "B" : { "CURRENT" : "0b00000011", "SIGNAL_INDEX" : 2 },
+    "R" : { "CURRENT" : "0b00000011", "SIGNAL_INDEX" : 1 },
+    "G" : { "CURRENT" : "0b00000011", "SIGNAL_INDEX" : 2 },
+    "B" : { "CURRENT" : "0b00000011", "SIGNAL_INDEX" : 0 },
 }
-
 
 class Platform(LatticePlatform):
     default_clk_name = "clk12"
