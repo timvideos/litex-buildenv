@@ -85,10 +85,11 @@ if [ ! -f "$TARGET_QEMU_BUILD_DIR/Makefile" ]; then
 			--enable-fdt \
 			--disable-kvm \
 			--disable-xen \
+			--disable-glusterfs \
 			--enable-debug \
 			--enable-debug-info
 
-		ln -s $(realpath $PWD/../software/include/generated) generated
+		ln -sf $(realpath $PWD/../software/include/generated) generated
 	)
 fi
 
