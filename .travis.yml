@@ -129,6 +129,8 @@ env:
    - C=mor1kx.linux     TC="ise"       P=atlys             T="net"        F=linux
    - C=mor1kx.linux     TC="ise"       P=opsis             T="net"        F=linux
    # FIXME: Add vexriscv.linux
+   - C=vexriscv.linux   TC="vivado"    P=arty              T="net"        F=linux
+   - C=vexriscv.linux   TC="ise"       P=opsis             T="net"        F=linux
    # FIXME: Add rocket.linux
    #--------------------------------------------
    # Zephyr Targets
