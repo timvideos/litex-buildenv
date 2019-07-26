@@ -31,8 +31,8 @@ void ethernet_init(const unsigned char * mac_addr, const unsigned char *ip_addr)
 	liteethmac_init();
 
 	/* uip periods */
-	uip_periodic_period = SYSTEM_CLOCK_FREQUENCY/100; /*  10 ms */
-	uip_arp_period = SYSTEM_CLOCK_FREQUENCY/10;       /* 100 ms */
+	uip_periodic_period = CONFIG_CLOCK_FREQUENCY/100; /*  10 ms */
+	uip_arp_period = CONFIG_CLOCK_FREQUENCY/10;       /* 100 ms */
 
 	/* init uip */
 	process_init();

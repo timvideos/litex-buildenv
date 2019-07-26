@@ -31,6 +31,5 @@ LITE_REPOS="
 	litepcie
 	litesata
 	litescope
-	liteusb
 	litevideo
 	"

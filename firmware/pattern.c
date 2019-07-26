@@ -260,7 +260,7 @@ void pattern_service(void)
 	static int last_event;
 	static char buffer[16];
 
-	if(elapsed(&last_event, SYSTEM_CLOCK_FREQUENCY)) {
+	if(elapsed(&last_event, CONFIG_CLOCK_FREQUENCY)) {
 		sprintf(buffer, "Uptime: %s", uptime_str());
 		pattern_draw_text(1, 1, buffer);
 	}

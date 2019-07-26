@@ -178,7 +178,7 @@ void encoder_service(void) {
 	static int can_start;
 
 	if(encoder_enabled) {
-		if(elapsed(&last_event, SYSTEM_CLOCK_FREQUENCY/encoder_target_fps))
+		if(elapsed(&last_event, CONFIG_CLOCK_FREQUENCY/encoder_target_fps))
 			can_start = 1;
 		if(can_start & encoder_done()) {
 			encoder_init(encoder_quality);
@@ -191,7 +191,7 @@ void encoder_service(void) {
 			encoder_reader_v_width_write(processor_v_active);
 			encoder_reader_start_write(1);
 		}
-		if(elapsed(&last_fps_event, SYSTEM_CLOCK_FREQUENCY)) {
+		if(elapsed(&last_fps_event, CONFIG_CLOCK_FREQUENCY)) {
 			encoder_fps = frame_cnt;
 			frame_cnt = 0;
 		}

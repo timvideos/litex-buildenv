@@ -30,7 +30,7 @@ void hb_service(fb_ptrdiff_t fb_offset)
 
 	if (heartbeat_status==1) {
 		hb_fill(color_v, fb_offset);
-		if(elapsed(&last_event, SYSTEM_CLOCK_FREQUENCY/FILL_RATE)) {
+		if(elapsed(&last_event, CONFIG_CLOCK_FREQUENCY/FILL_RATE)) {
 			counter = counter + 1;
 			if(counter > FILL_RATE/(HEARTBEAT_FREQUENCY*2)) {
 				color_v = !color_v;
