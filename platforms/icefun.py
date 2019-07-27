@@ -4,34 +4,55 @@ from litex.build.lattice.programmer import IceStormProgrammer
 
 
 _io = [
-    ("user_led", 0, Pins("B5"), IOStandard("LVCMOS33")),
-    ("user_led", 1, Pins("B4"), IOStandard("LVCMOS33")),
-    ("user_led", 2, Pins("A2"), IOStandard("LVCMOS33")),
-    ("user_led", 3, Pins("A1"), IOStandard("LVCMOS33")),
-    ("user_led", 4, Pins("C5"), IOStandard("LVCMOS33")),
-    ("user_led", 5, Pins("C4"), IOStandard("LVCMOS33")),
-    ("user_led", 6, Pins("B3"), IOStandard("LVCMOS33")),
-    ("user_led", 7, Pins("C3"), IOStandard("LVCMOS33")),
+    ("user_led", 0, Pins("C10"), IOStandard("LVCMOS33")),
+    ("user_led", 1, Pins("A10"), IOStandard("LVCMOS33")),
+    ("user_led", 2, Pins("D7"), IOStandard("LVCMOS33")),
+    ("user_led", 3, Pins("D6"), IOStandard("LVCMOS33")),
+    ("user_led", 4, Pins("A7"), IOStandard("LVCMOS33")),
+    ("user_led", 5, Pins("C7"), IOStandard("LVCMOS33")),
+    ("user_led", 6, Pins("A4"), IOStandard("LVCMOS33")),
+    ("user_led", 7, Pins("C4"), IOStandard("LVCMOS33")),
+
+    # row drivers
+    # top to bottom
+    # C5 A6 D10 A12
+
+    ("rgb_leds", 0, # you must use the ground pin between p14 and n14
+        # Subsignal("r", Pins("G6 G3 J3 K1")),
+        # Subsignal("g", Pins("F6 J4 J2 H6")),
+        # Subsignal("b", Pins("E1 G4 H4 K2")),
+        IOStandard("LVCMOS33")
+    ),
+
+    ("user_btn", 0, Pins("A5"), IOStandard("LVCMOS33")),
+    ("user_btn", 1, Pins("A11"), IOStandard("LVCMOS33")),
+    ("user_btn", 2, Pins("C6"), IOStandard("LVCMOS33")),
+    ("user_btn", 3, Pins("C11"), IOStandard("LVCMOS33")),
+
+    # Piezo - Two pins drive the piezo
+    # M12 M6
 
     ("serial", 0,
-        Subsignal("rx", Pins("B10")),
-        Subsignal("tx", Pins("B12"), Misc("PULLUP")),
-        Subsignal("rts", Pins("B13"), Misc("PULLUP")),
-        Subsignal("cts", Pins("A15"), Misc("PULLUP")),
-        Subsignal("dtr", Pins("A16"), Misc("PULLUP")),
-        Subsignal("dsr", Pins("B14"), Misc("PULLUP")),
-        Subsignal("dcd", Pins("B15"), Misc("PULLUP")),
+        Subsignal("rx", Pins("P2")),
+        Subsignal("tx", Pins("P3"), Misc("PULLUP")),
         IOStandard("LVCMOS33"),
     ),
 
+    ("serial", 1,
+        Subsignal("rx", Pins("P4")),
+        Subsignal("tx", Pins("P5"), Misc("PULLUP")),
+        IOStandard("LVCMOS33"),
+    ),
+
+
     ("spiflash", 0,
-        Subsignal("cs_n", Pins("R12"), IOStandard("LVCMOS33")),
-        Subsignal("clk", Pins("R11"), IOStandard("LVCMOS33")),
-        Subsignal("mosi", Pins("P12"), IOStandard("LVCMOS33")),
+        Subsignal("cs_n", Pins("P13"), IOStandard("LVCMOS33")),
+        Subsignal("clk", Pins("P12"), IOStandard("LVCMOS33")),
+        Subsignal("mosi", Pins("M11"), IOStandard("LVCMOS33")),
         Subsignal("miso", Pins("P11"), IOStandard("LVCMOS33")),
     ),
 
-    ("clk12", 0, Pins("J3"), IOStandard("LVCMOS33"))
+    ("clk12", 0, Pins("P7"), IOStandard("LVCMOS33"))
 ]
 
 
@@ -42,16 +63,18 @@ class Platform(LatticePlatform):
     gateware_size = 0x28000
 
     # FIXME: Create a "spi flash module" object in the same way we have SDRAM
-    spiflash_model = "n25q32"
+    spiflash_model = "at25sf081"
     spiflash_read_dummy_bits = 8
     spiflash_clock_div = 2
-    spiflash_total_size = int((32/8)*1024*1024) # 32Mbit
+    megabits = 8
+    spiflash_total_size = int((megabits/8)*1024*1024)
     spiflash_page_size = 256
     spiflash_sector_size = 0x10000
 
     def __init__(self):
-        LatticePlatform.__init__(self, "ice40-hx8k-ct256", _io,
+        LatticePlatform.__init__(self, "ice40-hx8k-cb132", _io,
                                  toolchain="icestorm")
 
     def create_programmer(self):
-        return IceStormProgrammer()
+        raise NotImplementedError()
+        # return IceStormProgrammer()

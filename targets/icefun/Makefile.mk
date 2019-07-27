@@ -1,7 +1,7 @@
-# ice40_hx8k_b_evn targets
+# icefun targets
 
-ifneq ($(PLATFORM),ice40_hx8k_b_evn)
-	$(error "Platform should be ice40_hx8k_b_evn when using this file!?")
+ifneq ($(PLATFORM),icefun)
+	$(error "Platform should be icefun when using this file!?")
 endif
 
 # Settings
@@ -11,11 +11,11 @@ BAUD ?= 115200
 
 # Image
 image-flash-$(PLATFORM):
-	iceprog $(IMAGE_FILE)
+	iceFUNprog $(IMAGE_FILE)
 
 # Gateware
 gateware-load-$(PLATFORM):
-	@echo "ICE40HX8K-B-EVN doesn't support loading, use the flash target instead."
+	@echo "iceFun doesn't support loading, use the flash target instead."
 	@echo "make gateware-flash"
 	@false
 
@@ -24,7 +24,7 @@ gateware-load-$(PLATFORM):
 GATEWARE_BIOS_FILE = $(TARGET_BUILD_DIR)/image-gateware+bios+none.bin
 
 gateware-flash-$(PLATFORM): $(GATEWARE_BIOS_FILE)
-	iceprog $(GATEWARE_BIOS_FILE)
+	iceFUNprog $(GATEWARE_BIOS_FILE)
 
 # To avoid duplicating the mkimage.py call here, if the user has not
 # already built a image-gateware+bios+none.bin, we call make recursively
@@ -41,7 +41,7 @@ firmware-load-$(PLATFORM):
 	@false
 
 firmware-flash-$(PLATFORM):
-	@echo "ICE40HX8K-B-EVN doesn't support just flashing firmware, use image target instead."
+	@echo "iceFun doesn't support just flashing firmware, use image target instead."
 	@echo "make image-flash"
 	@false
 
