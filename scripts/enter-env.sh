@@ -337,6 +337,14 @@ if [ "$PLATFORM" = "icebreaker" -o "$PLATFORM" = "ice40_hx8k_b_evn" -o "$PLATFOR
 	check_exists iceprog || return 1
 fi
 
+# icefun
+if [ "$PLATFORM" = "icefun" ]; then
+
+
+
+	check_exists iceFUNprog || return 1
+fi
+
 # fxload
 if [ "$PLATFORM" = "opsis" -o "$PLATFORM" = "atlys" ]; then
 

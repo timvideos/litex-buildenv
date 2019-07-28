@@ -415,6 +415,14 @@ if [ "$PLATFORM" = "icebreaker" -o "$PLATFORM" = "ice40_hx8k_b_evn" -o "$PLATFOR
 	check_exists iceprog
 fi
 
+# icefun
+if [ "$PLATFORM" = "icefun" ]; then
+	echo
+	echo "Installing icefunprog (tool for icefun pic Programming)"
+	conda install icefunprog
+	check_exists iceFUNprog
+fi
+
 # fxload
 if [ "$PLATFORM" = "opsis" -o "$PLATFORM" = "atlys" ]; then
 	echo
