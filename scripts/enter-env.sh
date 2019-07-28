@@ -69,6 +69,9 @@ else
 	return 1
 fi
 
+
+
+
 . $SETUP_DIR/settings.sh
 
 echo "             This script is: $SETUP_SRC"
@@ -175,6 +178,7 @@ function check_import_version {
 	fi
 }
 
+
 echo ""
 echo "Checking environment"
 echo "---------------------------------"
@@ -188,6 +192,7 @@ eval $(cd $TOP_DIR; export HDMI2USB_ENV=1; make env || exit 1) || return 1
 	make info || exit 1
 	echo
 ) || return 1
+
 
 
 # Check the Python version
@@ -207,6 +212,8 @@ echo ""
 echo "Platform Toolchain: $PLATFORM_TOOLCHAIN"
 case $PLATFORM_TOOLCHAIN in
 	Xilinx)
+
+
 		if [ -z "$LIKELY_XILINX_LICENSE_DIR" ]; then
 			LIKELY_XILINX_LICENSE_DIR="$HOME/.Xilinx"
 		fi
@@ -320,6 +327,14 @@ if [ "$PLATFORM" = "tinyfpga_bx" ]; then
 
 
 	check_exists tinyprog || return 1
+fi
+
+# iceprog compatible platforms
+if [ "$PLATFORM" = "icebreaker" -o "$PLATFORM" = "ice40_hx8k_b_evn" -o "$PLATFORM" = "ice40_up5k_b_evn" ]; then
+
+
+
+	check_exists iceprog || return 1
 fi
 
 # fxload
@@ -490,10 +505,23 @@ fi
 
 # git commands
 echo ""
+echo "Updating git config"
+echo "-----------------------"
+(
+	cd $TOP_DIR
+
+
+
+
+
+
+)
+echo ""
 echo "Checking git submodules"
 echo "-----------------------"
 (
 	cd $TOP_DIR
+
 
 
 
@@ -513,6 +541,8 @@ for LITE in $LITE_REPOS; do
 done
 
 echo "-----------------------"
+echo ""
+echo "Completed loading environment."
 echo ""
 
 alias python=python3

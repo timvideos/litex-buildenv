@@ -1,5 +1,10 @@
 #!/bin/bash
 
+
+
+
+
+
 if [ "`whoami`" = "root" ]
 then
     echo "Running the script as root is not permitted"
@@ -18,6 +23,11 @@ if [ $SOURCED = 1 ]; then
 	echo "$SETUP_SRC"
 	return
 fi
+
+
+
+
+
 
 if [ ! -z "$SETTINGS_FILE" -o ! -z "$XILINX" ]; then
 	echo "You appear to have sourced the Xilinx ISE settings, these are incompatible with setting up."
@@ -39,6 +49,27 @@ if echo "${SETUP_DIR}" | grep -q ':'; then
 	exit 1
 fi
 
+# Check ixo-usb-jtag *isn't* installed
+if [ -e /lib/udev/rules.d/85-ixo-usb-jtag.rules ]; then
+	echo "Please uninstall ixo-usb-jtag package from the timvideos PPA, the"
+	echo "required firmware is included in the HDMI2USB modeswitch tool."
+	echo
+	echo "On Debian/Ubuntu run:"
+	echo "  sudo apt-get remove ixo-usb-jtag"
+	echo
+	exit 1
+fi
+
+#if [ -f /etc/udev/rules.d/99-hdmi2usb-permissions.rules -o -f /lib/udev/rules.d/99-hdmi2usb-permissions.rules -o -f /lib/udev/rules.d/60-hdmi2usb-udev.rules -o ! -z "$HDMI2USB_UDEV_IGNORE" ]; then
+#	true
+#else
+#	echo "Please install the HDMI2USB udev rules."
+#	echo "These are installed by scripts/download-env-root.sh"
+#	echo
+#	exit 1
+#fi
+
+
 set -e
 
 . $SETUP_DIR/settings.sh
@@ -51,6 +82,7 @@ echo "     3rd party directory is: $THIRD_DIR"
 # Check the build dir
 if [ ! -d $BUILD_DIR ]; then
 	mkdir -p $BUILD_DIR
+
 fi
 
 # Figure out the cpu architecture
@@ -374,6 +406,8 @@ if [ "$PLATFORM" = "tinyfpga_bx" ]; then
 	pip install "git+https://github.com/tinyfpga/TinyFPGA-Bootloader#egg=tinyprog&subdirectory=programmer&subdirectory=programmer"
 	check_exists tinyprog
 fi
+
+# iceprog compatible platforms
 if [ "$PLATFORM" = "icebreaker" -o "$PLATFORM" = "ice40_hx8k_b_evn" -o "$PLATFORM" = "ice40_up5k_b_evn" ]; then
 	echo
 	echo "Installing iceprog (tool for FTDI)"
