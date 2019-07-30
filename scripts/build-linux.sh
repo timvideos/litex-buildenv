@@ -33,10 +33,6 @@ make info
 #set -x
 set -e
 
-if [ "$CPU" != mor1kx -a "$CPU" != "vexriscv" ]; then
-	echo "Linux is only supported on mor1kx or vexriscv at the moment."
-	exit 1
-fi
 if [ "$CPU_VARIANT" != "linux" ]; then
 	echo "Linux needs a CPU_VARIANT set to 'linux' to enable features"
 	echo "needed by Linux like the MMU."
@@ -52,14 +48,33 @@ if ! ${CPU_ARCH}-elf-newlib-gcc --version > /dev/null 2>&1; then
 	conda install gcc-${CPU_ARCH}-elf-newlib
 fi
 
+if [ ${CPU} = mor1kx ]; then
+	LINUX_REMOTE="${LINUX_REMOTE:-https://github.com/timvideos/linux-litex.git}"
+	LINUX_REMOTE_NAME=timvideos-linux-litex
+	LINUX_BRANCH=${LINUX_BRANCH:-master-litex}
+
+	export ARCH=openrisc
+	# To rebuild, use https://ozlabs.org/~joel/litex_or1k_defconfig
+	ROOTFS_LOCATION="https://ozlabs.org/~joel/"
+	ROOTFS=${ARCH}-rootfs.cpio.gz
+elif [ ${CPU} = vexriscv ]; then
+	LINUX_REMOTE="${LINUX_REMOTE:-https://github.com/torvalds/linux.git}"
+	LINUX_REMOTE_NAME=upstream-linux
+	LINUX_BRANCH=${LINUX_BRANCH:-v5.0}
+
+	export ARCH=riscv
+	ROOTFS_LOCATION="https://antmicro.com/projects/renode/litex-buildenv/"
+	ROOTFS=${ARCH}32-rootfs.cpio
+else
+	echo "Linux is only supported on mor1kx or vexriscv at the moment."
+	exit 1
+fi
+
 # Get linux-litex is needed
 LINUX_SRC="$TOP_DIR/third_party/linux"
 LINUX_LOCAL="$LINUX_GITLOCAL" # Local place to clone from
-LINUX_REMOTE="${LINUX_REMOTE:-https://github.com/timvideos/linux-litex.git}"
-LINUX_REMOTE_NAME=timvideos-linux-litex
 LINUX_REMOTE_BIT=$(echo $LINUX_REMOTE | sed -e's-^.*://--' -e's/.git$//')
 LINUX_CLONE_FROM="${LINUX_LOCAL:-$LINUX_REMOTE}"
-LINUX_BRANCH=${LINUX_BRANCH:-master-litex}
 (
 	# Download the Linux source for the first time
 	if [ ! -d "$LINUX_SRC" ]; then
@@ -130,31 +145,86 @@ LITEX_DT_BRANCH=master
 	fi
 )
 
-# Build linux-litex
-if [ ${CPU} = mor1kx ]; then
-	export ARCH=openrisc
-elif [ ${CPU} = vexriscv ]; then
-	export ARCH=rv32
-else
-	echo "Unknown CPU"
-	exit 1
+# Build VexRiscv's emulator
+if [ ${CPU} = vexriscv ]; then
+	(
+		cd $TOP_DIR
+
+		GENERATED_MEM_HEADERS="$TARGET_BUILD_DIR/software/include/generated/mem.h"
+		if [ ! -f "$GENERATED_MEM_HEADERS" ]; then
+			make firmware
+		fi
+
+		source $SCRIPT_DIR/build-common.sh
+		EMULATOR_RAM_BASE_ADDRESS=$(parse_generated_header "mem.h" EMULATOR_RAM_BASE)
+		RAM_BASE_ADDRESS=$(parse_generated_header "mem.h" MAIN_RAM_BASE)
+		SHADOW_BASE=$(parse_generated_header "mem.h" SHADOW_BASE)
+		# get rid of 'L' suffix
+		# passing address without shadow bit causes linux not to boot
+		RAM_BASE_ADDRESS=$(( ${RAM_BASE_ADDRESS::-1} | ${SHADOW_BASE::-1} ))
+	 	EMULATOR_RAM_BASE_ADDRESS=$(( ${EMULATOR_RAM_BASE_ADDRESS::-1} | ${SHADOW_BASE::-1} ))
+
+		cd $TOP_DIR/third_party/litex/litex/soc/cores/cpu/vexriscv/verilog/ext/VexRiscv/src/main/c/emulator
+
+		# offsets are hardcoded in BIOS
+		export CFLAGS="-DDTB=$((RAM_BASE_ADDRESS + 0x01000000)) -Wl,--defsym,__ram_origin=$EMULATOR_RAM_BASE_ADDRESS"
+		export LITEX_BASE="$TOP_DIR/$TARGET_BUILD_DIR"
+		export RISCV_BIN="${CPU_ARCH}-elf-newlib-"
+		make clean
+		make litex
+
+		EMULATOR_BUILD_DIR="$TOP_DIR/$TARGET_BUILD_DIR/emulator"
+		mkdir -p "$EMULATOR_BUILD_DIR"
+		cp build/emulator.bin "$EMULATOR_BUILD_DIR"
+	)
 fi
-export CROSS_COMPILE=${CPU_ARCH}-elf-newlib-
+
+# Build linux-litex
+
+# download and use pre-built RISC-V compiler (TODO: to be removed later)
+TOOLCHAIN_LOCATION=$TOP_DIR/third_party/riscv-toolchain
+mkdir -p $TOOLCHAIN_LOCATION
+(
+	cd $TOOLCHAIN_LOCATION
+	if [ ! -d riscv ]; then
+		wget https://antmicro.com/projects/renode/litex-buildenv/riscv32-unknown-linux-gnu.tar.gz
+		tar -xf riscv32-unknown-linux-gnu.tar.gz
+	fi
+)
+export PATH=$TOOLCHAIN_LOCATION/riscv/bin:$PATH
+if [ ${CPU} = mor1kx ]; then
+	export CROSS_COMPILE=${CPU_ARCH}-elf-newlib-
+else
+	export CROSS_COMPILE=riscv32-unknown-linux-gnu-
+fi
+
 TARGET_LINUX_BUILD_DIR=$(dirname $TOP_DIR/$FIRMWARE_FILEBASE)
 (
 	cd $LINUX_SRC
 	echo "Building Linux in $TARGET_LINUX_BUILD_DIR"
 	mkdir -p $TARGET_LINUX_BUILD_DIR
-	(
-		cd $TARGET_LINUX_BUILD_DIR
-		# To rebuild, use https://ozlabs.org/~joel/litex_or1k_defconfig
-		ROOTFS=openrisc-rootfs.cpio.gz
-		if [ ! -e $ROOTFS ]; then
-			wget "https://ozlabs.org/~joel/${ARCH}-rootfs.cpio.gz" -O $ROOTFS
+
+	if [ ! -e $TARGET_LINUX_BUILD_DIR/$ROOTFS ]; then
+		wget $ROOTFS_LOCATION/$ROOTFS -O $TARGET_LINUX_BUILD_DIR/$ROOTFS
+	fi
+
+	if [ ${CPU} = mor1kx ]; then
+		KERNEL_BINARY=vmlinux.bin
+		make O="$TARGET_LINUX_BUILD_DIR" litex_defconfig
+	elif [ ${CPU} = vexriscv ]; then
+		if [ ! -f $TARGET_LINUX_BUILD_DIR/.config ]; then
+			wget ${ROOTFS_LOCATION}/litex_vexriscv_linux.config -O $TARGET_LINUX_BUILD_DIR/.config
 		fi
-	)
-	make O="$TARGET_LINUX_BUILD_DIR" litex_defconfig
+
+		if [ ! -f $TARGET_LINUX_BUILD_DIR/rv32.dtb ]; then
+			wget ${ROOTFS_LOCATION}/rv32.dtb -O $TARGET_LINUX_BUILD_DIR/rv32.dtb
+		fi
+
+		KERNEL_BINARY=Image
+		make O="$TARGET_LINUX_BUILD_DIR" olddefconfig
+	fi
+
 	time make O="$TARGET_LINUX_BUILD_DIR" -j$JOBS
-	ls -l $TARGET_LINUX_BUILD_DIR/arch/openrisc/boot/vmlinux.bin
-	ln -sf $TARGET_LINUX_BUILD_DIR/arch/openrisc/boot/vmlinux.bin $TOP_DIR/$FIRMWARE_FILEBASE.bin
+	ls -l $TARGET_LINUX_BUILD_DIR/arch/${ARCH}/boot/${KERNEL_BINARY}
+	ln -sf $TARGET_LINUX_BUILD_DIR/arch/${ARCH}/boot/${KERNEL_BINARY} $TOP_DIR/$FIRMWARE_FILEBASE.bin
 )
