@@ -16,6 +16,10 @@ _io = [
     # row drivers
     # top to bottom
     # C5 A6 D10 A12
+    ("user_led", 8, Pins("C5"), IOStandard("LVCMOS33")),
+    ("user_led", 9, Pins("A6"), IOStandard("LVCMOS33")),
+    ("user_led", 10, Pins("D10"), IOStandard("LVCMOS33")),
+    ("user_led", 11, Pins("A12"), IOStandard("LVCMOS33")),
 
     ("rgb_leds", 0, # you must use the ground pin between p14 and n14
         # Subsignal("r", Pins("G6 G3 J3 K1")),
