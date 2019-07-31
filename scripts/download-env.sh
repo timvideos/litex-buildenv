@@ -385,7 +385,7 @@ fi
 if [ "$PLATFORM" = "opsis" -o "$PLATFORM" = "atlys" ]; then
 	echo
 	echo "Installing fxload (tool for Cypress FX2)"
-	# conda install fxload
+	conda install fxload
 	check_exists fxload
 fi
 
