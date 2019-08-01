@@ -24,6 +24,8 @@ echo "---------------------------------------------"
 git fetch origin --unshallow || true
 git fetch origin --tags
 
+TRAVIS_COMMIT_ACTUAL=$(git log --pretty=format:'%H' -n 1)
+
 if [ z"$TRAVIS_PULL_REQUEST_SLUG" != z ]; then
 	echo ""
 	echo ""
@@ -53,9 +55,13 @@ if [ z"$TRAVIS_PULL_REQUEST_SLUG" != z ]; then
 		echo ""
 		echo "- Pull request triggered for $TRAVIS_COMMIT but now at $GITHUB_CURRENT_MERGE_SHA1"
 		echo ""
-		echo "  SKIPPING!"
+	fi
+	if [ "$GITHUB_CURRENT_MERGE_SHA1" != "$TRAVIS_COMMIT_ACTUAL" ]; then
 		echo ""
-		exit 1
+		echo ""
+		echo ""
+		echo "- Pull request triggered for $TRAVIS_COMMIT_ACTUAL but now at $GITHUB_CURRENT_MERGE_SHA1"
+		echo ""
 	fi
 
 	echo ""
@@ -91,22 +97,25 @@ echo "---------------------------------------------"
 git submodule status --recursive
 echo "---------------------------------------------"
 
+if [ "$TRAVIS_COMMIT_ACTUAL" != "$TRAVIS_COMMIT" ]; then
+	echo ""
+	echo ""
+	echo ""
+	echo "- Build request triggered for $TRAVIS_COMMIT but got $TRAVIS_COMMIT_ACTUAL"
+	echo ""
+	TRAVIS_COMMIT=$TRAVIS_COMMIT_ACTUAL
+fi
+
 if [ z"$TRAVIS_BRANCH" != z ]; then
-	TRAVIS_COMMIT_ACTUAL=$(git log --pretty=format:'%H' -n 1)
 	echo ""
 	echo ""
 	echo ""
-	echo "Fixing detached head (current $TRAVIS_COMMIT_ACTUAL -> $TRAVIS_COMMIT)"
-	echo "---------------------------------------------"
-	git log -n 5 --graph
-	echo "---------------------------------------------"
-	git fetch origin $TRAVIS_COMMIT
-	git branch -v
+	echo "Fixing detached head (current $TRAVIS_COMMIT_ACTUAL)"
 	echo "---------------------------------------------"
 	git log -n 5 --graph
 	echo "---------------------------------------------"
 	git branch -D $TRAVIS_BRANCH || true
-	git checkout $TRAVIS_COMMIT -b $TRAVIS_BRANCH
+	git checkout $TRAVIS_COMMIT_ACTUAL -b $TRAVIS_BRANCH
 	git branch -v
 fi
 echo ""
