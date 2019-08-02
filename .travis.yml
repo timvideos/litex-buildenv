@@ -10,12 +10,7 @@ addons:
     update: true
     packages:
      - build-essential
-     - fxload
      - gnupg
-     - libftdi-dev
-     - libreadline-dev
-     - libusb-1.0-0-dev
-     - python-yaml
      - realpath
      - util-linux
 
