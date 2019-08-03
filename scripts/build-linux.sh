@@ -43,9 +43,13 @@ if [ "$FIRMWARE" != "linux" ]; then
 	exit 1
 fi
 
-# Install a toolchain with the newlib standard library
-if ! ${CPU_ARCH}-elf-newlib-gcc --version > /dev/null 2>&1; then
+# Install a baremetal toolchain with the newlib standard library
+if ! ${CPU_ARCH}-elf-newlib --version > /dev/null 2>&1; then
 	conda install gcc-${CPU_ARCH}-elf-newlib
+fi
+# Install a Linux userspace toolchain with the musl standard library
+if ! ${CPU_ARCH}-linux-musl-gcc --version > /dev/null 2>&1; then
+	conda install gcc-${CPU_ARCH}-linux-musl
 fi
 
 if [ ${CPU} = mor1kx ]; then
@@ -180,23 +184,7 @@ if [ ${CPU} = vexriscv ]; then
 fi
 
 # Build linux-litex
-
-# download and use pre-built RISC-V compiler (TODO: to be removed later)
-TOOLCHAIN_LOCATION=$TOP_DIR/third_party/riscv-toolchain
-mkdir -p $TOOLCHAIN_LOCATION
-(
-	cd $TOOLCHAIN_LOCATION
-	if [ ! -d riscv ]; then
-		wget https://antmicro.com/projects/renode/litex-buildenv/riscv32-unknown-linux-gnu.tar.gz
-		tar -xf riscv32-unknown-linux-gnu.tar.gz
-	fi
-)
-export PATH=$TOOLCHAIN_LOCATION/riscv/bin:$PATH
-if [ ${CPU} = mor1kx ]; then
-	export CROSS_COMPILE=${CPU_ARCH}-elf-newlib-
-else
-	export CROSS_COMPILE=riscv32-unknown-linux-gnu-
-fi
+export CROSS_COMPILE=${CPU_ARCH}-linux-musl-
 
 TARGET_LINUX_BUILD_DIR=$(dirname $TOP_DIR/$FIRMWARE_FILEBASE)
 (
