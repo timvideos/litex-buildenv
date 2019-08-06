@@ -11,7 +11,7 @@ BAUD ?= 115200
 
 # Image
 image-flash-$(PLATFORM):
-	tinyprog --program-image $(IMAGE_FILE)
+	tinyprog --program-image $(IMAGE_FILE) -c $(PROG_PORT)
 
 # Gateware
 gateware-load-$(PLATFORM):
@@ -24,7 +24,7 @@ gateware-load-$(PLATFORM):
 GATEWARE_BIOS_FILE = $(TARGET_BUILD_DIR)/image-gateware+bios+none.bin
 
 gateware-flash-$(PLATFORM): $(GATEWARE_BIOS_FILE)
-	tinyprog --program-image $(GATEWARE_BIOS_FILE)
+	tinyprog --program-image $(GATEWARE_BIOS_FILE) -c $(PROG_PORT)
 
 # To avoid duplicating the mkimage.py call here, if the user has not
 # already built a image-gateware+bios+none.bin, we call make recursively
