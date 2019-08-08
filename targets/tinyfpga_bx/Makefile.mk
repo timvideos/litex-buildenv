@@ -8,10 +8,18 @@ endif
 DEFAULT_TARGET = base
 TARGET ?= $(DEFAULT_TARGET)
 BAUD ?= 115200
+PROG_PORT ?=
+COMM_PORT ?= /dev/ttyACM0
+
+ifneq ($(PROG_PORT),)
+PROG_EXTRA_ARGS=-c $(PROG_PORT)
+else
+PROG_EXTRA_ARGS=
+endif
 
 # Image
 image-flash-$(PLATFORM):
-	tinyprog --program-image $(IMAGE_FILE)
+	tinyprog $(PROG_EXTRA_ARGS) --program-image $(IMAGE_FILE)
 
 # Gateware
 gateware-load-$(PLATFORM):
@@ -24,7 +32,7 @@ gateware-load-$(PLATFORM):
 GATEWARE_BIOS_FILE = $(TARGET_BUILD_DIR)/image-gateware+bios+none.bin
 
 gateware-flash-$(PLATFORM): $(GATEWARE_BIOS_FILE)
-	tinyprog --program-image $(GATEWARE_BIOS_FILE)
+	tinyprog $(PROG_EXTRA_ARGS) --program-image $(GATEWARE_BIOS_FILE)
 
 # To avoid duplicating the mkimage.py call here, if the user has not
 # already built a image-gateware+bios+none.bin, we call make recursively
