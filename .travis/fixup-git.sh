@@ -106,6 +106,14 @@ if [ "$TRAVIS_COMMIT_ACTUAL" != "$TRAVIS_COMMIT" ]; then
 	TRAVIS_COMMIT=$TRAVIS_COMMIT_ACTUAL
 fi
 
+if [ z"$TRAVIS_BRANCH" = z ]; then
+	if [ z"$BUILD_SOURCEBRANCH" != z ]; then
+		TRAVIS_BRANCH="$BUILD_SOURCEBRANCH"
+	elif [ z"$SYSTEM_PULLREQUEST_TARGETBRANCH" != z ]; then
+		TRAVIS_BRANCH="$SYSTEM_PULLREQUEST_TARGETBRANCH"
+	fi
+fi
+
 if [ z"$TRAVIS_BRANCH" != z ]; then
 	echo ""
 	echo ""
