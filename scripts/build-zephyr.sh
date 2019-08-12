@@ -86,7 +86,7 @@ if [ ! -d "$ZEPHYR_SRC_DIR" ]; then
 	cd $ZEPHYR_SRC_DIR
 	west init --manifest-url $ZEPHYR_REPO --manifest-rev $ZEPHYR_REPO_BRANCH
 fi
-west build -b $TARGET_BOARD $ZEPHYR_SRC_DIR/zephyr/samples/$ZEPHYR_APP --build-dir $OUTPUT_DIR
+west build -b $TARGET_BOARD $ZEPHYR_SRC_DIR/zephyr/samples/$ZEPHYR_APP --build-dir $OUTPUT_DIR -- -DZEPHYR_SDK_INSTALL_DIR=$ZEPHYR_SDK_INSTALL_DIR
 
 cd $OUTPUT_DIR
 if [ ! -f "firmware.bin" ]; then
