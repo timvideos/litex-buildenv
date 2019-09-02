@@ -67,9 +67,13 @@ and troubleshooting capabilities.
 To bootstrap or update your environment one generally does:
 
 ```
-# Download the debian packages needed to support litex environment.  Usually
-# we only do this once.
-./scripts/download-env-root.sh
+# Install system wide dependencies;
+#  * wget
+#  * bash
+#  * make
+#  * udev rules from https://github.com/litex-hub/litex-buildenv-udev
+#
+# On Debian you can use the ./scripts/debian-setup.sh script.
 
 # Download/update the litex specific packages (python, verilator, submodules etc)
 ./scripts/download-env.sh
