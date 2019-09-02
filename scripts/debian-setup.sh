@@ -27,9 +27,6 @@ apt-get install -y build-essential
 # gtkwave is needed for viewing the output of traces
 apt-get install -y gtkwave
 
-# readline, libusb, libftdi are all needed by openocd which is installed via conda
-apt-get install -y libreadline-dev libusb-1.0-0-dev libftdi-dev
-
 # FIXME: What needs python-yaml!?
 apt-get install -y python-yaml
 
