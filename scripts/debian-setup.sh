@@ -30,9 +30,6 @@ apt-get install -y gtkwave
 # FIXME: What needs python-yaml!?
 apt-get install -y python-yaml
 
-# fxload is needed for controlling the FX2 found on the Atlys and Opsis boards
-apt-get install -y fxload
-
 # aftpd is needed for tftp booting firmware
 apt-get install -y atftpd
 
