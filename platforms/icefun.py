@@ -73,7 +73,7 @@ class Platform(LatticePlatform):
     megabits = 8
     spiflash_total_size = int((megabits/8)*1024*1024)
     spiflash_page_size = 256
-    spiflash_sector_size = 0x10000
+    spiflash_sector_size = 64*1024
 
     def __init__(self):
         LatticePlatform.__init__(self, "ice40-hx8k-cb132", _io,
