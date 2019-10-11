@@ -64,6 +64,7 @@ class Platform(LatticePlatform):
     default_clk_name = "clk12"
     default_clk_period = 83.333
 
+    # gateware_size = 3*64*1024 # from icefundocs first 3 64k sectors reserved for FPGA
     gateware_size = 0x28000
 
     # FIXME: Create a "spi flash module" object in the same way we have SDRAM
