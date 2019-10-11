@@ -63,6 +63,7 @@ env:
    - C=lm32.lite        TC="icestorm"  P=icebreaker        T="base"       F=stub
    - C=lm32.lite        TC="icestorm"  P=tinyfpga_bx       T="base"       F=stub
    - C=lm32.lite        TC="icestorm"  P=upduino_v1        T="base"       F=stub
+   - C=lm32.lite        TC="icestorm"  P=icefun            T="base"       F=stub
    - C=lm32.lite        TC="vivado"    P=arty              T="base net"
    - C=lm32.lite                       P=opsis             T="base net"
    - C=lm32.minimal     TC="icestorm"  P=ice40_hx8k_b_evn  T="base"       F=stub
@@ -70,6 +71,7 @@ env:
    - C=lm32.minimal     TC="icestorm"  P=icebreaker        T="base"       F=stub
    - C=lm32.minimal     TC="icestorm"  P=tinyfpga_bx       T="base"       F=stub
    - C=lm32.minimal     TC="icestorm"  P=upduino_v1        T="base"       F=stub
+   - C=lm32.minimal     TC="icestorm"  P=icefun            T="base"       F=stub
    - C=lm32.minimal     TC="vivado"    P=arty              T="base net"
    - C=lm32.minimal     TC="ise"       P=opsis             T="base net"
    # OpenRISC1000
@@ -89,6 +91,7 @@ env:
    - C=vexriscv.lite    TC="icestorm"  P=icebreaker        T="base"       F=stub
    - C=vexriscv.lite    TC="icestorm"  P=tinyfpga_bx       T="base"       F=stub
    - C=vexriscv.lite    TC="icestorm"  P=upduino_v1        T="base"       F=stub
+   - C=vexriscv.lite    TC="icestorm"  P=icefun            T="base"       F=stub
    - C=vexriscv.lite    TC="vivado"    P=arty              T="base net"
    - C=vexriscv.lite    TC="ise"       P=opsis             T="base net"
    # PicoRV32
