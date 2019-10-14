@@ -64,7 +64,7 @@ if [ -f /etc/udev/rules.d/99-hdmi2usb-permissions.rules -o -f /lib/udev/rules.d/
 	true
 else
 	echo "Please install the HDMI2USB udev rules."
-	echo "These are installed by scripts/download-env-root.sh"
+	echo "These are installed by scripts/debian-setup.sh"
 	echo
 	return 1
 fi
