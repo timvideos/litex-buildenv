@@ -337,6 +337,9 @@ case $PLATFORM_TOOLCHAIN in
 		fi
 		;;
 	Lattice)
+		LATTICE_FULL_PART="$(grep 'LatticePlatform.__init__' platforms/*.py | sed -e's/.*(self, "//' -e's/".*//')"
+
+
 		export HAVE_FPGA_TOOLCHAIN=1
 		# yosys
 		echo
@@ -344,11 +347,25 @@ case $PLATFORM_TOOLCHAIN in
 		conda install -y $CONDA_FLAGS yosys
 		check_exists yosys
 
+
 		# nextpnr
 		echo
-		echo "Installing nextpnr (FOSS Place and Route tool)"
-		conda install -y $CONDA_FLAGS nextpnr
-		check_exists nextpnr-ice40
+		echo "Installing nextpnr (FOSS Place and Route tool) for $LATTICE_FULL_PART"
+		case $LATTICE_FULL_PART in
+			ice40*)
+				conda install -y $CONDA_FLAGS nextpnr-ice40
+				check_exists nextpnr-ice40
+				;;
+			ecp5*)
+				conda install -y $CONDA_FLAGS nextpnr-ecp5
+				check_exists nextpnr-ecp5
+				;;
+			*)
+				echo "Unknown Lattice part $LATTICE_FULL_PART"
+				exit 1
+				;;
+		esac
+
 		;;
 	*)
 		;;
