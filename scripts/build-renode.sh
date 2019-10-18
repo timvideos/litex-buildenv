@@ -98,5 +98,11 @@ python $TOP_DIR/third_party/litex-renode/generate-renode-scripts.py $LITEX_CONFI
 	--firmware-binary "$TARGET_BUILD_DIR/software/$FIRMWARE/firmware.bin" \
 	--configure-network ${TAP_INTERFACE:-""}
 
-$RENODE_BIN "$RENODE_RESC"
+# 1. include the generated script
+# 2. set additional parameters
+# 3. start the simulation
+$RENODE_BIN \
+	-e "i @$RENODE_RESC" \
+	"$@" \
+	-e "s"
 
