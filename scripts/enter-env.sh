@@ -291,6 +291,9 @@ case $PLATFORM_TOOLCHAIN in
 		fi
 		;;
 	Lattice)
+		LATTICE_FULL_PART="$(grep 'LatticePlatform.__init__' platforms/*.py | sed -e's/.*(self, "//' -e's/".*//')"
+
+
 		export HAVE_FPGA_TOOLCHAIN=1
 		# yosys
 
@@ -298,11 +301,25 @@ case $PLATFORM_TOOLCHAIN in
 
 		check_exists yosys || return 1
 
+
 		# nextpnr
 
 
+		case $LATTICE_FULL_PART in
+			ice40*)
 
-		check_exists nextpnr-ice40 || return 1
+				check_exists nextpnr-ice40 || return 1
+				;;
+			ecp5*)
+
+				check_exists nextpnr-ecp5 || return 1
+				;;
+			*)
+				echo "Unknown Lattice part $LATTICE_FULL_PART"
+				return 1
+				;;
+		esac
+
 		;;
 	*)
 		;;
