@@ -64,7 +64,7 @@ fi
 #	true
 #else
 #	echo "Please install the HDMI2USB udev rules."
-#	echo "These are installed by scripts/download-env-root.sh"
+#	echo "These are installed by scripts/debian-setup.sh"
 #	echo
 #	exit 1
 #fi
