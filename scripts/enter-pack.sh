@@ -67,6 +67,14 @@ echo "----------------------"
 source $ENV_PATH/bin/activate
 conda-unpack
 
+# Some packages we use (like openocd or iceprog) rely on host GCC and binutils
+# being installed. This in turn installs activation scripts, as conda assumes
+# these compilers will be used in the environment.
+# These scripts set plethora of GCC-related env variables, messing up our
+# cross-compilers. That's why we need to source the deactivation scripts.
+source $ENV_PATH/etc/conda/deactivate.d/deactivate-binutils_linux-64.sh
+source $ENV_PATH/etc/conda/deactivate.d/deactivate-gcc_linux-64.sh
+
 # This is required as conda-pack does not contain editable modules.
 # This operation is idempotent though, so we don't need additional checks.
 echo ""
