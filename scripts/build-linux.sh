@@ -162,11 +162,10 @@ if [ ${CPU} = vexriscv ]; then
 		source $SCRIPT_DIR/build-common.sh
 		EMULATOR_RAM_BASE_ADDRESS=$(parse_generated_header "mem.h" EMULATOR_RAM_BASE)
 		RAM_BASE_ADDRESS=$(parse_generated_header "mem.h" MAIN_RAM_BASE)
-		SHADOW_BASE=$(parse_generated_header "mem.h" SHADOW_BASE)
 		# get rid of 'L' suffix
 		# passing address without shadow bit causes linux not to boot
-		RAM_BASE_ADDRESS=$(( ${RAM_BASE_ADDRESS::-1} | ${SHADOW_BASE::-1} ))
-	 	EMULATOR_RAM_BASE_ADDRESS=$(( ${EMULATOR_RAM_BASE_ADDRESS::-1} | ${SHADOW_BASE::-1} ))
+		RAM_BASE_ADDRESS=${RAM_BASE_ADDRESS::-1}
+	 	EMULATOR_RAM_BASE_ADDRESS=${EMULATOR_RAM_BASE_ADDRESS::-1}
 
 		cd $TOP_DIR/third_party/litex/litex/soc/cores/cpu/vexriscv/verilog/ext/VexRiscv/src/main/c/emulator
 
