@@ -26,24 +26,7 @@ fi
 
 if ! $RENODE_FOUND; then
 	# Download prebuilt renode Release if none is currently installed
-
-	RENODE_PACKAGE=renode-latest.linux-portable.tar.gz
-	RENODE_URL=https://antmicro.com/projects/renode/builds/$RENODE_PACKAGE
-	RENODE_LOCATION="$BUILD_DIR/renode"
-	mkdir -p $RENODE_LOCATION
-
-	RENODE_BIN=`find $RENODE_LOCATION -executable -type f -name renode`
-	if [ ! -x "$RENODE_BIN" ]; then
-		(
-			cd $RENODE_LOCATION
-			wget $RENODE_URL
-			tar -xf $RENODE_PACKAGE
-		)
-
-		RENODE_BIN=`find $RENODE_LOCATION -executable -type f -name renode`
-		chmod u+x $RENODE_BIN
-		echo "Renode downloaded and installed locally: $RENODE_BIN"
-	fi
+	conda install -c antmicro -c conda-forge renode
 fi
 
 case $CPU in
