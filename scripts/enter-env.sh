@@ -207,6 +207,14 @@ check_version python ${PYTHON_VERSION} || return 1
 echo ""
 echo "Checking FPGA toolchain"
 echo "---------------------------------------"
+
+# yosys
+
+
+
+check_exists yosys || return 1
+
+
 PLATFORM_TOOLCHAIN=$(grep 'class Platform' $TOP_DIR/platforms/$PLATFORM.py | sed -e's/class Platform(//' -e's/Platform)://')
 echo ""
 echo "Platform Toolchain: $PLATFORM_TOOLCHAIN"
@@ -295,13 +303,6 @@ case $PLATFORM_TOOLCHAIN in
 
 
 		export HAVE_FPGA_TOOLCHAIN=1
-		# yosys
-
-
-
-		check_exists yosys || return 1
-
-
 		# nextpnr
 
 
