@@ -567,6 +567,8 @@ for LITE in $LITE_REPOS; do
 done
 
 echo "-----------------------"
+git status
+echo "-----------------------"
 echo ""
 echo "Completed loading environment."
 echo ""
