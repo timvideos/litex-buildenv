@@ -140,6 +140,7 @@ echo ""
 echo "Creating a pack"
 echo "---------------"
 
+rm -f $BUILD_DIR/$ENV_NAME.tar.gz
 conda pack -p $CONDA_DIR/envs/$ENV_NAME -o $BUILD_DIR/$ENV_NAME.tar.gz
 
 # The activate/deactivate conda scripts have to have -e/-u disabled.
