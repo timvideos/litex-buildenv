@@ -182,6 +182,14 @@ function check_import_version {
 echo ""
 echo "Checking environment"
 echo "---------------------------------"
+
+unset PYTHONPATH
+export PYTHONHASHSEED=0
+export PYTHONDONTWRITEBYTECODE=1
+# Only works with Python 3.8
+# export PYTHONPYCACHEPREFIX=$BUILD_DIR/conda/__pycache__
+export PYTHONNOUSERSITE=1
+
 # Install and setup conda for downloading packages
 export PATH=$CONDA_DIR/bin:$PATH:/sbin
 
