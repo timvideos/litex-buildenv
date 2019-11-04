@@ -138,10 +138,12 @@ env:
    - C=vexriscv.lite    TC="ise"       P=atlys             T="net"        F=zephyr
 
 jobs:
-  fail_fast: true
   allow_failures:
    # Issue #454 - missing `pix5x_o` clock
-   - env: C=lm32         P=nexys_video      T="video"
+   - env: C=lm32             TC="vivado"    P=nexys_video       T="video"
+   - env: C=vexriscv.lite    TC="icestorm"  P=icebreaker        T="base"       F=zephyr
+   - env: C=vexriscv.lite    TC="vivado"    P=arty              T="net"        F=zephyr
+   - env: C=vexriscv.lite    TC="ise"       P=atlys             T="net"        F=zephyr
 
 notifications:
  email:
