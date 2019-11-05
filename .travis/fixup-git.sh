@@ -51,8 +51,9 @@ echo ""
 echo ""
 echo "- Fetching non shallow to get git version"
 echo "---------------------------------------------"
-git fetch origin --unshallow || true
-git fetch origin --unshallow --recurse-submodules=yes || true
+if git rev-parse --is-shallow-repository; then
+	git fetch origin --unshallow
+fi
 git fetch origin --tags
 
 TRAVIS_COMMIT_ACTUAL=$(git log --pretty=format:'%H' -n 1)
@@ -100,10 +101,7 @@ if [ z"$TRAVIS_PULL_REQUEST_SLUG" != z ]; then
 	echo ""
 	echo "- Using pull request version of submodules (if they exist)"
 	echo "---------------------------------------------"
-	git submodule status | while read SHA1 MODULE_PATH
-	do
-		"$PWD/.travis/add-local-submodule.sh" "$TRAVIS_PULL_REQUEST_SLUG" "$MODULE_PATH"
-	done
+	$PWD/.travis/add-local-submodules.sh $TRAVIS_PULL_REQUEST_SLUG
 	echo "---------------------------------------------"
 	git submodule foreach --recursive 'git remote -v; echo'
 	echo "---------------------------------------------"
@@ -115,10 +113,7 @@ if [ z"$TRAVIS_REPO_SLUG" != z ]; then
 	echo ""
 	echo "- Using local version of submodules (if they exist)"
 	echo "---------------------------------------------"
-	git submodule status | while read SHA1 MODULE_PATH DESC
-	do
-		"$PWD/.travis/add-local-submodule.sh" "$TRAVIS_REPO_SLUG" "$MODULE_PATH"
-	done
+	$PWD/.travis/add-local-submodules.sh $TRAVIS_REPO_SLUG
 	echo "---------------------------------------------"
 	git submodule foreach --recursive 'git remote -v; echo'
 	echo "---------------------------------------------"
