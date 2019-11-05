@@ -222,7 +222,9 @@ class BaseSoC(SoCSDRAM):
 
         bios_size = 0x8000
         self.add_constant("ROM_DISABLE", 1)
-        self.add_memory_region("rom", kwargs['cpu_reset_address'], bios_size)
+        self.add_memory_region(
+            "rom", kwargs['cpu_reset_address'], bios_size,
+            type="cached+linker")
         self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size+bios_size
 
         # sdram

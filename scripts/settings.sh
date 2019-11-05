@@ -25,6 +25,7 @@ ZEPHYR_SDK_VERSION=0.10.3
 # lite modules
 LITE_REPOS="
 	migen
+	nmigen
 	litex
 	litedram
 	liteeth

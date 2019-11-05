@@ -114,15 +114,15 @@ class BaseSoC(SoCSDRAM):
     csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
 
     SoCSDRAM.mem_map = {
-        "rom":      0x00000000,  # (default shadow @0x80000000)
-        "sram":     0x10000000,  # (default shadow @0x90000000)
-        "main_ram": 0x40000000,  # (default shadow @0xc0000000)
-        "csr":      0x60000000,  # (default shadow @0xe0000000)
+        "rom":      0x00000000,
+        "sram":     0x10000000,
+        "main_ram": 0x40000000,
+        "csr":      0xe0000000,
     }
 
     mem_map = {
-        "spiflash": 0x20000000,  # (default shadow @0xa0000000)
-        "emulator_ram": 0x50000000,  # (default shadow @0xd0000000)
+        "spiflash": 0x20000000,
+        "emulator_ram": 0x50000000,
     }
     mem_map.update(SoCSDRAM.mem_map)
 
@@ -164,7 +164,7 @@ class BaseSoC(SoCSDRAM):
         self.add_constant("SPIFLASH_SECTOR_SIZE", 0x10000)
         self.add_wb_slave(mem_decoder(self.mem_map["spiflash"]), self.spiflash.bus)
         self.add_memory_region(
-            "spiflash", self.mem_map["spiflash"] | self.shadow_base, 16*1024*1024)
+            "spiflash", self.mem_map["spiflash"], 16*1024*1024)
 
         if self.cpu_type == "vexriscv" and self.cpu_variant == "linux":
             size = 0x4000

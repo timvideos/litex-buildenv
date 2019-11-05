@@ -70,7 +70,7 @@ class BaseSoC(SoCCore):
         self.add_constant("SPIFLASH_SECTOR_SIZE", 0x10000)
         self.add_wb_slave(mem_decoder(self.mem_map["spiflash"]), self.spiflash.bus)
         self.add_memory_region(
-            "spiflash", self.mem_map["spiflash"] | self.shadow_base, 16*1024*1024)
+            "spiflash", self.mem_map["spiflash"], 16*1024*1024)
 
 
 SoC = BaseSoC

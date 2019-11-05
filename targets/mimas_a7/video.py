@@ -1,7 +1,7 @@
 from litevideo.input import HDMIIn
 from litevideo.output import VideoOut
 
-from litex.soc.cores.frequency_meter import FrequencyMeter
+from litex.soc.cores.freqmeter import FreqMeter
 
 from litescope import LiteScopeAnalyzer
 
@@ -40,7 +40,7 @@ class VideoSoC(BaseSoC):
             fifo_depth=512,
             device="xc7")
 
-        self.submodules.hdmi_in0_freq = FrequencyMeter(period=self.clk_freq)
+        self.submodules.hdmi_in0_freq = FreqMeter(period=self.clk_freq)
 
         self.comb += [
             self.hdmi_in0_freq.clk.eq(self.hdmi_in0.clocking.cd_pix.clk),

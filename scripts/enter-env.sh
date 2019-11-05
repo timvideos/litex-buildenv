@@ -182,6 +182,14 @@ function check_import_version {
 echo ""
 echo "Checking environment"
 echo "---------------------------------"
+
+unset PYTHONPATH
+export PYTHONHASHSEED=0
+export PYTHONDONTWRITEBYTECODE=1
+# Only works with Python 3.8
+# export PYTHONPYCACHEPREFIX=$BUILD_DIR/conda/__pycache__
+export PYTHONNOUSERSITE=1
+
 # Install and setup conda for downloading packages
 export PATH=$CONDA_DIR/bin:$PATH:/sbin
 
@@ -207,6 +215,14 @@ check_version python ${PYTHON_VERSION} || return 1
 echo ""
 echo "Checking FPGA toolchain"
 echo "---------------------------------------"
+
+# yosys
+
+
+
+check_exists yosys || return 1
+
+
 PLATFORM_TOOLCHAIN=$(grep 'class Platform' $TOP_DIR/platforms/$PLATFORM.py | sed -e's/class Platform(//' -e's/Platform)://')
 echo ""
 echo "Platform Toolchain: $PLATFORM_TOOLCHAIN"
@@ -295,13 +311,6 @@ case $PLATFORM_TOOLCHAIN in
 
 
 		export HAVE_FPGA_TOOLCHAIN=1
-		# yosys
-
-
-
-		check_exists yosys || return 1
-
-
 		# nextpnr
 
 
@@ -565,6 +574,8 @@ for LITE in $LITE_REPOS; do
 	check_import $LITE || return 1
 done
 
+echo "-----------------------"
+git status
 echo "-----------------------"
 echo ""
 echo "Completed loading environment."

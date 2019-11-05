@@ -14,6 +14,36 @@ EOF
 chmod a+x $GIT_CREDENTIAL_HELPER
 git config credential.helper $GIT_CREDENTIAL_HELPER
 
+# Create a global .gitignore and populate with Python stuff
+GIT_GLOBAL_IGNORE=$PWD/.git/ignore
+cat > $GIT_GLOBAL_IGNORE <<EOF
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+EOF
+git config --global core.excludesfile $GIT_GLOBAL_IGNORE
+
 DF_BEFORE_GIT="$(($(stat -f --format="%a*%S" .)))"
 
 echo ""

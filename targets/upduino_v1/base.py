@@ -86,7 +86,9 @@ class BaseSoC(SoCCore):
 
         bios_size = 0x8000
         self.add_constant("ROM_DISABLE", 1)
-        self.add_memory_region("rom", kwargs['cpu_reset_address'], bios_size)
+        self.add_memory_region(
+            "rom", kwargs['cpu_reset_address'], bios_size,
+            type="cached+linker")
         self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size+bios_size
 
         # SPRAM- UP5K has single port RAM, might as well use it as SRAM to
@@ -100,7 +102,8 @@ class BaseSoC(SoCCore):
             self.flash_boot_address,
             # Leave a grace area- possible one-by-off bug in add_memory_region?
             # Possible fix: addr < origin + length - 1
-            platform.spiflash_total_size - (self.flash_boot_address - self.mem_map["spiflash"]) - 0x100)
+            platform.spiflash_total_size - (self.flash_boot_address - self.mem_map["spiflash"]) - 0x100,
+            type="cached+linker")
 
         # Disable final deep-sleep power down so firmware words are loaded
         # onto softcore's address bus.

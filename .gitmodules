@@ -24,7 +24,7 @@
 	url = https://github.com/enjoy-digital/litevideo.git
 [submodule "third_party/edid-decode"]
 	path = third_party/edid-decode
-	url = https://git.linuxtv.org/edid-decode.git/
+	url = https://github.com/timvideos/edid-decode.git
 [submodule "third_party/flash_proxies"]
        path = third_party/flash_proxies
        url = https://github.com/jordens/bscan_spi_bitstreams
@@ -34,3 +34,6 @@
 [submodule "third_party/litex-renode"]
 	path = third_party/litex-renode
 	url = https://github.com/litex-hub/litex-renode.git
+[submodule "third_party/nmigen"]
+	path = third_party/nmigen
+	url = https://github.com/m-labs/nmigen.git

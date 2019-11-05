@@ -134,11 +134,19 @@ function build() {
 
 		if grep -q -- "??" $VERSION_DATA; then
 			echo "Repository had unknown files, failing to build!"
+			git submodule foreach --recursive git ls-files --exclude-standard --others
+			git submodule foreach --recursive git status
+			git status
+			git diff
 			exit 1
 		fi
 
 		if grep -q -- "-dirty" $VERSION_DATA; then
 			echo "Repository was dirty, failing to build!"
+			git submodule foreach --recursive git ls-files --exclude-standard --others
+			git submodule foreach --recursive git status
+			git status
+			git diff
 			exit 1
 		fi
 	fi

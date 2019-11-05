@@ -91,9 +91,9 @@ def get_bios(builddir, filetype="flash"):
 
 
 def get_bios_maxsize(args, soc):
-    for name, start, size in soc.get_memory_regions():
+    for name, region in soc.mem_regions.items():
         if name == 'rom':
-            return size
+            return region.length
     # FIXME: Hard coded value?
     return 0x8000
 
@@ -141,7 +141,7 @@ def main():
             # SPI flash lack the block RAM resources to run the default
             # firmware. Check whether to use the stub or default firmware
             # should be refined (perhaps soc attribute?).
-            if "main_ram" in (m[0] for m in soc.get_memory_regions()):
+            if "main_ram" in soc.mem_regions:
                 builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
             else:
                 builder.add_software_package("stub", "{}/firmware/stub".format(os.getcwd()))

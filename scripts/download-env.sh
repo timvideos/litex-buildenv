@@ -232,6 +232,13 @@ function pin_conda_package {
 echo ""
 echo "Initializing environment"
 echo "---------------------------------"
+
+export PYTHONHASHSEED=0
+export PYTHONDONTWRITEBYTECODE=1
+# Only works with Python 3.8
+# export PYTHONPYCACHEPREFIX=$BUILD_DIR/conda/__pycache__
+export PYTHONNOUSERSITE=1
+
 # Install and setup conda for downloading packages
 export PATH=$CONDA_DIR/bin:$PATH:/sbin
 (
@@ -285,6 +292,14 @@ check_version python ${PYTHON_VERSION}
 echo ""
 echo "Installing FPGA toolchain"
 echo "---------------------------------------"
+
+# yosys
+echo
+echo "Installing yosys (FOSS Synthesis tool)"
+conda install -y $CONDA_FLAGS yosys
+check_exists yosys
+
+
 PLATFORM_TOOLCHAIN=$(grep 'class Platform' $TOP_DIR/platforms/$PLATFORM.py | sed -e's/class Platform(//' -e's/Platform)://')
 echo ""
 echo "Platform Toolchain: $PLATFORM_TOOLCHAIN"
@@ -373,13 +388,6 @@ case $PLATFORM_TOOLCHAIN in
 
 
 		export HAVE_FPGA_TOOLCHAIN=1
-		# yosys
-		echo
-		echo "Installing yosys (FOSS Synthesis tool)"
-		conda install -y $CONDA_FLAGS yosys
-		check_exists yosys
-
-
 		# nextpnr
 		echo
 		echo "Installing nextpnr (FOSS Place and Route tool) for $LATTICE_FULL_PART"
