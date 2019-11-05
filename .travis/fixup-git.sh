@@ -52,6 +52,7 @@ echo ""
 echo "- Fetching non shallow to get git version"
 echo "---------------------------------------------"
 git fetch origin --unshallow || true
+git fetch origin --unshallow --recurse-submodules=yes || true
 git fetch origin --tags
 
 TRAVIS_COMMIT_ACTUAL=$(git log --pretty=format:'%H' -n 1)
