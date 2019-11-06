@@ -30,21 +30,40 @@ echo "Request repo is '$REQUEST_REPO'".
 # Get current origin from git
 ORIGIN_URL="$(git config -f .gitmodules submodule.$SUBMODULE.url)"
 #ORIGIN_URL="$(git remote get-url origin)"
+if echo $ORIGIN_URL | grep -q "github.com"; then
+	echo "Found github"
 
-# Check the origin repo exists
-echo -n "Origin's repo would be '$ORIGIN_URL' "
-if git ls-remote --exit-code --heads "$ORIGIN_URL" > /dev/null 2>&1; then
-	echo "which exists!"
+	ORIGIN_SLUG=$(echo $ORIGIN_URL | perl -pe 's|.*github.com/(.*?)(.git)?$|\1|')
+	echo "Origin slug is '$ORIGIN_SLUG'"
+
+	ORIGIN_USER="$(echo $ORIGIN_SLUG | perl -pe 's|^([^/]*)/.*|\1|')"
+	ORIGIN_REPO="$(echo $ORIGIN_SLUG | perl -pe 's|.*?/([^/]*)$|\1|')"
+
+	echo "Origin user is '$ORIGIN_USER'"
+	echo "Origin repo is '$ORIGIN_REPO'"
+
+	USER_URL="https://github.com/$REQUEST_USER/$ORIGIN_REPO.git"
+
+	# Check if the user's repo exists
+	echo -n "User's repo would be '$USER_URL' "
+	if git ls-remote --exit-code --heads "$USER_URL" > /dev/null 2>&1; then
+		echo "which exists!"
+	else
+		echo "which does *not* exist!"
+		USER_URL="$ORIGIN_URL"
+	fi
 else
-	echo "which does *not* exist!"
-	exit 1
+	echo "Did not find github"
+	USER_URL="$ORIGIN_URL"
 fi
 
 # If submodule doesn't exist, clone directly from the users repo
 if [ ! -e $SUBMODULE/.git ]; then
-	echo "Cloning from repo '$ORIGIN_URL'"
-	git clone $ORIGIN_URL $SUBMODULE --origin origin
+	echo "Cloning '$ORIGIN_REPO' from repo '$USER_URL'"
+	git clone $USER_URL $SUBMODULE --origin user --branch $SHA1
 fi
+
+# If the submodule does exist, add a new remote.
 (
 	cd $SUBMODULE
 	git remote rm origin >/dev/null 2>&1 || true
@@ -54,41 +73,13 @@ fi
 		git fetch origin --no-recurse-submodules --unshallow
 	fi
 	git fetch origin --no-recurse-submodules
-)
 
-# Check if this origin is on github?
-if echo $ORIGIN_URL | grep -q "github.com"; then
-	echo "Found github"
-else
-	echo "Did not find github, skipping"
-	exit 0
-fi
-
-ORIGIN_SLUG=$(echo $ORIGIN_URL | perl -pe 's|.*github.com/(.*?)(.git)?$|\1|')
-echo "Origin slug is '$ORIGIN_SLUG'"
-
-ORIGIN_USER="$(echo $ORIGIN_SLUG | perl -pe 's|^([^/]*)/.*|\1|')"
-ORIGIN_REPO="$(echo $ORIGIN_SLUG | perl -pe 's|.*?/([^/]*)$|\1|')"
-
-echo "Origin user is '$ORIGIN_USER'"
-echo "Origin repo is '$ORIGIN_REPO'"
-
-# Check if the user's repo exists
-USER_URL="https://github.com/$REQUEST_USER/$ORIGIN_REPO.git"
-echo -n "User's repo would be '$USER_URL' "
-if git ls-remote --exit-code --heads "$USER_URL" > /dev/null 2>&1; then
-	echo "which exists!"
-
-	(
-		cd $SUBMODULE
+	if [ "$USER_URL" != "$ORIGIN_URL" ]; then
 		git remote rm user >/dev/null 2>&1 || true
 		git remote add user $USER_URL
-
 		git fetch user --no-recurse-submodules
-	)
-else
-	echo "which does *not* exist!"
-fi
+	fi
+)
 
 # Checkout to the correct SHA1 value - which may come from origin or user.
 (
@@ -96,6 +87,7 @@ fi
 	git reset --hard "$SHA1" --recurse-submodules=no
 )
 
+# Init the submodule
 git submodule update --init $SUBMODULE
 
 # Call ourselves recursively.
