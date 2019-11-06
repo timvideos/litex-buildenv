@@ -59,27 +59,34 @@ fi
 
 # If submodule doesn't exist, clone directly from the users repo
 if [ ! -e $SUBMODULE/.git ]; then
-	echo "Cloning '$ORIGIN_REPO' from repo '$USER_URL'"
-	git clone $USER_URL $SUBMODULE --origin user --branch $SHA1
+	echo "Cloning '$ORIGIN_REPO' from repo '$ORIGIN_URL'"
+	git clone $ORIGIN_URL $SUBMODULE --origin origin
+else
+	(
+		cd $SUBMODULE
+		git remote rm origin >/dev/null 2>&1 || true
+		git remote add origin $ORIGIN_URL
+	)
 fi
 
-# If the submodule does exist, add a new remote.
+# Fetch origin and make sure the submodule isn't shallow.
 (
 	cd $SUBMODULE
-	git remote rm origin >/dev/null 2>&1 || true
-	git remote add origin $ORIGIN_URL
-
 	if [ $(git rev-parse --is-shallow-repository) != "false" ]; then
 		git fetch origin --no-recurse-submodules --unshallow
 	fi
 	git fetch origin --no-recurse-submodules
+)
 
-	if [ "$USER_URL" != "$ORIGIN_URL" ]; then
+# Add the user remote and fetch it.
+if [ "$USER_URL" != "$ORIGIN_URL" ]; then
+	(
+		cd $SUBMODULE
 		git remote rm user >/dev/null 2>&1 || true
 		git remote add user $USER_URL
 		git fetch user --no-recurse-submodules
-	fi
-)
+	)
+fi
 
 # Checkout to the correct SHA1 value - which may come from origin or user.
 (
