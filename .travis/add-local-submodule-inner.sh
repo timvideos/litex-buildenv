@@ -96,6 +96,8 @@ fi
 	git reset --hard "$SHA1" --recurse-submodules=no
 )
 
+git submodule update --init $SUBMODULE
+
 # Call ourselves recursively.
 (
 	cd $SUBMODULE
