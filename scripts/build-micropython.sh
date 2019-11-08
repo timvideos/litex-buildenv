@@ -89,5 +89,7 @@ cd $TARGET_MPY_BUILD_DIR
 make V=1 -C $(realpath ../../../../third_party/micropython/ports/fupy/) -j$JOBS
 cd $OLD_DIR
 
-# Generate a firmware image suitable for flashing.
-make image
+if [ -z "$SKIP_IMAGE" ]; then
+	# Generate a firmware image suitable for flashing.
+	make image
+fi
