@@ -603,6 +603,12 @@ if [ "$FIRMWARE" = "zephyr" ]; then
 	pip install pyelftools
 	check_import elftools
 
+	# packaging for building Zephyr
+	echo
+	echo "Installing packaging (python module)"
+	pip install packaging
+	check_import packaging
+
 	# west tool for building Zephyr
 	echo
 	echo "Installing west (python module)"

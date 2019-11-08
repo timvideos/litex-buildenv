@@ -535,6 +535,9 @@ if [ "$FIRMWARE" = "zephyr" ]; then
 
 
 	check_version cmake $CMAKE_VERSION || return 1
+
+	# packaging for building Zephyr
+	check_import packaging || return 1
 fi
 
 # git commands
