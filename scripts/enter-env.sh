@@ -74,6 +74,10 @@ fi
 
 . $SETUP_DIR/settings.sh
 
+# If we activate an environment, CONDA_PREFIX is set. Otherwise use CONDA_DIR.
+export CONDA_PREFIX="${CONDA_PREFIX:-$CONDA_DIR}"
+export CONDA_DIR=$CONDA_PREFIX
+
 echo "             This script is: $SETUP_SRC"
 echo "         Firmware directory: $TOP_DIR"
 echo "         Build directory is: $BUILD_DIR"

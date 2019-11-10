@@ -44,7 +44,7 @@ if [ "$FIRMWARE" != "linux" ]; then
 fi
 
 # Install a baremetal toolchain with the newlib standard library
-if ! ${CPU_ARCH}-elf-newlib --version > /dev/null 2>&1; then
+if ! ${CPU_ARCH}-elf-newlib-gcc --version > /dev/null 2>&1; then
 	conda install gcc-${CPU_ARCH}-elf-newlib
 fi
 # Install a Linux userspace toolchain with the musl standard library
