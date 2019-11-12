@@ -133,6 +133,9 @@ def main():
         if not buildargs.get('csr_csv', None):
             buildargs['csr_csv'] = os.path.join(testdir, "csr.csv")
 
+        if not buildargs.get('csr_json', None):
+            buildargs['csr_json'] = os.path.join(testdir, "csr.json")
+
         builder = Builder(soc, **buildargs)
         if not args.no_compile_firmware or args.override_firmware:
             builder.add_software_package("uip", "{}/firmware/uip".format(os.getcwd()))
