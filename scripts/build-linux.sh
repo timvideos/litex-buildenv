@@ -163,7 +163,6 @@ if [ ${CPU} = vexriscv ]; then
 		EMULATOR_RAM_BASE_ADDRESS=$(parse_generated_header "mem.h" EMULATOR_RAM_BASE)
 		RAM_BASE_ADDRESS=$(parse_generated_header "mem.h" MAIN_RAM_BASE)
 		# get rid of 'L' suffix
-		# passing address without shadow bit causes linux not to boot
 		RAM_BASE_ADDRESS=${RAM_BASE_ADDRESS::-1}
 	 	EMULATOR_RAM_BASE_ADDRESS=${EMULATOR_RAM_BASE_ADDRESS::-1}
 
