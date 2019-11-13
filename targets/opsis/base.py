@@ -274,6 +274,7 @@ class BaseSoC(SoCSDRAM):
 
         bios_size = 0x8000
         self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size+bios_size
+        self.add_constant("FLASH_BOOT_ADDRESS", self.flash_boot_address)
 
         # front panel (ATX)
         self.submodules.front_panel = FrontPanelGPIO(platform, clk_freq)

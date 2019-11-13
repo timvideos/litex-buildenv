@@ -226,6 +226,7 @@ class BaseSoC(SoCSDRAM):
             "rom", kwargs['cpu_reset_address'], bios_size,
             type="cached+linker")
         self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size+bios_size
+        self.add_constant("FLASH_BOOT_ADDRESS", self.flash_boot_address)
 
         # sdram
         sdram_module = MT46H32M16(self.clk_freq, "1:2")
