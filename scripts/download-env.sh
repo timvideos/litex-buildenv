@@ -457,16 +457,11 @@ if [ "$PLATFORM" = "opsis" -o "$PLATFORM" = "atlys" ]; then
 fi
 
 # FIXME: Remove this once @jimmo has finished his new firmware
-# MimasV2Config.py
+# MimasV2Config
 if [ "$PLATFORM" = "mimasv2" ]; then
-	MIMASV2CONFIG=$BUILD_DIR/conda/bin/MimasV2Config.py
 	echo
-	echo "Installing MimasV2Config.py (mimasv2 flashing tool)"
-	if [ ! -e $MIMASV2CONFIG ]; then
-		wget https://raw.githubusercontent.com/numato/samplecode/master/FPGA/MimasV2/tools/configuration/python/MimasV2Config.py -O $MIMASV2CONFIG
-		chmod a+x $MIMASV2CONFIG
-	fi
-	check_exists MimasV2Config.py
+	echo "Installing MimasV2Config (mimasv2 flashing tool)"
+        pip install 'git+https://github.com/numato/samplecode/#egg=MimasV2&subdirectory=FPGA/MimasV2/tools/configuration/python/' 
 fi
 
 # flterm
