@@ -383,18 +383,6 @@ if [ "$PLATFORM" = "opsis" -o "$PLATFORM" = "atlys" ]; then
 	check_exists fxload || return 1
 fi
 
-# FIXME: Remove this once @jimmo has finished his new firmware
-# MimasV2Config.py
-if [ "$PLATFORM" = "mimasv2" ]; then
-	MIMASV2CONFIG=$BUILD_DIR/conda/bin/MimasV2Config.py
-
-
-
-
-
-
-	check_exists MimasV2Config.py || return 1
-fi
 
 # flterm
 
@@ -496,6 +484,14 @@ check_import_version hexfile $HEXFILE_VERSION || return 1
 
 
 check_import_version hdmi2usb.modeswitch $HDMI2USB_MODESWITCH_VERSION || return 1
+
+# FIXME: Remove this once @jimmo has finished his new firmware
+# MimasV2.Config
+if [ "$PLATFORM" = "mimasv2" ]; then
+        # MimasV2.Config for flashing binaries
+
+        check_import MimasV2.Config || return 1
+fi
 
 if [ "$FIRMWARE" = "zephyr" ]; then
 	# yaml for parsing configuration in Zephyr SDK

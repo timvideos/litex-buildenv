@@ -22,7 +22,7 @@ endif
 
 # Image
 image-flash-$(PLATFORM):
-	$(PYTHON) $$(which MimasV2Config.py) $(PROG_PORT) $(IMAGE_FILE)
+	$(PYTHON) -m MimasV2.Config $(PROG_PORT) $(IMAGE_FILE)
 
 # Gateware
 gateware-load-$(PLATFORM):
@@ -40,7 +40,7 @@ gateware-load-$(PLATFORM):
 GATEWARE_BIOS_FILE = $(TARGET_BUILD_DIR)/image-gateware+bios+none.bin
 
 gateware-flash-$(PLATFORM): $(GATEWARE_BIOS_FILE)
-	$(PYTHON) $$(which MimasV2Config.py) $(PROG_PORT) $(GATEWARE_BIOS_FILE)
+	$(PYTHON) -m MimasV2.Config $(PROG_PORT) $(GATEWARE_BIOS_FILE)
 
 # To avoid duplicating the mkimage.py call here, if the user has not
 # already built a image-gateware+bios+none.bin, we call make recursively
