@@ -185,32 +185,75 @@ fi
 export CROSS_COMPILE=${CPU_ARCH}-linux-musl-
 
 TARGET_LINUX_BUILD_DIR=$(dirname $TOP_DIR/$FIRMWARE_FILEBASE)
-(
-	cd $LINUX_SRC
-	echo "Building Linux in $TARGET_LINUX_BUILD_DIR"
-	mkdir -p $TARGET_LINUX_BUILD_DIR
 
-	if [ ! -e $TARGET_LINUX_BUILD_DIR/$ROOTFS ]; then
-		wget $ROOTFS_LOCATION/$ROOTFS -O $TARGET_LINUX_BUILD_DIR/$ROOTFS
-	fi
-
-	if [ ${CPU} = mor1kx ]; then
-		KERNEL_BINARY=vmlinux.bin
-		make O="$TARGET_LINUX_BUILD_DIR" litex_defconfig
-	elif [ ${CPU} = vexriscv ]; then
-		if [ ! -f $TARGET_LINUX_BUILD_DIR/.config ]; then
-			wget ${ROOTFS_LOCATION}/litex_vexriscv_linux.config -O $TARGET_LINUX_BUILD_DIR/.config
+BD_REMOTE="${BD_REMOTE:-https://github.com/buildroot/buildroot.git}"
+BD_SRC="$TOP_DIR/third_party/buildroot"
+LLV_REMOTE="${LLV_REMOTE:-https://github.com/litex-hub/linux-on-litex-vexriscv.git}"
+LLV_SRC="$TOP_DIR/third_party/linux-on-litex-vexriscv"
+if [ ${CPU} = vexriscv ] && [ ${BUILD_BUILDROOT} = 1 ]; then
+	(
+		if [ ! -d "$BD_SRC" ]; then
+		(
+			cd $(dirname $BD_SRC)
+			echo "Downloading Buildroot code."
+			git clone $BD_REMOTE $BD_SRC
+		)
 		fi
 
-		if [ ! -f $TARGET_LINUX_BUILD_DIR/rv32.dtb ]; then
-			wget ${ROOTFS_LOCATION}/rv32.dtb -O $TARGET_LINUX_BUILD_DIR/rv32.dtb
+		if [ ! -d "$LLV_SRC" ]; then
+		(
+			cd $(dirname $LLV_SRC)
+			echo "Downloading Linux on LiteX-VexRiscv code."
+			git clone $LLV_REMOTE $LLV_SRC
+		)
 		fi
 
-		KERNEL_BINARY=Image
-		make O="$TARGET_LINUX_BUILD_DIR" olddefconfig
-	fi
+		GENERATED_JSON="$TARGET_BUILD_DIR/test/csr.json"
+		if [ ! -f "$GENERATED_JSON" ]; then
+			make firmware
+		fi
 
-	time make O="$TARGET_LINUX_BUILD_DIR" -j$JOBS
-	ls -l $TARGET_LINUX_BUILD_DIR/arch/${ARCH}/boot/${KERNEL_BINARY}
-	ln -sf $TARGET_LINUX_BUILD_DIR/arch/${ARCH}/boot/${KERNEL_BINARY} $TOP_DIR/$FIRMWARE_FILEBASE.bin
-)
+		echo "Building Linux on LiteX-VexRiscv in $TARGET_LINUX_BUILD_DIR"
+		mkdir -p $TARGET_LINUX_BUILD_DIR
+
+		$LLV_SRC/json2dts.py $GENERATED_JSON > $TARGET_LINUX_BUILD_DIR/rv32.dts
+		dtc -I dts -O dtb -o $TARGET_LINUX_BUILD_DIR/rv32.dtb $TARGET_LINUX_BUILD_DIR/rv32.dts
+
+		cd $BD_SRC
+		make BR2_EXTERNAL=$LLV_SRC/buildroot/ litex_vexriscv_defconfig
+		time make
+		ls -l $BD_SRC/output/images/
+		ln -sf $BD_SRC/output/images/Image $TOP_DIR/$FIRMWARE_FILEBASE.bin
+		ln -sf $BD_SRC/output/images/rootfs.cpio $TARGET_LINUX_BUILD_DIR/$ROOTFS
+	)
+else
+	(
+		cd $LINUX_SRC
+		echo "Building Linux in $TARGET_LINUX_BUILD_DIR"
+		mkdir -p $TARGET_LINUX_BUILD_DIR
+
+		if [ ! -e $TARGET_LINUX_BUILD_DIR/$ROOTFS ]; then
+			wget $ROOTFS_LOCATION/$ROOTFS -O $TARGET_LINUX_BUILD_DIR/$ROOTFS
+		fi
+
+		if [ ${CPU} = mor1kx ]; then
+			KERNEL_BINARY=vmlinux.bin
+			make O="$TARGET_LINUX_BUILD_DIR" litex_defconfig
+		elif [ ${CPU} = vexriscv ]; then
+			if [ ! -f $TARGET_LINUX_BUILD_DIR/.config ]; then
+				wget ${ROOTFS_LOCATION}/litex_vexriscv_linux.config -O $TARGET_LINUX_BUILD_DIR/.config
+			fi
+
+			if [ ! -f $TARGET_LINUX_BUILD_DIR/rv32.dtb ]; then
+				wget ${ROOTFS_LOCATION}/rv32.dtb -O $TARGET_LINUX_BUILD_DIR/rv32.dtb
+			fi
+
+			KERNEL_BINARY=Image
+			make O="$TARGET_LINUX_BUILD_DIR" olddefconfig
+		fi
+
+		time make O="$TARGET_LINUX_BUILD_DIR" -j$JOBS
+		ls -l $TARGET_LINUX_BUILD_DIR/arch/${ARCH}/boot/${KERNEL_BINARY}
+		ln -sf $TARGET_LINUX_BUILD_DIR/arch/${ARCH}/boot/${KERNEL_BINARY} $TOP_DIR/$FIRMWARE_FILEBASE.bin
+	)
+fi
