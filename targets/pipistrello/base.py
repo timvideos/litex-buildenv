@@ -213,6 +213,7 @@ class BaseSoC(SoCSDRAM):
 
         bios_size = 0x8000
         self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size+bios_size
+        self.add_constant("FLASH_BOOT_ADDRESS", self.flash_boot_address)
         # sdram
         sdram_module = MT46H32M16(self.clk_freq, "1:2")
         self.submodules.ddrphy = s6ddrphy.S6HalfRateDDRPHY(

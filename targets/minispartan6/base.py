@@ -109,6 +109,7 @@ class BaseSoC(SoCSDRAM):
         self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
         self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
         self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size
+        self.add_constant("FLASH_BOOT_ADDRESS", self.flash_boot_address)
         self.register_mem("spiflash", self.mem_map["spiflash"],
             self.spiflash.bus, size=platform.spiflash_total_size)
 
