@@ -94,6 +94,7 @@ env:
    - C=vexriscv.lite    TC="icestorm"  P=icefun            T="base"       F=stub
    - C=vexriscv.lite    TC="vivado"    P=arty              T="base net"
    - C=vexriscv.lite    TC="ise"       P=opsis             T="base net"
+   - C=vexriscv.lite    TC="ise"       P=pano_logic_g2     T="base"
    # PicoRV32
    - C=picorv32         TC="vivado"    P=arty              T="base net"
    - C=picorv32         TC="vivado"    P=mimas_a7          T="base net"
@@ -141,6 +142,7 @@ jobs:
   allow_failures:
    - env: C=lm32             TC="vivado"    P=nexys_video       T="video"
    - env: C=mor1kx.linux     TC="vivado"    P=nexys_video       T="net"        F=linux
+   - env: C=vexriscv.lite    TC="ise"       P=pano_logic_g2     T="base"
 
 notifications:
  email:
