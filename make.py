@@ -153,11 +153,13 @@ def main():
         vns = platform.build(soc, build_dir=os.path.join(builddir, "gateware"))
 
     if hasattr(soc, 'pcie_phy'):
-        from targets.common import cpu_interface
-        csr_header = cpu_interface.get_csr_header(soc.get_csr_regions(), soc.get_constants())
+        from litex.soc.integration.export import get_csr_header, get_soc_header
+        csr_header = get_csr_header(soc.csr_regions, soc.constants, with_access_functions=False)
+        soc_header = get_soc_header(soc.constants, with_access_functions=False)
         kerneldir = os.path.join(builddir, "software", "pcie", "kernel")
         os.makedirs(kerneldir, exist_ok=True)
         write_to_file(os.path.join(kerneldir, "csr.h"), csr_header)
+        write_to_file(os.path.join(kerneldir, "soc.h"), soc_header)
 
     if hasattr(soc, 'do_exit'):
         soc.do_exit(vns, filename="{}/analyzer.csv".format(testdir))
