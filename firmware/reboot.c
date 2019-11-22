@@ -14,10 +14,17 @@
 
 extern void boot_helper(unsigned int r1, unsigned int r2, unsigned int r3, unsigned int addr);
 
+#ifdef CSR_CTRL_BASE
+void reboot(void)
+{
+	ctrl_reset_write(1);
+}
+#else
 void reboot(void)
 {
 	boot(0, 0, 0, CONFIG_CPU_RESET_ADDR);
 }
+#endif
 
 void __attribute__((noreturn)) boot(unsigned int r1, unsigned int r2, unsigned int r3, unsigned int addr)
 {
