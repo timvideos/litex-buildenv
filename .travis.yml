@@ -82,6 +82,7 @@ env:
    - C=mor1kx           TC="ise"       P=opsis             T="base net"
    - C=mor1kx           TC="ise"       P=pipistrello       T="base"
    # VexRISCV
+   - C=vexriscv         TC="vivado"    P=netv2             T="base net"
    - C=vexriscv         TC="vivado"    P=arty              T="base net"
    - C=vexriscv         TC="vivado"    P=mimas_a7          T="base net"
    - C=vexriscv         TC="ise"       P=mimasv2           T="base"
@@ -116,6 +117,10 @@ env:
    #--------------------------------------------
    - C=lm32             TC="ise"       P=atlys             T="hdmi2usb"
    - C=lm32             TC="ise"       P=opsis             T="hdmi2usb"
+   #--------------------------------------------
+   # HDMI2USB Targets
+   #--------------------------------------------
+   - C=vexriscv         TC="vivado"    P=netv2             T="hdmi2pcie"
    #--------------------------------------------
    # MicroPython Targets
    #--------------------------------------------
