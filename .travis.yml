@@ -106,6 +106,7 @@ env:
    - C=picorv32.minimal TC="vivado"    P=arty              T="base net"
    - C=picorv32.minimal TC="ise"       P=matrix_voice      T="base"
    - C=picorv32.minimal TC="ise"       P=opsis             T="base net"
+   - C=picorv32.minimal TC="icestorm"  P=fomu              T="base"       F=stub
    # minerva target
    - C=minerva          TC="vivado"    P=arty              T="base net"
    - C=minerva          TC="ise"       P=opsis             T="base net"
