@@ -146,6 +146,8 @@ from migen import *
 from migen.genlib.cdc import MultiReg
 from migen.genlib.fifo import _FIFOInterface, AsyncFIFO, SyncFIFO, SyncFIFOBuffered
 from migen.genlib.resetsync import AsyncResetSynchronizer
+from litex.soc.interconnect import stream
+import os
 
 
 __all__ = ["FX2Crossbar"]
@@ -284,19 +286,12 @@ class _RegisteredTristate(Module):
             # not DDR and is handled the straightforward way.
             #
             # See https://github.com/GlasgowEmbedded/Glasgow/issues/89 for details.
-            d_in_1 = Signal()
-            self.specials += \
-                Instance("SB_IO",
-                    # PIN_INPUT_DDR|PIN_OUTPUT_REGISTERED_ENABLE_REGISTERED
-                    p_PIN_TYPE=C(0b110100, 6),
-                    io_PACKAGE_PIN=get_bit(io, bit),
-                    i_INPUT_CLK=ClockSignal(),
-                    i_OUTPUT_CLK=ClockSignal(),
-                    i_OUTPUT_ENABLE=self.oe,
-                    i_D_OUT_0=get_bit(self.o, bit),
-                    o_D_IN_1=d_in_1,
-                )
-            self.sync += get_bit(self.i, bit).eq(d_in_1)
+            self.specials += Instance("ddr_iobuf",
+                    i_clk=ClockSignal(),
+                    i_d=get_bit(self.o, bit),
+                    i_oe=self.oe,
+                    o_q=get_bit(self.i, bit),
+                    io_io=get_bit(io, bit))
 
 
 class _FX2Bus(Module):
@@ -321,13 +316,13 @@ class _FX2Bus(Module):
 
         ###
 
-        self.submodules._fifoadr_t = _RegisteredTristate(pads.fifoadr)
+        self.submodules._fifoadr_t = _RegisteredTristate(pads.addr)
         self.submodules._flag_t    = _RegisteredTristate(pads.flag)
-        self.submodules._fd_t      = _RegisteredTristate(pads.fd)
-        self.submodules._sloe_t    = _RegisteredTristate(pads.sloe)
-        self.submodules._slrd_t    = _RegisteredTristate(pads.slrd)
-        self.submodules._slwr_t    = _RegisteredTristate(pads.slwr)
-        self.submodules._pktend_t  = _RegisteredTristate(pads.pktend)
+        self.submodules._fd_t      = _RegisteredTristate(pads.data)
+        self.submodules._sloe_t    = _RegisteredTristate(pads.oe_n)
+        self.submodules._slrd_t    = _RegisteredTristate(pads.rd_n)
+        self.submodules._slwr_t    = _RegisteredTristate(pads.wr_n)
+        self.submodules._pktend_t  = _RegisteredTristate(pads.pktend_n)
 
         self.comb += [
             self.flag.eq(self._flag_t.i),
@@ -370,13 +365,17 @@ class FX2Crossbar(Module):
     FIFOs that are never requested are not implemented and behave as if they
     are never readable or writable.
     """
-    def __init__(self, pads):
+    def __init__(self, platform):
+        pads = platform.request("fx2")
+
         self.submodules.bus = _FX2Bus(pads)
 
         self.out_fifos = Array([_UnimplementedOUTFIFO(width=8)
                                 for _ in range(2)])
         self. in_fifos = Array([_UnimplementedINFIFO(width=8)
                                 for _ in range(2)])
+
+        platform.add_source_dir(os.path.join("gateware", "fx2_crossbar", "verilog"))
 
     @staticmethod
     def _round_robin(addr, rdy):
@@ -404,7 +403,15 @@ class FX2Crossbar(Module):
                    ~bus.nrdy_o),
         ]
 
-        sel_flag     = bus.flag.part(bus.addr, 1)
+        sel_cases = {}
+        sel_flag = Signal()
+        for i in range(4):
+            sel_cases[i] = [
+                sel_flag.eq(bus.flag[i])
+            ]
+
+        self.comb += Case(bus.addr, sel_cases)
+
         sel_in_fifo  = self.in_fifos [bus.addr  [0]]
         sel_out_fifo = self.out_fifos[bus.addr_p[0]]
         self.comb += [
@@ -508,6 +515,8 @@ class FX2Crossbar(Module):
         assert 0 <= n < 2
         assert isinstance(self.out_fifos[n], _UnimplementedOUTFIFO)
 
+        self.source = source = stream.Endpoint([("data", 8)])
+
         fifo = self._make_fifo(crossbar_side="write",
                                logic_side="read",
                                cd_logic=clock_domain,
@@ -516,11 +525,20 @@ class FX2Crossbar(Module):
                                wrapper=lambda fifo: _OUTFIFO(fifo,
                                     skid_depth=3))
         self.out_fifos[n] = fifo
-        return fifo
+
+        self.comb += [
+            source.data.eq(fifo.dout),
+            source.valid.eq(fifo.readable),
+            fifo.re.eq(source.ready & fifo.readable),
+        ]
+
+        return source
 
     def get_in_fifo(self, n, depth=512, auto_flush=True, clock_domain=None, reset=None):
         assert 0 <= n < 2
         assert isinstance(self.in_fifos[n], _UnimplementedINFIFO)
+
+        self.sink = sink = stream.Endpoint([("data", 8)])
 
         fifo = self._make_fifo(crossbar_side="read",
                                logic_side="write",
@@ -531,4 +549,11 @@ class FX2Crossbar(Module):
                                     asynchronous=clock_domain is not None,
                                     auto_flush=auto_flush))
         self.in_fifos[n] = fifo
-        return fifo
+
+        self.comb += [
+            fifo.din.eq(sink.data),
+            sink.ready.eq(fifo.writable),
+            fifo.we.eq(sink.valid & fifo.writable),
+        ]
+
+        return sink
