@@ -36,14 +36,16 @@ class HDMI2USBSoC(BaseSoC):
                                            "read": "encoder"})(encoder_cdc)
         encoder_buffer = ClockDomainsRenamer("encoder")(EncoderBuffer())
         encoder = Encoder(platform)
-        xbar = FX2Crossbar(platform)
+
+        xbar = ClockDomainsRenamer("fx2")(FX2Crossbar(platform))
+
         self.submodules += encoder_cdc, encoder_buffer, encoder, xbar
 
         self.comb += [
             self.encoder_reader.source.connect(encoder_cdc.sink),
             encoder_cdc.source.connect(encoder_buffer.sink),
             encoder_buffer.source.connect(encoder.sink),
-            encoder.source.connect(xbar.get_in_fifo(0))
+            encoder.source.connect(xbar.get_in_fifo(0, clock_domain=self.crg.cd_encoder))
         ]
         self.add_wb_slave(mem_decoder(self.mem_map["encoder"]), encoder.bus)
         self.add_memory_region("encoder",
