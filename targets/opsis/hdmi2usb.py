@@ -1,10 +1,11 @@
-from migen.fhdl.decorators import ClockDomainsRenamer
+from migen.fhdl.decorators import ClockDomainsRenamer, ResetInserter
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.interconnect import stream
+from litex.soc.cores.uart import UART
 
 from gateware.encoder import EncoderDMAReader, EncoderBuffer, Encoder
 from gateware.streamer import USBStreamer
-from gateware.fx2_crossbar import FX2Crossbar
+from gateware.fx2_crossbar import FX2Crossbar, FX2PHY
 
 from targets.utils import csr_map_update
 from targets.opsis.video import SoC as BaseSoC
@@ -45,6 +46,15 @@ class HDMI2USBSoC(BaseSoC):
             self.mem_map["encoder"] + self.shadow_base, 0x2000)
 
         self.crg.cd_encoder.clk.attr.add("keep")
+
+        fx2_uart_sink = xbar.get_in_fifo(1, clock_domain=self.crg.cd_sys)
+        fx2_uart_source = xbar.get_out_fifo(0, clock_domain=self.crg.cd_sys)
+
+        self.submodules.uart_phy = uart_phy = FX2PHY(fx2_uart_sink, fx2_uart_source)
+        self.submodules.uart = uart = ResetInserter()(UART(uart_phy))
+
+        self.add_csr("uart", allow_user_defined=True)
+        self.add_interrupt("uart", allow_user_defined=True)
 
 
 SoC = HDMI2USBSoC
