@@ -471,7 +471,7 @@ class FX2Crossbar(Module):
             )
         )
 
-    def _make_fifo(self, crossbar_side, logic_side, cd_logic, reset, depth, wrapper):
+    def _make_fifo(self, crossbar_side, logic_side, cd_logic, reset, depth, wrapper, name):
         if cd_logic is None:
             fifo = wrapper(SyncFIFOBuffered(8, depth))
 
@@ -508,7 +508,8 @@ class FX2Crossbar(Module):
                 fifo.comb += fifo.cd_crossbar.rst.eq(reset)
                 fifo.specials += AsyncResetSynchronizer(fifo.cd_logic, reset)
 
-        self.submodules += fifo
+        setattr(self.submodules, name, fifo)
+
         return fifo
 
     def get_out_fifo(self, n, depth=512, clock_domain=None, reset=None):
@@ -522,8 +523,8 @@ class FX2Crossbar(Module):
                                cd_logic=clock_domain,
                                reset=reset,
                                depth=depth,
-                               wrapper=lambda fifo: _OUTFIFO(fifo,
-                                    skid_depth=3))
+                               wrapper=lambda fifo: _OUTFIFO(fifo, skid_depth=3),
+                               name="fifo_out{}".format(n))
         self.out_fifos[n] = fifo
 
         self.comb += [
@@ -547,7 +548,8 @@ class FX2Crossbar(Module):
                                depth=depth,
                                wrapper=lambda fifo: _INFIFO(fifo,
                                     asynchronous=clock_domain is not None,
-                                    auto_flush=auto_flush))
+                                    auto_flush=auto_flush),
+                               name="fifo_in{}".format(n))
         self.in_fifos[n] = fifo
 
         self.comb += [
