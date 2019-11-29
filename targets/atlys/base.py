@@ -30,8 +30,16 @@ class _CRG(Module):
         # Clock domain for peripherals (such as HDMI output).
         self.clock_domains.cd_base50 = ClockDomain()
         self.clock_domains.cd_encoder = ClockDomain()
+        # FX2 Clock domain
+        self.clock_domains.cd_fx2 = ClockDomain()
 
         self.reset = Signal()
+
+        # Input FX2 clock
+        clk_ifclk = platform.request("clk_ifclk")
+        # Input FX2 clock (buffered)
+        clk_ifclka = Signal()
+        self.specials += Instance("IBUFG", i_I=clk_ifclk, o_O=clk_ifclka)
 
         # Input 100MHz clock
         f0 = 100*1000000
@@ -169,6 +177,22 @@ class _CRG(Module):
                 self.cd_sys.rst | ~dcm_base50_locked)
         ]
         platform.add_period_constraint(self.cd_base50.clk, 20)
+
+        # FX2 clock
+        dcm_fx2_locked = Signal()
+        self.specials += [
+            Instance("DCM_SP", name="crg_fx2_dcm_sp",
+                     p_CLKIN_PERIOD=20.0,
+                     i_PSEN=C(0),
+                     i_CLKIN=clk_ifclka,
+                     i_CLKFB=self.cd_fx2.clk,
+                     o_CLK0=self.cd_fx2.clk,
+                     o_LOCKED=dcm_fx2_locked,
+                     i_RST=ResetSignal(),
+                     ),
+            AsyncResetSynchronizer(self.cd_fx2,
+                self.cd_sys.rst | ~dcm_fx2_locked)
+        ]
 
         # Encoder clock - 66 MHz
         # ------------------------------------------------------------------------------

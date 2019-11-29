@@ -74,8 +74,8 @@ _io = [
     # NET "EppDB<7>"  LOC = "C5";  # Bank = 0, Pin name = IO_L6P,         Sch name = U1-FD7
 
     # HDMI2USB configuration....
+    ("clk_ifclk", 0, Pins("C10"), IOStandard(LVCMOS_BANK0)),
     ("fx2", 0,
-        Subsignal("ifclk", Pins("C10")),
         Subsignal("data", Pins("A2 D6 C6 B3 A3 B4 A4 C5")),
         Subsignal("addr", Pins("A14 B14"), Misc("DRIVE=12")),
         Subsignal("flag", Pins("B9 A9 C15 B2"), Misc("DRIVE=12")),
@@ -694,7 +694,7 @@ class Platform(XilinxPlatform):
 
         # USB input clock pins.
         try:
-            self.add_period_constraint(self.lookup_request("fx2").ifclk, 10)
+            self.add_period_constraint(self.lookup_request("clk_ifclk"), 20)
         except ConstraintError:
             pass
 

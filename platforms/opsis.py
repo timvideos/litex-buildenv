@@ -278,9 +278,9 @@ _io = [
 
     # FX2 USB Interface
     # CY7C68013A_100AC - component U2
-    ("fx2", 0,
         #NET "fx2_ifclk"            LOC =    "P20"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY-IFCLK)
-        Subsignal("ifclk", Pins("P20"), IOStandard("LVCMOS33")),
+    ("clk_ifclk", 0, Pins("P20"), IOStandard("LVCMOS33")),
+    ("fx2", 0,
         #NET "fx2_fd<0>"            LOC =    "C20"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_FD0)
         #NET "fx2_fd<1>"            LOC =    "C22"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_FD1)
         #NET "fx2_fd<2>"            LOC =    "L15"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_FD2)
@@ -580,6 +580,6 @@ class Platform(XilinxPlatform):
 
         # USB input clock pins.
         try:
-            self.add_period_constraint(self.lookup_request("fx2").ifclk, 10)
+            self.add_period_constraint(self.lookup_request("clk_ifclk"), 20)
         except ConstraintError:
             pass
