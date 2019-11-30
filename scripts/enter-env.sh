@@ -24,53 +24,9 @@ if [ $SOURCED = 0 ]; then
 	exit 1
 fi
 
-if [ ! -z "$HDMI2USB_ENV" ]; then
-	echo "Already sourced this file."
-	return 1
-fi
+source "$SETUP_DIR/setup-helpers.sh"
 
-if [ ! -z "$SETTINGS_FILE" -o ! -z "$XILINX" ]; then
-	echo "You appear to have sourced the Xilinx ISE settings, these are incompatible with building."
-	echo "Please exit this terminal and run again from a clean shell."
-	return 1
-fi
-
-# Conda does not support ' ' in the path (it bails early).
-if echo "${SETUP_DIR}" | grep -q ' '; then
-	echo "You appear to have whitespace characters in the path to this script."
-	echo "Please move this repository to another path that does not contain whitespace."
-	return 1
-fi
-
-# Conda does not support ':' in the path (it fails to install python).
-if echo "${SETUP_DIR}" | grep -q ':'; then
-	echo "You appear to have ':' characters in the path to this script."
-	echo "Please move this repository to another path that does not contain this character."
-	return 1
-fi
-
-# Check ixo-usb-jtag *isn't* installed
-if [ -e /lib/udev/rules.d/85-ixo-usb-jtag.rules ]; then
-	echo "Please uninstall ixo-usb-jtag package from the timvideos PPA, the"
-	echo "required firmware is included in the HDMI2USB modeswitch tool."
-	echo
-	echo "On Debian/Ubuntu run:"
-	echo "  sudo apt-get remove ixo-usb-jtag"
-	echo
-	return 1
-fi
-
-if [ -f /etc/udev/rules.d/99-hdmi2usb-permissions.rules -o -f /lib/udev/rules.d/99-hdmi2usb-permissions.rules -o -f /lib/udev/rules.d/60-hdmi2usb-udev.rules -o ! -z "$HDMI2USB_UDEV_IGNORE" ]; then
-	true
-else
-	echo "Please install the HDMI2USB udev rules, or `export HDMI2USB_UDEV_IGNORE=somevalue` to ignore this."
-	echo "On Debian/Ubuntu, these can be installed by running scripts/debian-setup.sh"
-	echo
-	return 1
-fi
-
-
-
+verify_system || return 1
 
 . $SETUP_DIR/settings.sh
 
@@ -129,59 +85,6 @@ if [ -z "$PLATFORM" -o ! -e ${TOP_DIR}/targets/$PLATFORM ]; then
 	done
 	return 1
 fi
-
-function check_exists {
-	TOOL=$1
-	if which $TOOL >/dev/null; then
-		echo "$TOOL found at $(which $TOOL)"
-		return 0
-	else
-		echo "$TOOL *NOT* found"
-		echo "Please try running the $SETUP_DIR/download-env.sh script again."
-		return 1
-	fi
-}
-
-function check_version {
-	TOOL=$1
-	VERSION=$2
-	if $TOOL --version 2>&1 | grep -q $VERSION > /dev/null; then
-		echo "$TOOL found at $VERSION"
-		return 0
-	else
-		$TOOL --version
-		echo "$TOOL (version $VERSION) *NOT* found"
-		echo "Please try running the $SETUP_DIR/download-env.sh script again."
-		return 1
-	fi
-}
-
-function check_import {
-	MODULE=$1
-	if python3 -c "import $MODULE"; then
-		echo "$MODULE found"
-		return 0
-	else
-		echo "$MODULE *NOT* found!"
-		echo "Please try running the $SETUP_DIR/download-env.sh script again."
-		return 1
-	fi
-}
-
-function check_import_version {
-	MODULE=$1
-	EXPECT_VERSION=$2
-	ACTUAL_VERSION=$(python3 -c "import $MODULE; print($MODULE.__version__)")
-	if echo "$ACTUAL_VERSION" | grep -q $EXPECT_VERSION > /dev/null; then
-		echo "$MODULE found at $ACTUAL_VERSION"
-		return 0
-	else
-		echo "$MODULE (version $EXPECT_VERSION) *NOT* found!"
-		echo "Please try running the $SETUP_DIR/download-env.sh script again."
-		return 1
-	fi
-}
-
 
 echo ""
 echo "Checking environment"

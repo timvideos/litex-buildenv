@@ -1,0 +1,30 @@
+name: lxbe-env
+channels:
+  - timvideos
+dependencies:
+    # fxload: tool for Cypress FX2 (opsis/atlys platforms)
+  - fxload
+    # icefunprog: tool for icefun pic programming (icefun platform)
+  - icefunprog
+    # iceprog: tool for FTDI (icebreaker/ice40 platforms)
+  - iceprog
+    # ninja: needed by Zephyr and west
+  - ninja
+    # gperf: needed by Zephyr and west
+  - gperf
+    # pyyaml: needed by Zephyr SDK for parsing configuration
+  - pyyaml
+    # ipython: for interactive debugging
+  - ipython
+    # pyserial: for communicating via uarts
+  - pyserial
+    # nextpnr: FOSS Place nad Route tool (ice40/ecp5 platforms)
+  - nextpnr-ecp5
+  - nextpnr-ice40
+    # yosys: FOSS Synthesis tool
+  - yosys
+    # flterm: serial terminal tool
+  - flterm
+    # pip: handles Python packages
+  - pip
+
