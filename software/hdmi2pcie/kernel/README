@@ -1,0 +1,9 @@
+- Use 'make' to build the driver
+
+- Insert driver with
+
+  insmod hdmi2pcie.ko
+
+- Remove driver with
+
+  rmmod hdmi2pcie
