@@ -694,7 +694,7 @@ class Platform(XilinxPlatform):
 
         # USB input clock pins.
         try:
-            self.add_period_constraint(self.lookup_request("clk_ifclk"), 20)
+            self.add_period_constraint(self.lookup_request("clk_ifclk"), 20.833)
         except ConstraintError:
             pass
 

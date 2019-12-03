@@ -58,5 +58,7 @@ class HDMI2USBSoC(BaseSoC):
         self.add_csr("uart", allow_user_defined=True)
         self.add_interrupt("uart", allow_user_defined=True)
 
+        self.platform.add_false_path_constraints(self.crg.cd_sys.clk, self.crg.cd_fx2.clk)
+
 
 SoC = HDMI2USBSoC
