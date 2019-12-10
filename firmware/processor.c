@@ -36,6 +36,7 @@
 #include "processor.h"
 #include "heartbeat.h"
 #include "pcie.h"
+#include "eth_stream.h"
 
 /*
  ----------------->>> Time ----------->>>
@@ -704,12 +705,18 @@ void processor_set_encoder_source(int source) {
 	processor_encoder_source = source;
 }
 
+void processor_set_eth_source(int source) {
+	processor_eth_source = source;
+}
+
 char * processor_get_source_name(int source) {
 	memset(processor_buffer, 0, 16);
 	if(source == VIDEO_IN_PATTERN)
 		sprintf(processor_buffer, "pattern");
 	else if(source == VIDEO_IN_PCIE)
 		sprintf(processor_buffer, "pcie");
+	else if(source == VIDEO_IN_ETH)
+		sprintf(processor_buffer, "eth");
 	else
 		sprintf(processor_buffer, "input%d", source);
 	return processor_buffer;
@@ -737,6 +744,8 @@ void processor_update(void)
 	if(processor_hdmi_out0_source == VIDEO_IN_PATTERN)
 		hdmi_out0_core_initiator_base_write(pattern_framebuffer_base());
 
+	if(processor_hdmi_out0_source == VIDEO_IN_ETH)
+		hdmi_out0_core_initiator_base_write(eth_stream_in_framebuffer_base());
 #endif
 
 #ifdef CSR_HDMI_OUT1_BASE
@@ -779,6 +788,18 @@ void processor_update(void)
 	/*  FIXME: add code here when PCIe output starts to use DMA */
 #endif
 
+#ifdef ETHMAC_BASE
+	/* ethernet stream */
+#ifdef CSR_HDMI_IN0_BASE
+	if(processor_eth_source == VIDEO_IN_HDMI_IN0) {
+		eth_stream_out_base_write(hdmi_in0_framebuffer_base(hdmi_in0_fb_index));
+	}
+#endif
+
+	if(processor_eth_source == VIDEO_IN_PATTERN)
+		eth_stream_out_base_write(pattern_framebuffer_base());
+#endif
+
 #ifdef CSR_HDMI_IN0_BASE
 	hb_service(hdmi_in0_framebuffer_base(hdmi_in0_fb_index));
 #endif
@@ -801,7 +822,9 @@ void processor_service(void)
 #ifdef ENCODER_BASE
 	encoder_service();
 #endif
-
+#ifdef ETHMAC_BASE
+	eth_stream_out_service();
+#endif
 }
 
 struct video_timing* processor_get_custom_mode(void)

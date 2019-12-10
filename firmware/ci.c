@@ -652,6 +652,10 @@ static void video_matrix_list(void)
 	wprintf("pcie (x):\n");
 	wprintf("  PCIe buffer\n");
 #endif
+#ifdef ETHMAC_BASE
+	wprintf("net (n):\n");
+	wprintf("  Ethernet stream\n");
+#endif
 	wprintf("pattern (p):\n");
 	wprintf("  Video pattern\n");
 	wputs(" ");
@@ -701,6 +705,13 @@ static void video_matrix_connect(int source, int sink)
 #ifdef CSR_PCIE_PHY_BASE
 		else if(sink == VIDEO_OUT_PCIE) {
 			wprintf("Connecting %s to PCIe\n", processor_get_source_name(source));
+			processor_update();
+		}
+#endif
+#ifdef ETHMAC_BASE
+		else if(sink == VIDEO_OUT_ETH) {
+			wprintf("Connecting %s to Ethernet\n", processor_get_source_name(source));
+			processor_set_eth_source(source);
 			processor_update();
 		}
 #endif
@@ -1110,6 +1121,9 @@ void ci_service(void)
 			else if((strcmp(token, "pcie") == 0) || (strcmp(token, "x") == 0)){
 				source = VIDEO_IN_PCIE;
 			}
+			else if((strcmp(token, "net") == 0) || (strcmp(token, "n") == 0)){
+				source = VIDEO_IN_ETH;
+			}
 			else {
 				wprintf("Unknown video source: '%s'\n", token);
 			}
@@ -1128,6 +1142,9 @@ void ci_service(void)
 			}
 			else if((strcmp(token, "pcie") == 0) || (strcmp(token, "x") == 0)) {
 				sink = VIDEO_OUT_PCIE;
+			}
+			else if((strcmp(token, "net") == 0) || (strcmp(token, "n") == 0)) {
+				sink = VIDEO_OUT_ETH;
 			}
 			else
 				wprintf("Unknown video sink: '%s'\n", token);

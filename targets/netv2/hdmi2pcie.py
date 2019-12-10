@@ -78,7 +78,7 @@ class HDMI2PCIeSoC(BaseSoC):
         self.submodules.pcie_endpoint = LitePCIeEndpoint(self.pcie_phy)
 
         # pcie wishbone bridge
-        self.submodules.pcie_bridge = LitePCIeWishboneBridge(self.pcie_endpoint, lambda a: 1, shadow_base=0x40000000)
+        self.submodules.pcie_bridge = LitePCIeWishboneBridge(self.pcie_endpoint, lambda a: 1, shadow_base=0x44000000)
         self.submodules.wb_swap = WishboneEndianSwap(self.pcie_bridge.wishbone)
         self.add_wb_master(self.wb_swap.wishbone)
 
