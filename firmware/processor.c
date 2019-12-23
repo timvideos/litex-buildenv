@@ -745,7 +745,7 @@ void processor_update(void)
 		hdmi_out0_core_initiator_base_write(pattern_framebuffer_base());
 
 	if(processor_hdmi_out0_source == VIDEO_IN_ETH)
-		hdmi_out0_core_initiator_base_write(eth_stream_in_framebuffer_base());
+		hdmi_out0_core_initiator_base_write(eth_stream_in_framebuffer_base(eth_stream_in_fb_index));
 #endif
 
 #ifdef CSR_HDMI_OUT1_BASE

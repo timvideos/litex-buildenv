@@ -22,6 +22,8 @@ enum {
 	ETH_STREAM_OUT_STATE_CLOSE,
 };
 
+extern int eth_stream_in_fb_index;
+
 void eth_stream_init(void);
 
 int eth_stream_in_event_cb(struct tcp_socket *s, void *ptr, tcp_socket_event_t event);
@@ -30,7 +32,7 @@ int eth_stream_in_data_cb(struct tcp_socket *s, void *ptr, const char *rxbuf, in
 int eth_stream_out_event_cb(struct tcp_socket *s, void *ptr, tcp_socket_event_t event);
 int eth_stream_out_data_cb(struct tcp_socket *s, void *ptr, const char *rxbuf, int rxlen);
 
-unsigned int eth_stream_in_framebuffer_base(void);
+unsigned int eth_stream_in_framebuffer_base(char n);
 
 void eth_stream_out_service(void);
 void eth_stream_out_base_write(unsigned int value);

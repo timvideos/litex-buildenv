@@ -13,6 +13,8 @@ static int eth_stream_in_pos;
 static int eth_stream_out_pos;
 static int eth_stream_out_state;
 
+int eth_stream_in_fb_index;
+
 static unsigned int eth_stream_out_next_fb;
 static unsigned int eth_stream_out_size;
 
@@ -42,6 +44,8 @@ void eth_stream_init(void)
 			(tcp_socket_event_callback_t) eth_stream_out_event_cb);
 	tcp_socket_listen(&eth_stream_socket_out, ETH_STREAM_PORT_OUT);
 
+	eth_stream_in_fb_index = 0;
+
 	printf("Ethernet streamer listening on ports %d(in) %d(out)\n", ETH_STREAM_PORT_IN, ETH_STREAM_PORT_OUT);
 #endif
 }
@@ -54,6 +58,8 @@ int eth_stream_in_event_cb(struct tcp_socket *s, void *ptr, tcp_socket_event_t e
 			eth_stream_in_pos = 0;
 			break;
 		case TCP_SOCKET_CLOSED:
+			eth_stream_in_fb_index = (eth_stream_in_fb_index + 1) % 4;
+			break;
 		case TCP_SOCKET_TIMEDOUT:
 		case TCP_SOCKET_ABORTED:
 		default:
@@ -64,14 +70,15 @@ int eth_stream_in_event_cb(struct tcp_socket *s, void *ptr, tcp_socket_event_t e
 
 int eth_stream_in_data_cb(struct tcp_socket *s, void *ptr, const char *rxbuf, int rxlen)
 {
-	uint8_t *fb_base = (uint8_t*)fb_ptrdiff_to_main_ram(FRAMEBUFFER_BASE_ETH_IN);
+	char idx = (eth_stream_in_fb_index + 1) % 4;
+	uint8_t *fb_base = (uint8_t*)fb_ptrdiff_to_main_ram(eth_stream_in_framebuffer_base(idx));
 	memcpy(fb_base + eth_stream_in_pos, rxbuf, rxlen);
 	eth_stream_in_pos += rxlen;
 	return 0;
 }
 
-unsigned int eth_stream_in_framebuffer_base(void) {
-	return FRAMEBUFFER_BASE_ETH_IN;
+unsigned int eth_stream_in_framebuffer_base(char n) {
+	return FRAMEBUFFER_BASE_ETH_IN + n * FRAMEBUFFER_SIZE;
 }
 
 int eth_stream_out_event_cb(struct tcp_socket *s, void *ptr, tcp_socket_event_t event)
