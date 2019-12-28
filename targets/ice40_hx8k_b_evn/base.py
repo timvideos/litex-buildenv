@@ -103,6 +103,7 @@ class BaseSoC(SoCCore):
         # Disable final deep-sleep power down so firmware words are loaded
         # onto softcore's address bus.
         platform.toolchain.build_template[3] = "icepack -s {build_name}.txt {build_name}.bin"
+        platform.toolchain.nextpnr_build_template[1] += " --placer heap"
         platform.toolchain.nextpnr_build_template[2] = "icepack -s {build_name}.txt {build_name}.bin"
 
 
