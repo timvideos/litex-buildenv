@@ -85,7 +85,7 @@ def main():
             gateware = "Skipped"
 
         print(("Gateware @ 0x{:08x} ({:10} bytes) {:60}"
-               " - Xilinx FPGA Bitstream"
+               " - FPGA Bitstream"
                ).format(gateware_pos, len(gateware_data), gateware))
         print(" ".join("{:02x}".format(i) for i in gateware_data[:64]))
         assert len(gateware_data) < platform.gateware_size
