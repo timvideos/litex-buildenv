@@ -15,6 +15,7 @@ from gateware import spi_flash
 
 from targets.utils import csr_map_update
 
+from litex.soc.cores.uart import UARTWishboneBridge 
 
 class _CRG(Module):
     def __init__(self, platform):
@@ -49,10 +50,13 @@ class BaseSoC(SoCCore):
     )
     csr_map_update(SoCCore.csr_map, csr_peripherals)
 
-    mem_map = {
+    mem_map_overlay = {
         "spiflash": 0x20000000,  # (default shadow @0xa0000000)
+        "sram": 0,
     }
-    mem_map.update(SoCCore.mem_map)
+    mem_map = dict(SoCCore.mem_map, **mem_map_overlay)
+    
+    #mem_map.update(SoCCore.mem_map)
 
     def __init__(self, platform, **kwargs):
         if 'integrated_rom_size' not in kwargs:
@@ -62,10 +66,15 @@ class BaseSoC(SoCCore):
 
         # FIXME: Force either lite or minimal variants of CPUs; full is too big.
 
-        clk_freq = int(12e6)
+        kwargs['uart_stub'] = False
 
+        clk_freq = int(12e6)
         kwargs['cpu_reset_address']=self.mem_map["spiflash"]+platform.gateware_size
         SoCCore.__init__(self, platform, clk_freq, **kwargs)
+
+        #self.submodules.uart_bridge = UARTWishboneBridge(platform.request("serial_1"), clk_freq, baudrate=115200)
+        #self.add_wb_master(self.uart_bridge.wishbone)
+        #self.register_mem("vexriscv_debug", 0xf00f0000, self.cpu.debug_bus, 0x100)
 
         self.submodules.crg = _CRG(platform)
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
@@ -77,6 +86,7 @@ class BaseSoC(SoCCore):
         self.submodules.spiflash = spi_flash.SpiFlashSingle(
             platform.request("spiflash"),
             dummy=platform.spiflash_read_dummy_bits,
+            endianness="little",
             div=platform.spiflash_clock_div)
         self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
         self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
