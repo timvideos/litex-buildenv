@@ -69,7 +69,7 @@ def get_prog(args, platform):
 
 def get_image(builddir, filetype):
     assert filetype == "flash"
-    return os.path.join(builddir, "image.bin")
+    return os.path.join(builddir, "image-gateware+bios+firmware.bin")
 
 
 def get_gateware(builddir, filetype):
