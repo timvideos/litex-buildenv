@@ -655,13 +655,14 @@ echo "-----------------------"
 # lite
 for LITE in $LITE_REPOS; do
 	LITE_DIR=$THIRD_DIR/$LITE
+	LITE_MOD=$(echo $LITE | sed -e's/-/_/g')
 	(
 		echo
 		cd $LITE_DIR
 		echo "Installing $LITE from $LITE_DIR (local python module)"
 		python setup.py develop
 	)
-	check_import $LITE
+	check_import $LITE_MOD
 done
 
 echo "-----------------------"

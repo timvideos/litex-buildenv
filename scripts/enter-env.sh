@@ -567,14 +567,15 @@ echo "-----------------------"
 
 # lite
 for LITE in $LITE_REPOS; do
+	LITE_DIR=$THIRD_DIR/$LITE
+	LITE_MOD=$(echo $LITE | sed -e's/-/_/g')
 
 
 
 
 
 
-
-	check_import $LITE || return 1
+	check_import $LITE_MOD || return 1
 done
 
 echo "-----------------------"
