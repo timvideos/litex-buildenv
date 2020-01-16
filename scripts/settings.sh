@@ -27,6 +27,7 @@ LITE_REPOS="
 	migen
 	nmigen
 	litex
+	litex-boards
 	litedram
 	liteeth
 	litepcie

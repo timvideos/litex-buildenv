@@ -37,3 +37,6 @@
 [submodule "third_party/nmigen"]
 	path = third_party/nmigen
 	url = https://github.com/m-labs/nmigen.git
+[submodule "third_party/litex-boards"]
+	path = third_party/litex-boards
+	url = https://github.com/litex-hub/litex-boards
