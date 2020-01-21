@@ -22,6 +22,8 @@ from targets.utils import csr_map_update
 from liteeth.phy.mii import LiteEthPHYMII
 from liteeth.mac import LiteEthMAC
 
+from litex.soc.interconnect import wishbone
+
 # CRG ----------------------------------------------------------------------------------------------
 
 class _CRG(Module):
@@ -192,6 +194,10 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCSDRAM):
+    mem_map = {
+        "emulator_ram": 0x50000000,  # (default shadow @0xd0000000)
+    }
+    mem_map.update(SoCSDRAM.mem_map)
 
     def __init__(self, platform, **kwargs):
         if 'integrated_rom_size' not in kwargs:
@@ -203,6 +209,11 @@ class BaseSoC(SoCSDRAM):
         SoCSDRAM.__init__(self, platform, clk_freq, **kwargs)
 
         self.submodules.crg = _CRG(platform, clk_freq)
+
+        if self.cpu_type == "vexriscv" and self.cpu_variant == "linux":
+            size = 0x4000
+            self.submodules.emulator_ram = wishbone.SRAM(size)
+            self.register_mem("emulator_ram", self.mem_map["emulator_ram"], self.emulator_ram.bus, size)
 
         # sdram
         if not self.integrated_main_ram_size:        
