@@ -1,6 +1,11 @@
 # Support for the Numato Waxwing Spartan 6 Development Module
 # https://numato.com/product/waxwing-spartan-6-fpga-development-board
-
+#
+# Updated to:
+# https://productdata.numato.com/assets/downloads/fpga/waxwing/developmentboard/WaxwingSpartan6DevelopmentBoardV3.ucf
+#
+# Note: To use serial over FTDI change channel B to UART mode and 
+#       set driver to Virtual COM port using FTProg tool or similar
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxPlatform
 
@@ -9,21 +14,19 @@ _io = [
     ("clk100", 0, Pins("V10"), IOStandard("LVTTL")),
 
     ("serial", 0,
-        Subsignal("tx",  Pins("L18")),
-        Subsignal("rx",  Pins("L17"), Misc("PULLUP")),
-        Subsignal("cts", Pins("M16"), Misc("PULLUP")),
-        Subsignal("rts", Pins("M18"), Misc("PULLUP")),
+        Subsignal("tx",  Pins("M11")),
+        Subsignal("rx",  Pins("N11")),
         IOStandard("LVTTL")
     ),
 
     #the board has a FTDI FT2232H
     ("usb_fifo", 0,
-        Subsignal("data",  Pins("L17 L18 M16 M18 N17 N18 P17 P18")),
-        Subsignal("rxf_n", Pins("K18")),
-        Subsignal("txe_n", Pins("K17")),
-        Subsignal("rd_n",  Pins("J18")),
-        Subsignal("wr_n",  Pins("J16")),
-        Subsignal("siwua", Pins("H18")),
+        Subsignal("data",  Pins("N11 M11 T14 V14 N18 N17 V11 U11")),
+        Subsignal("rxf_n", Pins("V13")),
+        Subsignal("txe_n", Pins("U13")),
+        Subsignal("rd_n",  Pins("V15")),
+        Subsignal("wr_n",  Pins("U15")),
+        Subsignal("siwua", Pins("T17")),
         IOStandard("LVTTL"),
     ),
 
