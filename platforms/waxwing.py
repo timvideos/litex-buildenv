@@ -4,8 +4,6 @@
 # Updated to:
 # https://productdata.numato.com/assets/downloads/fpga/waxwing/developmentboard/WaxwingSpartan6DevelopmentBoardV3.ucf
 #
-# Note: To use serial over FTDI change channel B to UART mode and 
-#       set driver to Virtual COM port using FTProg tool or similar
 from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxPlatform
 
@@ -13,13 +11,18 @@ from litex.build.xilinx import XilinxPlatform
 _io = [
     ("clk100", 0, Pins("V10"), IOStandard("LVTTL")),
 
+    # The board has a FTDI FT2232H so different configurtaion is possible
+    # Note: To use serial over FTDI change channel B to UART mode and 
+    #       set driver to Virtual COM port using FTProg tool or similar
     ("serial", 0,
         Subsignal("tx",  Pins("M11")),
         Subsignal("rx",  Pins("N11")),
         IOStandard("LVTTL")
     ),
 
-    #the board has a FTDI FT2232H
+    # The board has a FTDI FT2232H so different configurtaion is possible
+    # Note: To use usb_fifo change channel B to 245FIFO mode and 
+    #       set driver to D2XX Direct using FTProg tool or similar
     ("usb_fifo", 0,
         Subsignal("data",  Pins("N11 M11 T14 V14 N18 N17 V11 U11")),
         Subsignal("rxf_n", Pins("V13")),
