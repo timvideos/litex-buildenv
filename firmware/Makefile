@@ -45,6 +45,7 @@ OBJECTS=\
 	tofe_eeprom.o \
 	uptime.o \
 	version.o \
+	pcie.o \
 	$(FIRMBUILD_DIRECTORY)/version_data.o \
 	$(FIRMBUILD_DIRECTORY)/hdmi_in1.o \
 	boot-helper-$(CPU).o

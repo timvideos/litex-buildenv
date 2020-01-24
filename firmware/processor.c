@@ -23,6 +23,8 @@
 #include <generated/mem.h>
 #include <hw/flags.h>
 #include <time.h>
+#include <system.h>
+#include <time.h>
 
 #include "hdmi_in0.h"
 #include "hdmi_in1.h"
@@ -33,6 +35,7 @@
 #include "mmcm.h"
 #include "processor.h"
 #include "heartbeat.h"
+#include "pcie.h"
 
 /*
  ----------------->>> Time ----------->>>
@@ -705,6 +708,8 @@ char * processor_get_source_name(int source) {
 	memset(processor_buffer, 0, 16);
 	if(source == VIDEO_IN_PATTERN)
 		sprintf(processor_buffer, "pattern");
+	else if(source == VIDEO_IN_PCIE)
+		sprintf(processor_buffer, "pcie");
 	else
 		sprintf(processor_buffer, "input%d", source);
 	return processor_buffer;
@@ -712,6 +717,9 @@ char * processor_get_source_name(int source) {
 
 void processor_update(void)
 {
+#ifdef CSR_PCIE_PHY_BASE
+	unsigned int pcie_in_fb_idx = (*pcie_in_fb_index) >> 24;
+#endif
 #ifdef CSR_HDMI_OUT0_BASE
 	/*  hdmi_out0 */
 #ifdef CSR_HDMI_IN0_BASE
@@ -722,8 +730,13 @@ void processor_update(void)
 	if(processor_hdmi_out0_source == VIDEO_IN_HDMI_IN1)
 		hdmi_out0_core_initiator_base_write(hdmi_in1_framebuffer_base(hdmi_in1_fb_index));
 #endif
+#ifdef CSR_PCIE_PHY_BASE
+	if(processor_hdmi_out0_source == VIDEO_IN_PCIE)
+		hdmi_out0_core_initiator_base_write(pcie_in_framebuffer_base(pcie_in_fb_idx));
+#endif
 	if(processor_hdmi_out0_source == VIDEO_IN_PATTERN)
 		hdmi_out0_core_initiator_base_write(pattern_framebuffer_base());
+
 #endif
 
 #ifdef CSR_HDMI_OUT1_BASE
@@ -735,6 +748,10 @@ void processor_update(void)
 #ifdef CSR_HDMI_IN1_BASE
 	if(processor_hdmi_out1_source == VIDEO_IN_HDMI_IN1)
 		hdmi_out1_core_initiator_base_write(hdmi_in1_framebuffer_base(hdmi_in1_fb_index));
+#endif
+#ifdef CSR_PCIE_PHY_BASE
+	if(processor_hdmi_out0_source == VIDEO_IN_PCIE)
+		hdmi_out1_core_initiator_base_write(pcie_in_framebuffer_base(pcie_in_fb_idx));
 #endif
 	if(processor_hdmi_out1_source == VIDEO_IN_PATTERN)
 		hdmi_out1_core_initiator_base_write(pattern_framebuffer_base());
@@ -755,6 +772,11 @@ void processor_update(void)
 #endif
 	if(processor_encoder_source == VIDEO_IN_PATTERN)
 		encoder_reader_base_write(pattern_framebuffer_base());
+#endif
+
+#ifdef CSR_PCIE_PHY_BASE
+	/*  PCIe capture*/
+	/*  FIXME: add code here when PCIe output starts to use DMA */
 #endif
 
 #ifdef CSR_HDMI_IN0_BASE

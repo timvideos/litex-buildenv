@@ -22,16 +22,17 @@
  * Frame buffers must be aligned to XXX boundary.
  *
  *  0x01000000 - Pattern Buffer - Frame Buffer n
+ *  0x02000000 - PCIe Buffer - Frame Buffer n
  *
  * Each input then has 3 frame buffers spaced like this;
  *  // HDMI Input 0
- *  0x02000000 - HDMI Input 0 - Frame Buffer n
- *  0x02040000 - HDMI Input 0 - Frame Buffer n+1
- *  0x02080000 - HDMI Input 0 - Frame Buffer n+2
+ *  0x03000000 - HDMI Input 0 - Frame Buffer n
+ *  0x03040000 - HDMI Input 0 - Frame Buffer n+1
+ *  0x03080000 - HDMI Input 0 - Frame Buffer n+2
  *  // HDMI Input 1
- *  0x03000000 - HDMI Input 1 - Frame Buffer n
- *  0x03040000 - HDMI Input 1 - Frame Buffer n+1
- *  0x03080000 - HDMI Input 1 - Frame Buffer n+2
+ *  0x04000000 - HDMI Input 1 - Frame Buffer n
+ *  0x04040000 - HDMI Input 1 - Frame Buffer n+1
+ *  0x04080000 - HDMI Input 1 - Frame Buffer n+2
  *  ...
  *  // HDMI Input x
  *  0x0.000000 - HDMI Input x - Frame Buffer n
@@ -41,6 +42,7 @@
  */
 #define FRAMEBUFFER_OFFSET		0x01000000
 #define FRAMEBUFFER_PATTERNS		1
+#define FRAMEBUFFER_PCIE_BUFFERS	1
 
 #define FRAMEBUFFER_PIXELS_X		1920	// pixels
 #define FRAMEBUFFER_PIXELS_Y		1080	// pixels
@@ -48,7 +50,9 @@
 
 #define FRAMEBUFFER_BASE(x)			((x+1)*FRAMEBUFFER_OFFSET)
 #define FRAMEBUFFER_BASE_PATTERN		FRAMEBUFFER_BASE(0)
-#define FRAMEBUFFER_BASE_HDMI_INPUT(x)		FRAMEBUFFER_BASE(x+FRAMEBUFFER_PATTERNS)
+#define FRAMEBUFFER_BASE_PCIE			FRAMEBUFFER_BASE(FRAMEBUFFER_PATTERNS)
+#define FRAMEBUFFER_BASE_HDMI_INPUT(x)		FRAMEBUFFER_BASE(x+FRAMEBUFFER_PATTERNS+FRAMEBUFFER_PCIE_BUFFERS)
+
 
 // Largest frame size at 16bpp (ish)
 #define FRAMEBUFFER_SIZE		0x400000 // bytes

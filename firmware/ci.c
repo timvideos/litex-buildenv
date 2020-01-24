@@ -648,6 +648,10 @@ static void video_matrix_list(void)
 	wprintf("input1 (1): %s\n", HDMI_IN1_MNEMONIC);
 	wputs(HDMI_IN1_DESCRIPTION);
 #endif
+#ifdef CSR_PCIE_PHY_BASE
+	wprintf("pcie (x):\n");
+	wprintf("  PCIe buffer\n");
+#endif
 	wprintf("pattern (p):\n");
 	wprintf("  Video pattern\n");
 	wputs(" ");
@@ -669,7 +673,7 @@ static void video_matrix_list(void)
 
 static void video_matrix_connect(int source, int sink)
 {
-	if(source >= 0 && source <= VIDEO_IN_PATTERN)
+	if(source >= 0 && source < VIDEO_IN_MAX)
 	{
 		if(sink >= 0 && sink <= VIDEO_OUT_HDMI_OUT1) {
 			wprintf("Connecting %s to output%d\n", processor_get_source_name(source), sink);
@@ -691,6 +695,12 @@ static void video_matrix_connect(int source, int sink)
 		else if(sink == VIDEO_OUT_ENCODER) {
 			wprintf("Connecting %s to encoder\n", processor_get_source_name(source));
 			processor_set_encoder_source(source);
+			processor_update();
+		}
+#endif
+#ifdef CSR_PCIE_PHY_BASE
+		else if(sink == VIDEO_OUT_PCIE) {
+			wprintf("Connecting %s to PCIe\n", processor_get_source_name(source));
 			processor_update();
 		}
 #endif
@@ -1097,6 +1107,9 @@ void ci_service(void)
 			else if((strcmp(token, "pattern") == 0) || (strcmp(token, "p") == 0)) {
 				source = VIDEO_IN_PATTERN;
 			}
+			else if((strcmp(token, "pcie") == 0) || (strcmp(token, "x") == 0)){
+				source = VIDEO_IN_PCIE;
+			}
 			else {
 				wprintf("Unknown video source: '%s'\n", token);
 			}
@@ -1112,6 +1125,9 @@ void ci_service(void)
 			}
 			else if((strcmp(token, "encoder") == 0) || (strcmp(token, "e") == 0)) {
 				sink = VIDEO_OUT_ENCODER;
+			}
+			else if((strcmp(token, "pcie") == 0) || (strcmp(token, "x") == 0)) {
+				sink = VIDEO_OUT_PCIE;
 			}
 			else
 				wprintf("Unknown video sink: '%s'\n", token);
