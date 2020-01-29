@@ -151,6 +151,9 @@ jobs:
    # Need to rebuilt Xilinx toolchain to add NeTV2 FPGA Part (Artix 7 35T+50T parts)
    - env: C=vexriscv         TC="vivado"    P=netv2             T="base net"
    - env: C=vexriscv         TC="vivado"    P=netv2             T="hdmi2pcie"
+   # Occasionally these builds take longer than 50minute limit on Travis.
+   - env: C=lm32             TC="ise"       P=atlys             T="hdmi2usb"
+   - env: C=lm32             TC="ise"       P=opsis             T="hdmi2usb"
 
 notifications:
  email:
