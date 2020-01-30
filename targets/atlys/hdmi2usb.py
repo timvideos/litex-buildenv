@@ -10,15 +10,10 @@ from targets.atlys.video import SoC as BaseSoC
 
 
 class HDMI2USBSoC(BaseSoC):
-    csr_peripherals = (
-        "encoder_reader",
-        "encoder",
+    mem_map = dict(
+        **BaseSoC.mem_map,
+        encoder = 0x50000000,
     )
-    csr_map_update(BaseSoC.csr_map, csr_peripherals)
-    mem_map = {
-        "encoder": 0x50000000,  # (shadow @0xd0000000)
-    }
-    mem_map.update(BaseSoC.mem_map)
 
     def __init__(self, platform, *args, **kwargs):
         BaseSoC.__init__(self, platform, *args, **kwargs)
@@ -29,6 +24,7 @@ class HDMI2USBSoC(BaseSoC):
             reverse=True,
         )
         self.submodules.encoder_reader = EncoderDMAReader(encoder_port)
+        self.add_csr("encoder_reader")
         encoder_cdc = stream.AsyncFIFO([("data", 128)], 4)
         encoder_cdc = ClockDomainsRenamer({"write": "sys",
                                            "read": "encoder"})(encoder_cdc)
@@ -36,6 +32,7 @@ class HDMI2USBSoC(BaseSoC):
         encoder = Encoder(platform)
         encoder_streamer = USBStreamer(platform, platform.request("fx2"))
         self.submodules += encoder_cdc, encoder_buffer, encoder, encoder_streamer
+        self.add_csr("encoder")
 
         self.comb += [
             self.encoder_reader.source.connect(encoder_cdc.sink),
