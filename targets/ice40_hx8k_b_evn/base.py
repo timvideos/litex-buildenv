@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import sys
 import struct
 import os.path
@@ -15,7 +16,7 @@ from gateware import spi_flash
 
 from targets.utils import csr_map_update
 
-from litex.soc.cores.uart import UARTWishboneBridge 
+from litex.soc.cores.uart import UARTWishboneBridge
 
 class _CRG(Module):
     def __init__(self, platform):
@@ -44,19 +45,10 @@ class _CRG(Module):
 
 
 class BaseSoC(SoCCore):
-    csr_peripherals = (
-        "spiflash",
-        "cas",
-    )
-    csr_map_update(SoCCore.csr_map, csr_peripherals)
-
-    mem_map_overlay = {
+    mem_map = {**SoCSDRAM.mem_map, **{
         "spiflash": 0x20000000,  # (default shadow @0xa0000000)
         "sram": 0,
-    }
-    mem_map = dict(SoCCore.mem_map, **mem_map_overlay)
-    
-    #mem_map.update(SoCCore.mem_map)
+    }}
 
     def __init__(self, platform, **kwargs):
         if 'integrated_rom_size' not in kwargs:
