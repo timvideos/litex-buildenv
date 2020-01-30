@@ -5,85 +5,68 @@ import os.path
 import argparse
 
 from migen import *
-from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex.build.generic_platform import Pins, Subsignal, IOStandard
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 
 from gateware import cas
+from gateware import info
 from gateware import spi_flash
 
-from targets.utils import csr_map_update
+from .crg import _CRG
 
 from litex.soc.cores.uart import UARTWishboneBridge
 
-class _CRG(Module):
-    def __init__(self, platform):
-        clk12 = platform.request("clk12")
-
-        self.clock_domains.cd_sys = ClockDomain()
-        self.reset = Signal()
-
-        # FIXME: Use PLL, increase system clock to 32 MHz, pending nextpnr
-        # fixes.
-        self.comb += self.cd_sys.clk.eq(clk12)
-
-        # POR reset logic- POR generated from sys clk, POR logic feeds sys clk
-        # reset.
-        self.clock_domains.cd_por = ClockDomain()
-        reset_delay = Signal(12, reset=4095)
-        self.comb += [
-            self.cd_por.clk.eq(self.cd_sys.clk),
-            self.cd_sys.rst.eq(reset_delay != 0)
-        ]
-        self.sync.por += \
-            If(reset_delay != 0,
-                reset_delay.eq(reset_delay - 1)
-            )
-        self.specials += AsyncResetSynchronizer(self.cd_por, self.reset)
-
-
 class BaseSoC(SoCCore):
-    mem_map = {**SoCSDRAM.mem_map, **{
-        "spiflash": 0x20000000,  # (default shadow @0xa0000000)
-        "sram": 0,
+    mem_map = {**SoCCore.mem_map, **{
+        'spiflash': 0x20000000,
+        'sram': 0,
     }}
 
     def __init__(self, platform, **kwargs):
-        if 'integrated_rom_size' not in kwargs:
-            kwargs['integrated_rom_size']=0
-        if 'integrated_sram_size' not in kwargs:
-            kwargs['integrated_sram_size']=0x2800
+        kwargs['integrated_rom_size']=None
+        kwargs['integrated_sram_size']=0x2800
+
+        kwargs['cpu_reset_address']=self.mem_map["spiflash"]+platform.gateware_size
 
         # FIXME: Force either lite or minimal variants of CPUs; full is too big.
+        kwargs['uart_name'] = 'crossover'
+        sys_clk_freq = int(12e6)
+        # SoCCore ----------------------------------------------------------------------------------
+        SoCCore.__init__(self, platform, sys_clk_freq, **kwargs)
 
-        kwargs['uart_stub'] = False
+        self.submodules.uart_bridge = UARTWishboneBridge(platform.request("serial_1"), sys_clk_freq, baudrate=115200)
+        self.add_wb_master(self.uart_bridge.wishbone)
+        self.register_mem("vexriscv_debug", 0xf00f0000, self.cpu.debug_bus, 0x100)
 
-        clk_freq = int(12e6)
-        kwargs['cpu_reset_address']=self.mem_map["spiflash"]+platform.gateware_size
-        SoCCore.__init__(self, platform, clk_freq, **kwargs)
+        # CRG --------------------------------------------------------------------------------------
+        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/sys_clk_freq)
 
-        #self.submodules.uart_bridge = UARTWishboneBridge(platform.request("serial_1"), clk_freq, baudrate=115200)
-        #self.add_wb_master(self.uart_bridge.wishbone)
-        #self.register_mem("vexriscv_debug", 0xf00f0000, self.cpu.debug_bus, 0x100)
+        # Basic peripherals ------------------------------------------------------------------------
+        self.submodules.info = info.Info(platform, self.__class__.__name__)
+        self.add_csr("info")
+        self.submodules.cas = cas.ControlAndStatus(platform, sys_clk_freq)
+        self.add_csr("cas")
 
-        self.submodules.crg = _CRG(platform)
-        self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/clk_freq)
-
-        # Control and Status
-        self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
-
-        # SPI flash peripheral
+        # Memory mapped SPI Flash ------------------------------------------------------------------
         self.submodules.spiflash = spi_flash.SpiFlashSingle(
             platform.request("spiflash"),
             dummy=platform.spiflash_read_dummy_bits,
-            endianness="little",
-            div=platform.spiflash_clock_div)
+            div=platform.spiflash_clock_div,
+            endianness=self.cpu.endianness)
+        self.add_csr("spiflash")
         self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
         self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
-        self.register_mem("spiflash", self.mem_map["spiflash"],
-            self.spiflash.bus, size=platform.spiflash_total_size)
+        self.add_constant("SPIFLASH_TOTAL_SIZE", platform.spiflash_total_size)
+        self.add_wb_slave(
+            self.mem_map["spiflash"],
+            self.spiflash.bus,
+            platform.spiflash_total_size)
+        self.add_memory_region(
+            "spiflash",
+            self.mem_map["spiflash"],
+            platform.spiflash_total_size)
 
         bios_size = 0x8000
         self.add_constant("ROM_DISABLE", 1)
