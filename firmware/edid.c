@@ -149,6 +149,12 @@ static void generate_edid_timing(uint8_t *data_block, const struct video_timing 
 	t->pixel_clock[0] = timing->pixel_clock & 0xff;
 	t->pixel_clock[1] = timing->pixel_clock >> 8;
 
+	/* EDID wire format summary:
+	 * https://en.wikipedia.org/wiki/Extended_Display_Identification_Data#Detailed_Timing_Descriptor
+	 * Note h_sync offset/width are 10-bit values, and v_sync offset/width
+	 * are 6-bit values.  All of them are split over bytes in structure.
+	 */
+
 	t->h_active_l = timing->h_active & 0xff;
 	t->h_blanking_l = timing->h_blanking & 0xff;
 	t->h_active_blanking_h = ((timing->h_active >> 8) << 4) | (timing->h_blanking >> 8);
@@ -159,9 +165,16 @@ static void generate_edid_timing(uint8_t *data_block, const struct video_timing 
 
 	t->h_sync_offset_l = timing->h_sync_offset & 0xff;
 	t->h_sync_width_l = timing->h_sync_width & 0xff;
-	t->v_sync_offset_width_l = timing->v_sync_offset & 0xff;
-	t->hv_sync_offset_width_h = ((timing->h_sync_offset >> 8) << 6) | ((timing->h_sync_width >> 8) << 4)
-	 | ((timing->v_sync_offset >> 8) << 2) | (timing->v_sync_width >> 8);
+
+	/* Byte 10: 4-bits of v_sync offset, 4 bits of v_sync_width */
+	t->v_sync_offset_width_l = ((timing->v_sync_offset & 0x0f) << 4) | (timing->v_sync_width & 0x0f);
+
+	/* Byte 11: top 2-bits each: h_sync offset/width, v_sync offset/width */
+	t->hv_sync_offset_width_h =
+		(((timing->h_sync_offset >> 8) & 0x03) << 6) |
+		(((timing->h_sync_width  >> 8) & 0x03) << 4) |
+		(((timing->v_sync_offset >> 4) & 0x03) << 2) |
+		(((timing->v_sync_width  >> 4) & 0x03));
 
 	h_image_size = 10*timing->h_active/64;
 	v_image_size = 10*timing->v_active/64;

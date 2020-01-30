@@ -270,7 +270,7 @@ static const struct video_timing video_modes[PROCESSOR_MODE_COUNT] = {
 
 		.v_active = 720,
 		.v_blanking = 30,
-		.v_sync_offset = 20,
+		.v_sync_offset = 5,
 		.v_sync_width = 5,
 
 		.flags = EDID_DIGITAL | EDID_HSYNC_POS | EDID_VSYNC_POS

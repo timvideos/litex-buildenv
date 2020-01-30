@@ -473,12 +473,12 @@ static void status_print(void)
 #ifdef CSR_HDMI_IN0_FREQ_BASE
 	wprintf(" (@" REFRESH_RATE_PRINTF " MHz)",
 		REFRESH_RATE_PRINTF_ARGS(hdmi_in0_freq_value_read() / 10000));
+#endif
 	if(hdmi_in0_status()) {
 		wprintf(" (capturing)");
 	} else {
 		wprintf(" (disabled)");
 	}
-#endif
 	wputchar('\n');
 #endif
 
