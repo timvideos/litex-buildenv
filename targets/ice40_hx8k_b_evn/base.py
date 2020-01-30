@@ -20,6 +20,7 @@ from litex.soc.cores.uart import UARTWishboneBridge
 class BaseSoC(SoCCore):
     mem_map = {**SoCCore.mem_map, **{
         'spiflash': 0x20000000,
+        'vexriscv_debug': 0xf00f0000,
         'sram': 0,
     }}
 
@@ -35,7 +36,7 @@ class BaseSoC(SoCCore):
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq, **kwargs)
 
-        self.submodules.uart_bridge = UARTWishboneBridge(platform.request("serial_1"), sys_clk_freq, baudrate=115200)
+        self.submodules.uart_bridge = UARTWishboneBridge(platform.request("serial"), sys_clk_freq, baudrate=115200)
         self.add_wb_master(self.uart_bridge.wishbone)
         self.register_mem("vexriscv_debug", 0xf00f0000, self.cpu.debug_bus, 0x100)
 
@@ -78,12 +79,12 @@ class BaseSoC(SoCCore):
 
         # We don't have a DRAM, so use the remaining SPI flash for user
         # program.
-        self.add_memory_region("user_flash",
-            self.flash_boot_address,
-            # Leave a grace area- possible one-by-off bug in add_memory_region?
-            # Possible fix: addr < origin + length - 1
-            platform.spiflash_total_size - (self.flash_boot_address - self.mem_map["spiflash"]) - 0x100,
-            type="cached+linker")
+        #self.add_memory_region("user_flash",
+        #    self.flash_boot_address,
+        #    # Leave a grace area- possible one-by-off bug in add_memory_region?
+        #    # Possible fix: addr < origin + length - 1
+        #    platform.spiflash_total_size - (self.flash_boot_address - self.mem_map["spiflash"]) - 0x100,
+        #    type="cached+linker")
 
         # Disable final deep-sleep power down so firmware words are loaded
         # onto softcore's address bus.
