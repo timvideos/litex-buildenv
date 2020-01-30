@@ -77,16 +77,32 @@ if [ "$FIRMWARE" != "zephyr" ]; then
 fi
 
 ZEPHYR_SRC_DIR=$THIRD_DIR/zephyr
-ZEPHYR_APP=${ZEPHYR_APP:-subsys/shell/shell_module}
 OUTPUT_DIR=$TOP_DIR/$TARGET_BUILD_DIR/software/zephyr
 export ZEPHYR_BASE=$ZEPHYR_SRC_DIR/zephyr
+ZEPHYR_APP=$ZEPHYR_BASE/samples/${ZEPHYR_APP:-subsys/shell/shell_module}
 
 if [ ! -d "$ZEPHYR_SRC_DIR" ]; then
 	mkdir -p $ZEPHYR_SRC_DIR
 	cd $ZEPHYR_SRC_DIR
-	west init --manifest-url $ZEPHYR_REPO --manifest-rev $ZEPHYR_REPO_BRANCH
+	west init \
+		--manifest-url $ZEPHYR_REPO \
+		--manifest-rev $ZEPHYR_REPO_BRANCH
 fi
-west build -b $TARGET_BOARD $ZEPHYR_SRC_DIR/zephyr/samples/$ZEPHYR_APP --build-dir $OUTPUT_DIR -- -DZEPHYR_SDK_INSTALL_DIR=$ZEPHYR_SDK_INSTALL_DIR
+
+# generate DTS from LiteX configuration
+mkdir -p $OUTPUT_DIR
+$THIRD_DIR/litex-renode/generate-zephyr-dts.py \
+	--dts $OUTPUT_DIR/litex.overlay \
+	--config $OUTPUT_DIR/config.overlay \
+	$TOP_DIR/$TARGET_BUILD_DIR/test/csr.csv
+
+cat $OUTPUT_DIR/config.overlay | xargs west build \
+	-b $TARGET_BOARD \
+	--build-dir $OUTPUT_DIR \
+	$ZEPHYR_APP \
+	-- \
+	-DZEPHYR_SDK_INSTALL_DIR=$ZEPHYR_SDK_INSTALL_DIR \
+	-DDTC_OVERLAY_FILE=$OUTPUT_DIR/litex.overlay
 
 cd $OUTPUT_DIR
 if [ ! -f "firmware.bin" ]; then
