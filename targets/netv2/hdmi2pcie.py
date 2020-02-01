@@ -13,7 +13,8 @@ from litepcie.frontend.wishbone import LitePCIeWishboneBridge
 from litevideo.input import HDMIIn
 from litevideo.output import VideoOut
 
-from targets.utils import period_ns, csr_map_update
+from targets.utils import period_ns
+
 
 class WishboneEndianSwap(Module):
     def __init__(self, wb_if):
@@ -50,19 +51,6 @@ class WishboneEndianSwap(Module):
 
 
 class HDMI2PCIeSoC(BaseSoC):
-    csr_peripherals = [
-        "pcie_phy",
-        "pcie_dma0",
-        "pcie_dma1",
-        "pcie_msi",
-
-        "hdmi_out0",
-        "hdmi_in0",
-        "hdmi_in0_freq",
-        "hdmi_in0_edid_mem",
-    ]
-    csr_map_update(BaseSoC.csr_map, csr_peripherals)
-
     def __init__(self, platform, *args, **kwargs):
         BaseSoC.__init__(self, platform, csr_data_width=32, *args, **kwargs)
 
@@ -70,6 +58,7 @@ class HDMI2PCIeSoC(BaseSoC):
 
         # pcie phy
         self.submodules.pcie_phy = S7PCIEPHY(platform, platform.request("pcie_x1"), bar0_size=32*1024*1024)
+        self.add_csr("pcie_phy")
         platform.add_false_path_constraints(
             self.crg.cd_sys.clk,
             self.pcie_phy.cd_pcie.clk)
@@ -84,9 +73,11 @@ class HDMI2PCIeSoC(BaseSoC):
 
         # pcie dma
         self.submodules.pcie_dma0 = LitePCIeDMA(self.pcie_phy, self.pcie_endpoint, with_loopback=True)
+        self.add_csr("pcie_dma0")
 
         # pcie msi
         self.submodules.pcie_msi = LitePCIeMSI()
+        self.add_csr("pcie_msi")
         self.comb += self.pcie_msi.source.connect(self.pcie_phy.msi)
         self.interrupts = {
             "PCIE_DMA0_WRITER":    self.pcie_dma0.writer.irq,
@@ -99,12 +90,16 @@ class HDMI2PCIeSoC(BaseSoC):
         # hdmi in 0
         hdmi_in0_pads = platform.request("hdmi_in", 0)
         self.submodules.hdmi_in0_freq = FreqMeter(period=sys_clk_freq)
+        self.add_csr("hdmi_in0_freq")
         self.submodules.hdmi_in0 = HDMIIn(
             hdmi_in0_pads,
             self.sdram.crossbar.get_port(mode="write"),
             fifo_depth=1024,
             device="xc7",
             split_mmcm=True)
+        self.add_csr("hdmi_in0")
+        self.add_csr("hdmi_in0_edid_mem")
+        self.add_interrupt("hdmi_in0")
         self.comb += self.hdmi_in0_freq.clk.eq(self.hdmi_in0.clocking.cd_pix.clk),
         for clk in [self.hdmi_in0.clocking.cd_pix.clk,
                     self.hdmi_in0.clocking.cd_pix1p25x.clk,
@@ -120,14 +115,13 @@ class HDMI2PCIeSoC(BaseSoC):
             hdmi_out0_dram_port,
             "ycbcr422",
             fifo_depth=4096)
+        self.add_csr("hdmi_out0")
         for clk in [self.hdmi_out0.driver.clocking.cd_pix.clk,
                     self.hdmi_out0.driver.clocking.cd_pix5x.clk]:
             self.platform.add_false_path_constraints(self.crg.cd_sys.clk, clk)
 
         for name, value in sorted(self.platform.hdmi_infos.items()):
             self.add_constant(name, value)
-
-        self.add_interrupt("hdmi_in0")
 
 
 SoC = HDMI2PCIeSoC
