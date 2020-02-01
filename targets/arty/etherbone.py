@@ -7,7 +7,6 @@ from liteeth.frontend.etherbone import LiteEthEtherbone
 from liteeth.mac import LiteEthMAC
 from liteeth.phy import LiteEthPHY
 
-from targets.utils import csr_map_update
 from targets.arty.base import SoC as BaseSoC
 
 

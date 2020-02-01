@@ -1,24 +1,10 @@
 # Support for the Digilent Arty Board
+
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
-from litex.build.generic_platform import Pins, Subsignal, IOStandard, Misc
-from litex.soc.integration.soc_core import mem_decoder
-from litex.soc.integration.soc_sdram import *
-from litex.soc.integration.builder import *
-from litex.soc.interconnect import wishbone
 from litex.soc.cores.bitbang import I2CMaster
 
-from litedram.modules import MT41K128M16
-from litedram.phy import a7ddrphy
-from litedram.core import ControllerSettings
-
-from gateware import cas
-from gateware import info
-from gateware import led
-from gateware import spi_flash
-
-from targets.utils import csr_map_update, period_ns
 from targets.arty.base import BaseSoC
 
 i2c_pmod_d =  [
