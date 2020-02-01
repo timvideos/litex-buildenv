@@ -3,28 +3,13 @@ from litex.soc.integration.soc_core import mem_decoder
 from liteeth.phy.model import LiteEthPHYModel
 from liteeth.core.mac import LiteEthMAC
 
-from targets.utils import csr_map_update
 from targets.sim.base import BaseSoC
 
 
 class NetSoC(BaseSoC):
-# FIXME: The sim seems to require ethphy at 18 and ethmac at 19!?
-#    csr_peripherals = (
-#        "ethphy",
-#        "ethmac",
-#    )
-#    csr_map_update(BaseSoC.csr_map, csr_peripherals)
-
-    csr_map = {
-        "ethphy": 18,
-        "ethmac": 19,
-    }
-    csr_map.update(BaseSoC.csr_map)
-
-    mem_map = {
+    mem_map = {**SoCSDRAM, **{
         "ethmac": 0x30000000,  # (shadow @0xb0000000)
-    }
-    mem_map.update(BaseSoC.mem_map)
+    }}
 
     def __init__(self, *args, **kwargs):
         # Need a larger integrated ROM on or1k to fit the BIOS with TFTP support.
@@ -34,7 +19,10 @@ class NetSoC(BaseSoC):
         BaseSoC.__init__(self, *args, **kwargs)
 
         self.submodules.ethphy = LiteEthPHYModel(self.platform.request("eth"))
+        # FIXME: The sim seems to require ethphy at 18 and ethmac at 19!?
+        self.add_csr("ethphy", csr_id=18)
         self.submodules.ethmac = LiteEthMAC(phy=self.ethphy, dw=32, interface="wishbone", endianness=self.cpu.endianness)
+        self.add_csr("ethmac", csr_id=19)
         self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)
         self.add_memory_region("ethmac", self.mem_map["ethmac"] | self.shadow_base, 0x2000)
 

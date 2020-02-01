@@ -13,19 +13,11 @@ from litedram.core.controller import ControllerSettings
 
 from gateware import firmware
 
-from targets.utils import csr_map_update
-
 
 class BaseSoC(SoCSDRAM):
-    csr_peripherals = (
-        ,
-    )
-    csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
-
-    mem_map = {
+    mem_map = {**SoCSDRAM, **{
         "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
-    }
-    mem_map.update(SoCSDRAM.mem_map)
+    }}
 
     def __init__(self, platform, **kwargs):
         if 'integrated_rom_size' not in kwargs:
