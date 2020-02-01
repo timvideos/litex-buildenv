@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-import sys
-import struct
-import os.path
-import argparse
 
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
