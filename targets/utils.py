@@ -8,25 +8,6 @@ def period_ns(freq):
     return 1e9/freq
 
 
-def csr_map_update(csr_map, csr_peripherals):
-    csr_map.update(dict((n, v)
-        for v, n in enumerate(csr_peripherals, start=(max(csr_map.values()) + 1) if csr_map else 0)))
-
-
-def csr_map_update_print(csr_map, csr_peripherals):
-    print()
-    print("-"*75)
-    print("Previous Max: {}".format(max(csr_map.values())))
-    csr_map.update(dict((n, v)
-        for v, n in enumerate(csr_peripherals, start=max(csr_map.values()) + 1)))
-    print("     New Max: {}".format(max(csr_map.values())))
-    csr_values = list((b,a) for a, b in csr_map.items())
-    csr_values.sort()
-    pprint.pprint(csr_values)
-    print("-"*75)
-    print()
-
-
 def assert_pll_clock(requested_freq, input, feedback, divide, msg):
     output_freq = int(input * feedback / divide / 1e6)
     assert output_freq == int(requested_freq / 1e6), (
