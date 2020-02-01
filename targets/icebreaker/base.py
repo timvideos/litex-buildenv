@@ -59,16 +59,9 @@ class _CRG(Module):
 
 
 class BaseSoC(SoCCore):
-    csr_peripherals = (
-        "spiflash",
-        "cas",
-    )
-    csr_map_update(SoCCore.csr_map, csr_peripherals)
-
-    mem_map = {
+    mem_map = {**SoCCore, **{
         "spiflash": 0x20000000,  # (default shadow @0xa0000000)
-    }
-    mem_map.update(SoCCore.mem_map)
+    }}
 
     def __init__(self, platform, **kwargs):
         if 'integrated_rom_size' not in kwargs:
@@ -91,6 +84,7 @@ class BaseSoC(SoCCore):
 
         # Control and Status
         self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
+        self.add_csr("cas")
 
         # SPI flash peripheral
         # TODO: Inferred tristate not currently supported by nextpnr; upgrade
@@ -100,6 +94,7 @@ class BaseSoC(SoCCore):
             dummy=platform.spiflash_read_dummy_bits,
             div=platform.spiflash_clock_div,
             endianness=self.cpu.endianness)
+        self.add_csr("spiflash")
         self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
         self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
         self.register_mem("spiflash", self.mem_map["spiflash"],
