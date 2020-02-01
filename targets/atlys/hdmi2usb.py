@@ -5,7 +5,6 @@ from litex.soc.interconnect import stream
 from gateware.encoder import EncoderDMAReader, EncoderBuffer, Encoder
 from gateware.streamer import USBStreamer
 
-from targets.utils import csr_map_update
 from targets.atlys.video import SoC as BaseSoC
 
 
