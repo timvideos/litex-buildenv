@@ -4,7 +4,6 @@ from litex.soc.integration.soc_sdram import *
 from liteeth.core.mac import LiteEthMAC
 from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 
-from targets.utils import csr_map_update
 from targets.nexys_video.base import SoC as BaseSoC
 
 
@@ -22,7 +21,7 @@ class NetSoC(BaseSoC):
         BaseSoC.__init__(self, platform, *args, **kwargs)
 
         # Ethernet PHY
-	self.submodules.ethphy = LiteEthPHYRGMII(
+        self.submodules.ethphy = LiteEthPHYRGMII(
             platform.request("eth_clocks"),
             platform.request("eth"))
         self.add_csr("ethphy")
