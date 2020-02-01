@@ -48,25 +48,8 @@ class FrontPanelGPIO(Module, AutoCSR):
 class BaseSoC(SoCSDRAM):
     mem_map = {**SoCSDRAM.mem_map, **{
         'spiflash': 0x20000000,
+        "emulator_ram": 0x50000000,
     }}
-    csr_peripherals = (
-        "spiflash",
-        "front_panel",
-        "ddrphy",
-        "info",
-        "fx2_reset",
-        "fx2_hack",
-        "tofe",
-        "opsis_i2c",
-        "uart",
-    )
-    csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
-
-    mem_map = {
-        "spiflash":     0x20000000,  # (default shadow @0xa0000000)
-        "emulator_ram": 0x50000000,  # (default shadow @0xd0000000)
-    }
-    mem_map.update(SoCSDRAM.mem_map)
 
     def __init__(self, platform, **kwargs):
         kwargs['integrated_rom_size']=0x8000
@@ -91,6 +74,7 @@ class BaseSoC(SoCSDRAM):
         self.submodules.suart = shared_uart.SharedUART(self.clk_freq, 115200)
         self.suart.add_uart_pads(platform.request('fx2_serial'))
         self.submodules.uart = self.suart.uart
+        self.add_csr("uart")
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if True:
