@@ -1,4 +1,7 @@
 # Support for the Pipistrello - http://pipistrello.saanlima.com/
+
+from fractions import Fraction
+
 from migen import *
 
 from litex.soc.integration.soc_sdram import *
