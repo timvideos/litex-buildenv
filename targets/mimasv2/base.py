@@ -1,4 +1,8 @@
 # Support for the MimasV2
+
+import os
+from fractions import Fraction
+
 from migen import *
 
 from litex.soc.integration.soc_sdram import *
@@ -63,7 +67,7 @@ class BaseSoC(SoCSDRAM):
         # Basic peripherals ------------------------------------------------------------------------
         self.submodules.info = info.Info(platform, self.__class__.__name__)
         self.add_csr("info")
-        self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
+        self.submodules.cas = cas.ControlAndStatus(platform, sys_clk_freq)
         self.add_csr("cas")
 
         # Add debug interface if the CPU has one ---------------------------------------------------
