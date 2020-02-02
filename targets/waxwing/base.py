@@ -1,4 +1,7 @@
 # Support for the Numato Saturn (http://numato.com/product/saturn-spartan-6-fpga-development-board-with-ddr-sdram)
+
+from fractions import Fraction
+
 from migen import *
 
 from litex.soc.integration.soc_sdram import *
@@ -18,7 +21,7 @@ from .crg import _CRG
 
 class BaseSoC(SoCSDRAM):
     mem_map = {**SoCSDRAM.mem_map, **{
-        spiflash=0x20000000,
+        'spiflash': 0x20000000,
     }}
 
     def __init__(self, platform, **kwargs):
@@ -30,11 +33,12 @@ class BaseSoC(SoCSDRAM):
         SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq, **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform, clk_freq)
+        self.submodules.crg = _CRG(platform, sys_clk_freq)
+        self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/sys_clk_freq)
 
         # DDR2 SDRAM -------------------------------------------------------------------------------
         if True:
-            sdram_module = MT46H32M16(self.clk_freq, "1:2")
+            sdram_module = MT46H32M16(sys_clk_freq, "1:2")
             self.submodules.ddrphy = s6ddrphy.S6HalfRateDDRPHY(
                 platform.request("ddram"),
                 memtype      = sdram_module.memtype,
