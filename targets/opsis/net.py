@@ -1,7 +1,8 @@
 from litex.soc.integration.soc_sdram import *
 
 from liteeth.core.mac import LiteEthMAC
-from liteeth.phy import LiteEthPHY
+
+from gateware.s6rgmii import LiteEthPHYRGMII
 
 from .base import BaseSoC
 
@@ -20,7 +21,7 @@ class NetSoC(BaseSoC):
 
         # Ethernet ---------------------------------------------------------------------------------
         # Ethernet PHY
-        self.submodules.ethphy = LiteEthPHY(
+        self.submodules.ethphy = LiteEthPHYRGMII(
             platform.request("eth_clocks"),
             platform.request("eth"))
         self.add_csr("ethphy")

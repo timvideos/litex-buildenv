@@ -1,5 +1,7 @@
 # Support for Numato Opsis - https://opsis.hdmi2usb.tv
+
 from migen import *
+from migen.genlib.misc import WaitTimer
 
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
@@ -18,6 +20,8 @@ from gateware import opsis_i2c
 from gateware import shared_uart
 from gateware import tofe
 from gateware import spi_flash
+
+from .crg import _CRG
 
 
 class FrontPanelGPIO(Module, AutoCSR):
@@ -75,13 +79,13 @@ class BaseSoC(SoCSDRAM):
         self.suart.add_uart_pads(platform.request('fx2_serial'))
         self.submodules.uart = self.suart.uart
         self.add_csr("uart")
+        self.add_interrupt("uart")
 
         # DDR3 SDRAM -------------------------------------------------------------------------------
         if True:
             sdram_module = MT41J128M16(sys_clk_freq, "1:4")
             self.submodules.ddrphy = s6ddrphy.S6QuarterRateDDRPHY(
                 platform.request("ddram"),
-                memtype      = sdram_module.memtype,
                 rd_bitslip   = 0,
                 wr_bitslip   = 4,
                 dqs_ddr_alignment="C0")
@@ -109,8 +113,9 @@ class BaseSoC(SoCSDRAM):
         self.submodules.opsis_i2c = opsis_i2c.OpsisI2C(platform)
         self.add_csr("opsis_i2c")
         # front panel (ATX) module
-        self.submodules.front_panel = FrontPanelGPIO(platform, clk_freq)
+        self.submodules.front_panel = FrontPanelGPIO(platform, sys_clk_freq)
         self.comb += self.crg.reset.eq(self.front_panel.reset)
+        self.add_csr("front_panel")
 
         # Expansion boards -------------------------------------------------------------------------
         if tofe_board_name:
