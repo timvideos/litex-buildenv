@@ -45,8 +45,6 @@ class NetSoC(BaseSoC):
             self.ethphy.crg.cd_eth_rx.clk,
             self.ethphy.crg.cd_eth_tx.clk)
 
-        self.add_interrupt("ethmac")
-
     def configure_iprange(self, iprange):
         iprange = [int(x) for x in iprange.split(".")]
         while len(iprange) < 4:

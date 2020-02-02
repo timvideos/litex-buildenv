@@ -1,11 +1,13 @@
 # Support for Digilent Nexys Video board
 from migen import *
 
+from litex.soc.cores.uart import * #UART, RS232PHYInterface, RS232PHY, RS232PHYMultiplexer
+from litex.soc.interconnect.wishbonebridge import WishboneStreamingBridge
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
 from litedram.modules import MT41K256M16
-from litedram.phy import s6ddrphy
+from litedram.phy import s7ddrphy
 from litedram.core import ControllerSettings
 
 from gateware import cas
@@ -34,7 +36,7 @@ class BaseSoC(SoCSDRAM):
         SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq, with_uart=False, **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = _CRG(platform)
+        self.submodules.crg = _CRG(platform, sys_clk_freq)
         self.crg.cd_sys.clk.attr.add("keep")
         self.platform.add_period_constraint(self.crg.cd_sys.clk, 1e9/sys_clk_freq)
 
@@ -61,7 +63,7 @@ class BaseSoC(SoCSDRAM):
         # Extended UART ----------------------------------------------------------------------------
         uart_interfaces = [RS232PHYInterface() for i in range(2)]
         self.submodules.uart = UART(uart_interfaces[0])
-        self.submodules.bridge = WishboneStreamingBridge(uart_interfaces[1], self.clk_freq)
+        self.submodules.bridge = WishboneStreamingBridge(uart_interfaces[1], sys_clk_freq)
         self.add_wb_master(self.bridge.wishbone)
         self.add_csr("uart")
         self.add_interrupt("uart")
