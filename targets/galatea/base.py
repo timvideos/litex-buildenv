@@ -1,4 +1,5 @@
 # Support for Numato Galatea - https://numato.com/product/galatea-pci-express-spartan-6-fpga-development-board
+
 from migen import *
 
 from litex.soc.integration.soc_sdram import *
