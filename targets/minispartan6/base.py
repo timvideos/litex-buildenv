@@ -21,12 +21,14 @@ class BaseSoC(SoCSDRAM):
     }}
 
     def __init__(self, platform, **kwargs):
-        kwargs['integrated_rom_size']=0x8000
+        kwargs['integrated_rom_size']=None
         kwargs['integrated_sram_size']=0x4000
+
+        kwargs['cpu_reset_address']=self.mem_map["spiflash"]+platform.gateware_size
 
         sys_clk_freq = 80*1000000
         # SoCSDRAM ---------------------------------------------------------------------------------
-        SoCSDRAM.__init__(self, platform, clk_freq, **kwargs)
+        SoCSDRAM.__init__(self, platform, sys_clk_freq, **kwargs)
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
@@ -34,7 +36,7 @@ class BaseSoC(SoCSDRAM):
 
         # DDR2 SDRAM -------------------------------------------------------------------------------
         if True:
-            sdram_module = AS4C16M16(self.clk_freq, "1:1")
+            sdram_module = AS4C16M16(sys_clk_freq, "1:1")
             self.submodules.ddrphy = gensdrphy.GENSDRPHY(
                 platform.request("sdram"))
             self.add_csr("ddrphy")
@@ -46,7 +48,7 @@ class BaseSoC(SoCSDRAM):
         # Basic peripherals ------------------------------------------------------------------------
         self.submodules.info = info.Info(platform, self.__class__.__name__)
         self.add_csr("info")
-        self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
+        self.submodules.cas = cas.ControlAndStatus(platform, sys_clk_freq)
         self.add_csr("cas")
 
         # Add debug interface if the CPU has one ---------------------------------------------------
