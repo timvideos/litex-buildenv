@@ -23,7 +23,7 @@ class NetSoC(BaseSoC):
         self.submodules.ethphy = LiteEthPHY(
             clock_pads = platform.request("eth_clocks"),
             pads       = platform.request("eth"),
-            clk_freq   = clk_freq)
+            clk_freq   = self.clk_freq)
         self.add_csr("ethphy")
 
         # Ethernet MAC
