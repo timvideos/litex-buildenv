@@ -121,10 +121,8 @@ class RAMSoC(SoCCore):
         #  - 8kbytes ROM - 16 x BRAMs
         #  - 4kbytes RAM -  8 x BRAMs
 
-        if 'integrated_rom_size' not in kwargs:
-            kwargs['integrated_rom_size']=0
-        if 'integrated_sram_size' not in kwargs:
-            kwargs['integrated_sram_size']=16*1024
+        kwargs['integrated_rom_size']=0
+        kwargs['integrated_sram_size']=16*1024
 
         # Disable BIOS
         #kwargs['integrated_rom_init'] = [0]

@@ -54,10 +54,8 @@ class BaseSoC(SoCCore):
     }}
 
     def __init__(self, platform, **kwargs):
-        if 'integrated_rom_size' not in kwargs:
-            kwargs['integrated_rom_size']=0
-        if 'integrated_sram_size' not in kwargs:
-            kwargs['integrated_sram_size']=0x2800
+        kwargs['integrated_rom_size']=0
+        kwargs['integrated_sram_size']=0x2800
 
         # FIXME: Force either lite or minimal variants of CPUs; full is too big.
 
