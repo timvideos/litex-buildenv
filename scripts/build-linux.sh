@@ -74,44 +74,49 @@ else
 	exit 1
 fi
 
-# Get linux-litex is needed
-LINUX_SRC="$TOP_DIR/third_party/linux"
-LINUX_LOCAL="$LINUX_GITLOCAL" # Local place to clone from
-LINUX_REMOTE_BIT=$(echo $LINUX_REMOTE | sed -e's-^.*://--' -e's/.git$//')
-LINUX_CLONE_FROM="${LINUX_LOCAL:-$LINUX_REMOTE}"
-(
-	# Download the Linux source for the first time
-	if [ ! -d "$LINUX_SRC" ]; then
+if [ ${CPU} = vexriscv ] && [ ${BUILD_BUILDROOT} = 1 ]; then
+	# do not download linux sources, buildroot comes with its own copy
+	:
+else
+	# Get linux-litex is needed
+	LINUX_SRC="$TOP_DIR/third_party/linux"
+	LINUX_LOCAL="$LINUX_GITLOCAL" # Local place to clone from
+	LINUX_REMOTE_BIT=$(echo $LINUX_REMOTE | sed -e's-^.*://--' -e's/.git$//')
+	LINUX_CLONE_FROM="${LINUX_LOCAL:-$LINUX_REMOTE}"
 	(
-		cd $(dirname $LINUX_SRC)
-		echo "Downloading Linux source tree."
-		echo "If you already have a local git checkout you can set 'LINUX_GITLOCAL' to speed up this step."
-		git clone $LINUX_CLONE_FROM $LINUX_SRC --branch $LINUX_BRANCH
-	)
-	fi
-
-	# Change into the dir
-	cd $LINUX_SRC
-
-	# Add the remote if it doesn't exist
-	CURRENT_LINUX_REMOTE_NAME=$(git remote -v | grep fetch | grep "$LINUX_REMOTE_BIT" | sed -e's/\t.*$//')
-	if [ x"$CURRENT_LINUX_REMOTE_NAME" = x ]; then
-		git remote add $LINUX_REMOTE_NAME $LINUX_REMOTE
-		CURRENT_LINUX_REMOTE_NAME=$LINUX_REMOTE_NAME
-	fi
-
-	# Get any new data
-	git fetch $CURRENT_LINUX_REMOTE_NAME
-
-	# Checkout or1k-linux branch it not already on it
-	if [ "$(git rev-parse --abbrev-ref HEAD)" != "$LINUX_BRANCH" ]; then
-		if git rev-parse --abbrev-ref $LINUX_BRANCH > /dev/null 2>&1; then
-			git checkout $LINUX_BRANCH
-		else
-			git checkout "$CURRENT_LINUX_REMOTE_NAME/$LINUX_BRANCH" -b $LINUX_BRANCH
+		# Download the Linux source for the first time
+		if [ ! -d "$LINUX_SRC" ]; then
+		(
+			cd $(dirname $LINUX_SRC)
+			echo "Downloading Linux source tree."
+			echo "If you already have a local git checkout you can set 'LINUX_GITLOCAL' to speed up this step."
+			git clone $LINUX_CLONE_FROM $LINUX_SRC --branch $LINUX_BRANCH
+		)
 		fi
-	fi
-)
+
+		# Change into the dir
+		cd $LINUX_SRC
+
+		# Add the remote if it doesn't exist
+		CURRENT_LINUX_REMOTE_NAME=$(git remote -v | grep fetch | grep "$LINUX_REMOTE_BIT" | sed -e's/\t.*$//')
+		if [ x"$CURRENT_LINUX_REMOTE_NAME" = x ]; then
+			git remote add $LINUX_REMOTE_NAME $LINUX_REMOTE
+			CURRENT_LINUX_REMOTE_NAME=$LINUX_REMOTE_NAME
+		fi
+
+		# Get any new data
+		git fetch $CURRENT_LINUX_REMOTE_NAME
+
+		# Checkout or1k-linux branch it not already on it
+		if [ "$(git rev-parse --abbrev-ref HEAD)" != "$LINUX_BRANCH" ]; then
+			if git rev-parse --abbrev-ref $LINUX_BRANCH > /dev/null 2>&1; then
+				git checkout $LINUX_BRANCH
+			else
+				git checkout "$CURRENT_LINUX_REMOTE_NAME/$LINUX_BRANCH" -b $LINUX_BRANCH
+			fi
+		fi
+	)
+fi
 
 # Get litex-devicetree
 LITEX_DT_SRC="$TOP_DIR/third_party/litex-devicetree"
