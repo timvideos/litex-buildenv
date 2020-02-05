@@ -26,7 +26,7 @@ fi
 
 if ! $RENODE_FOUND; then
 	# Download prebuilt renode Release if none is currently installed
-	conda install -c antmicro -c conda-forge renode
+	conda install -c antmicro -c conda-forge renode=$RENODE_VERSION
 	RENODE_BIN=$CONDA_PREFIX/bin/renode
 fi
 
