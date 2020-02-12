@@ -81,6 +81,11 @@ OUTPUT_DIR=$TOP_DIR/$TARGET_BUILD_DIR/software/zephyr
 export ZEPHYR_BASE=$ZEPHYR_SRC_DIR/zephyr
 ZEPHYR_APP=$ZEPHYR_BASE/samples/${ZEPHYR_APP:-subsys/shell/shell_module}
 
+LITEX_CONFIG_FILE="$TOP_DIR/$TARGET_BUILD_DIR/test/csr.csv"
+if [ ! -f "$LITEX_CONFIG_FILE" ]; then
+	make firmware
+fi
+
 if [ ! -d "$ZEPHYR_SRC_DIR" ]; then
 	mkdir -p $ZEPHYR_SRC_DIR
 	cd $ZEPHYR_SRC_DIR
@@ -94,7 +99,7 @@ mkdir -p $OUTPUT_DIR
 $THIRD_DIR/litex-renode/generate-zephyr-dts.py \
 	--dts $OUTPUT_DIR/litex.overlay \
 	--config $OUTPUT_DIR/config.overlay \
-	$TOP_DIR/$TARGET_BUILD_DIR/test/csr.csv
+	$LITEX_CONFIG_FILE
 
 cat $OUTPUT_DIR/config.overlay | xargs west build \
 	-b $TARGET_BOARD \
