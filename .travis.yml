@@ -128,6 +128,7 @@ env:
    # MicroPython Targets
    #--------------------------------------------
    # FIXME: Add some here
+   - C=vexriscv         TC="vivado"  P=arty        T="base"       F=micropython
    #--------------------------------------------
    # Linux Targets
    #--------------------------------------------
