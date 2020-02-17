@@ -13,7 +13,7 @@ from litedram.core.controller import ControllerSettings
 
 from gateware import firmware
 
-from targets.utils import dict_set_max
+from targets.utils import dict_set_max, define_flash_constants
 
 
 class BaseSoC(SoCSDRAM):
@@ -42,7 +42,7 @@ class BaseSoC(SoCSDRAM):
         self.submodules.firmware_ram = firmware.FirmwareROM(firmware_ram_size, firmware_filename)
         self.register_mem("firmware_ram", self.mem_map["firmware_ram"], self.firmware_ram.bus, firmware_ram_size)
         self.flash_boot_address = self.mem_map["firmware_ram"]
-        self.add_constant("FLASH_BOOT_ADDRESS", self.flash_boot_address)
+        define_flash_constants(self)
 
         # sdram
         sdram_module = IS42S16160(self.clk_freq, "1:1")

@@ -139,6 +139,14 @@ def platform_toolchain_extend(platform, cmdname, argument):
     bt.clear()
     bt.extend(_platform_toolchain_cmd_join(cmds))
 
+def define_flash_constants(soc):
+    soc.add_constant("FLASH_BOOT_ADDRESS", soc.flash_boot_address)
+    if soc.cpu_variant == "linux":
+        soc.add_constant("KERNEL_IMAGE_FLASH_OFFSET", 0x00000000)
+        soc.add_constant("ROOTFS_IMAGE_FLASH_OFFSET", 0x00500000)
+        soc.add_constant("DEVICE_TREE_IMAGE_FLASH_OFFSET", 0x00D00000)
+        soc.add_constant("EMULATOR_IMAGE_FLASH_OFFSET", 0x00D80000)
+
 
 if __name__ == "__main__":
     import doctest

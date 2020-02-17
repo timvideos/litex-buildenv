@@ -14,7 +14,7 @@ from gateware import cas
 from gateware import info
 from gateware import spi_flash
 
-from targets.utils import dict_set_max, platform_toolchain_extend, round_up_to_4
+from targets.utils import dict_set_max, platform_toolchain_extend, round_up_to_4, define_flash_constants
 
 from .crg import _CRG
 
@@ -127,7 +127,7 @@ Gateware size: {:08x}
             type="cached+linker")
 
         self.flash_boot_address = spiflash_user_base
-        self.add_constant("FLASH_BOOT_ADDRESS", spiflash_user_base)
+        define_flash_constants(self)
 
         # Make the LEDs flash ----------------------------------------------------------------------
         cnt = Signal(32)
