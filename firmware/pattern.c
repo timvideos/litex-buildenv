@@ -174,7 +174,9 @@ void pattern_fill_framebuffer(int h_active, int w_active)
 #ifdef MAIN_RAM_BASE
 	int i, j;
 	int color;
+#ifdef CONFIG_L2_SIZE
 	flush_l2_cache();
+#endif
 	color = -1;
 	volatile unsigned int *framebuffer = (unsigned int *)(MAIN_RAM_BASE + pattern_framebuffer_base());
 	if(pattern == PATTERN_COLOR_BARS) {
@@ -249,7 +251,9 @@ void pattern_fill_framebuffer(int h_active, int w_active)
 	pattern_draw_text_color(27, line, "digital", YCBCR422_WHITE, YCBCR422_CYAN);
 #endif
 
+#ifdef CONFIG_L2_SIZE
 	flush_l2_cache();
+#endif
 /* FIXME: Framebuffer Should not even be compiled if no MAIN RAM */
 #endif
 }
@@ -264,7 +268,9 @@ void pattern_service(void)
 		sprintf(buffer, "Uptime: %s", uptime_str());
 		pattern_draw_text(1, 1, buffer);
 	}
+#ifdef CONFIG_L2_SIZE
 	flush_l2_cache();
+#endif
 /* FIXME: Framebuffer Should not even be compiled if no MAIN RAM */
 #endif
 }
