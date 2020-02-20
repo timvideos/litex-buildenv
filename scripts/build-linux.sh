@@ -190,7 +190,7 @@ BD_REMOTE="${BD_REMOTE:-https://github.com/buildroot/buildroot.git}"
 BD_SRC="$TOP_DIR/third_party/buildroot"
 LLV_REMOTE="${LLV_REMOTE:-https://github.com/litex-hub/linux-on-litex-vexriscv.git}"
 LLV_SRC="$TOP_DIR/third_party/linux-on-litex-vexriscv"
-if [ ${CPU} = vexriscv ] && [ ${BUILD_BUILDROOT} = 1 ]; then
+if [ ${CPU} = vexriscv ] && [ ${BUILD_BUILDROOT:-0} = 1 ]; then
 	(
 		if [ ! -d "$BD_SRC" ]; then
 		(
