@@ -52,6 +52,7 @@ env:
    - C=lm32             TC="vivado"    P=nexys_video       T="base net"
    - C=lm32             TC="ise"       P=atlys             T="base net"
    - C=lm32             TC="ise"       P=galatea           T="base"
+   - C=lm32             TC="ise"       P=matrix_voice      T="base"
    - C=lm32             TC="ise"       P=mimasv2           T="base"
    - C=lm32             TC="ise"       P=minispartan6      T="base"
    - C=lm32             TC="ise"       P=opsis             T="base net"
@@ -94,6 +95,7 @@ env:
    - C=vexriscv.lite    TC="icestorm"  P=upduino_v1        T="base"       F=stub
    - C=vexriscv.lite    TC="icestorm"  P=icefun            T="base"       F=stub
    - C=vexriscv.lite    TC="vivado"    P=arty              T="base net"
+   - C=vexriscv.lite    TC="ise"       P=matrix_voice      T="base"
    - C=vexriscv.lite    TC="ise"       P=opsis             T="base net"
    - C=vexriscv.lite    TC="ise"       P=pano_logic_g2     T="base"
    # PicoRV32
@@ -102,6 +104,7 @@ env:
    - C=picorv32         TC="ise"       P=opsis             T="base net"
    - C=picorv32.minimal TC="icestorm"  P=icebreaker        T="base"       F=stub
    - C=picorv32.minimal TC="vivado"    P=arty              T="base net"
+   - C=picorv32.minimal TC="ise"       P=matrix_voice      T="base"
    - C=picorv32.minimal TC="ise"       P=opsis             T="base net"
    # minerva target
    - C=minerva          TC="vivado"    P=arty              T="base net"
