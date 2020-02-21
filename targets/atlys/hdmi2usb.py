@@ -43,7 +43,7 @@ class HDMI2USBSoC(BaseSoC):
             encoder_buffer.source.connect(encoder.sink),
             encoder.source.connect(encoder_streamer.sink)
         ]
-        self.add_wb_slave(mem_decoder(self.mem_map["encoder"]), encoder.bus)
+        self.add_wb_slave(self.mem_map["encoder"], encoder.bus)
         self.add_memory_region("encoder",
             self.mem_map["encoder"], 0x2000, type="io")
 

@@ -35,7 +35,7 @@ class NetSoC(BaseSoC):
 
         self.submodules.ethphy = LiteEthPHYModel(self.platform.request("eth"))
         self.submodules.ethmac = LiteEthMAC(phy=self.ethphy, dw=32, interface="wishbone", endianness=self.cpu.endianness)
-        self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)
+        self.add_wb_slave(self.mem_map["ethmac"], self.ethmac.bus)
         self.add_memory_region("ethmac", self.mem_map["ethmac"], 0x2000, type="io")
 
         self.add_interupt("ethmac")
