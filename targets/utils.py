@@ -1,6 +1,10 @@
 import pprint
 
 
+def dict_set_max(d, key, value):
+    d[key] = max(d[key], value) if key in d else value
+
+
 def period_ns(freq):
     return 1e9/freq
 

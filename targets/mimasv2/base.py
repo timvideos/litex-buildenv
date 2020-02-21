@@ -18,7 +18,7 @@ from gateware import info
 from gateware import cas
 from gateware import spi_flash
 
-from targets.utils import csr_map_update
+from targets.utils import csr_map_update, dict_set_max
 
 
 class _CRG(Module):
@@ -189,11 +189,10 @@ class BaseSoC(SoCSDRAM):
     mem_map.update(SoCSDRAM.mem_map)
 
     def __init__(self, platform, **kwargs):
-        if 'integrated_rom_size' not in kwargs:
-            kwargs['integrated_rom_size']=None
-        if 'integrated_sram_size' not in kwargs:
-            kwargs['integrated_sram_size']=0x4000
+        dict_set_max(kwargs, 'integrated_sram_size', 0x4000)
 
+        # disable ROM, it'll be added later
+        kwargs['integrated_rom_size'] = 0x0
         kwargs['cpu_reset_address']=self.mem_map["spiflash"]+platform.gateware_size
         if os.environ.get('JIMMO', '0') == '0':
             kwargs['uart_baudrate']=19200

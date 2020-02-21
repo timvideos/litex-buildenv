@@ -15,7 +15,7 @@ from gateware import info
 from gateware import oled
 from gateware import spi_flash
 
-from targets.utils import csr_map_update, period_ns
+from targets.utils import csr_map_update, period_ns, dict_set_max
 
 
 class _CRG(Module):
@@ -98,10 +98,8 @@ class BaseSoC(SoCSDRAM):
     mem_map.update(SoCSDRAM.mem_map)
 
     def __init__(self, platform, spiflash="spiflash_1x", **kwargs):
-        if 'integrated_rom_size' not in kwargs:
-            kwargs['integrated_rom_size']=0x8000
-        if 'integrated_sram_size' not in kwargs:
-            kwargs['integrated_sram_size']=0x8000
+        dict_set_max(kwargs, 'integrated_rom_size', 0x8000)
+        dict_set_max(kwargs, 'integrated_sram_size', 0x8000)
 
         clk_freq = int(100e6)
         SoCSDRAM.__init__(self, platform, clk_freq, with_uart=False, **kwargs)

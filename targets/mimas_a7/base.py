@@ -14,7 +14,7 @@ from litedram.core import ControllerSettings
 from gateware import info
 from gateware import spi_flash
 
-from targets.utils import csr_map_update, period_ns
+from targets.utils import csr_map_update, period_ns, dict_set_max
 
 
 class _CRG(Module):
@@ -95,10 +95,10 @@ class BaseSoC(SoCSDRAM):
 
     def __init__(self, platform, spiflash="spiflash_1x", **kwargs):
         clk_freq = int(100e6)
-        SoCSDRAM.__init__(self, platform, clk_freq,
-            integrated_rom_size=0x10000,
-            integrated_sram_size=0x10000,
-            **kwargs)
+        dict_set_max(kwargs, 'integrated_rom_size', 0x10000)
+        dict_set_max(kwargs, 'integrated_sram_size', 0x10000)
+        
+        SoCSDRAM.__init__(self, platform, clk_freq, **kwargs)
 
         self.submodules.crg = _CRG(platform)
         self.crg.cd_sys.clk.attr.add("keep")

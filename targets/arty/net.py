@@ -4,7 +4,7 @@ from litex.soc.integration.soc_sdram import *
 from liteeth.core.mac import LiteEthMAC
 from liteeth.phy import LiteEthPHY
 
-from targets.utils import csr_map_update
+from targets.utils import csr_map_update, dict_set_max
 from targets.arty.base import SoC as BaseSoC
 
 
@@ -22,8 +22,8 @@ class NetSoC(BaseSoC):
 
     def __init__(self, platform, *args, **kwargs):
         # Need a larger integrated ROM on or1k to fit the BIOS with TFTP support.
-        if 'integrated_rom_size' not in kwargs and kwargs.get('cpu_type', 'lm32') != 'lm32':
-            kwargs['integrated_rom_size'] = 0x10000
+        if kwargs.get('cpu_type', 'lm32') != 'lm32':
+            dict_set_max(kwargs, 'integrated_rom_size', 0x10000)
 
         BaseSoC.__init__(self, platform, *args, **kwargs)
 

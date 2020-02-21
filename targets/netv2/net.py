@@ -4,7 +4,7 @@ from litex.soc.integration.soc_sdram import *
 from liteeth.core.mac import LiteEthMAC
 from liteeth.phy.rmii import LiteEthPHYRMII
 
-from targets.utils import csr_map_update
+from targets.utils import csr_map_update, dict_set_max
 from targets.netv2.base import SoC as BaseSoC
 
 
@@ -21,7 +21,9 @@ class NetSoC(BaseSoC):
     mem_map.update(BaseSoC.mem_map)
 
     def __init__(self, platform, *args, **kwargs):
-        BaseSoC.__init__(self, platform, integrated_rom_size=0x10000, *args, **kwargs)
+        dict_set_max(kwargs, 'integrated_rom_size', 0x10000)
+
+        BaseSoC.__init__(self, platform, *args, **kwargs)
 
         self.submodules.ethphy = LiteEthPHYRMII(
             platform.request("eth_clocks"),

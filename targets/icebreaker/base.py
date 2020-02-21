@@ -15,7 +15,7 @@ from gateware import ice40
 from gateware import cas
 from gateware import spi_flash
 
-from targets.utils import csr_map_update
+from targets.utils import csr_map_update, dict_set_max
 from platforms import icebreaker
 
 
@@ -71,10 +71,11 @@ class BaseSoC(SoCCore):
     mem_map.update(SoCCore.mem_map)
 
     def __init__(self, platform, **kwargs):
-        if 'integrated_rom_size' not in kwargs:
-            kwargs['integrated_rom_size']=0
-        if 'integrated_sram_size' not in kwargs:
-            kwargs['integrated_sram_size']=0
+        # disable SRAM, it'll be added later
+        kwargs['integrated_sram_size'] = 0x0
+
+        # disable ROM, it'll be added later
+        kwargs['integrated_rom_size'] = 0x0
 
         # FIXME: Force either lite or minimal variants of CPUs; full is too big.
 

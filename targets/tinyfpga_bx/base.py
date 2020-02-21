@@ -13,7 +13,7 @@ from litex.soc.integration.builder import *
 from gateware import cas
 from gateware import spi_flash
 
-from targets.utils import csr_map_update
+from targets.utils import csr_map_update, dict_set_max
 
 
 serial =  [
@@ -63,10 +63,10 @@ class BaseSoC(SoCCore):
     mem_map.update(SoCCore.mem_map)
 
     def __init__(self, platform, **kwargs):
-        if 'integrated_rom_size' not in kwargs:
-            kwargs['integrated_rom_size']=0
-        if 'integrated_sram_size' not in kwargs:
-            kwargs['integrated_sram_size']=0x2800
+        dict_set_max(kwargs, 'integrated_sram_size', 0x2800)
+
+        # disable ROM, it'll be added later
+        kwargs['integrated_rom_size'] = 0x0
 
         # FIXME: Force either lite or minimal variants of CPUs; full is too big.
 

@@ -18,7 +18,7 @@ from litedram.modules import MT46H32M16
 from litedram.phy import s6ddrphy
 from litedram.core import ControllerSettings
 
-from targets.utils import csr_map_update
+from targets.utils import csr_map_update, dict_set_max
 from liteeth.phy.mii import LiteEthPHYMII
 from liteeth.mac import LiteEthMAC
 
@@ -200,10 +200,8 @@ class BaseSoC(SoCSDRAM):
     mem_map.update(SoCSDRAM.mem_map)
 
     def __init__(self, platform, **kwargs):
-        if 'integrated_rom_size' not in kwargs:
-            kwargs['integrated_rom_size']=0x8000
-        if 'integrated_sram_size' not in kwargs:
-            kwargs['integrated_sram_size']=0x8000
+        dict_set_max(kwargs, 'integrated_rom_size', 0x8000)
+        dict_set_max(kwargs, 'integrated_sram_size', 0x8000)
 
         clk_freq = (31 + Fraction(1, 4))*1000*1000
         SoCSDRAM.__init__(self, platform, clk_freq, **kwargs)
