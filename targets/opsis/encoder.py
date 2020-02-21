@@ -16,7 +16,7 @@ class EncoderSoC(BaseSoC):
     )
     csr_map_update(BaseSoC.csr_map, csr_peripherals)
     mem_map = {
-        "encoder": 0x50000000,  # (shadow @0xd0000000)
+        "encoder": 0xd0000000
     }
     mem_map.update(BaseSoC.mem_map)
 
@@ -41,7 +41,7 @@ class EncoderSoC(BaseSoC):
         ]
         self.add_wb_slave(mem_decoder(self.mem_map["encoder"]), encoder.bus)
         self.add_memory_region("encoder",
-            self.mem_map["encoder"] + self.shadow_base, 0x2000)
+            self.mem_map["encoder"], 0x2000, type="io")
 
         self.platform.add_period_constraint(encoder_streamer.cd_usb.clk, 10.0)
 

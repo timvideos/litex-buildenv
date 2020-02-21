@@ -15,7 +15,7 @@ class NetSoC(BaseSoC):
     csr_map_update(BaseSoC.csr_map, csr_peripherals)
 
     mem_map = {
-        "ethmac": 0x30000000,  # (shadow @0xb0000000)
+        "ethmac": 0xb0000000
     }
     mem_map.update(BaseSoC.mem_map)
 
@@ -34,8 +34,7 @@ class NetSoC(BaseSoC):
         self.submodules.ethmac = LiteEthMAC(
             phy=self.ethphy, dw=32, interface="wishbone", endianness=self.cpu.endianness)
         self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)
-        self.add_memory_region("ethmac",
-            self.mem_map["ethmac"] | self.shadow_base, 0x2000)
+        self.add_memory_region("ethmac", self.mem_map["ethmac"], 0x2000, type="io")
 
         self.ethphy.crg.cd_eth_rx.clk.attr.add("keep")
         self.ethphy.crg.cd_eth_tx.clk.attr.add("keep")
