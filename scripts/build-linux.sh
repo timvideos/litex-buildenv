@@ -175,11 +175,16 @@ if [ ${CPU} = vexriscv ]; then
 		RAM_BASE_ADDRESS=${RAM_BASE_ADDRESS::-1}
 	 	EMULATOR_RAM_BASE_ADDRESS=${EMULATOR_RAM_BASE_ADDRESS::-1}
 
+		# this is a temp fix for building the emulator
+		cd $TOP_DIR/third_party/litex/litex/soc/cores/cpu/vexriscv/verilog/ext/VexRiscv
+		git am $TOP_DIR/patches/0001-emulator-Use-external-hw-common.h-from-LiteX.patch
+
 		cd $TOP_DIR/third_party/litex/litex/soc/cores/cpu/vexriscv/verilog/ext/VexRiscv/src/main/c/emulator
 
 		# offsets are hardcoded in BIOS
 		export CFLAGS="-DDTB=$((RAM_BASE_ADDRESS + 0x01000000)) -Wl,--defsym,__ram_origin=$EMULATOR_RAM_BASE_ADDRESS"
-		export LITEX_BASE="$TOP_DIR/$TARGET_BUILD_DIR"
+		export LITEX_GENERATED="$TOP_DIR/$TARGET_BUILD_DIR/software/include"
+		export LITEX_BASE="$TOP_DIR/third_party/litex"
 		export RISCV_BIN="${CPU_ARCH}-elf-newlib-"
 		make clean
 		make litex
