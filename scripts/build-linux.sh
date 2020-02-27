@@ -30,7 +30,7 @@ fi
 eval $(make env)
 make info
 
-#set -x
+set -x
 set -e
 
 if [ "$CPU_VARIANT" != "linux" ]; then
@@ -61,6 +61,7 @@ if [ ${CPU} = mor1kx ]; then
 	# To rebuild, use https://ozlabs.org/~joel/litex_or1k_defconfig
 	ROOTFS_LOCATION="https://ozlabs.org/~joel/"
 	ROOTFS=${ARCH}-rootfs.cpio.gz
+	ROOTFS_MD5="3a254683a7b6f441a4acc0d4c555230a"
 elif [ ${CPU} = vexriscv ]; then
 	LINUX_REMOTE="${LINUX_REMOTE:-https://github.com/torvalds/linux.git}"
 	LINUX_REMOTE_NAME=upstream-linux
@@ -69,6 +70,9 @@ elif [ ${CPU} = vexriscv ]; then
 	export ARCH=riscv
 	ROOTFS_LOCATION="https://antmicro.com/projects/renode/litex-buildenv/"
 	ROOTFS=${ARCH}32-rootfs.cpio
+	ROOTFS_MD5="c3a88ff90fbd05dd6dc5773a8202d47f"
+	DTB_MD5="390c3ac4468810d4daa78379eb38dc1b"
+	CONFIG_MD5="fed2b661016e1b4aad16f17103839dba"
 else
 	echo "Linux is only supported on mor1kx or vexriscv at the moment."
 	exit 1
@@ -186,6 +190,29 @@ if [ ${CPU} = vexriscv ]; then
 	)
 fi
 
+function calcualte_md5() {
+	# will be '0' if the file does not exist
+	(md5sum "$1" 2>/dev/null || echo "0") | cut -d' ' -f1
+}
+
+function fetch_file() {
+	URL=$1
+	EXPECTED_MD5=$2
+	TRGT=$3
+
+	ACTUAL_MD5=`calcualte_md5 $TRGT`
+
+	if [ $ACTUAL_MD5 != $EXPECTED_MD5 ]; then
+		wget $URL -O $TRGT
+
+		ACTUAL_MD5=`calcualte_md5 $TRGT`
+		if [ $ACTUAL_MD5 != $EXPECTED_MD5 ]; then
+			echo "Could not fetch file from $URL"
+			exit 1
+		fi
+	fi
+}
+
 # Build linux-litex
 export CROSS_COMPILE=${CPU_ARCH}-linux-musl-
 
@@ -195,7 +222,7 @@ BD_REMOTE="${BD_REMOTE:-https://github.com/buildroot/buildroot.git}"
 BD_SRC="$TOP_DIR/third_party/buildroot"
 LLV_REMOTE="${LLV_REMOTE:-https://github.com/litex-hub/linux-on-litex-vexriscv.git}"
 LLV_SRC="$TOP_DIR/third_party/linux-on-litex-vexriscv"
-if [ ${CPU} = vexriscv ] && [ ${BUILD_BUILDROOT} = 1 ]; then
+if [ ${CPU} = vexriscv ] && [ ${BUILD_BUILDROOT:-0} = 1 ]; then
 	(
 		if [ ! -d "$BD_SRC" ]; then
 		(
@@ -237,21 +264,17 @@ else
 		echo "Building Linux in $TARGET_LINUX_BUILD_DIR"
 		mkdir -p $TARGET_LINUX_BUILD_DIR
 
-		if [ ! -e $TARGET_LINUX_BUILD_DIR/$ROOTFS ]; then
-			wget $ROOTFS_LOCATION/$ROOTFS -O $TARGET_LINUX_BUILD_DIR/$ROOTFS
-		fi
+
+		fetch_file $ROOTFS_LOCATION/$ROOTFS $ROOTFS_MD5 $TARGET_LINUX_BUILD_DIR/$ROOTFS
 
 		if [ ${CPU} = mor1kx ]; then
 			KERNEL_BINARY=vmlinux.bin
 			make O="$TARGET_LINUX_BUILD_DIR" litex_defconfig
 		elif [ ${CPU} = vexriscv ]; then
-			if [ ! -f $TARGET_LINUX_BUILD_DIR/.config ]; then
-				wget ${ROOTFS_LOCATION}/litex_vexriscv_linux.config -O $TARGET_LINUX_BUILD_DIR/.config
-			fi
 
-			if [ ! -f $TARGET_LINUX_BUILD_DIR/rv32.dtb ]; then
-				wget ${ROOTFS_LOCATION}/rv32.dtb -O $TARGET_LINUX_BUILD_DIR/rv32.dtb
-			fi
+			fetch_file $ROOTFS_LOCATION/litex_vexriscv_linux.config $CONFIG_MD5 $TARGET_LINUX_BUILD_DIR/.config
+
+			fetch_file $ROOTFS_LOCATION/rv32.dtb $DTB_MD5 $TARGET_LINUX_BUILD_DIR/rv32.dtb
 
 			KERNEL_BINARY=Image
 			make O="$TARGET_LINUX_BUILD_DIR" olddefconfig
