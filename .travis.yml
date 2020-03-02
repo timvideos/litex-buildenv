@@ -149,8 +149,6 @@ env:
 jobs:
   allow_failures:
    - env: C=mor1kx.linux     TC="vivado"    P=nexys_video       T="net"        F=linux
-   # Need to rebuilt Xilinx toolchain to add pano_logic_g2 part (Spartan 6 150T part)
-   - env: C=vexriscv.lite    TC="ise"       P=pano_logic_g2     T="base"
    # Need to rebuilt Xilinx toolchain to add NeTV2 FPGA Part (Artix 7 35T+50T parts)
    - env: C=vexriscv         TC="vivado"    P=netv2             T="base net"
    - env: C=vexriscv         TC="vivado"    P=netv2             T="hdmi2pcie"
