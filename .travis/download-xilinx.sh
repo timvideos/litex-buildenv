@@ -45,6 +45,9 @@ if [ ! -z "$XILINX_PASSPHRASE" ]; then
 			wget --no-verbose http://xilinx.timvideos.us/Xilinx.lic.gpg
 			cat $XILINX_PASSPHRASE_FILE | gpg --batch --passphrase-fd 0 Xilinx.lic.gpg
 
+			sudo modprobe dummy
+			sudo ip link set name eth0 dev dummy0
+			sudo ifconfig eth0 hw ether 08:00:27:68:c9:35
 			#git clone https://github.com/mithro/impersonate_macaddress
 			#cd impersonate_macaddress
 			#make
@@ -66,7 +69,8 @@ if [ -z "$XILINX_DIR" ]; then
 		# Reserved MAC address from documentation block, see
 		# http://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml
 		export LIKELY_XILINX_LICENSE_DIR=$LOCAL_XILINX_DIR
-		export MACADDR=90:10:00:00:00:01
+		#export MACADDR=90:10:00:00:00:01
+		export MACADDR=08:00:27:68:c9:35
 		#export LD_PRELOAD=$XILINX_DIR/impersonate_macaddress/impersonate_macaddress.so
 		#ls -l $LD_PRELOAD
 		export XILINX_DIR=$LOCAL_XILINX_DIR
