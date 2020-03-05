@@ -4,9 +4,8 @@ import os
 import sys
 import threading
 
-from litex.soc.tools.remote import RemoteServer
-from litex.soc.tools.remote import RemoteClient
-from litex.soc.tools.remote import CommUART
+from litex.tools.litex_server import RemoteServer
+from litex.tools.litex_client import RemoteClient
 
 TOP_DIR=os.path.join(os.path.dirname(__file__), "..")
 
@@ -17,43 +16,111 @@ from make import get_args, get_testdir
 class ServerProxy(threading.Thread):
     daemon = True
 
-    def __init__(self, port):
+    def __init__(self, args):
         threading.Thread.__init__(self)
-        self.port = port
+        self.args = args
         self.ready = False
 
     def run(self):
-        print("Starting proxy to {}".format(self.port))
-        self.comm = CommUART(self.port, 115200)
-        self.server = RemoteServer(self.comm)
+        args = self.args
+        if args.uart:
+            from litex.tools.remote.comm_uart import CommUART
+            if args.uart_port is None:
+                print("Need to specify --uart-port, exiting.")
+                exit()
+            uart_port = args.uart_port
+            uart_baudrate = int(float(args.uart_baudrate))
+            print("[CommUART] port: {} / baudrate: {} / ".format(uart_port, uart_baudrate), end="")
+            comm = CommUART(uart_port, uart_baudrate)
+        elif args.udp:
+            from litex.tools.remote.comm_udp import CommUDP
+            udp_ip = args.udp_ip
+            udp_port = int(args.udp_port)
+            print("[CommUDP] ip: {} / port: {} / ".format(udp_ip, udp_port), end="")
+            comm = CommUDP(udp_ip, udp_port)
+        elif args.pcie:
+            from litex.tools.remote.comm_pcie import CommPCIe
+            pcie_bar = args.pcie_bar
+            if args.pcie_bar is None:
+                print("Need to speficy --pcie-bar, exiting.")
+                exit()
+            print("[CommPCIe] bar: {} / ".format(args.pcie_bar), end="")
+            comm = CommPCIe(args.pcie_bar)
+        elif args.usb:
+            from litex.tools.remote.comm_usb import CommUSB
+            if args.usb_pid is None and args.usb_vid is None:
+                print("Need to speficy --usb-vid or --usb-pid, exiting.")
+                exit()
+            print("[CommUSB] vid: {} / pid: {} / ".format(args.usb_vid, args.usb_pid), end="")
+            pid = args.usb_pid
+            if pid is not None:
+                pid = int(pid, base=0)
+            vid = args.usb_vid
+            if vid is not None:
+                vid = int(vid, base=0)
+            comm = CommUSB(vid=vid, pid=pid, max_retries=args.usb_max_retries)
+        else:
+            exit()
+
+        self.server = RemoteServer(comm, args.bind_ip, int(args.bind_port))
         self.server.open()
-        self.server.start()
+        self.server.start(4)
         self.ready = True
 
 
 def connect(desc, *args, add_args=None, **kw):
     parser = argparse.ArgumentParser(description=desc)
     get_args(parser, *args, **kw)
-    parser.add_argument("--ipaddress")
-    parser.add_argument("--port") #, desc="Serial port")
+
+    # Common arguments
+    parser.add_argument("--bind-ip", default="localhost",
+                        help="Host bind address")
+    parser.add_argument("--bind-port", default=1234,
+                        help="Host bind port")
+
+    # UART arguments
+    parser.add_argument("--uart", action="store_true",
+                        help="Select UART interface")
+    parser.add_argument("--uart-port", default=None,
+                        help="Set UART port")
+    #parser.add_argument("--uart-baudrate", default=115200,
+    #                    help="Set UART baudrate")
+
+    # UDP arguments
+    parser.add_argument("--udp", action="store_true",
+                        help="Select UDP interface")
+    parser.add_argument("--udp-ip", default="192.168.100.50",
+                        help="Set UDP remote IP address")
+    parser.add_argument("--udp-port", default=1234,
+                        help="Set UDP remote port")
+
+    # PCIe arguments
+    parser.add_argument("--pcie", action="store_true",
+                        help="Select PCIe interface")
+    parser.add_argument("--pcie-bar", default=None,
+                        help="Set PCIe BAR")
+
+    # USB arguments
+    parser.add_argument("--usb", action="store_true",
+                        help="Select USB interface")
+    parser.add_argument("--usb-vid", default=None,
+                        help="Set USB vendor ID")
+    parser.add_argument("--usb-pid", default=None,
+                        help="Set USB product ID")
+    parser.add_argument("--usb-max-retries", default=10,
+                        help="Number of times to try reconnecting to USB")
+
     if add_args is not None:
         add_args(parser)
     args = parser.parse_args()
 
-    if args.port:
-        s = ServerProxy(args.port)
-        s.start()
-        while not s.ready:
-            continue
+    s = ServerProxy(args)
+    s.start()
+    while not s.ready:
+        continue
 
-        args.ipaddress = "127.0.0.1"
-
-    elif not args.ipaddress:
-        args.ipaddress = "{}.50".format(args.iprange)
-
-    print("Connecting to {}".format(args.ipaddress))
     test_dir = os.path.join(TOP_DIR, get_testdir(args))
-    wb = RemoteClient(args.ipaddress, 1234, csr_csv="{}/csr.csv".format(test_dir))
+    wb = RemoteClient(args.bind_ip, int(args.bind_port), csr_csv="{}/csr.csv".format(test_dir), debug=True)
     wb.open()
     print()
     print("Device DNA: {}".format(get_dna(wb)))
