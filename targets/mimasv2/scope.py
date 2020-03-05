@@ -8,17 +8,10 @@ from litescope import LiteScopeIO
 
 from gateware.memtest import LiteDRAMBISTCheckerScope
 
-from targets.utils import csr_map_update
 from targets.mimasv2.base import BaseSoC
 
 
 class MemTestSoC(BaseSoC):
-    csr_peripherals = (
-        "analyzer",
-        "io",
-    )
-    csr_map_update(BaseSoC.csr_map, csr_peripherals)
-
     def __init__(self, platform, *args, **kwargs):
         kwargs['cpu_type'] = None
         BaseSoC.__init__(self, platform, *args, with_uart=False, **kwargs)
@@ -34,6 +27,7 @@ class MemTestSoC(BaseSoC):
                 self.comb += platform.request("user_led", i).eq(self.io.output[i])
             except:
                 pass
+        self.add_csr("io")
 
         analyzer_signals = [
             self.spiflash.bus,
@@ -44,6 +38,7 @@ class MemTestSoC(BaseSoC):
         #    self.spiflash.sr,
         ]
         self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 1024)
+        self.add_csr("analyzer")
 
     def do_exit(self, vns, filename="test/analyzer.csv"):
         self.analyzer.export_csv(vns, filename)
