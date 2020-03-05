@@ -15,7 +15,6 @@ from gateware import cas
 from gateware import ice40
 from gateware import spi_flash
 
-from targets.utils import csr_map_update, dict_set_max
 import platforms.upduino_v1 as upduino
 
 
@@ -42,16 +41,9 @@ class _CRG(Module):
 
 
 class BaseSoC(SoCCore):
-    csr_peripherals = (
-        "spiflash",
-        "cas",
-    )
-    csr_map_update(SoCCore.csr_map, csr_peripherals)
-
-    mem_map = {
-        "spiflash": 0x20000000,  # (default shadow @0xa0000000)
-    }
-    mem_map.update(SoCCore.mem_map)
+    mem_map = {**SoCCore.mem_map, **{
+        "spiflash": 0x20000000,
+    }}
 
     def __init__(self, platform, **kwargs):
         # disable SRAM, it'll be added later
@@ -74,12 +66,14 @@ class BaseSoC(SoCCore):
 
         # Control and Status
         self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
+        self.add_csr("cas")
 
         # SPI flash peripheral
         self.submodules.spiflash = spi_flash.SpiFlashSingle(
             platform.request("spiflash"),
             dummy=platform.spiflash_read_dummy_bits,
             div=platform.spiflash_clock_div, endianness=self.cpu.endianness)
+        self.add_csr("spiflash")
         self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
         self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
         self.register_mem("spiflash", self.mem_map["spiflash"],
@@ -106,11 +100,6 @@ class BaseSoC(SoCCore):
             # Possible fix: addr < origin + length - 1
             platform.spiflash_total_size - (self.flash_boot_address - self.mem_map["spiflash"]) - 0x100,
             type="cached+linker")
-
-        # Disable final deep-sleep power down so firmware words are loaded
-        # onto softcore's address bus.
-        platform.toolchain.build_template[3] = "icepack -s {build_name}.txt {build_name}.bin"
-        platform.toolchain.nextpnr_build_template[2] = "icepack -s {build_name}.txt {build_name}.bin"
 
 
 SoC = BaseSoC
