@@ -44,12 +44,14 @@ class MHzType(int):
     >>> a = MHzType(1)
     >>> a == int(1e9)
     True
-    >>> a
+    >>> print(a)
     1 MHz
     >>> b = 5 * MHzType(1)
     >>> b == int(5e9)
     True
     >>> b
+    5.000000 * MHz()
+    >>> print(b)
     5 MHz
     >>> c = 200 * MHzType(1)
     >>>
