@@ -4,23 +4,11 @@ from litevideo.output import VideoOut
 from gateware import freq_measurement
 from gateware import i2c
 
-from targets.utils import csr_map_update, period_ns
+from targets.utils import period_ns
 from targets.opsis.net import NetSoC as BaseSoC
 
 
 class VideoSoC(BaseSoC):
-    csr_peripherals = (
-        "hdmi_out0",
-        "hdmi_out1",
-        "hdmi_in0",
-        "hdmi_in0_freq",
-        "hdmi_in0_edid_mem",
-        "hdmi_in1",
-        "hdmi_in1_freq",
-        "hdmi_in1_edid_mem",
-    )
-    csr_map_update(BaseSoC.csr_map, csr_peripherals)
-
     def __init__(self, platform, *args, **kwargs):
         BaseSoC.__init__(self, platform, *args, **kwargs)
 
@@ -40,9 +28,13 @@ class VideoSoC(BaseSoC):
             self.sdram.crossbar.get_port(mode="write"),
             fifo_depth=512,
             )
+        self.add_csr("hdmi_in0")
+        self.add_csr("hdmi_in0_edid_mem")
+        self.add_interrupt("hdmi_in0")
 
         self.submodules.hdmi_in0_freq = freq_measurement.FrequencyMeasurement(
             self.hdmi_in0.clocking.clk_input, measure_period=self.clk_freq)
+        self.add_csr("hdmi_in0_freq")
 
         # hdmi in 1
         hdmi_in1_pads = platform.request("hdmi_in", 1)
@@ -52,11 +44,13 @@ class VideoSoC(BaseSoC):
             self.sdram.crossbar.get_port(mode="write"),
             fifo_depth=512,
         )
+        self.add_csr("hdmi_in1")
+        self.add_csr("hdmi_in1_edid_mem")
+        self.add_interrupt("hdmi_in1")
 
         self.submodules.hdmi_in1_freq = freq_measurement.FrequencyMeasurement(
             self.hdmi_in1.clocking.clk_input, measure_period=self.clk_freq)
-
-
+        self.add_csr("hdmi_in1_freq")
 
         # hdmi out 0
         hdmi_out0_pads = platform.request("hdmi_out", 0)
@@ -75,6 +69,7 @@ class VideoSoC(BaseSoC):
             mode=mode,
             fifo_depth=4096,
         )
+        self.add_csr("hdmi_out0")
 
         self.hdmi_out0.submodules.i2c = i2c.I2C(hdmi_out0_pads)
 
@@ -96,6 +91,7 @@ class VideoSoC(BaseSoC):
             fifo_depth=4096,
             external_clocking=self.hdmi_out0.driver.clocking,
         )
+        self.add_csr("hdmi_out1")
 
         self.hdmi_out1.submodules.i2c = i2c.I2C(hdmi_out1_pads)
 
@@ -122,9 +118,6 @@ NET "{pix1_clk}" TNM_NET = "GRPpix1_clk";
 
         for name, value in sorted(self.platform.hdmi_infos.items()):
             self.add_constant(name, value)
-
-        self.add_interrupt("hdmi_in0")
-        self.add_interrupt("hdmi_in1")
 
 
 SoC = VideoSoC

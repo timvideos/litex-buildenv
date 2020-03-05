@@ -1,7 +1,6 @@
 from migen import *
 from litex.soc.cores.gpio import GPIOIn, GPIOOut
 
-from targets.utils import csr_map_update
 from targets.opsis.net import NetSoC as BaseSoC
 
 
@@ -22,15 +21,11 @@ class GPIO2TOFE(Module):
 
 
 class AxiomSoC(BaseSoC):
-    csr_peripherals = (
-        "gpio",
-    )
-    csr_map_update(BaseSoC.csr_map, csr_peripherals)
-
     def __init__(self, platform, *args, **kwargs):
         BaseSoC.__init__(self, platform, *args, expansion='tofe2axiom', **kwargs)
 
         self.submodules.gpio = GPIO2TOFE(platform.request("tofe", 0))
+        self.add_csr("gpio")
 
 
 SoC = AxiomSoC
