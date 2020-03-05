@@ -3,7 +3,7 @@ from migen.genlib.resetsync import AsyncResetSynchronizer
 from litex.soc.integration.soc_core import *
 from litex.soc.cores.uart import *
 
-from targets.utils import csr_map_update, period_ns
+from targets.utils import period_ns
 
 from liteeth.common import convert_ip
 from liteeth.phy.s7rgmii import LiteEthPHYRGMII
@@ -61,12 +61,6 @@ class CRG(Module):
 
 
 class EtherboneSoC(SoCCore):
-    csr_peripherals = (
-        "ethphy",
-        "ethcore",
-    )
-    csr_map_update(SoCCore.csr_map, csr_peripherals)
-
     def __init__(self, platform, cpu_type=None, mac_address=0x10e2d5000000, ip_address="192.168.100.50", **kwargs):
         clk_freq = int(142e6)
         SoCCore.__init__(self, platform, clk_freq,
@@ -84,13 +78,17 @@ class EtherboneSoC(SoCCore):
         self.platform.add_period_constraint(self.crg.cd_sys.clk, period_ns(clk_freq))
 
         # ethernet mac/udp/ip stack
-        self.submodules.ethphy = LiteEthPHYRGMII(self.platform.request("eth_clocks"),
-                                                 self.platform.request("eth"))
-        self.submodules.ethcore = LiteEthUDPIPCore(self.ethphy,
-                                                   mac_address,
-                                                   convert_ip(ip_address),
-                                                   self.clk_freq,
-                                                   with_icmp=True)
+        self.submodules.ethphy = LiteEthPHYRGMII(
+            self.platform.request("eth_clocks"),
+            self.platform.request("eth"))
+        self.add_csr("ethphy")
+        self.submodules.ethcore = LiteEthUDPIPCore(
+            self.ethphy,
+            mac_address,
+            convert_ip(ip_address),
+            self.clk_freq,
+            with_icmp=True)
+        self.add_csr("ethcore")
 
         # etherbone bridge
         self.add_cpu_or_bridge(LiteEthEtherbone(self.ethcore.udp, 1234))

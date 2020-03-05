@@ -1,36 +1,42 @@
-from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.integration.soc_sdram import *
 
 from liteeth.core.mac import LiteEthMAC
 from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 
-from targets.utils import csr_map_update
-from targets.mimas_a7.base import SoC as BaseSoC
+from .base import BaseSoC
 
 
 class NetSoC(BaseSoC):
-    csr_peripherals = (
-        "ethphy",
-        "ethmac",
-    )
-    csr_map_update(BaseSoC.csr_map, csr_peripherals)
-
-    mem_map = {
-        "ethmac": 0xb0000000
-    }
-    mem_map.update(BaseSoC.mem_map)
+    mem_map = {**BaseSoC.mem_map, **{
+        "ethmac": 0xb0000000,
+    }}
 
     def __init__(self, platform, *args, **kwargs):
+        # Need a larger integrated ROM on or1k to fit the BIOS with TFTP support.
+        if 'integrated_rom_size' not in kwargs and kwargs.get('cpu_type', 'lm32') != 'lm32':
+            kwargs['integrated_rom_size'] = 0x10000
+
         BaseSoC.__init__(self, platform, *args, **kwargs)
 
+        # Ethernet ---------------------------------------------------------------------------------
+        # Ethernet PHY
         self.submodules.ethphy = LiteEthPHYRGMII(
             platform.request("eth_clocks"),
             platform.request("eth"))
-        self.submodules.ethmac = LiteEthMAC(
-            phy=self.ethphy, dw=32, interface="wishbone", endianness=self.cpu.endianness)
-        self.add_wb_slave(self.mem_map["ethmac"], self.ethmac.bus)
-        self.add_memory_region("ethmac", self.mem_map["ethmac"], 0x2000, type="io")
+        self.add_csr("ethphy")
 
+        # Ethernet MAC
+        ethmac_win_size = 0x2000
+        self.submodules.ethmac = LiteEthMAC(
+            phy        = self.ethphy,
+            dw         = 32,
+            interface  = "wishbone",
+            endianness = self.cpu.endianness)
+        self.add_wb_slave(self.mem_map["ethmac"], self.ethmac.bus, ethmac_win_size)
+        self.add_memory_region("ethmac", self.mem_map["ethmac"], ethmac_win_size, type="io")
+        self.add_csr("ethmac")
+        self.add_interrupt("ethmac")
+        # timing constraints
         self.ethphy.crg.cd_eth_rx.clk.attr.add("keep")
         self.ethphy.crg.cd_eth_tx.clk.attr.add("keep")
         #self.platform.add_period_constraint(self.crg.cd_sys.clk, 10.0)
@@ -40,8 +46,6 @@ class NetSoC(BaseSoC):
             self.crg.cd_sys.clk,
             self.ethphy.crg.cd_eth_rx.clk,
             self.ethphy.crg.cd_eth_tx.clk)
-
-        self.add_interrupt("ethmac")
 
     def configure_iprange(self, iprange):
         iprange = [int(x) for x in iprange.split(".")]
