@@ -93,7 +93,7 @@ def get_bios(builddir, filetype="flash"):
 def get_bios_maxsize(args, soc):
     for name, region in soc.mem_regions.items():
         if name == 'rom':
-            return region.length
+            return region.size
     # FIXME: Hard coded value?
     return 0x8000
 
