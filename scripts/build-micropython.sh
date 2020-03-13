@@ -78,6 +78,13 @@ if [ ! -e "$TARGET_MPY_BUILD_DIR/generated" ]; then
 		ln -s $(realpath $PWD/../../software/include/generated) generated
 	)
 fi
+
+if [ ! -e "$TARGET_MPY_BUILD_DIR/hw" ]; then
+	(
+		cd $TARGET_MPY_BUILD_DIR
+		ln -s $(realpath $PWD/../../../../third_party/litex/litex/soc/software/include/hw) hw
+	)
+fi
 TARGET_MPY_BUILD_DIR="$(realpath $TARGET_BUILD_DIR/software/micropython)"
 
 # Build micropython
