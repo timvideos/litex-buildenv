@@ -35,4 +35,5 @@ LITE_REPOS="
 	litesata
 	litescope
 	litevideo
+	liteiclink
 	"
