@@ -1,6 +1,10 @@
 import pprint
 
 
+def round_up_to_4(i):
+    return int((i + 3) / 4) * 4
+
+
 def dict_set_max(d, key, value):
     d[key] = max(d[key], value) if key in d else value
 
