@@ -1,4 +1,4 @@
-from litex.soc.tools.remote import RemoteClient
+from litex.tools.litex_client import RemoteClient
 
 wb = RemoteClient("192.168.1.50", 1234, csr_data_width=8)
 wb.open()

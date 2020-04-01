@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from litex.soc.tools.remote import RemoteClient
+from litex.tools.litex_client import RemoteClient
 
 import time
 
