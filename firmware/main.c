@@ -26,6 +26,7 @@
 #include "processor.h"
 #include "stdio_wrap.h"
 #include "telnet.h"
+#include "eth_stream.h"
 #include "tofe_eeprom.h"
 #include "uptime.h"
 #include "version.h"
@@ -98,6 +99,7 @@ int main(void)
 	ethernet_init(mac_addr, ip_addr);
 	etherbone_init();
 	telnet_init();
+	eth_stream_init();
 #endif
 
 	// Reboot the FX2 chip into HDMI2USB mode

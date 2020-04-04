@@ -46,6 +46,7 @@ OBJECTS=\
 	uptime.o \
 	version.o \
 	pcie.o \
+	eth_stream.o \
 	$(FIRMBUILD_DIRECTORY)/version_data.o \
 	$(FIRMBUILD_DIRECTORY)/hdmi_in1.o \
 	boot-helper-$(CPU).o
