@@ -278,9 +278,9 @@ _io = [
 
     # FX2 USB Interface
     # CY7C68013A_100AC - component U2
-    ("fx2", 0,
         #NET "fx2_ifclk"            LOC =    "P20"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY-IFCLK)
-        Subsignal("ifclk", Pins("P20"), IOStandard("LVCMOS33")),
+    ("clk_ifclk", 0, Pins("P20"), IOStandard("LVCMOS33")),
+    ("fx2", 0,
         #NET "fx2_fd<0>"            LOC =    "C20"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_FD0)
         #NET "fx2_fd<1>"            LOC =    "C22"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_FD1)
         #NET "fx2_fd<2>"            LOC =    "L15"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_FD2)
@@ -304,11 +304,8 @@ _io = [
         #NET "fx2_flaga"            LOC =    "N16"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_CTL0)
         #NET "fx2_flagb"            LOC =    "P16"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_CTL1)
         #NET "fx2_flagc"            LOC =    "R15"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_CTL2)
-        Subsignal("flaga", Pins("N16"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
-        Subsignal("flagb", Pins("P16"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
-        Subsignal("flagc", Pins("R15"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
         #NET "fx2_flagd/slcs_n"     LOC =    "J17"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_PA7)
-        Subsignal("cs_n", Pins("J17"), IOStandard("LVCMOS33"),  Misc("DRIVE=12")),
+        Subsignal("flag", Pins("N16 P16 R15 J17"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
         #NET "fx2_slrd"             LOC =    "P19"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_RD0)
         Subsignal("rd_n", Pins("P19"), IOStandard("LVCMOS33"), Misc("DRIVE=12")),
         #NET "fx2_slwr"             LOC =    "R19"       |IOSTANDARD =        LVCMOS33 |SLEW=SLOW            |DRIVE=12            ;     #                      (/FPGA_Bank_1_2/CY_RD1)
@@ -583,6 +580,6 @@ class Platform(XilinxPlatform):
 
         # USB input clock pins.
         try:
-            self.add_period_constraint(self.lookup_request("fx2").ifclk, 10)
+            self.add_period_constraint(self.lookup_request("clk_ifclk"), 20.833)
         except ConstraintError:
             pass

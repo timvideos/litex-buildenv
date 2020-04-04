@@ -1,9 +1,11 @@
-from migen.fhdl.decorators import ClockDomainsRenamer
+from migen.fhdl.decorators import ClockDomainsRenamer, ResetInserter
 from litex.soc.integration.soc_core import mem_decoder
 from litex.soc.interconnect import stream
+from litex.soc.cores.uart import UART
 
 from gateware.encoder import EncoderDMAReader, EncoderBuffer, Encoder
 from gateware.streamer import USBStreamer
+from gateware.fx2_crossbar import FX2Crossbar, FX2PHY
 
 from targets.utils import csr_map_update
 from targets.opsis.video import SoC as BaseSoC
@@ -30,27 +32,33 @@ class HDMI2USBSoC(BaseSoC):
                                            "read": "encoder"})(encoder_cdc)
         encoder_buffer = ClockDomainsRenamer("encoder")(EncoderBuffer())
         encoder = Encoder(platform)
-        encoder_streamer = USBStreamer(platform, platform.request("fx2"))
-        self.submodules += encoder_cdc, encoder_buffer, encoder, encoder_streamer
+
+        xbar = ClockDomainsRenamer("fx2")(FX2Crossbar(platform))
+
+        self.submodules += encoder_cdc, encoder_buffer, encoder, xbar
 
         self.comb += [
             self.encoder_reader.source.connect(encoder_cdc.sink),
             encoder_cdc.source.connect(encoder_buffer.sink),
             encoder_buffer.source.connect(encoder.sink),
-            encoder.source.connect(encoder_streamer.sink)
+            encoder.source.connect(xbar.get_in_fifo(0, clock_domain=self.crg.cd_encoder))
         ]
         self.add_wb_slave(mem_decoder(self.mem_map["encoder"]), encoder.bus)
         self.add_memory_region("encoder",
             self.mem_map["encoder"] + self.shadow_base, 0x2000)
 
-        self.platform.add_period_constraint(encoder_streamer.cd_usb.clk, 10.0)
-
-        encoder_streamer.cd_usb.clk.attr.add("keep")
         self.crg.cd_encoder.clk.attr.add("keep")
-        self.platform.add_false_path_constraints(
-            self.crg.cd_sys.clk,
-            self.crg.cd_encoder.clk,
-            encoder_streamer.cd_usb.clk)
+
+        fx2_uart_sink = xbar.get_in_fifo(1, clock_domain=self.crg.cd_sys)
+        fx2_uart_source = xbar.get_out_fifo(0, clock_domain=self.crg.cd_sys)
+
+        self.submodules.uart_phy = uart_phy = FX2PHY(fx2_uart_sink, fx2_uart_source)
+        self.submodules.uart = uart = ResetInserter()(UART(uart_phy))
+
+        self.add_csr("uart", allow_user_defined=True)
+        self.add_interrupt("uart", allow_user_defined=True)
+
+        self.platform.add_false_path_constraints(self.crg.cd_sys.clk, self.crg.cd_fx2.clk)
 
 
 SoC = HDMI2USBSoC
