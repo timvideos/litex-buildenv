@@ -10,7 +10,7 @@ from litedram.modules import MT41K256M16
 from litedram.phy import s7ddrphy
 from litedram.core import ControllerSettings
 
-from gateware import cas
+# from gateware import cas
 from gateware import info
 from gateware import oled
 from gateware import spi_flash
@@ -81,8 +81,8 @@ class BaseSoC(SoCSDRAM):
         # Basic peripherals ------------------------------------------------------------------------
         self.submodules.info = info.Info(platform, self.__class__.__name__)
         self.add_csr("info")
-        self.submodules.cas = cas.ControlAndStatus(platform, sys_clk_freq)
-        self.add_csr("cas")
+        # self.submodules.cas = cas.ControlAndStatus(platform, sys_clk_freq)
+        # self.add_csr("cas")
         self.submodules.oled = oled.OLED(platform.request("oled"))
         self.add_csr("oled")
 
