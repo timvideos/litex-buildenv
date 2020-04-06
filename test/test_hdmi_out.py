@@ -1,6 +1,6 @@
 import time
 
-from litex.soc.tools.remote import RemoteClient
+from litex.tools.litex_client import RemoteClient
 
 wb = RemoteClient(debug=True)
 wb.open()

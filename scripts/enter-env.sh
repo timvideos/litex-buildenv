@@ -240,6 +240,7 @@ case $PLATFORM_TOOLCHAIN in
 
 		XILINX_SETTINGS_ISE='/opt/Xilinx/*/ISE_DS/settings64.sh'
 		XILINX_SETTINGS_VIVADO='/opt/Xilinx/Vivado/*/settings64.sh'
+		XILINX_BINDIR='/opt/Xilinx/Vivado/*/bin'
 
 		if [ -z "$XILINX_DIR" ]; then
 			LOCAL_XILINX_DIR=$BUILD_DIR/Xilinx
@@ -262,6 +263,7 @@ case $PLATFORM_TOOLCHAIN in
 		shopt -s nullglob
 		XILINX_SETTINGS_ISE=($XILINX_DIR/$XILINX_SETTINGS_ISE)
 		XILINX_SETTINGS_VIVADO=($XILINX_DIR/$XILINX_SETTINGS_VIVADO)
+		XILINX_BINDIR=($XILINX_DIR/$XILINX_BINDIR)
 		shopt -u nullglob
 
 		# Tell user what we found...
@@ -297,7 +299,9 @@ case $PLATFORM_TOOLCHAIN in
 			export HAVE_FPGA_TOOLCHAIN=0
 		fi
 		if [ $HAVE_XILINX_TOOLCHAIN -eq 1 ]; then
-			export MISOC_EXTRA_CMDLINE="-Ob toolchain_path $XILINX_DIR/opt/Xilinx/"
+    		        for P in ${XILINX_BINDIR[@]}; do
+        		 	export PATH="$XILINX_DIR/$P:$PATH"
+		 	done
 		fi
 
 		# Detect a likely lack of license early, but just warn if it's missing
@@ -567,14 +571,15 @@ echo "-----------------------"
 
 # lite
 for LITE in $LITE_REPOS; do
+	LITE_DIR=$THIRD_DIR/$LITE
+	LITE_MOD=$(echo $LITE | sed -e's/-/_/g')
 
 
 
 
 
 
-
-	check_import $LITE || return 1
+	check_import $LITE_MOD || return 1
 done
 
 echo "-----------------------"

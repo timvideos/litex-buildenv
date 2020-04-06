@@ -28,10 +28,12 @@ LITE_REPOS="
 	migen
 	nmigen
 	litex
+	litex-boards
 	litedram
 	liteeth
 	litepcie
 	litesata
 	litescope
 	litevideo
+	liteiclink
 	"

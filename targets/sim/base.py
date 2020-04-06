@@ -13,27 +13,19 @@ from litedram.core.controller import ControllerSettings
 
 from gateware import firmware
 
-from targets.utils import csr_map_update
+from targets.utils import dict_set_max
 
 
 class BaseSoC(SoCSDRAM):
-    csr_peripherals = (
-        ,
-    )
-    csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
-
-    mem_map = {
+    mem_map = {**SoCSDRAM, **{
         "firmware_ram": 0x20000000,  # (default shadow @0xa0000000)
-    }
-    mem_map.update(SoCSDRAM.mem_map)
+    }}
 
     def __init__(self, platform, **kwargs):
-        if 'integrated_rom_size' not in kwargs:
-            kwargs['integrated_rom_size']=0x8000
-        if 'integrated_sram_size' not in kwargs:
-            kwargs['integrated_sram_size']=0x8000
-        if 'firmware_ram_size' not in kwargs:
-            kwargs['firmware_ram_size']=0x10000
+        dict_set_max(kwargs, 'integrated_rom_size', 0x8000)
+        dict_set_max(kwargs, 'integrated_sram_size', 0x8000)
+        dict_set_max(kwargs, 'firmware_ram_size', 0x10000)
+
         if 'firmware_filename' not in kwargs:
             kwargs['firmware_filename'] = "build/sim_{}_{}/software/firmware/firmware.fbi".format(
                 self.__class__.__name__.lower()[:-3], kwargs.get('cpu_type', 'lm32'))

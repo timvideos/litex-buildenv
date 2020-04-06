@@ -14,7 +14,7 @@ from litedram.core import ControllerSettings
 from gateware import cas
 from gateware import info
 
-from targets.utils import csr_map_update, period_ns
+from targets.utils import period_ns, dict_set_max
 
 
 class _CRG(Module):
@@ -93,31 +93,18 @@ class _CRG(Module):
 
 
 class BaseSoC(SoCSDRAM):
-    csr_peripherals = (
-        "ddrphy",
-        "info",
-        "cas",
-    )
-    csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
-
-    SoCSDRAM.mem_map = {
-        "rom":      0x00000000,
-        "sram":     0x10000000,
-        "main_ram": 0x40000000,
-        "csr":      0xe0000000,
-    }
-
-    mem_map = {
-        "spiflash": 0x20000000,
+    mem_map = {**SoCSDRAM.mem_map, **{
+        "rom":          0x00000000,
+        "sram":         0x10000000,
+        "main_ram":     0x40000000,
+        "csr":          0xe0000000,
+        "spiflash":     0x20000000,
         "emulator_ram": 0x50000000,
-    }
-    mem_map.update(SoCSDRAM.mem_map)
+    }}
 
     def __init__(self, platform, csr_data_width=8, **kwargs):
-        if 'integrated_rom_size' not in kwargs:
-            kwargs['integrated_rom_size']=0x8000
-        if 'integrated_sram_size' not in kwargs:
-            kwargs['integrated_sram_size']=0x8000
+        dict_set_max(kwargs, 'integrated_rom_size', 0x8000)
+        dict_set_max(kwargs, 'integrated_sram_size', 0x8000)
 
         clk_freq = int(100e6)
         SoCSDRAM.__init__(self, platform, clk_freq, csr_data_width=csr_data_width, **kwargs)
@@ -128,7 +115,9 @@ class BaseSoC(SoCSDRAM):
 
         # Basic peripherals
         self.submodules.info = info.Info(platform, self.__class__.__name__)
+        self.add_csr("info")
         self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
+        self.add_csr("cas")
 
         if self.cpu_type == "vexriscv" and self.cpu_variant == "linux":
             size = 0x4000
@@ -141,6 +130,7 @@ class BaseSoC(SoCSDRAM):
         sdram_module = K4B2G1646F(self.clk_freq, "1:4")
         self.submodules.ddrphy = a7ddrphy.A7DDRPHY(
             platform.request("ddram"))
+        self.add_csr("ddrphy")
         controller_settings = ControllerSettings(
             with_bandwidth=True,
             cmd_buffer_depth=8,

@@ -5,19 +5,11 @@ from litex.soc.cores.freqmeter import FreqMeter
 
 from litescope import LiteScopeAnalyzer
 
-from targets.utils import csr_map_update, period_ns
+from targets.utils import period_ns
 from targets.mimas_a7.net import NetSoC as BaseSoC
 
 
 class VideoSoC(BaseSoC):
-    csr_peripherals = (
-        "hdmi_out0",
-        "hdmi_in0",
-        "hdmi_in0_freq",
-        "hdmi_in0_edid_mem",
-    )
-    csr_map_update(BaseSoC.csr_map, csr_peripherals)
-
     def __init__(self, platform, *args, **kwargs):
         BaseSoC.__init__(self, platform, *args, **kwargs)
 
@@ -39,8 +31,11 @@ class VideoSoC(BaseSoC):
             self.sdram.crossbar.get_port(mode="write"),
             fifo_depth=512,
             device="xc7")
+        self.add_csr("hdmi_in0")
+        self.add_csr("hdmi_in0_edid_mem")
 
         self.submodules.hdmi_in0_freq = FreqMeter(period=self.clk_freq)
+        self.add_csr("hdmi_in0_freq")
 
         self.comb += [
             self.hdmi_in0_freq.clk.eq(self.hdmi_in0.clocking.cd_pix.clk),
@@ -70,6 +65,8 @@ class VideoSoC(BaseSoC):
             hdmi_out0_dram_port,
             mode=mode,
             fifo_depth=4096)
+        self.add_csr("hdmi_out0")
+        self.add_interrupt("hdmi_in0")
 
         self.platform.add_false_path_constraints(
             self.crg.cd_sys.clk,
@@ -86,15 +83,8 @@ class VideoSoC(BaseSoC):
         for name, value in sorted(self.platform.hdmi_infos.items()):
             self.add_constant(name, value)
 
-        self.add_interrupt("hdmi_in0")
-
 
 class VideoSoCDebug(VideoSoC):
-    csr_peripherals = (
-        "analyzer",
-    )
-    csr_map_update(VideoSoC.csr_map, csr_peripherals)
-
     def __init__(self, platform, *args, **kwargs):
         VideoSoC.__init__(self, platform, *args, **kwargs)
 
@@ -120,6 +110,7 @@ class VideoSoCDebug(VideoSoC):
             self.hdmi_in0.syncpol.vsync,
         ]
         self.submodules.analyzer = LiteScopeAnalyzer(analyzer_signals, 1024, cd="hdmi_in0_pix", cd_ratio=2)
+        self.add_csr("analyzer")
 
         # leds
         pix_counter = Signal(32)

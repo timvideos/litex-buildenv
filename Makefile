@@ -203,8 +203,13 @@ ifeq ($(FIRMWARE),none)
 OVERRIDE_FIRMWARE=--override-firmware=none
 FIRMWARE_FBI=
 else
+ifeq ($(FIRMWARE),clear)
+OVERRIDE_FIRMWARE=--override-firmware=clear
+FIRMWARE_FBI=
+else
 OVERRIDE_FIRMWARE=--override-firmware=$(FIRMWARE_FILEBASE).fbi
 FIRMWARE_FBI=$(FIRMWARE_FILEBASE).fbi
+endif
 endif
 
 $(IMAGE_FILE): $(GATEWARE_FILEBASE).bin $(BIOS_FILE) $(FIRMWARE_FBI)

@@ -15,7 +15,6 @@ from gateware import ice40
 from gateware import cas
 from gateware import spi_flash
 
-from targets.utils import csr_map_update
 from platforms import icebreaker
 
 
@@ -59,22 +58,16 @@ class _CRG(Module):
 
 
 class BaseSoC(SoCCore):
-    csr_peripherals = (
-        "spiflash",
-        "cas",
-    )
-    csr_map_update(SoCCore.csr_map, csr_peripherals)
-
-    mem_map = {
-        "spiflash": 0x20000000,  # (default shadow @0xa0000000)
-    }
-    mem_map.update(SoCCore.mem_map)
+    mem_map = {**SoCCore.mem_map, **{
+        "spiflash": 0xa0000000,
+    }}
 
     def __init__(self, platform, **kwargs):
-        if 'integrated_rom_size' not in kwargs:
-            kwargs['integrated_rom_size']=0
-        if 'integrated_sram_size' not in kwargs:
-            kwargs['integrated_sram_size']=0
+        # disable SRAM, it'll be added later
+        kwargs['integrated_sram_size'] = 0x0
+
+        # disable ROM, it'll be added later
+        kwargs['integrated_rom_size'] = 0x0
 
         # FIXME: Force either lite or minimal variants of CPUs; full is too big.
 
@@ -91,6 +84,7 @@ class BaseSoC(SoCCore):
 
         # Control and Status
         self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
+        self.add_csr("cas")
 
         # SPI flash peripheral
         # TODO: Inferred tristate not currently supported by nextpnr; upgrade
@@ -100,6 +94,7 @@ class BaseSoC(SoCCore):
             dummy=platform.spiflash_read_dummy_bits,
             div=platform.spiflash_clock_div,
             endianness=self.cpu.endianness)
+        self.add_csr("spiflash")
         self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
         self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
         self.register_mem("spiflash", self.mem_map["spiflash"],
@@ -132,9 +127,5 @@ class BaseSoC(SoCCore):
             platform.spiflash_total_size - (self.flash_boot_address - self.mem_map["spiflash"]) - 0x100,
             type="cached+linker")
 
-        # Disable final deep-sleep power down so firmware words are loaded
-        # onto softcore's address bus.
-        platform.toolchain.build_template[3] = "icepack -s {build_name}.txt {build_name}.bin"
-        platform.toolchain.nextpnr_build_template[2] = "icepack -s {build_name}.txt {build_name}.bin"
 
 SoC = BaseSoC

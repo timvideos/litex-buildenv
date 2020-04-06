@@ -3,7 +3,6 @@ from migen import *
 from litevideo.output.common import *
 from litevideo.output.core import VideoOutCore
 
-from targets.utils import csr_map_update
 from targets.sim.net import NetSoC as BaseSoC
 
 
@@ -22,14 +21,11 @@ class VGAModel(Module):
 
 
 class VideoSoC(BaseSoC):
-    csr_peripherals = {
-        "video_out": 20,
-    }
-    csr_map_update(BaseSoC.csr_map, csr_peripherals)
-
     def __init__(self, *args, **kwargs):
         BaseSoC.__init__(self, *args, **kwargs)
 
         self.submodules.video_out = VideoOutCore(self.sdram.crossbar.get_port())
+        # FIXME: The sim seems to require video_out CSR to be 20!?
+        self.add_csr("video_out", csr_id=20)
         self.submodules.vga = VGAModel(platform.request("vga"))
         self.comb += self.video_out.source.connect(self.vga.sink)

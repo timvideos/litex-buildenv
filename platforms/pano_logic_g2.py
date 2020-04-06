@@ -178,6 +178,9 @@ class Platform(XilinxPlatform):
 
         self.add_platform_command("""CONFIG VCCAUX="2.5";""")
 
+    def do_finalize(self, fragment, *args, **kwargs):
+        pass
+
     def create_programmer(self):
         if self.programmer == "impact":
             return iMPACT()

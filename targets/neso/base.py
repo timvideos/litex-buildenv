@@ -13,7 +13,7 @@ from litedram.core import ControllerSettings
 from gateware import info
 from gateware import spi_flash
 
-from targets.utils import csr_map_update, period_ns
+from targets.utils import period_ns, dict_set_max
 
 
 class _CRG(Module):
@@ -84,23 +84,13 @@ class _CRG(Module):
 
 
 class BaseSoC(SoCSDRAM):
-    csr_peripherals = (
-        "spiflash",
-        "ddrphy",
-        "info",
-    )
-    csr_map_update(SoCSDRAM.csr_map, csr_peripherals)
-
-    mem_map = {
-        "spiflash": 0x20000000,  # (default shadow @0xa0000000)
-    }
-    mem_map.update(SoCSDRAM.mem_map)
+    mem_map = {**SoCSDRAM.mem_map, **{
+        "spiflash": 0x20000000,
+    }}
 
     def __init__(self, platform, spiflash="spiflash_1x", **kwargs):
-        if 'integrated_rom_size' not in kwargs:
-            kwargs['integrated_rom_size']=0x8000
-        if 'integrated_sram_size' not in kwargs:
-            kwargs['integrated_sram_size']=0x8000
+        dict_set_max(kwargs, 'integrated_rom_size', 0x8000)
+        dict_set_max(kwargs, 'integrated_sram_size', 0x8000)
 
         clk_freq = int(100e6)
         SoCSDRAM.__init__(self, platform, clk_freq, **kwargs)
@@ -111,6 +101,7 @@ class BaseSoC(SoCSDRAM):
 
         # Basic peripherals
         self.submodules.info = info.Info(platform, self.__class__.__name__)
+        self.add_csr("info")
 
         # spi flash
         spiflash_pads = platform.request(spiflash)
@@ -126,9 +117,10 @@ class BaseSoC(SoCSDRAM):
                 spiflash_pads,
                 dummy=spiflash_dummy[spiflash],
                 div=2)
+        self.add_csr("spiflash")
         self.add_constant("SPIFLASH_PAGE_SIZE", 256)
         self.add_constant("SPIFLASH_SECTOR_SIZE", 0x10000)
-        self.add_wb_slave(mem_decoder(self.mem_map["spiflash"]), self.spiflash.bus)
+        self.add_wb_slave(self.mem_map["spiflash"], self.spiflash.bus)
         self.add_memory_region(
             "spiflash", self.mem_map["spiflash"], 16*1024*1024)
 
@@ -137,6 +129,7 @@ class BaseSoC(SoCSDRAM):
         sdram_module = MT41K128M16(self.clk_freq, "1:4")
         self.submodules.ddrphy = a7ddrphy.A7DDRPHY(
             platform.request("ddram"))
+        self.add_csr("ddrphy")
         self.add_constant("READ_LEVELING_BITSLIP", 3)
         self.add_constant("READ_LEVELING_DELAY", 14)
         controller_settings = ControllerSettings(
