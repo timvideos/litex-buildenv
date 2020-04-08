@@ -39,6 +39,7 @@ case $CPU in
 		;;
 esac
 
+LITEX_RENODE="$TOP_DIR/third_party/litex-renode"
 LITEX_CONFIG_FILE="$TARGET_BUILD_DIR/test/csr.csv"
 if [ ! -f "$LITEX_CONFIG_FILE" ]; then
 	make firmware
@@ -75,12 +76,25 @@ RENODE_RESC="$RENODE_SCRIPTS_DIR/litex_buildenv.resc"
 RENODE_REPL="$RENODE_SCRIPTS_DIR/litex_buildenv.repl"
 
 mkdir -p $RENODE_SCRIPTS_DIR
-python $TOP_DIR/third_party/litex-renode/generate-renode-scripts.py $LITEX_CONFIG_FILE \
-	--repl "$RENODE_REPL" \
-	--resc "$RENODE_RESC" \
-	--bios-binary "$TARGET_BUILD_DIR/software/bios/bios.bin" \
-	--firmware-binary "$TARGET_BUILD_DIR/software/$FIRMWARE/firmware.bin" \
-	--configure-network ${TAP_INTERFACE:-""}
+
+if [ "$FIRMWARE" == "linux" ]; then
+	python $LITEX_RENODE/generate-renode-scripts.py $LITEX_CONFIG_FILE \
+		--repl "$RENODE_REPL" \
+		--resc "$RENODE_RESC" \
+		--bios-binary "$TARGET_BUILD_DIR/software/bios/bios.bin" \
+		--flash-binary "$TARGET_BUILD_DIR/software/linux/firmware.bin:kernel_image_flash_offset" \
+		--flash-binary "$TARGET_BUILD_DIR/software/linux/riscv32-rootfs.cpio:rootfs_image_flash_offset"\
+		--flash-binary "$TARGET_BUILD_DIR/software/linux/rv32.dtb:device_tree_image_flash_offset" \
+		--flash-binary "$TARGET_BUILD_DIR/emulator/emulator.bin:emulator_image_flash_offset" \
+		--configure-network ${TAP_INTERFACE:-""}
+else
+	python $LITEX_RENODE/generate-renode-scripts.py $LITEX_CONFIG_FILE \
+		--repl "$RENODE_REPL" \
+		--resc "$RENODE_RESC" \
+		--bios-binary "$TARGET_BUILD_DIR/software/bios/bios.bin" \
+		--firmware-binary "$TARGET_BUILD_DIR/software/$FIRMWARE/firmware.bin" \
+		--configure-network ${TAP_INTERFACE:-""}
+fi
 
 # 1. include the generated script
 # 2. set additional parameters

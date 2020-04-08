@@ -23,7 +23,7 @@ from gateware import spi_flash
 
 from .crg import _CRG
 
-from targets.utils import dict_set_max
+from targets.utils import dict_set_max, define_flash_constants
 
 
 class FrontPanelGPIO(Module, AutoCSR):
@@ -158,7 +158,7 @@ class BaseSoC(SoCSDRAM):
 
         bios_size = 0x8000
         self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size+bios_size
-        self.add_constant("FLASH_BOOT_ADDRESS", self.flash_boot_address)
+        define_flash_constants(self)
 
         # Support for soft-emulation for full Linux support ----------------------------------------
         if self.cpu_type == "vexriscv" and self.cpu_variant == "linux":

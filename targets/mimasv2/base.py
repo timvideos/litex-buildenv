@@ -16,7 +16,7 @@ from gateware import cas
 from gateware import info
 from gateware import spi_flash
 
-from targets.utils import dict_set_max
+from targets.utils import dict_set_max, define_flash_constants
 from .crg import _CRG
 
 
@@ -105,7 +105,7 @@ class BaseSoC(SoCSDRAM):
             "rom", kwargs['cpu_reset_address'], bios_size,
             type="cached+linker")
         self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size+bios_size
-        self.add_constant("FLASH_BOOT_ADDRESS", self.flash_boot_address)
+        define_flash_constants(self)
 
 
 SoC = BaseSoC

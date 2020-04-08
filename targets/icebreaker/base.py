@@ -15,6 +15,7 @@ from gateware import ice40
 from gateware import cas
 from gateware import spi_flash
 
+from targets.utils import define_flash_constants
 from platforms import icebreaker
 
 
@@ -111,7 +112,7 @@ class BaseSoC(SoCCore):
             "rom", kwargs['cpu_reset_address'], bios_size,
             type="cached+linker")
         self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size+bios_size
-        self.add_constant("FLASH_BOOT_ADDRESS", self.flash_boot_address)
+        define_flash_constants(self)
 
         # SPRAM- UP5K has single port RAM, might as well use it as SRAM to
         # free up scarce block RAM.
