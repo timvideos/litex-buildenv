@@ -3,6 +3,8 @@
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
+from litex.build.generic_platform import *
+
 from litex.soc.cores.bitbang import I2CMaster
 
 from targets.arty.base import BaseSoC
