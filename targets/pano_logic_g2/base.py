@@ -16,7 +16,6 @@ from gateware import spi_flash
 from .crg import _CRG
 
 from targets.utils import dict_set_max
-import os
 
 class BaseSoC(SoCSDRAM):
     mem_map = {**SoCSDRAM.mem_map, **{
@@ -27,10 +26,6 @@ class BaseSoC(SoCSDRAM):
     def __init__(self, platform, **kwargs):
         dict_set_max(kwargs, 'integrated_rom_size', 0x8000)
         dict_set_max(kwargs, 'integrated_sram_size', 0x8000)
-        if os.environ.get('BAUD', '0') == '0':
-            kwargs['uart_baudrate']=19200
-        else:
-            kwargs['uart_baudrate']=int(os.environ.get('BAUD'))
 
         sys_clk_freq = int(50e6)
         # SoCSDRAM ---------------------------------------------------------------------------------
