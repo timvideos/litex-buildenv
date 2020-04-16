@@ -52,9 +52,44 @@ def get_platform(args):
     return Platform(**dict(args.platform_option))
 
 
+def get_env_target_options():
+    int_options = ['uart_baudrate','integrated_rom_size',\
+                   'integrated_sram_size','cpu_reset_address',\
+                   'firmware_ram_size']
+    bool_options = ['with_uart']
+
+    target_options = dict()
+    option_str = os.environ.get('TARGET_OPTIONS', 'not_set')
+    if option_str != 'not_set':
+        options = option_str.split()
+        for option in options:
+            name_val = option.split('=')
+            if len(name_val) != 2:
+                raise ValueError('TARGET_OPTIONS string must be format of name=option [name=value]...')
+
+            if name_val[0] in int_options:
+                try:
+                    name_val[1] = int(name_val[1])
+                except:
+                    raise ValueError('target_option {} "{}" from the environment must be a number!'.format(name_val[0],name_val[1]))
+
+            elif name_val[0] in bool_options:
+                lc_option = name_val[1].lower()
+                if lc_option == "true":
+                    name_val[1] = True
+                elif lc_option == "false" or lc_option == "none":
+                    name_val[1] = False
+                else:
+                    raise ValueError('target_option {} "{}" from the environment must be True, False or None'.format(name_val[0],name_val[1]))
+            target_options[name_val[0]] = name_val[1];
+    return target_options
+
 def get_soc(args, platform):
     exec("from targets.{}.{} import SoC".format(args.platform, args.target.lower(), args.target), globals())
-    soc = SoC(platform, ident=SoC.__name__, **soc_sdram_argdict(args), **dict(args.target_option))
+    options = dict(args.target_option)
+    options.update(soc_sdram_argdict(args))
+    options.update(get_env_target_options())
+    soc = SoC(platform, ident=SoC.__name__, **options)
     if hasattr(soc, 'configure_iprange'):
         soc.configure_iprange(args.iprange)
     return soc
