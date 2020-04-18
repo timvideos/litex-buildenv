@@ -21,13 +21,6 @@ _io = [
     # NET "osc_clk" LOC = Y13 | IOSTANDARD = LVCMOS33;
     ("clk125", 0, Pins("Y13"), IOStandard("LVCMOS33")),
 
-    # NET "DDC1_SCK" LOC = C14 | IOSTANDARD = LVCMOS33;
-    # NET "DDC1_SDA" LOC = C17 | IOSTANDARD = LVCMOS33;
-    ("serial", 0,
-        Subsignal("tx", Pins("C14"), IOStandard("LVCMOS33")),
-        Subsignal("rx", Pins("C17"), IOStandard("LVCMOS33"))
-    ),
-
     # NET "GMII_RST_N" LOC = R11 | IOSTANDARD = LVCMOS33;
     ("gmii_rst_n", 0, Pins("R11"), IOStandard("LVCMOS33")),
 
@@ -165,6 +158,22 @@ _io = [
     ),
 ]
 
+_hdmi_serial = (
+    # NET "DDC2_SCK" LOC = AA21 | IOSTANDARD = LVCMOS33; # Display data channel clock
+    # NET "DDC2_SDA" LOC = AB19 | IOSTANDARD = LVCMOS33; # Display data channel data 
+    "serial", 0,
+    Subsignal("tx", Pins("AB19"), IOStandard("LVCMOS33")),
+    Subsignal("rx", Pins("AA21"), IOStandard("LVCMOS33"))
+)
+
+_dvi_serial = (
+    # NET "DDC1_SCK" LOC = C14 | IOSTANDARD = LVCMOS33;
+    # NET "DDC1_SDA" LOC = C17 | IOSTANDARD = LVCMOS33;
+    "serial", 0,
+    Subsignal("tx", Pins("C14"), IOStandard("LVCMOS33")),
+    Subsignal("rx", Pins("C17"), IOStandard("LVCMOS33"))
+)
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxPlatform):
@@ -172,7 +181,14 @@ class Platform(XilinxPlatform):
     default_clk_name = "clk125"
     default_clk_period = 1e9/125e6
 
-    def __init__(self, programmer="impact", device="xc6slx150"):
+    def __init__(self, programmer="impact", device="xc6slx150", uart_connection="dvi"):
+        if uart_connection == 'dvi':
+            _io.append(_dvi_serial)
+        elif uart_connection == 'hdmi':
+            _io.append(_hdmi_serial)
+        else:
+            raise ValueError("Unsupported uart_connection \"{}\", available \"dvi\", \"hdmi\"".format(uart_connection))
+
         XilinxPlatform.__init__(self, device+"-2-fgg484", _io)
         self.programmer = programmer
 
