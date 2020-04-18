@@ -73,7 +73,32 @@ class BaseSoC(SoCSDRAM):
                 interface=self.cpu.debug_bus,
                 size=0x100)
 
-        # ??????
+        # Memory mapped SPI Flash ------------------------------------------------------------------
+        self.submodules.spiflash = spi_flash.SpiFlash(
+            platform.request("spiflash"),
+            dummy=platform.spiflash_read_dummy_bits,
+            div=platform.spiflash_clock_div,
+            endianness=self.cpu.endianness)
+        self.add_csr("spiflash")
+        self.add_constant("SPIFLASH_PAGE_SIZE", platform.spiflash_page_size)
+        self.add_constant("SPIFLASH_SECTOR_SIZE", platform.spiflash_sector_size)
+        self.add_constant("SPIFLASH_TOTAL_SIZE", platform.spiflash_total_size)
+        self.add_wb_slave(
+            self.mem_map["spiflash"],
+            self.spiflash.bus,
+            platform.spiflash_total_size)
+        self.add_memory_region(
+            "spiflash",
+            self.mem_map["spiflash"],
+            platform.spiflash_total_size)
+        self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size
+        self.add_constant("FLASH_BOOT_ADDRESS", self.flash_boot_address)
+        self.add_constant("DEVICE_TREE_IMAGE_FLASH_OFFSET",0x00000000)
+        self.add_constant("EMULATOR_IMAGE_FLASH_OFFSET",0x20000)
+        self.add_constant("KERNEL_IMAGE_FLASH_OFFSET",0x40000)
+        self.add_constant("ROOTFS_IMAGE_FLASH_OFFSET",0x5c0000)
+
+        # Take Ethernet Phy out of reset for SYSCLK of 125 Mhz
         gmii_rst_n = platform.request("gmii_rst_n")
         self.comb += [
             gmii_rst_n.eq(1)
