@@ -78,11 +78,5 @@ class BaseSoC(SoCSDRAM):
         # Memory mapped SPI Flash ------------------------------------------------------------------
         # TODO: Add SPI Flash support here.
 
-        # Support for soft-emulation for full Linux support ----------------------------------------
-        if self.cpu_type == "vexriscv" and self.cpu_variant == "linux":
-            size = 0x4000
-            self.submodules.emulator_ram = wishbone.SRAM(size)
-            self.register_mem("emulator_ram", self.mem_map["emulator_ram"], self.emulator_ram.bus, size)
-
 
 SoC = BaseSoC
