@@ -32,6 +32,12 @@ if [ "$PLATFORM" == "mimas_a7" ] || [ "$PLATFORM" == "netv2" ] || [ "$PLATFORM" 
     exit 0
 fi
 
+if [ "$PLATFORM" == "ice40_hx8k_b_evn" ] || [ "$PLATFORM" == "tinyfpga_bx" ] || [ "$PLATFORM" == "icefun" ]; then
+    # TODO: remove after this is handled in Renode
+    echo "$PLATFORM has memory regions of size currently not supported in Renode - skipping the test"
+    exit 0
+fi
+
 if [ "$FIRMWARE" == "zephyr" ]; then
     if [ "$PLATFORM" == "icebreaker" ]; then
         # running Zephyr firmware directly from flash is not supported at the moment
