@@ -99,7 +99,6 @@ class BaseSoC(SoCSDRAM):
         "main_ram":     0x40000000,
         "csr":          0xe0000000,
         "spiflash":     0x20000000,
-        "emulator_ram": 0x50000000,
     }}
 
     def __init__(self, platform, csr_data_width=8, **kwargs):
@@ -118,11 +117,6 @@ class BaseSoC(SoCSDRAM):
         self.add_csr("info")
         self.submodules.cas = cas.ControlAndStatus(platform, clk_freq)
         self.add_csr("cas")
-
-        if self.cpu_type == "vexriscv" and self.cpu_variant == "linux":
-            size = 0x4000
-            self.submodules.emulator_ram = wishbone.SRAM(size)
-            self.register_mem("emulator_ram", self.mem_map["emulator_ram"], self.emulator_ram.bus, size)
 
         bios_size = 0x8000
 

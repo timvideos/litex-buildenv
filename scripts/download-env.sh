@@ -631,6 +631,32 @@ if [ "$FIRMWARE" = "zephyr" ]; then
 	check_version cmake $CMAKE_VERSION
 fi
 
+echo
+echo "Installing psutil (python module)"
+pip install psutil
+check_import psutil
+
+echo
+echo "Installing pyyaml (python module)"
+pip install pyyaml
+check_import yaml
+
+echo
+echo "Installing requests (python module)"
+pip install requests
+check_import requests
+
+echo
+echo "Installing netifaces (python module)"
+pip install netifaces
+check_import netifaces
+
+
+echo
+echo "Installing robotframework (python module)"
+pip install robotframework==3.0.4
+check_import robot
+
 # git commands
 echo ""
 echo "Updating git config"

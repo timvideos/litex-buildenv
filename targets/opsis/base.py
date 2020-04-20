@@ -54,7 +54,6 @@ class FrontPanelGPIO(Module, AutoCSR):
 class BaseSoC(SoCSDRAM):
     mem_map = {**SoCSDRAM.mem_map, **{
         'spiflash': 0x20000000,
-        "emulator_ram": 0x50000000,
     }}
 
     def __init__(self, platform, **kwargs):
@@ -159,12 +158,6 @@ class BaseSoC(SoCSDRAM):
         bios_size = 0x8000
         self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size+bios_size
         define_flash_constants(self)
-
-        # Support for soft-emulation for full Linux support ----------------------------------------
-        if self.cpu_type == "vexriscv" and self.cpu_variant == "linux":
-            size = 0x4000
-            self.submodules.emulator_ram = wishbone.SRAM(size)
-            self.register_mem("emulator_ram", self.mem_map["emulator_ram"], self.emulator_ram.bus, size)
 
 
 SoC = BaseSoC

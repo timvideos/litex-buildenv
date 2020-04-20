@@ -71,7 +71,7 @@ elif [ ${CPU} = vexriscv ]; then
 	ROOTFS_LOCATION="https://antmicro.com/projects/renode/litex-buildenv/"
 	ROOTFS=${ARCH}32-rootfs.cpio
 	ROOTFS_MD5="c3a88ff90fbd05dd6dc5773a8202d47f"
-	DTB_MD5="390c3ac4468810d4daa78379eb38dc1b"
+	DTB_MD5="2dc79321d1c5d4de45fbcb866ce816b1"
 	CONFIG_MD5="fed2b661016e1b4aad16f17103839dba"
 else
 	echo "Linux is only supported on mor1kx or vexriscv at the moment."
@@ -169,11 +169,9 @@ if [ ${CPU} = vexriscv ]; then
 		fi
 
 		source $SCRIPT_DIR/build-common.sh
-		EMULATOR_RAM_BASE_ADDRESS=$(parse_generated_header "mem.h" EMULATOR_RAM_BASE)
 		RAM_BASE_ADDRESS=$(parse_generated_header "mem.h" MAIN_RAM_BASE)
 		# get rid of 'L' suffix
 		RAM_BASE_ADDRESS=${RAM_BASE_ADDRESS::-1}
-	 	EMULATOR_RAM_BASE_ADDRESS=${EMULATOR_RAM_BASE_ADDRESS::-1}
 
 		# this is a temp fix for building the emulator
 		cd $TOP_DIR/third_party/litex/litex/soc/cores/cpu/vexriscv/verilog/ext/VexRiscv
@@ -182,7 +180,7 @@ if [ ${CPU} = vexriscv ]; then
 		cd $TOP_DIR/third_party/litex/litex/soc/cores/cpu/vexriscv/verilog/ext/VexRiscv/src/main/c/emulator
 
 		# offsets are hardcoded in BIOS
-		export CFLAGS="-DDTB=$((RAM_BASE_ADDRESS + 0x01000000)) -Wl,--defsym,__ram_origin=$EMULATOR_RAM_BASE_ADDRESS"
+		export CFLAGS="-DOS_CALL=$((RAM_BASE_ADDRESS + 0x0)) -DDTB=$((RAM_BASE_ADDRESS + 0x01000000)) -Wl,--defsym,__ram_origin=$((RAM_BASE_ADDRESS + 0x01100000))"
 		export LITEX_GENERATED="$TOP_DIR/$TARGET_BUILD_DIR/software/include"
 		export LITEX_BASE="$TOP_DIR/third_party/litex"
 		export RISCV_BIN="${CPU_ARCH}-elf-newlib-"
@@ -279,7 +277,7 @@ else
 
 			fetch_file $ROOTFS_LOCATION/litex_vexriscv_linux.config $CONFIG_MD5 $TARGET_LINUX_BUILD_DIR/.config
 
-			fetch_file $ROOTFS_LOCATION/rv32.dtb $DTB_MD5 $TARGET_LINUX_BUILD_DIR/rv32.dtb
+			fetch_file $ROOTFS_LOCATION/$DTB_MD5-rv32.dtb $DTB_MD5 $TARGET_LINUX_BUILD_DIR/rv32.dtb
 
 			KERNEL_BINARY=Image
 			make O="$TARGET_LINUX_BUILD_DIR" olddefconfig

@@ -241,6 +241,15 @@ function build() {
 		done
 	fi
 
+
+	echo ""
+	echo ""
+	echo ""
+	echo "- test in Renode ($TITLE)"
+	echo "---------------------------------------------"
+	./scripts/test-renode.sh || exit 1
+	echo "============================================="
+
 	# Save the resulting binaries into the prebuilt repo. The gateware
 	# should always exist, but others might not.
 	if [ -d "$PREBUILT_DIR" ]; then
