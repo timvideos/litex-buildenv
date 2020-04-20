@@ -18,7 +18,7 @@ from .crg import _CRG
 
 class BaseSoC(SoCSDRAM):
     mem_map = {**SoCSDRAM.mem_map, **{
-        'spiflash': 0xd0000000
+        'spiflash': 0x20000000
     }}
 
     def __init__(self, platform, spiflash="spiflash_1x", **kwargs):
