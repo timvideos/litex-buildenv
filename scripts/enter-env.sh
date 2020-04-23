@@ -544,6 +544,16 @@ if [ "$FIRMWARE" = "zephyr" ]; then
 	check_import packaging || return 1
 fi
 
+check_import psutil || return 1
+
+check_import yaml || return 1
+
+check_import requests || return 1
+
+check_import netifaces || return 1
+
+check_import robot || return 1
+
 # git commands
 echo ""
 echo "Updating git config"

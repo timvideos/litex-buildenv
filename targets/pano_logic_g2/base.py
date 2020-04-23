@@ -20,7 +20,6 @@ from targets.utils import dict_set_max
 class BaseSoC(SoCSDRAM):
     mem_map = {**SoCSDRAM.mem_map, **{
         'spiflash': 0x20000000,
-        'emulator_ram': 0x50000000,
     }}
 
     def __init__(self, platform, **kwargs):
@@ -103,13 +102,6 @@ class BaseSoC(SoCSDRAM):
         self.comb += [
             gmii_rst_n.eq(1)
         ]
-
-
-        # Support for soft-emulation for full Linux support ----------------------------------------
-        if self.cpu_type == "vexriscv" and self.cpu_variant == "linux":
-            size = 0x4000
-            self.submodules.emulator_ram = wishbone.SRAM(size)
-            self.register_mem("emulator_ram", self.mem_map["emulator_ram"], self.emulator_ram.bus, size)
 
 
 SoC = BaseSoC
