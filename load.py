@@ -10,9 +10,16 @@ else:
     p = os.environ['PLATFORM']
     t = os.environ['TARGET']
     c = os.environ['CPU']
+    try:
+        v = os.environ['CPU_VARIANT']
+        v = "." + v
+    except:
+        v =""
+        pass
 
-    fname = "build/{p}_{t}_{c}/gateware/top.bit".format(
-        p=p, t=t, c=c)
+    fname = "build/{p}_{t}_{c}{v}/gateware/top.bit".format(
+        p=p, t=t, c=c,v=v)
+    print("fname: ",fname)
 
 if prog == 'ise':
     from litex.build.xilinx import iMPACT
