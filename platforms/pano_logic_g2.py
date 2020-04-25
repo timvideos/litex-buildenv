@@ -3,7 +3,7 @@
 # can be found here https://github.com/tomverbeure/panologic-g2
 
 from litex.build.generic_platform import *
-from litex.build.xilinx import XilinxPlatform, iMPACT
+from litex.build.xilinx import XilinxPlatform, XC3SProg
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -182,6 +182,20 @@ _dvi_serial = (
     Subsignal("rx", Pins("C17"), IOStandard("LVCMOS33"))
 )
 
+# this is needed since make.py calls prog.set_flash_proxy_dir forcing
+# proxys to be in ./third_party/flash_proxies but a special proxy is needed for
+# the Pano logic device and it has not been accepted by https://github.com/quartiq/bscan_spi_bitstreams
+# yet.
+
+class PanoXC3SProg(XC3SProg):
+    def __init__(self, cable, flash_proxy_basename=None, position=0):
+        super(PanoXC3SProg,self).__init__(cable, flash_proxy_basename, position)
+
+    def flash(self, address, data_file):
+        proxy_dir = os.path.realpath("./targets/pano_logic_g2/flash_proxies")
+        super(PanoXC3SProg,self).set_flash_proxy_dir(proxy_dir)
+        super(PanoXC3SProg,self).flash(address, data_file)
+
 # Platform -----------------------------------------------------------------------------------------
 
 class Platform(XilinxPlatform):
@@ -190,7 +204,7 @@ class Platform(XilinxPlatform):
     default_clk_period = 1e9/125e6
 
     # actual .bit file size rounded up to next flash erase boundary
-    gateware_size = 0x420000
+    gateware_size = 0x410000
 
     # Micron M25P128
     spiflash_model = "m25p128"
@@ -198,9 +212,9 @@ class Platform(XilinxPlatform):
     spiflash_clock_div = 4
     spiflash_total_size = int((128/8)*1024*1024) # 128Mbit/16Mbyte
     spiflash_page_size = 256
-    spiflash_sector_size = 0x20000
+    spiflash_sector_size = 0x40000
 
-    def __init__(self, programmer="impact", device="xc6slx150", uart_connection="dvi"):
+    def __init__(self, programmer="xc3sprog", device="xc6slx150", uart_connection="dvi"):
         if uart_connection == 'dvi':
             _io.append(_dvi_serial)
         elif uart_connection == 'hdmi':
@@ -208,7 +222,12 @@ class Platform(XilinxPlatform):
         else:
             raise ValueError("Unsupported uart_connection \"{}\", available \"dvi\", \"hdmi\"".format(uart_connection))
 
+        if device != "xc6slx150" and device != "xc6slx100":
+            raise ValueError("Invalid device \"{}\"".format(device))
+        self.device = device
+
         XilinxPlatform.__init__(self, device+"-2-fgg484", _io)
+        self.toolchain.bitgen_opt += " -g Compress -g ConfigRate:26"
         self.programmer = programmer
 
         self.add_platform_command("""CONFIG VCCAUX="2.5";""")
@@ -217,7 +236,14 @@ class Platform(XilinxPlatform):
         pass
 
     def create_programmer(self):
-        if self.programmer == "impact":
-            return iMPACT()
+        cable_type = os.getenv('CABLE',default='jtaghs2')
+
+        if self.device == "xc6slx150-2-fgg484":
+            proxy = "bscan_spi_xc6slx150_pano.bit"
+        elif self.device == "xc6slx100-2-fgg484":
+            proxy = "bscan_spi_xc6slx100_pano.bit"
+
+        if self.programmer == "xc3sprog":
+            return PanoXC3SProg(cable_type, proxy)
         else:
             raise ValueError("{} programmer is not supported".format(self.programmer))

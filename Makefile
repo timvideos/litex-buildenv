@@ -207,8 +207,25 @@ ifeq ($(FIRMWARE),clear)
 OVERRIDE_FIRMWARE=--override-firmware=clear
 FIRMWARE_FBI=
 else
+ifeq ($(FIRMWARE),linux)
+# Linux Image component files - kernel+emulator+dts+rootfs
+define fbi_rule
+$(1): $(subst .fbi,,$(1))
+endef
+
+BUILDROOT_IMAGES = third_party/buildroot/output/images
+KERNEL_FBI   = $(BUILDROOT_IMAGES)/Image.fbi
+ROOTFS_FBI   = $(BUILDROOT_IMAGES)/rootfs.cpio.fbi
+EMULATOR_FBI = $(TARGET_BUILD_DIR)/emulator/emulator.bin.fbi
+DTB_FBI      = $(FIRMWARE_DIR)/rv32.dtb.fbi
+FIRMWARE_FBI = $(KERNEL_FBI) $(ROOTFS_FBI) $(EMULATOR_FBI) $(DTB_FBI)
+
+$(foreach file,$(FIRMWARE_FBI),$(eval $(call fbi_rule,$(file))))
+else
 OVERRIDE_FIRMWARE=--override-firmware=$(FIRMWARE_FILEBASE).fbi
 FIRMWARE_FBI=$(FIRMWARE_FILEBASE).fbi
+$(FIRMWARE_FILEBASE).fbi: $(FIRMWARE_FILEBASE).bin
+endif
 endif
 endif
 
@@ -315,7 +332,7 @@ endif
 $(FIRMWARE_FILEBASE).bin: firmware-cmd
 	@true
 
-$(FIRMWARE_FILEBASE).fbi: $(FIRMWARE_FILEBASE).bin
+%.fbi: %
 ifeq ($(CPU_ENDIANNESS), little)
 	$(PYTHON) -m litex.soc.software.mkmscimg -f --little $< -o $@
 else
@@ -328,7 +345,7 @@ firmware: $(FIRMWARE_FILEBASE).bin
 firmware-load: firmware firmware-load-$(PLATFORM)
 	@true
 
-firmware-flash: firmware firmware-flash-$(PLATFORM)
+firmware-flash: firmware $(FIRMWARE_FBI) firmware-flash-$(PLATFORM)
 	@true
 
 firmware-flash-py: firmware
