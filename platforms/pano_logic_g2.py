@@ -203,8 +203,13 @@ class Platform(XilinxPlatform):
     default_clk_name = "clk125"
     default_clk_period = 1e9/125e6
 
-    # actual .bit file size rounded up to next flash erase boundary
-    gateware_size = 0x410000
+    flavor = os.environ.get('FIRMWARE', 'firmware')
+    if flavor == 'linux':
+        # leave room for emulator and DTS file in the .bit file partition
+        gateware_size = 0x410000
+    else:
+        # actual .bit file size rounded up to next flash erase boundary
+        gateware_size = 0x440000
 
     # Micron M25P128
     spiflash_model = "m25p128"

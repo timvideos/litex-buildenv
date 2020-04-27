@@ -18,7 +18,8 @@ image-flash-$(PLATFORM): gateware-flash-$(PLATFORM) firmware-flash-$(PLATFORM)
 gateware-load-$(PLATFORM):
 	./load.py ise
 
-GATEWARE_BIN = $(TARGET_BUILD_DIR)/gateware.bin
+ifeq ($(FIRMWARE),linux)
+GATEWARE_BIN = $(TARGET_BUILD_DIR)/gateware+emulator+dtb.bin
 
 $(GATEWARE_BIN): $(GATEWARE_FILEBASE).bin $(DTB_FBI) $(EMULATOR_FBI)
 	# note: emulator and DTB are flash with gateware to save flash space
@@ -28,8 +29,12 @@ $(GATEWARE_BIN): $(GATEWARE_FILEBASE).bin $(DTB_FBI) $(EMULATOR_FBI)
 
 gateware-flash-$(PLATFORM): $(GATEWARE_BIN)
 	# note: emulator and DTB are flash with gateware to save flash space
+	@echo "Flashing $(GATEWARE_BIN) @ 0x9c0000"
 	$(PYTHON) flash.py --mode=other --other-file $(GATEWARE_BIN) --address 0
 	@true
+else
+gateware-flash-$(PLATFORM): gateware-flash-py
+endif
 
 # Firmware
 firmware-load-$(PLATFORM):
@@ -44,7 +49,19 @@ kernel-flash-$(PLATFORM):
 	@echo "Flashing kernel @ 0x440000"
 	$(PYTHON) flash.py --mode=other --other-file $(KERNEL_FBI) --address 4456448
 
-firmware-flash-$(PLATFORM): kernel-flash-$(PLATFORM) rootfs-flash-$(PLATFORM)
+ifeq ($(FIRMWARE),linux)
+firmware-flash-$(PLATFORM): $(FIRMWARE_FBI) kernel-flash-$(PLATFORM) rootfs-flash-$(PLATFORM)
+else
+ifeq ($(FIRMWARE),micropython)
+MICROPYTHON_FBI = $(TARGET_BUILD_DIR)/software/micropython/firmware.fbi
+
+firmware-flash-$(PLATFORM): 
+	@echo "Flashing micropython @ 0x440000"
+	$(PYTHON) flash.py --mode=other --other-file $(MICROPYTHON_FBI) --address 4456448
+else
+firmware-flash-$(PLATFORM): firmware-flash-py
+endif
+endif
 
 firmware-connect-$(PLATFORM):
 	flterm --port=$(COMM_PORT) --speed=$(BAUD)
