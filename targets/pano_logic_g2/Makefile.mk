@@ -11,6 +11,10 @@ TARGET ?= $(DEFAULT_TARGET)
 COMM_PORT ?= /dev/ttyUSB0
 BAUD ?= 115200
 
+ifeq ($(FIRMWARE),linux)
+OVERRIDE_FIRMWARE=--override-firmware=none
+endif
+
 # Image
 image-flash-$(PLATFORM): gateware-flash-$(PLATFORM) firmware-flash-$(PLATFORM)
 
@@ -55,7 +59,7 @@ else
 ifeq ($(FIRMWARE),micropython)
 MICROPYTHON_FBI = $(TARGET_BUILD_DIR)/software/micropython/firmware.fbi
 
-firmware-flash-$(PLATFORM): 
+firmware-flash-$(PLATFORM):
 	@echo "Flashing micropython @ 0x440000"
 	$(PYTHON) flash.py --mode=other --other-file $(MICROPYTHON_FBI) --address 4456448
 else

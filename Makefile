@@ -207,8 +207,8 @@ ifeq ($(FIRMWARE),clear)
 OVERRIDE_FIRMWARE=--override-firmware=clear
 FIRMWARE_FBI=
 else
-OVERRIDE_FIRMWARE=--override-firmware=$(FIRMWARE_FILEBASE).fbi
-FIRMWARE_FBI=$(FIRMWARE_FILEBASE).fbi
+OVERRIDE_FIRMWARE?=--override-firmware=$(FIRMWARE_FILEBASE).fbi
+FIRMWARE_FBI?=$(FIRMWARE_FILEBASE).fbi
 endif
 endif
 
@@ -218,7 +218,6 @@ ifeq ($(FIRMWARE),linux)
         $(1): $(subst .fbi,,$(1))
     endef
     
-    OVERRIDE_FIRMWARE=--override-firmware=none
     BUILDROOT_IMAGES = third_party/buildroot/output/images
     KERNEL_FBI   = $(BUILDROOT_IMAGES)/Image.fbi
     ROOTFS_FBI   = $(BUILDROOT_IMAGES)/rootfs.cpio.fbi
