@@ -27,7 +27,7 @@ if [ -z "$HDMI2USB_ENV" ]; then
 fi
 
 # Imports TARGET, PLATFORM, CPU and TARGET_BUILD_DIR from Makefile
-eval $(make env)
+eval $(make --silent env)
 make info
 
 set -x
@@ -175,7 +175,10 @@ if [ ${CPU} = vexriscv ]; then
 
 		# this is a temp fix for building the emulator
 		cd $TOP_DIR/third_party/litex/litex/soc/cores/cpu/vexriscv/verilog/ext/VexRiscv
-		git am $TOP_DIR/patches/0001-emulator-Use-external-hw-common.h-from-LiteX.patch
+                if [ ! -e .patched ]; then
+		    git am $TOP_DIR/patches/0001-emulator-Use-external-hw-common.h-from-LiteX.patch
+                    touch .patched
+                fi
 
 		cd $TOP_DIR/third_party/litex/litex/soc/cores/cpu/vexriscv/verilog/ext/VexRiscv/src/main/c/emulator
 
