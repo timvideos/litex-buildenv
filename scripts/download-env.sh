@@ -274,7 +274,7 @@ export PATH=$CONDA_DIR/bin:$PATH:/sbin
 	conda info
 )
 
-eval $(cd $TOP_DIR; export HDMI2USB_ENV=1; make env || exit 1) || exit 1
+eval $(cd $TOP_DIR; export HDMI2USB_ENV=1; make --silent env || exit 1) || exit 1
 (
 	cd $TOP_DIR
 	export HDMI2USB_ENV=1
@@ -699,3 +699,5 @@ echo "-----------------------"
 echo ""
 echo "Completed.  To load environment:"
 echo "source $SETUP_DIR/enter-env.sh"
+# Set a flag indicating successfully script completion
+touch ${BUILD_DIR}/.env_downloaded

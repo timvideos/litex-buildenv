@@ -27,7 +27,7 @@ if [ -z "$HDMI2USB_ENV" ]; then
 fi
 
 # Imports TARGET, PLATFORM, CPU and TARGET_BUILD_DIR from Makefile
-eval $(make env)
+eval $(make --silent env)
 
 if [ -d $TARGET_BUILD_DIR ]; then
 	echo "Build directory '$TARGET_BUILD_DIR' already exists."
