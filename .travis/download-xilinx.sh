@@ -112,7 +112,7 @@ else
 	export HAVE_XILINX_TOOLCHAIN=0
 fi
 if [ $HAVE_XILINX_TOOLCHAIN -eq 1 ]; then
-	export MISOC_EXTRA_CMDLINE="-Ob toolchain_path $XILINX_DIR/opt/Xilinx/"
+	export MISOC_EXTRA_CMDLINE="--gateware-toolchain-location $XILINX_DIR/opt/Xilinx/"
 fi
 
 # Detect a likely lack of license early, but just warn if it's missing

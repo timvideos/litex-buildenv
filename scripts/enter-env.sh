@@ -299,9 +299,7 @@ case $PLATFORM_TOOLCHAIN in
 			export HAVE_FPGA_TOOLCHAIN=0
 		fi
 		if [ $HAVE_XILINX_TOOLCHAIN -eq 1 ]; then
-    		        for P in ${XILINX_BINDIR[@]}; do
-        		 	export PATH="$XILINX_DIR/$P:$PATH"
-		 	done
+                    export MISOC_EXTRA_CMDLINE="--gateware-toolchain-location $XILINX_DIR/opt/Xilinx/"
 		fi
 
 		# Detect a likely lack of license early, but just warn if it's missing
