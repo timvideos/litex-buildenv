@@ -352,6 +352,7 @@ case $PLATFORM_TOOLCHAIN in
 			fi
 			echo ""
 			export HAVE_XILINX_ISE=1
+			export LITEX_ENV_ISE=$(dirname ${XILINX_SETTINGS_ISE[0]})
 		else
 			echo "                             - *No* Xilinx ISE toolchain found"
 			export HAVE_XILINX_ISE=0
@@ -363,6 +364,7 @@ case $PLATFORM_TOOLCHAIN in
 			fi
 			echo ""
 			export HAVE_XILINX_VIVADO=1
+			export LITEX_ENV_VIVADO=$(dirname ${XILINX_SETTINGS_VIVADO[0]})
 		else
 			echo "                             - *No* Xilinx Vivado toolchain found!"
 			export HAVE_XILINX_VIVADO=0
@@ -374,11 +376,6 @@ case $PLATFORM_TOOLCHAIN in
 			echo "                             - *No* Xilinx toolchain found!"
 			export HAVE_XILINX_TOOLCHAIN=0
 			export HAVE_FPGA_TOOLCHAIN=0
-		fi
-		if [ $HAVE_XILINX_TOOLCHAIN -eq 1 ]; then
-    		        for P in ${XILINX_BINDIR[@]}; do
-        		 	export PATH="$XILINX_DIR/$P:$PATH"
-		 	done
 		fi
 
 		# Detect a likely lack of license early, but just warn if it's missing
