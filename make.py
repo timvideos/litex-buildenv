@@ -7,6 +7,8 @@ from litex.build.tools import write_to_file
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
+import litex.build.xilinx
+from patches.xilinx import vivado_build_script, ise_run
 
 def get_args(parser, platform='opsis', target='hdmi2usb'):
     parser.add_argument("--platform", action="store", default=os.environ.get('PLATFORM', platform))
@@ -24,6 +26,8 @@ def get_args(parser, platform='opsis', target='hdmi2usb'):
 
     parser.add_argument("--no-compile-firmware", action="store_true", help="do not compile the firmware")
     parser.add_argument("--override-firmware", action="store", default=None, help="override firmware with file")
+
+    parser.add_argument("--gateware-toolchain-location", help="path to the gateware toolchain")
 
 
 def get_builddir(args):
@@ -117,6 +121,10 @@ def main():
     soc_sdram_args(parser)
 
     args = parser.parse_args()
+
+    # monkey-patch Xilinx _build_script function
+    litex.build.xilinx.vivado._build_script = lambda build_name: vivado_build_script(build_name, args.gateware_toolchain_location)
+    litex.build.xilinx.ise._run_ise = lambda build_name, mode, ngdbuild_opt, toolchain, platform: ise_run(build_name, mode, ngdbuild_opt, toolchain, platform, args.gateware_toolchain_location)
 
     platform = get_platform(args)
 
