@@ -141,7 +141,7 @@ ifeq ($(shell [ $(JOBS) -gt 1 ] && echo true),true)
     export MAKEFLAGS="-j $(JOBS) -l $(JOBS)"
 endif
 
-TARGET_BUILD_DIR = build/$(FULL_PLATFORM)_$(TARGET)_$(FULL_CPU)/
+TARGET_BUILD_DIR = build/$(FULL_PLATFORM)_$(TARGET)_$(FULL_CPU)
 
 GATEWARE_FILEBASE = $(TARGET_BUILD_DIR)/gateware/top
 BIOS_FILE = $(TARGET_BUILD_DIR)/software/bios/bios.bin
@@ -210,22 +210,6 @@ else
 OVERRIDE_FIRMWARE?=--override-firmware=$(FIRMWARE_FILEBASE).fbi
 FIRMWARE_FBI?=$(FIRMWARE_FILEBASE).fbi
 endif
-endif
-
-ifeq ($(FIRMWARE),linux)
-# Linux Image component files - kernel+emulator+dts+rootfs
-    define fbi_rule
-        $(1): $(subst .fbi,,$(1))
-    endef
-    
-    BUILDROOT_IMAGES = third_party/buildroot/output/images
-    KERNEL_FBI   = $(BUILDROOT_IMAGES)/Image.fbi
-    ROOTFS_FBI   = $(BUILDROOT_IMAGES)/rootfs.cpio.fbi
-    EMULATOR_FBI = $(TARGET_BUILD_DIR)/emulator/emulator.bin.fbi
-    DTB_FBI      = $(FIRMWARE_DIR)/rv32.dtb.fbi
-    FIRMWARE_FBI = $(KERNEL_FBI) $(ROOTFS_FBI) $(EMULATOR_FBI) $(DTB_FBI)
-    
-    $(foreach file,$(FIRMWARE_FBI),$(eval $(call fbi_rule,$(file))))
 endif
 
 $(IMAGE_FILE): $(GATEWARE_FILEBASE).bin $(BIOS_FILE) $(FIRMWARE_FBI)
@@ -352,7 +336,7 @@ firmware: $(FIRMWARE_FILEBASE).bin
 firmware-load: firmware firmware-load-$(PLATFORM)
 	@true
 
-firmware-flash: firmware firmware-flash-$(PLATFORM)
+firmware-flash: firmware $(FIRMWARE_FBI) firmware-flash-$(PLATFORM)
 	@true
 
 firmware-flash-py: firmware
