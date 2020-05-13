@@ -235,6 +235,10 @@ if [ ${CPU} = vexriscv ] && [ ${BUILD_BUILDROOT:-0} = 1 ]; then
 			cd $(dirname $BD_SRC)
 			echo "Downloading Buildroot code."
 			git clone $BD_REMOTE $BD_SRC
+			cd $BD_SRC
+			if [ x$BD_COMMIT != x ]; then
+			    git checkout $BD_COMMIT
+			fi
 		)
 		fi
 
@@ -243,6 +247,9 @@ if [ ${CPU} = vexriscv ] && [ ${BUILD_BUILDROOT:-0} = 1 ]; then
 			cd $(dirname $LLV_SRC)
 			echo "Downloading Linux on LiteX-VexRiscv code."
 			git clone $LLV_REMOTE $LLV_SRC
+			if [ x$LLV_COMMIT != x ]; then
+			    (cd $LLV_SRC; git checkout $LLV_COMMIT)
+			fi
 		)
 		fi
 
@@ -258,7 +265,11 @@ if [ ${CPU} = vexriscv ] && [ ${BUILD_BUILDROOT:-0} = 1 ]; then
 		dtc -I dts -O dtb -o $TARGET_LINUX_BUILD_DIR/rv32.dtb $TARGET_LINUX_BUILD_DIR/rv32.dts
 
 		cd $BD_SRC
-		make BR2_EXTERNAL=$LLV_SRC/buildroot/ litex_vexriscv_defconfig
+                if [ "x$BR2_EXTERNAL" = "x" ]; then
+		    make BR2_EXTERNAL=$LLV_SRC/buildroot/ litex_vexriscv_defconfig
+		else
+		    make litex_vexriscv_defconfig
+		fi
 		time make
 		ls -l $BD_SRC/output/images/
 		ln -sf $BD_SRC/output/images/Image $TOP_DIR/$FIRMWARE_FILEBASE.bin
