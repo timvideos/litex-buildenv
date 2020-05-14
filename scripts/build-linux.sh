@@ -235,9 +235,8 @@ if [ ${CPU} = vexriscv ] && [ ${BUILD_BUILDROOT:-0} = 1 ]; then
 			cd $(dirname $BD_SRC)
 			echo "Downloading Buildroot code."
 			git clone $BD_REMOTE $BD_SRC
-			cd $BD_SRC
 			if [ x$BD_COMMIT != x ]; then
-			    git checkout $BD_COMMIT
+			    (cd $BD_SRC; git checkout $BD_COMMIT)
 			fi
 		)
 		fi
@@ -265,10 +264,10 @@ if [ ${CPU} = vexriscv ] && [ ${BUILD_BUILDROOT:-0} = 1 ]; then
 		dtc -I dts -O dtb -o $TARGET_LINUX_BUILD_DIR/rv32.dtb $TARGET_LINUX_BUILD_DIR/rv32.dts
 
 		cd $BD_SRC
-                if [ "x$BR2_EXTERNAL" = "x" ]; then
-		    make BR2_EXTERNAL=$LLV_SRC/buildroot/ litex_vexriscv_defconfig
-		else
+		if [ "$(bash -c 'echo ${x$BR2_EXTERNAL}')" ]; then
 		    make litex_vexriscv_defconfig
+		else
+		    make BR2_EXTERNAL=$LLV_SRC/buildroot/ litex_vexriscv_defconfig
 		fi
 		time make
 		ls -l $BD_SRC/output/images/
