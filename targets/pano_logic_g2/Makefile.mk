@@ -22,9 +22,8 @@ endef
 TARGET_BUILD_DIR = build/$(FULL_PLATFORM)_$(TARGET)_$(FULL_CPU)
 FIRMWARE_DIR = $(TARGET_BUILD_DIR)/software/$(FIRMWARE)
 
-BUILDROOT_IMAGES = third_party/buildroot/output/images
-KERNEL_FBI   = $(BUILDROOT_IMAGES)/Image.fbi
-ROOTFS_FBI   = $(BUILDROOT_IMAGES)/rootfs.cpio.fbi
+KERNEL_FBI   = $(FIRMWARE_DIR)/firmware.bin.fbi
+ROOTFS_FBI   = $(FIRMWARE_DIR)/riscv32-rootfs.cpio.fbi
 EMULATOR_FBI = $(TARGET_BUILD_DIR)/emulator/emulator.bin.fbi
 DTB_FBI      = $(FIRMWARE_DIR)/rv32.dtb.fbi
 FIRMWARE_FBI = $(KERNEL_FBI) $(ROOTFS_FBI) $(EMULATOR_FBI) $(DTB_FBI)
@@ -42,8 +41,8 @@ gateware-load-$(PLATFORM):
 ifeq ($(FIRMWARE),linux)
 GATEWARE_BIN = $(TARGET_BUILD_DIR)/gateware+emulator+dtb.bin
 
+# note: emulator and DTB are flashed with gateware to save flash space
 $(GATEWARE_BIN): $(GATEWARE_FILEBASE).bin $(DTB_FBI) $(EMULATOR_FBI)
-	# note: emulator and DTB are flashed with gateware to save flash space
 	dd if=$(GATEWARE_FILEBASE).bin of=$@ bs=4259840 conv=sync
 	dd if=$(DTB_FBI) bs=16K conv=sync >> $@
 	cat $(EMULATOR_FBI) >> $@
