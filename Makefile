@@ -141,7 +141,7 @@ ifeq ($(shell [ $(JOBS) -gt 1 ] && echo true),true)
     export MAKEFLAGS="-j $(JOBS) -l $(JOBS)"
 endif
 
-TARGET_BUILD_DIR = build/$(FULL_PLATFORM)_$(TARGET)_$(FULL_CPU)/
+TARGET_BUILD_DIR = build/$(FULL_PLATFORM)_$(TARGET)_$(FULL_CPU)
 
 GATEWARE_FILEBASE = $(TARGET_BUILD_DIR)/gateware/top
 BIOS_FILE = $(TARGET_BUILD_DIR)/software/bios/bios.bin
@@ -207,8 +207,8 @@ ifeq ($(FIRMWARE),clear)
 OVERRIDE_FIRMWARE=--override-firmware=clear
 FIRMWARE_FBI=
 else
-OVERRIDE_FIRMWARE=--override-firmware=$(FIRMWARE_FILEBASE).fbi
-FIRMWARE_FBI=$(FIRMWARE_FILEBASE).fbi
+OVERRIDE_FIRMWARE?=--override-firmware=$(FIRMWARE_FILEBASE).fbi
+FIRMWARE_FBI?=$(FIRMWARE_FILEBASE).fbi
 endif
 endif
 
@@ -315,12 +315,20 @@ endif
 $(FIRMWARE_FILEBASE).bin: firmware-cmd
 	@true
 
-$(FIRMWARE_FILEBASE).fbi: $(FIRMWARE_FILEBASE).bin
+
 ifeq ($(CPU_ENDIANNESS), little)
-	$(PYTHON) -m litex.soc.software.mkmscimg -f --little $< -o $@
+    MKMSCIMG = $(PYTHON) -m litex.soc.software.mkmscimg --little 
 else
-	$(PYTHON) -m litex.soc.software.mkmscimg -f $< -o $@
+    MKMSCIMG = $(PYTHON) -m litex.soc.software.mkmscimg
 endif
+
+$(FIRMWARE_FILEBASE).fbi: $(FIRMWARE_FILEBASE).bin
+	@echo "making $< -> $@"
+	$(MKMSCIMG) -f $< -o $@
+
+%.fbi: %
+	@echo "making $< -> $@"
+	$(MKMSCIMG) -f $< -o $@
 
 firmware: $(FIRMWARE_FILEBASE).bin
 	@true
@@ -328,7 +336,7 @@ firmware: $(FIRMWARE_FILEBASE).bin
 firmware-load: firmware firmware-load-$(PLATFORM)
 	@true
 
-firmware-flash: firmware firmware-flash-$(PLATFORM)
+firmware-flash: firmware $(FIRMWARE_FBI) firmware-flash-$(PLATFORM)
 	@true
 
 firmware-flash-py: firmware

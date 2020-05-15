@@ -87,9 +87,9 @@ class BaseSoC(SoCSDRAM):
         self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size
         self.add_constant("FLASH_BOOT_ADDRESS", self.flash_boot_address)
         self.add_constant("DEVICE_TREE_IMAGE_FLASH_OFFSET",0x00000000)
-        self.add_constant("EMULATOR_IMAGE_FLASH_OFFSET",0x20000)
-        self.add_constant("KERNEL_IMAGE_FLASH_OFFSET",0x40000)
-        self.add_constant("ROOTFS_IMAGE_FLASH_OFFSET",0x5c0000)
+        self.add_constant("EMULATOR_IMAGE_FLASH_OFFSET",0x4000)
+        self.add_constant("KERNEL_IMAGE_FLASH_OFFSET",0x30000)
+        self.add_constant("ROOTFS_IMAGE_FLASH_OFFSET",0x5b0000)
 
         # Take Ethernet Phy out of reset for SYSCLK of 125 Mhz
         gmii_rst_n = platform.request("gmii_rst_n")
