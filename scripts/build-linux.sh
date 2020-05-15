@@ -264,11 +264,7 @@ if [ ${CPU} = vexriscv ] && [ ${BUILD_BUILDROOT:-0} = 1 ]; then
 		dtc -I dts -O dtb -o $TARGET_LINUX_BUILD_DIR/rv32.dtb $TARGET_LINUX_BUILD_DIR/rv32.dts
 
 		cd $BD_SRC
-		if [ "$(bash -c 'echo ${x$BR2_EXTERNAL}')" ]; then
-		    make litex_vexriscv_defconfig
-		else
-		    make BR2_EXTERNAL=$LLV_SRC/buildroot/ litex_vexriscv_defconfig
-		fi
+		make BR2_EXTERNAL=${BR2_EXTERNAL:-$LLV_SRC/buildroot} litex_vexriscv_defconfig
 		time make
 		ls -l $BD_SRC/output/images/
 		ln -sf $BD_SRC/output/images/Image $TOP_DIR/$FIRMWARE_FILEBASE.bin
