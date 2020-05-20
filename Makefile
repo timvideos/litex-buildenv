@@ -407,10 +407,13 @@ tftp: $(FIRMWARE_FILEBASE).bin
 ifeq ($(FIRMWARE),linux)
 	cp $(FIRMWARE_FILEBASE).bin $(TFTPD_DIR)/Image
 	cp $(FIRMWARE_DIR)/$(ROOTFS_FILE) $(TFTPD_DIR)/rootfs.cpio
-ifeq ($(CPU),vexriscv)
 	cp $(FIRMWARE_DIR)/boot.json $(TFTPD_DIR)
+ifeq ($(CPU),vexriscv)
 	cp $(FIRMWARE_DIR)/rv32.dtb $(TFTPD_DIR)
 	cp $(TARGET_BUILD_DIR)/emulator/emulator.bin $(TFTPD_DIR)
+endif
+ifeq ($(CPU),mor1kx)
+	cp $(FIRMWARE_DIR)/mor1kx.dtb $(TFTPD_DIR)
 endif
 else
 	cp $(FIRMWARE_FILEBASE).bin $(TFTPD_DIR)/boot.bin
