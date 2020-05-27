@@ -1,8 +1,7 @@
 # Support for Digilent Nexys Video board
 from migen import *
 
-from litex.soc.cores.uart import * #UART, RS232PHYInterface, RS232PHY, RS232PHYMultiplexer
-from litex.soc.interconnect.wishbonebridge import WishboneStreamingBridge
+from litex.soc.cores.uart import * #UART, RS232PHYInterface, RS232PHY, RS232PHYMultiplexer, Stream2Wishbone
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 
@@ -68,7 +67,7 @@ class BaseSoC(SoCSDRAM):
         # Extended UART ----------------------------------------------------------------------------
         uart_interfaces = [RS232PHYInterface() for i in range(2)]
         self.submodules.uart = UART(uart_interfaces[0])
-        self.submodules.bridge = WishboneStreamingBridge(uart_interfaces[1], sys_clk_freq)
+        self.submodules.bridge = Stream2Wishbone(uart_interfaces[1], sys_clk_freq)
         self.add_wb_master(self.bridge.wishbone)
         self.add_csr("uart")
         self.add_interrupt("uart")
