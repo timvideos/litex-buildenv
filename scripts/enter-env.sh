@@ -554,6 +554,10 @@ check_import netifaces || return 1
 
 check_import robot || return 1
 
+check_import pythondata_software_compiler_rt || return 1
+
+check_import pythondata_cpu_$CPU || return 1
+
 # git commands
 echo ""
 echo "Updating git config"

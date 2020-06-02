@@ -657,6 +657,25 @@ echo "Installing robotframework (python module)"
 pip install robotframework==3.0.4
 check_import robot
 
+(
+cd $THIRD_DIR
+
+cd pythondata-software-compiler_rt
+echo "Installing pythondata-software-compiler_rt (local python module)"
+python setup.py develop
+cd ..
+
+check_import pythondata_software_compiler_rt
+
+
+cd pythondata-cpu-$CPU
+echo "Installing pythondata-cpu-$CPU (local python module)"
+python setup.py develop
+cd ..
+
+check_import pythondata_cpu_$CPU
+)
+
 # git commands
 echo ""
 echo "Updating git config"

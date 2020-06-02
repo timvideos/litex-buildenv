@@ -43,3 +43,21 @@
 [submodule "third_party/liteiclink"]
 	path = third_party/liteiclink
 	url = https://github.com/enjoy-digital/liteiclink.git
+[submodule "third_party/pythondata-software-compiler_rt"]
+	path = third_party/pythondata-software-compiler_rt
+	url = https://github.com/litex-hub/pythondata-software-compiler_rt
+[submodule "third_party/pythondata-cpu-vexriscv"]
+	path = third_party/pythondata-cpu-vexriscv
+	url = https://github.com/litex-hub/pythondata-cpu-vexriscv
+[submodule "third_party/pythondata-cpu-lm32"]
+	path = third_party/pythondata-cpu-lm32
+	url = https://github.com/litex-hub/pythondata-cpu-lm32
+[submodule "third_party/pythondata-cpu-picorv32"]
+	path = third_party/pythondata-cpu-picorv32
+	url = https://github.com/litex-hub/pythondata-cpu-picorv32
+[submodule "third_party/pythondata-cpu-mor1kx"]
+	path = third_party/pythondata-cpu-mor1kx
+	url = https://github.com/litex-hub/pythondata-cpu-mor1kx
+[submodule "third_party/pythondata-cpu-minerva"]
+	path = third_party/pythondata-cpu-minerva
+	url = https://github.com/litex-hub/pythondata-cpu-minerva.git
