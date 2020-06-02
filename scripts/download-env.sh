@@ -657,6 +657,10 @@ echo "Installing robotframework (python module)"
 pip install robotframework==3.0.4
 check_import robot
 
+echo
+echo "Installing pythondata-software-compiler_rt (python module)"
+pip install git+https://github.com/litex-hub/pythondata-software-compiler_rt.git
+
 # git commands
 echo ""
 echo "Updating git config"
