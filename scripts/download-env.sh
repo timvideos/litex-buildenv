@@ -661,6 +661,10 @@ echo
 echo "Installing pythondata-software-compiler_rt (python module)"
 pip install git+https://github.com/litex-hub/pythondata-software-compiler_rt.git
 
+echo
+echo "Installing pythondata-cpu-vexriscv (python module)"
+pip install git+https://github.com/litex-hub/pythondata-cpu-vexriscv.git
+
 # git commands
 echo ""
 echo "Updating git config"
