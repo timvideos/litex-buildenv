@@ -7,7 +7,6 @@
 #include <system.h>
 #include <generated/csr.h>
 #include <generated/mem.h>
-#include <hw/flags.h>
 #include "extra-flags.h"
 
 #include "stdio_wrap.h"

@@ -9,10 +9,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <system.h>
-#include <hw/flags.h>
 #include <console.h>
 #include <generated/csr.h>
 #include <generated/mem.h>
+
+#define ETHMAC_EV_SRAM_WRITER  0x1
+#define ETHMAC_EV_SRAM_READER  0x1
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))

@@ -51,7 +51,7 @@ firmware.elf: $(STUB_DIRECTORY)/$(LINKER_LD) $(OBJECTS)
 # pull in dependency info for *existing* .o files
 -include $(OBJECTS:.o=.d)
 
-boot-helper-$(CPU).S: $(BIOS_DIRECTORY)/boot-helper-$(CPU).S
+boot-helper-$(CPU).S: $(CPU_DIRECTORY)/boot-helper.S
 	cp $< $@
 
 boot-helper-$(CPU).o: boot-helper-$(CPU).S
