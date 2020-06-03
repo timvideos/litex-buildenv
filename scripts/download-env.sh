@@ -665,6 +665,44 @@ echo
 echo "Installing pythondata-cpu-vexriscv (python module)"
 pip install git+https://github.com/litex-hub/pythondata-cpu-vexriscv.git
 
+echo
+echo "Installing pythondata-cpu-picorv32 (python module)"
+pip install git+https://github.com/litex-hub/pythondata-cpu-picorv32.git
+
+echo
+echo "Installing pythondata-cpu-mor1kx (python module)"
+pip install git+https://github.com/litex-hub/pythondata-cpu-mor1kx.git
+
+echo
+echo "Installing pythondata-cpu-minerva (python module)"
+pip install git+https://github.com/litex-hub/pythondata-cpu-minerva.git
+
+echo
+echo "Installing pythondata-cpu-microwatt (python module)"
+pip install git+https://github.com/litex-hub/pythondata-cpu-microwatt.git
+
+echo
+echo "Installing pythondata-cpu-cpu (python module)"
+pip install git+https://github.com/litex-hub/pythondata-cpu-serv.git
+
+echo
+echo "Installing pythondata-cpu-cpu (python module)"
+pip install git+https://github.com/litex-hub/pythondata-cpu-lm32.git
+
+echo
+echo "Installing pythondata-cpu-blackparrot (python module)"
+pip install git+https://github.com/litex-hub/pythondata-cpu-blackparrot.git
+
+echo
+echo "Installing pythondata-cpu-cv32e40p (python module)"
+pip install git+https://github.com/litex-hub/pythondata-cpu-cv32e40p.git
+
+echo
+echo "Installing pythondata-cpu-rocket (python module)"
+pip install git+https://github.com/litex-hub/pythondata-cpu-rocket.git
+
+
+
 # git commands
 echo ""
 echo "Updating git config"
