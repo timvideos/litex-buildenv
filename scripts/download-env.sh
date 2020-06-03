@@ -660,48 +660,17 @@ check_import robot
 echo
 echo "Installing pythondata-software-compiler_rt (python module)"
 pip install git+https://github.com/litex-hub/pythondata-software-compiler_rt.git
+check_import pythondata_software_compiler_rt
 
-echo
-echo "Installing pythondata-cpu-vexriscv (python module)"
-pip install git+https://github.com/litex-hub/pythondata-cpu-vexriscv.git
-
-echo
-echo "Installing pythondata-cpu-picorv32 (python module)"
-pip install git+https://github.com/litex-hub/pythondata-cpu-picorv32.git
-
-echo
-echo "Installing pythondata-cpu-mor1kx (python module)"
-pip install git+https://github.com/litex-hub/pythondata-cpu-mor1kx.git
-
-echo
-echo "Installing pythondata-cpu-minerva (python module)"
-pip install git+https://github.com/litex-hub/pythondata-cpu-minerva.git
-
-echo
-echo "Installing pythondata-cpu-microwatt (python module)"
-pip install git+https://github.com/litex-hub/pythondata-cpu-microwatt.git
-
-echo
-echo "Installing pythondata-cpu-cpu (python module)"
-pip install git+https://github.com/litex-hub/pythondata-cpu-serv.git
-
-echo
-echo "Installing pythondata-cpu-cpu (python module)"
-pip install git+https://github.com/litex-hub/pythondata-cpu-lm32.git
-
-echo
-echo "Installing pythondata-cpu-blackparrot (python module)"
-pip install git+https://github.com/litex-hub/pythondata-cpu-blackparrot.git
-
-echo
-echo "Installing pythondata-cpu-cv32e40p (python module)"
-pip install git+https://github.com/litex-hub/pythondata-cpu-cv32e40p.git
-
-echo
-echo "Installing pythondata-cpu-rocket (python module)"
-pip install git+https://github.com/litex-hub/pythondata-cpu-rocket.git
-
-
+for CPU_TYPE in vexriscv picorv32 mor1kx minerva microwatt serv lm32 blackparrot cv32e40p rocket; do
+    echo
+    echo "Installing pythondata-cpu-$CPU_TYPE (python module)"
+    pip install git+https://github.com/litex-hub/pythondata-cpu-$CPU_TYPE.git
+    check_import pythondata_cpu_$CPU_TYPE
+    if [ -d $THIRD_DIR/litex/litex/soc/cores/cpu/$CPU_TYPE/verilog/config ]; then
+        ln -s $THIRD_DIR/litex/litex/soc/cores/cpu/$CPU_TYPE/verilog/config $BUILD_DIR/conda/lib/python3.7/site-packages/pythondata_cpu_$CPU_TYPE/verilog/config
+    fi
+done
 
 # git commands
 echo ""
