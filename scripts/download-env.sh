@@ -668,7 +668,7 @@ for CPU_TYPE in vexriscv picorv32 mor1kx minerva microwatt serv lm32 blackparrot
     pip install git+https://github.com/litex-hub/pythondata-cpu-$CPU_TYPE.git
     check_import pythondata_cpu_$CPU_TYPE
     if [ -d $THIRD_DIR/litex/litex/soc/cores/cpu/$CPU_TYPE/verilog/config ]; then
-        ln -s $THIRD_DIR/litex/litex/soc/cores/cpu/$CPU_TYPE/verilog/config $BUILD_DIR/conda/lib/python3.7/site-packages/pythondata_cpu_$CPU_TYPE/verilog/config
+        ln -sf $THIRD_DIR/litex/litex/soc/cores/cpu/$CPU_TYPE/verilog/config $BUILD_DIR/conda/lib/python3.7/site-packages/pythondata_cpu_$CPU_TYPE/verilog/config
     fi
 done
 
