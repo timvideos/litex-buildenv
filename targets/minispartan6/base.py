@@ -81,7 +81,11 @@ class BaseSoC(SoCSDRAM):
             self.mem_map["spiflash"],
             platform.spiflash_total_size)
 
-        bios_size = 0x8000
+        if kwargs.get('cpu_type', None) == "mor1kx":
+            bios_size = 0x10000
+        else:
+            bios_size = 0x8000
+
         self.add_constant("ROM_DISABLE", 1)
         self.add_memory_region(
             "rom", kwargs['cpu_reset_address'], bios_size,

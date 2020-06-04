@@ -66,7 +66,7 @@ class EtherboneSoC(SoCCore):
         SoCCore.__init__(self, platform, clk_freq,
             cpu_type=None,
             integrated_main_ram_size=0x8000,
-            integrated_rom_size=0x8000,
+            integrated_rom_size=0x10000,
             integrated_sram_size=0x8000,
             csr_data_width=32,
             with_uart=False,

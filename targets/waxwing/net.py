@@ -31,8 +31,8 @@ from .crg import _CRG
 
 class BaseSoC(SoCSDRAM):
     def __init__(self, platform, **kwargs):
-        dict_set_max(kwargs, 'integrated_rom_size', 0x8000)
-        dict_set_max(kwargs, 'integrated_sram_size', 0x8000)
+        # Need a larger integrated ROM to fit the BIOS with TFTP support.
+        dict_set_max(kwargs, 'integrated_rom_size', 0x10000)
 
         clk_freq = (31 + Fraction(1, 4))*1000*1000
         SoCSDRAM.__init__(self, platform, clk_freq, **kwargs)
