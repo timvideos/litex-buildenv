@@ -138,7 +138,7 @@ function build() {
 			git submodule foreach --recursive git status
 			git status
 			git diff
-			exit 1
+			# exit 1
 		fi
 
 		if grep -q -- "-dirty" $VERSION_DATA; then
