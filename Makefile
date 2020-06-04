@@ -394,12 +394,19 @@ ifeq ($(IN_TFTPD),)
 IN_TFTPD:=/usr/sbin/in.tftpd
 endif
 
+ifeq ($(CPU),vexriscv)
+	ROOTFS_FILE := riscv32-rootfs.cpio
+else
+	ROOTFS_FILE := $(CPU_ARCH)-rootfs.cpio
+endif
+
 tftp: $(FIRMWARE_FILEBASE).bin
 	rm -rf $(TFTPD_DIR)
 	mkdir -p $(TFTPD_DIR)
+	
 ifeq ($(FIRMWARE),linux)
 	cp $(FIRMWARE_FILEBASE).bin $(TFTPD_DIR)/Image
-	cp $(FIRMWARE_DIR)/$(CPU_ARCH)-rootfs.cpio $(TFTPD_DIR)/rootfs.cpio
+	cp $(FIRMWARE_DIR)/$(ROOTFS_FILE) $(TFTPD_DIR)/rootfs.cpio
 ifeq ($(CPU),vexriscv)
 	cp $(FIRMWARE_DIR)/rv32.dtb $(TFTPD_DIR)
 	cp $(TARGET_BUILD_DIR)/emulator/emulator.bin $(TFTPD_DIR)
