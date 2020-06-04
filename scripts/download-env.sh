@@ -666,16 +666,16 @@ check_import pythondata_software_compiler_rt
 cd $THIRD_DIR
 
 for CPU_TYPE in vexriscv picorv32 mor1kx minerva microwatt serv lm32 blackparrot cv32e40p rocket; do
-    echo
-    echo "Installing pythondata-cpu-$CPU_TYPE (local python module)"
-    # pip install git+https://github.com/litex-hub/pythondata-cpu-$CPU_TYPE.git
+    if [ ! -d pythondata-cpu-$CPU_TYPE ]; then
+        echo "Installing pythondata-cpu-$CPU_TYPE (local python module)"
+        # pip install git+https://github.com/litex-hub/pythondata-cpu-$CPU_TYPE.git
 
-    git clone https://github.com/litex-hub/pythondata-cpu-$CPU_TYPE.git
-    cd pythondata-cpu-$CPU_TYPE
-    python setup.py develop
+        git clone https://github.com/litex-hub/pythondata-cpu-$CPU_TYPE.git
+        cd pythondata-cpu-$CPU_TYPE
+        python setup.py develop
+    fi
 
     check_import pythondata_cpu_$CPU_TYPE
-
 done
 )
 
