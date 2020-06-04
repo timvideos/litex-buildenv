@@ -673,6 +673,7 @@ for CPU_TYPE in vexriscv picorv32 mor1kx minerva microwatt serv lm32 blackparrot
         git clone https://github.com/litex-hub/pythondata-cpu-$CPU_TYPE.git
         cd pythondata-cpu-$CPU_TYPE
         python setup.py develop
+        cd ..
     fi
 
     check_import pythondata_cpu_$CPU_TYPE
