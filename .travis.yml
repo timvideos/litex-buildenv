@@ -157,11 +157,3 @@ jobs:
    - env: C=lm32             TC="ise"       P=atlys             T="hdmi2usb"
    - env: C=lm32             TC="ise"       P=opsis             T="hdmi2usb"
 
-notifications:
- email:
-  - hdmi2usb-spam@googlegroups.com
- irc:
-  channels:
-   - "chat.freenode.net#hdmi2usb"
-  template:
-   - "[%{repository_slug}/%{branch}#%{build_number}] (%{commit}): %{message} (%{build_url})"
