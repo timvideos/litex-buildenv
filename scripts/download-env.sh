@@ -662,16 +662,26 @@ echo "Installing pythondata-software-compiler_rt (python module)"
 pip install git+https://github.com/litex-hub/pythondata-software-compiler_rt.git
 check_import pythondata_software_compiler_rt
 
+(
+cd $THIRD_DIR
+
 for CPU_TYPE in vexriscv picorv32 mor1kx minerva microwatt serv lm32 blackparrot cv32e40p rocket; do
     echo
-    echo "Installing pythondata-cpu-$CPU_TYPE (python module)"
-    pip install git+https://github.com/litex-hub/pythondata-cpu-$CPU_TYPE.git
-    check_import pythondata_cpu_$CPU_TYPE
-done
+    echo "Installing pythondata-cpu-$CPU_TYPE (local python module)"
+    # pip install git+https://github.com/litex-hub/pythondata-cpu-$CPU_TYPE.git
 
-ln -sf $THIRD_DIR/litex/litex/soc/cores/cpu/lm32/verilog/config $BUILD_DIR/conda/lib/python3.7/site-packages/pythondata_cpu_lm32/verilog/config
-ln -sf $THIRD_DIR/litex/litex/soc/cores/cpu/lm32/verilog/config_lite $BUILD_DIR/conda/lib/python3.7/site-packages/pythondata_cpu_lm32/verilog/config_lite
-ln -sf $THIRD_DIR/litex/litex/soc/cores/cpu/lm32/verilog/config_minimal $BUILD_DIR/conda/lib/python3.7/site-packages/pythondata_cpu_lm32/verilog/config_minimal
+    git clone https://github.com/litex-hub/pythondata-cpu-$CPU_TYPE.git
+    cd pythondata-cpu-$CPU_TYPE
+    python setup.py develop
+
+    check_import pythondata_cpu_$CPU_TYPE
+
+done
+)
+
+# ln -sf $THIRD_DIR/litex/litex/soc/cores/cpu/lm32/verilog/config $BUILD_DIR/conda/lib/python3.7/site-packages/pythondata_cpu_lm32/verilog/config
+# ln -sf $THIRD_DIR/litex/litex/soc/cores/cpu/lm32/verilog/config_lite $BUILD_DIR/conda/lib/python3.7/site-packages/pythondata_cpu_lm32/verilog/config_lite
+# ln -sf $THIRD_DIR/litex/litex/soc/cores/cpu/lm32/verilog/config_minimal $BUILD_DIR/conda/lib/python3.7/site-packages/pythondata_cpu_lm32/verilog/config_minimal
 
 # git commands
 echo ""
