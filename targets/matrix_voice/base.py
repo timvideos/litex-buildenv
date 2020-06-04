@@ -27,7 +27,7 @@ class BaseSoC(SoCSDRAM):
     }}
 
     def __init__(self, platform, **kwargs):
-        dict_set_max(kwargs, 'integrated_rom_size', 0x8000)
+        dict_set_max(kwargs, 'integrated_rom_size', 0x10000)
         dict_set_max(kwargs, 'integrated_sram_size', 0x4000)
 
         kwargs['uart_baudrate']=230400

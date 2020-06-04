@@ -102,7 +102,7 @@ class BaseSoC(SoCSDRAM):
     }}
 
     def __init__(self, platform, csr_data_width=8, **kwargs):
-        dict_set_max(kwargs, 'integrated_rom_size', 0x8000)
+        dict_set_max(kwargs, 'integrated_rom_size', 0x10000)
         dict_set_max(kwargs, 'integrated_sram_size', 0x8000)
 
         clk_freq = int(100e6)

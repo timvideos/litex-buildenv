@@ -14,8 +14,6 @@ class NetSoC(BaseSoC):
     }}
 
     def __init__(self, platform, *args, **kwargs):
-        dict_set_max(kwargs, 'integrated_rom_size', 0x10000)
-
         BaseSoC.__init__(self, platform, *args, **kwargs)
 
         self.submodules.ethphy = LiteEthPHYRMII(

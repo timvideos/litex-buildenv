@@ -19,7 +19,7 @@ class BaseSoC(SoCCore):
     }}
 
     def __init__(self, platform, spiflash="spiflash_1x", **kwargs):
-        dict_set_max(kwargs, 'integrated_rom_size', 0x8000)
+        dict_set_max(kwargs, 'integrated_rom_size', 0x10000)
         dict_set_max(kwargs, 'integrated_sram_size', 0x8000)
 
         sys_clk_freq = int(100e6)

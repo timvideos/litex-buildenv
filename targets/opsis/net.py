@@ -13,10 +13,6 @@ class NetSoC(BaseSoC):
     }}
 
     def __init__(self, platform, *args, **kwargs):
-        # Need a larger integrated ROM on or1k to fit the BIOS with TFTP support.
-        if kwargs.get('cpu_type', 'lm32') != 'lm32':
-            kwargs['integrated_rom_size'] = 0x10000
-
         BaseSoC.__init__(self, platform, *args, **kwargs)
 
         # Ethernet ---------------------------------------------------------------------------------
