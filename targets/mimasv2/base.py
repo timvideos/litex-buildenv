@@ -27,6 +27,7 @@ class BaseSoC(SoCSDRAM):
 
     def __init__(self, platform, **kwargs):
         dict_set_max(kwargs, 'integrated_sram_size', 0x4000)
+        dict_set_max(kwargs, 'integrated_rom_size', 0x10000)
 
         # disable ROM, it'll be added later
         kwargs['integrated_rom_size'] = 0x0
