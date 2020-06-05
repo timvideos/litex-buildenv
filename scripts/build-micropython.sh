@@ -48,7 +48,7 @@ MPY_SRC_DIR=$TOP_DIR/third_party/micropython
 if [ ! -d "$MPY_SRC_DIR" ]; then
 	(
 		cd $(dirname $MPY_SRC_DIR)
-		git clone https://github.com/fupy/micropython.git
+		git clone --branch new_litex https://github.com/antmicro/micropython.git
 		cd $MPY_SRC_DIR
 		git submodule update --init
 	)
