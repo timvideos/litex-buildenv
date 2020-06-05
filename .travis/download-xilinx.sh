@@ -2,6 +2,7 @@
 # Cutback Xilinx ISE for CI
 # --------
 # Save the passphrase to a file so we don't echo it in the logs
+XILINX_PASSPHRASE=""
 if [ ! -z "$XILINX_PASSPHRASE" ]; then
 	XILINX_PASSPHRASE_FILE=$(tempfile -s .passphrase | mktemp --suffix=.passphrase)
 	trap "rm -f -- '$XILINX_PASSPHRASE_FILE'" EXIT
