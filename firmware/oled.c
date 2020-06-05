@@ -38,16 +38,6 @@ unsigned char oled_buffer[128*32/8] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-static void busy_wait(unsigned int ds)
-{
-	timer0_en_write(0);
-	timer0_reload_write(0);
-	timer0_load_write(CONFIG_CLOCK_FREQUENCY/100*ds);
-	timer0_en_write(1);
-	timer0_update_value_write(1);
-	while(timer0_value_read()) timer0_update_value_write(1);
-}
-
 void oled_spi_write(unsigned char value) {
 	oled_spi_mosi_write(value);
 	oled_spi_length_write(8);
