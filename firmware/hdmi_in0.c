@@ -21,6 +21,20 @@ int hdmi_in0_fb_index;
 //#define CLEAN_COMMUTATION
 //#define DEBUG
 
+#define DVISAMPLER_TOO_LATE            0x1
+#define DVISAMPLER_TOO_EARLY   0x2
+
+#define DVISAMPLER_DELAY_MASTER_CAL    0x01
+#define DVISAMPLER_DELAY_MASTER_RST    0x02
+#define DVISAMPLER_DELAY_SLAVE_CAL     0x04
+#define DVISAMPLER_DELAY_SLAVE_RST     0x08
+#define DVISAMPLER_DELAY_INC           0x10
+#define DVISAMPLER_DELAY_DEC           0x20
+
+#define DVISAMPLER_SLOT_EMPTY  0
+#define DVISAMPLER_SLOT_LOADED 1
+#define DVISAMPLER_SLOT_PENDING        2
+
 fb_ptrdiff_t hdmi_in0_framebuffer_base(char n) {
 	return HDMI_IN0_FRAMEBUFFERS_BASE + n * FRAMEBUFFER_SIZE;
 }
