@@ -88,6 +88,14 @@ if [ ! -e "$TARGET_MPY_BUILD_DIR/hw" ]; then
 		ln -s $(realpath $PWD/../../../../third_party/litex/litex/soc/software/include/hw) hw
 	)
 fi
+
+if [ ! -e "$TARGET_MPY_BUILD_DIR/base" ]; then
+	(
+		cd $TARGET_MPY_BUILD_DIR
+		ln -s $(realpath $PWD/../../../../third_party/litex/litex/soc/software/include/base) base
+	)
+fi
+
 TARGET_MPY_BUILD_DIR="$(realpath $TARGET_BUILD_DIR/software/micropython)"
 
 # Build micropython
