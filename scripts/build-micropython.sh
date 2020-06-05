@@ -63,10 +63,13 @@ fi
 # in order to build; these need to end up in top level include directory
 # so that they are found by compiler/assembler.
 #
-LITEX_INCLUDE_BASE="$PWD/third_party/litex/litex/soc/software/include/base"
+LITEX_INCLUDE_BASE="$PWD/third_party/litex/litex/soc/cores/cpu/$CPU"
 
 for FILE in system.h csr-defs.h spr-defs.h; do
-	cp -p "$LITEX_INCLUDE_BASE/$FILE" "$TARGET_BUILD_DIR/software/include"
+	# spr-defs.h is available only for selected CPUs
+	if [ -e "$LITEX_INCLUDE_BASE/$FILE" ]; then
+		cp -p "$LITEX_INCLUDE_BASE/$FILE" "$TARGET_BUILD_DIR/software/include"
+	fi
 done
 
 # Setup the micropython build directory
@@ -85,6 +88,14 @@ if [ ! -e "$TARGET_MPY_BUILD_DIR/hw" ]; then
 		ln -s $(realpath $PWD/../../../../third_party/litex/litex/soc/software/include/hw) hw
 	)
 fi
+
+if [ ! -e "$TARGET_MPY_BUILD_DIR/base" ]; then
+	(
+		cd $TARGET_MPY_BUILD_DIR
+		ln -s $(realpath $PWD/../../../../third_party/litex/litex/soc/software/include/base) base
+	)
+fi
+
 TARGET_MPY_BUILD_DIR="$(realpath $TARGET_BUILD_DIR/software/micropython)"
 
 # Build micropython
