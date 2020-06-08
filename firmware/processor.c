@@ -36,6 +36,10 @@
 #include "heartbeat.h"
 #include "pcie.h"
 
+#define CLKGEN_STATUS_BUSY             0x1
+#define CLKGEN_STATUS_PROGDONE 0x2
+#define CLKGEN_STATUS_LOCKED   0x4
+
 /*
  ----------------->>> Time ----------->>>
 
