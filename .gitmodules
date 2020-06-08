@@ -43,3 +43,6 @@
 [submodule "third_party/liteiclink"]
 	path = third_party/liteiclink
 	url = https://github.com/enjoy-digital/liteiclink.git
+[submodule "third_party/VexRiscv"]
+	path = third_party/VexRiscv
+	url = https://github.com/SpinalHDL/VexRiscv.git

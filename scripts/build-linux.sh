@@ -173,17 +173,10 @@ if [ ${CPU} = vexriscv ]; then
 		# get rid of 'L' suffix
 		RAM_BASE_ADDRESS=${RAM_BASE_ADDRESS::-1}
 
-		# this is a temp fix for building the emulator
-		cd $TOP_DIR/third_party/litex/litex/soc/cores/cpu/vexriscv/verilog/ext/VexRiscv
-                if [ ! -e .patched ]; then
-		    git am $TOP_DIR/patches/0001-emulator-Use-external-hw-common.h-from-LiteX.patch
-                    touch .patched
-                fi
-
-		cd $TOP_DIR/third_party/litex/litex/soc/cores/cpu/vexriscv/verilog/ext/VexRiscv/src/main/c/emulator
+		cd $TOP_DIR/third_party/VexRiscv/src/main/c/emulator
 
 		# offsets are hardcoded in BIOS
-		export CFLAGS="-DOS_CALL=$((RAM_BASE_ADDRESS + 0x0)) -DDTB=$((RAM_BASE_ADDRESS + 0x01000000)) -Wl,--defsym,__ram_origin=$((RAM_BASE_ADDRESS + 0x01100000))"
+		export CFLAGS="-DOS_CALL=$((RAM_BASE_ADDRESS + 0x0)) -DDTB=$((RAM_BASE_ADDRESS + 0x01000000)) -Wl,--defsym,__ram_origin=$((RAM_BASE_ADDRESS + 0x01100000)) -I$TOP_DIR/third_party/litex/litex/soc/cores/cpu/vexriscv"
 		export LITEX_GENERATED="$TOP_DIR/$TARGET_BUILD_DIR/software/include"
 		export LITEX_BASE="$TOP_DIR/third_party/litex"
 		export RISCV_BIN="${CPU_ARCH}-elf-newlib-"
