@@ -681,9 +681,9 @@ for CPU_TYPE in vexriscv picorv32 mor1kx minerva microwatt serv lm32 blackparrot
 done
 )
 
-# ln -sf $THIRD_DIR/litex/litex/soc/cores/cpu/lm32/verilog/config $BUILD_DIR/conda/lib/python3.7/site-packages/pythondata_cpu_lm32/verilog/config
-# ln -sf $THIRD_DIR/litex/litex/soc/cores/cpu/lm32/verilog/config_lite $BUILD_DIR/conda/lib/python3.7/site-packages/pythondata_cpu_lm32/verilog/config_lite
-# ln -sf $THIRD_DIR/litex/litex/soc/cores/cpu/lm32/verilog/config_minimal $BUILD_DIR/conda/lib/python3.7/site-packages/pythondata_cpu_lm32/verilog/config_minimal
+ln -sf $THIRD_DIR/litex/litex/soc/cores/cpu/lm32/verilog/config $BUILD_DIR/conda/lib/python3.7/site-packages/pythondata_cpu_lm32/verilog/config
+ln -sf $THIRD_DIR/litex/litex/soc/cores/cpu/lm32/verilog/config_lite $BUILD_DIR/conda/lib/python3.7/site-packages/pythondata_cpu_lm32/verilog/config_lite
+ln -sf $THIRD_DIR/litex/litex/soc/cores/cpu/lm32/verilog/config_minimal $BUILD_DIR/conda/lib/python3.7/site-packages/pythondata_cpu_lm32/verilog/config_minimal
 
 # git commands
 echo ""
