@@ -1,6 +1,6 @@
 from litex.soc.integration.soc_sdram import *
 
-from liteeth.core.mac import LiteEthMAC
+from liteeth.mac import LiteEthMAC
 
 from gateware.s6rgmii import LiteEthPHYRGMII
 

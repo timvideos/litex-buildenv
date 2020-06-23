@@ -1,6 +1,6 @@
 from litex.soc.integration.soc_sdram import *
 
-from liteeth.core.mac import LiteEthMAC
+from liteeth.mac import LiteEthMAC
 from liteeth.phy.s7rgmii import LiteEthPHYRGMII
 
 from targets.utils import dict_set_max
