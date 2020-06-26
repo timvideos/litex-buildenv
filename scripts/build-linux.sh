@@ -281,6 +281,15 @@ else
 
 			fetch_file $ROOTFS_LOCATION/$DTB_MD5-rv32.dtb $DTB_MD5 $TARGET_LINUX_BUILD_DIR/rv32.dtb
 
+			cat << EOF > $TARGET_LINUX_BUILD_DIR/boot.json
+{
+    "Image":        "0x40000000",
+    "rootfs.cpio":  "0x40800000",
+    "rv32.dtb":     "0x41000000",
+    "emulator.bin": "0x41100000"
+}
+EOF
+
 			KERNEL_BINARY=Image
 			make O="$TARGET_LINUX_BUILD_DIR" olddefconfig
 		fi
