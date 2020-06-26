@@ -81,5 +81,15 @@ class BaseSoC(SoCCore):
         self.flash_boot_address = self.mem_map["spiflash"]+platform.gateware_size+bios_size
         self.add_constant("FLASH_BOOT_ADDRESS", self.flash_boot_address)
 
+        # We don't have a DRAM, so use the remaining SPI flash for user
+        # program.
+        self.add_memory_region("user_flash",
+            self.flash_boot_address,
+             # Leave a grace area- possible one-by-off bug in add_memory_region?
+             # Possible fix: addr < origin + length - 1
+             platform.spiflash_total_size - (self.flash_boot_address - self.mem_map["spiflash"]) - 0x100,
+             type="cached+linker")
+
+
 
 SoC = BaseSoC
