@@ -66,11 +66,11 @@ include $(UIP_DIRECTORY)/Makefile.mk
 
 LDFLAGS += \
 
+CRT0 = ../libbase/crt0.o
+
 ifeq ($(COPY_TO_MAIN_RAM), 1)
-CRT0 = ../libbase/crt0-$(CPU)-ctr.o
 LINKER_LD = linker-ctr.ld
 else
-CRT0 = ../libbase/crt0-$(CPU)-xip.o
 LINKER_LD = linker-xip.ld
 endif
 
@@ -106,7 +106,7 @@ firmware.elf: $(FIRMWARE_DIRECTORY)/$(LINKER_LD) $(OBJECTS)
 # pull in dependency info for *existing* .o files
 -include $(OBJECTS:.o=.d)
 
-boot-helper-$(CPU).S: $(BIOS_DIRECTORY)/boot-helper-$(CPU).S
+boot-helper-$(CPU).S: $(CPU_DIRECTORY)/boot-helper.S
 	cp $< $@
 
 boot-helper-$(CPU).o: boot-helper-$(CPU).S
