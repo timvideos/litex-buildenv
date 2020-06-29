@@ -21,7 +21,6 @@
 
 #include <generated/csr.h>
 #include <generated/mem.h>
-#include <hw/flags.h>
 #include <time.h>
 #include <system.h>
 #include <time.h>
@@ -36,6 +35,10 @@
 #include "processor.h"
 #include "heartbeat.h"
 #include "pcie.h"
+
+#define CLKGEN_STATUS_BUSY             0x1
+#define CLKGEN_STATUS_PROGDONE 0x2
+#define CLKGEN_STATUS_LOCKED   0x4
 
 /*
  ----------------->>> Time ----------->>>
