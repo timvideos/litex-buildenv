@@ -64,15 +64,9 @@ RENODE_REPL="$RENODE_SCRIPTS_DIR/litex_buildenv.repl"
 mkdir -p $RENODE_SCRIPTS_DIR
 
 if [ "$FIRMWARE" == "linux" ]; then
-	python $TOP_DIR/third_party/litex-renode/generate-renode-scripts.py $LITEX_CONFIG_FILE \
-		--repl "$RENODE_REPL" \
-		--resc "$RENODE_RESC" \
-		--bios-binary "$TOP_DIR/$TARGET_BUILD_DIR/software/bios/bios.bin" \
-		--flash-binary "$TOP_DIR/$TARGET_BUILD_DIR/software/linux/arch/riscv/boot/Image:kernel_image_flash_offset" \
-		--flash-binary "$TOP_DIR/$TARGET_BUILD_DIR/software/linux/riscv32-rootfs.cpio:rootfs_image_flash_offset"\
-		--flash-binary "$TOP_DIR/$TARGET_BUILD_DIR/software/linux/rv32.dtb:device_tree_image_flash_offset" \
-		--flash-binary "$TOP_DIR/$TARGET_BUILD_DIR/emulator/emulator.bin:emulator_image_flash_offset"
-
+	# TODO: remove after this is handled in Renode
+	echo "Running Linux tests is currently not supported - skipping the test"
+	exit 0
 else
 	python $TOP_DIR/third_party/litex-renode/generate-renode-scripts.py $LITEX_CONFIG_FILE \
 		--repl "$RENODE_REPL" \
