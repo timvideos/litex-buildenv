@@ -61,3 +61,6 @@
 [submodule "third_party/pythondata-cpu-minerva"]
 	path = third_party/pythondata-cpu-minerva
 	url = https://github.com/litex-hub/pythondata-cpu-minerva.git
+[submodule "third_party/VexRiscv"]
+	path = third_party/VexRiscv
+	url = https://github.com/SpinalHDL/VexRiscv.git
