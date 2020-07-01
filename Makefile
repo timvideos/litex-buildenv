@@ -143,7 +143,7 @@ endif
 
 TARGET_BUILD_DIR = build/$(FULL_PLATFORM)_$(TARGET)_$(FULL_CPU)
 
-GATEWARE_FILEBASE = $(TARGET_BUILD_DIR)/gateware/top
+GATEWARE_FILEBASE = $(TARGET_BUILD_DIR)/gateware/$(PLATFORM)
 BIOS_FILE = $(TARGET_BUILD_DIR)/software/bios/bios.bin
 FIRMWARE_DIR = $(TARGET_BUILD_DIR)/software/$(FIRMWARE)
 FIRMWARE_FILEBASE = $(FIRMWARE_DIR)/firmware
@@ -394,13 +394,21 @@ ifeq ($(IN_TFTPD),)
 IN_TFTPD:=/usr/sbin/in.tftpd
 endif
 
+ifeq ($(CPU),vexriscv)
+	ROOTFS_FILE := riscv32-rootfs.cpio
+else
+	ROOTFS_FILE := $(CPU_ARCH)-rootfs.cpio
+endif
+
 tftp: $(FIRMWARE_FILEBASE).bin
 	rm -rf $(TFTPD_DIR)
 	mkdir -p $(TFTPD_DIR)
+	
 ifeq ($(FIRMWARE),linux)
 	cp $(FIRMWARE_FILEBASE).bin $(TFTPD_DIR)/Image
-	cp $(FIRMWARE_DIR)/$(CPU_ARCH)-rootfs.cpio $(TFTPD_DIR)/rootfs.cpio
+	cp $(FIRMWARE_DIR)/$(ROOTFS_FILE) $(TFTPD_DIR)/rootfs.cpio
 ifeq ($(CPU),vexriscv)
+	cp $(FIRMWARE_DIR)/boot.json $(TFTPD_DIR)
 	cp $(FIRMWARE_DIR)/rv32.dtb $(TFTPD_DIR)
 	cp $(TARGET_BUILD_DIR)/emulator/emulator.bin $(TFTPD_DIR)
 endif

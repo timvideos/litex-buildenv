@@ -23,7 +23,10 @@ class BaseSoC(SoCSDRAM):
     }}
 
     def __init__(self, platform, **kwargs):
-        dict_set_max(kwargs, 'integrated_rom_size', 0x8000)
+        if kwargs.get('cpu_type', None) == 'mor1kx':
+            dict_set_max(kwargs, 'integrated_rom_size', 0x10000)
+        else:
+            dict_set_max(kwargs, 'integrated_rom_size', 0x8000)
         dict_set_max(kwargs, 'integrated_sram_size', 0x8000)
 
         sys_clk_freq = int(50e6)

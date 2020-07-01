@@ -35,11 +35,11 @@ endif
 
 firmware.elf: $(STUB_DIRECTORY)/$(LINKER_LD) $(OBJECTS)
 
-%.elf: ../libbase/crt0-$(CPU)-xip.o ../libbase/libbase-nofloat.a ../libcompiler_rt/libcompiler_rt.a
+%.elf: ../libbase/crt0.o ../libbase/libbase-nofloat.a ../libcompiler_rt/libcompiler_rt.a
 	$(LD) $(LDFLAGS) \
 		-T $(STUB_DIRECTORY)/$(LINKER_LD) \
 		-N -o $@ \
-        ../libbase/crt0-$(CPU)-xip.o \
+        ../libbase/crt0.o \
         $(OBJECTS) \
         -L../libbase \
 		-lbase-nofloat \
@@ -51,7 +51,7 @@ firmware.elf: $(STUB_DIRECTORY)/$(LINKER_LD) $(OBJECTS)
 # pull in dependency info for *existing* .o files
 -include $(OBJECTS:.o=.d)
 
-boot-helper-$(CPU).S: $(BIOS_DIRECTORY)/boot-helper-$(CPU).S
+boot-helper-$(CPU).S: $(CPU_DIRECTORY)/boot-helper.S
 	cp $< $@
 
 boot-helper-$(CPU).o: boot-helper-$(CPU).S

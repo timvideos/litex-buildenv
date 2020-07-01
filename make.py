@@ -137,6 +137,22 @@ def main():
             buildargs['csr_json'] = os.path.join(testdir, "csr.json")
 
         builder = Builder(soc, **buildargs)
+
+        if builder.bios_options is None:
+            builder.bios_options = {}
+
+        # using 'bios_options' is a hack, as those settings
+        # are intended for the firmware (not bios) - there
+        # is just no dictionary for 'firmware_options'
+        # available in LiteX;
+        # the intended effect of setting those options is to
+        # generate entries in the .mak files that can be used
+        # in the Makefile
+        if 'user_flash' in soc.mem_regions:
+            builder.bios_options['EXECUTE_IN_PLACE'] = 1
+        else:
+            builder.bios_options['COPY_TO_MAIN_RAM'] = 1
+
         if not args.no_compile_firmware or args.override_firmware:
             builder.add_software_package("uip", "{}/firmware/uip".format(os.getcwd()))
 

@@ -98,7 +98,7 @@ if [ "$CPU" = "lm32" ]; then
 elif [ "$CPU" = "mor1kx" ]; then
 	export CPU_ARCH=or1k
 elif [ "$CPU" = "vexriscv" -o "$CPU" = "picorv32" -o "$CPU" = "minerva" ]; then
-	export CPU_ARCH=riscv32
+	export CPU_ARCH=riscv64
 elif [ "$CPU" = "none" ]; then
 	export CPU_ARCH=$(gcc -dumpmachine)
 else
@@ -656,6 +656,25 @@ echo
 echo "Installing robotframework (python module)"
 pip install robotframework==3.0.4
 check_import robot
+
+(
+cd $THIRD_DIR
+
+cd pythondata-software-compiler_rt
+echo "Installing pythondata-software-compiler_rt (local python module)"
+python setup.py develop
+cd ..
+
+check_import pythondata_software_compiler_rt
+
+
+cd pythondata-cpu-$CPU
+echo "Installing pythondata-cpu-$CPU (local python module)"
+python setup.py develop
+cd ..
+
+check_import pythondata_cpu_$CPU
+)
 
 # git commands
 echo ""

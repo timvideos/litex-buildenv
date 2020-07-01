@@ -1,7 +1,6 @@
 
 #include <generated/csr.h>
 #include <generated/mem.h>
-#include <hw/flags.h>
 #include <system.h>
 #include <time.h>
 
