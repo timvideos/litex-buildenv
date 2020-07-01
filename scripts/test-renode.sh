@@ -63,17 +63,22 @@ RENODE_REPL="$RENODE_SCRIPTS_DIR/litex_buildenv.repl"
 
 mkdir -p $RENODE_SCRIPTS_DIR
 
-if [ "$FIRMWARE" == "linux" ]; then
-	# TODO: remove after this is handled in Renode
-	echo "Running Linux tests is currently not supported - skipping the test"
-	exit 0
+if [ "$FIRMWARE" = "linux" ] && [ "$CPU" = "vexriscv" ]; then
+	RENODE_CONFIG="--tftp-binary \"$TOP_DIR/$TARGET_BUILD_DIR/software/linux/firmware.bin:Image\"
+		--tftp-binary \"$TOP_DIR/$TARGET_BUILD_DIR/software/linux/riscv32-rootfs.cpio:rootfs.cpio\"
+		--tftp-binary \"$TOP_DIR/$TARGET_BUILD_DIR/software/linux/rv32.dtb\"
+		--tftp-binary \"$TOP_DIR/$TARGET_BUILD_DIR/software/linux/boot.json\"
+		--tftp-binary \"$TOP_DIR/$TARGET_BUILD_DIR/emulator/emulator.bin\"
+		--tftp-server-ip \"192.168.100.100\"
+		--tftp-server-port 6069"
 else
-	python $TOP_DIR/third_party/litex-renode/generate-renode-scripts.py $LITEX_CONFIG_FILE \
-		--repl "$RENODE_REPL" \
-		--resc "$RENODE_RESC" \
-		--bios-binary "$TOP_DIR/$TARGET_BUILD_DIR/software/bios/bios.bin" \
-		--firmware-binary "$TOP_DIR/$TARGET_BUILD_DIR/software/$FIRMWARE/firmware.bin"
+	RENODE_CONFIG="--firmware-binary \"$TOP_DIR/$TARGET_BUILD_DIR/software/$FIRMWARE/firmware.bin\""
 fi
+
+echo "$RENODE_CONFIG" | xargs python $TOP_DIR/third_party/litex-renode/generate-renode-scripts.py $LITEX_CONFIG_FILE \
+	--repl "$RENODE_REPL" \
+	--resc "$RENODE_RESC" \
+	--bios-binary "$TOP_DIR/$TARGET_BUILD_DIR/software/bios/bios.bin"
 
 OPT_RENODE_LOCATION=$TOP_DIR/build/conda/opt/renode
 TESTS_LOCATION=$TOP_DIR/tests/renode

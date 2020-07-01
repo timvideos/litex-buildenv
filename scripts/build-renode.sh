@@ -48,7 +48,7 @@ fi
 # Ethernet
 ETH_BASE_ADDRESS=$(parse_generated_header "csr.h" CSR_ETHMAC_BASE)
 if [ ! -z "$ETH_BASE_ADDRESS" ]; then
-	RENODE_NETWORK=${RENODE_NETWORK:-tap}
+	RENODE_NETWORK=${RENODE_NETWORK:-internal}
 	case $RENODE_NETWORK in
 	tap)
 		echo "Using tun device for Renode networking, (may need sudo)..."
@@ -58,17 +58,48 @@ if [ ! -z "$ETH_BASE_ADDRESS" ]; then
 		# Build/copy the image into the TFTP directory.
 		make tftp
 
-		TAP_INTERFACE=tap0
+		RENODE_CONFIG="--configure-network tap0"
+		;;
+
+	internal)
+		echo "Using the Renode internal TFTP server for netbooting"
+
+		if [ "$FIRMWARE" = "linux" ] && [ "$CPU" = "vexriscv" ]; then
+			RENODE_CONFIG="--tftp-binary \"$TARGET_BUILD_DIR/software/linux/firmware.bin:Image\"
+				--tftp-binary \"$TARGET_BUILD_DIR/software/linux/boot.json\"
+				--tftp-binary \"$TARGET_BUILD_DIR/emulator/emulator.bin\"
+				--tftp-binary \"$TARGET_BUILD_DIR/software/linux/rv32.dtb\"
+				--tftp-binary \"$TARGET_BUILD_DIR/software/linux/riscv32-rootfs.cpio:rootfs.cpio\""
+		else
+			RENODE_CONFIG="--tftp-binary \"$TARGET_BUILD_DIR/software/$FIRMWARE/firmware.bin:boot.bin\""
+		fi
+
+		RENODE_CONFIG="$RENODE_CONFIG
+			--tftp-server-ip \"192.168.100.100\"
+			--tftp-server-port 6069"
 		;;
 
 	none)
-		echo "Renode networking disabled..."
+    	        # This case is handled a bit further below.
 		;;
 	*)
 		echo "Unknown RENODE_NETWORK mode '$RENODE_NETWORK'"
 		return 1
 		;;
 	esac
+else
+    RENODE_NETWORK=none
+fi
+
+if [ "$RENODE_NETWORK" = "none" ]; then
+	echo "Renode networking disabled..."
+
+	if [ "$FIRMWARE" == "linux" ]; then
+		echo "Booting Linux in this mode is not supported"
+		return 1
+	fi
+
+	RENODE_CONFIG="--firmware-binary \"$TARGET_BUILD_DIR/software/$FIRMWARE/firmware.bin\""
 fi
 
 RENODE_SCRIPTS_DIR="$TARGET_BUILD_DIR/renode"
@@ -77,24 +108,10 @@ RENODE_REPL="$RENODE_SCRIPTS_DIR/litex_buildenv.repl"
 
 mkdir -p $RENODE_SCRIPTS_DIR
 
-if [ "$FIRMWARE" == "linux" ]; then
-	python $LITEX_RENODE/generate-renode-scripts.py $LITEX_CONFIG_FILE \
-		--repl "$RENODE_REPL" \
-		--resc "$RENODE_RESC" \
-		--bios-binary "$TARGET_BUILD_DIR/software/bios/bios.bin" \
-		--flash-binary "$TARGET_BUILD_DIR/software/linux/firmware.bin:kernel_image_flash_offset" \
-		--flash-binary "$TARGET_BUILD_DIR/software/linux/riscv32-rootfs.cpio:rootfs_image_flash_offset"\
-		--flash-binary "$TARGET_BUILD_DIR/software/linux/rv32.dtb:device_tree_image_flash_offset" \
-		--flash-binary "$TARGET_BUILD_DIR/emulator/emulator.bin:emulator_image_flash_offset" \
-		--configure-network ${TAP_INTERFACE:-""}
-else
-	python $LITEX_RENODE/generate-renode-scripts.py $LITEX_CONFIG_FILE \
-		--repl "$RENODE_REPL" \
-		--resc "$RENODE_RESC" \
-		--bios-binary "$TARGET_BUILD_DIR/software/bios/bios.bin" \
-		--firmware-binary "$TARGET_BUILD_DIR/software/$FIRMWARE/firmware.bin" \
-		--configure-network ${TAP_INTERFACE:-""}
-fi
+echo "$RENODE_CONFIG" | xargs python $LITEX_RENODE/generate-renode-scripts.py $LITEX_CONFIG_FILE \
+	--repl "$RENODE_REPL" \
+	--resc "$RENODE_RESC" \
+	--bios-binary "$TARGET_BUILD_DIR/software/bios/bios.bin"
 
 # 1. include the generated script
 # 2. set additional parameters
