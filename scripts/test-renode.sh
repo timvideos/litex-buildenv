@@ -48,10 +48,6 @@ if [ "$FIRMWARE" == "zephyr" ]; then
 	fi
 fi
 
-# Download prebuilt renode Release with new terminal tester support
-conda install -c antmicro/label/test -c conda-forge renode=v1.8.2_with_new_terminal_tester
-RENODE_BIN=$CONDA_PREFIX/bin/renode
-
 LITEX_CONFIG_FILE="$TARGET_BUILD_DIR/test/csr.csv"
 if [ ! -f "$LITEX_CONFIG_FILE" ]; then
 	make firmware
@@ -80,24 +76,29 @@ echo "$RENODE_CONFIG" | xargs python $TOP_DIR/third_party/litex-renode/generate-
 	--resc "$RENODE_RESC" \
 	--bios-binary "$TOP_DIR/$TARGET_BUILD_DIR/software/bios/bios.bin"
 
-OPT_RENODE_LOCATION=$TOP_DIR/build/conda/opt/renode
+
+CONDA_RENODE_LOCATION=$TOP_DIR/build/conda/opt/renode
 TESTS_LOCATION=$TOP_DIR/tests/renode
 
-cd $OPT_RENODE_LOCATION
+if [ ! -d $CONDA_RENODE_LOCATION ]; then
+    conda install -c antmicro -c conda-forge renode=$RENODE_VERSION
+fi
+
+cd $CONDA_RENODE_LOCATION
 
 if [ "$FIRMWARE" == "stub" ]; then
 	# do not test the stub firmware
 	python tests/run_tests.py \
 		--variable LITEX_SCRIPT:"$RENODE_RESC" \
 		--variable CPU_TYPE:"$CPU_TYPE" \
-		--robot-framework-remote-server-full-directory $OPT_RENODE_LOCATION/bin \
+		--robot-framework-remote-server-full-directory $CONDA_RENODE_LOCATION/bin \
 		$TESTS_LOCATION/BIOS.robot \
 		|| FAILED=1
 else
 	python tests/run_tests.py \
 		--variable LITEX_SCRIPT:"$RENODE_RESC" \
 		--variable CPU_TYPE:"$CPU_TYPE" \
-		--robot-framework-remote-server-full-directory $OPT_RENODE_LOCATION/bin \
+		--robot-framework-remote-server-full-directory $CONDA_RENODE_LOCATION/bin \
 		$TESTS_LOCATION/BIOS.robot \
 		$TESTS_LOCATION/Firmware-$FIRMWARE.robot \
 		|| FAILED=1
