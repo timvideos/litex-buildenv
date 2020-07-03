@@ -21,5 +21,5 @@ endef
 
 gateware-load-openocd:
 	openocd -f board/$(OPENOCD_BOARD) \
-		-c "init; pld load 0 $(TARGET_BUILD_DIR)/gateware/top.bit; exit"
+		-c "init; pld load 0 $(TARGET_BUILD_DIR)/gateware/$(PLATFORM).bit; exit"
 
