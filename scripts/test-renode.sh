@@ -15,10 +15,10 @@ init
 
 case $CPU in
 	vexriscv)
-    		CPU_TYPE="VexRiscv"
+		CPU_TYPE="VexRiscv"
 		;;
 	picorv32)
-    		CPU_TYPE="PicoRV32"
+		CPU_TYPE="PicoRV32"
 		;;
 	*)
 		echo "Simulating the current configuration is not supported in Renode yet - skipping the test"
@@ -27,25 +27,25 @@ case $CPU in
 esac
 
 if [ "$PLATFORM" == "mimas_a7" ] || [ "$PLATFORM" == "netv2" ] || [ "$PLATFORM" == "pano_logic_g2" ]; then
-    # the test load binaries into the flash to avoid using netboot on CI server
-    echo "$PLATFORM platform does not have flash memory - skipping the test"
-    exit 0
+	# the test load binaries into the flash to avoid using netboot on CI server
+	echo "$PLATFORM platform does not have flash memory - skipping the test"
+	exit 0
 fi
 
 if [ "$PLATFORM" == "ice40_hx8k_b_evn" ] || [ "$PLATFORM" == "tinyfpga_bx" ] || [ "$PLATFORM" == "icefun" ]; then
-    # TODO: remove after this is handled in Renode
-    echo "$PLATFORM has memory regions of size currently not supported in Renode - skipping the test"
-    exit 0
+	# TODO: remove after this is handled in Renode
+	echo "$PLATFORM has memory regions of size currently not supported in Renode - skipping the test"
+	exit 0
 fi
 
 if [ "$FIRMWARE" == "zephyr" ]; then
-    if [ "$PLATFORM" == "icebreaker" ]; then
-        # running Zephyr firmware directly from flash is not supported at the moment
-        # as it requires to enable XIP and include flash section in the DTS;
-        # TODO: add this in the future
-        echo "Running $FIRMWARE directly from flash is currently not supported - skipping the test"
-        exit 0
-    fi
+	if [ "$PLATFORM" == "icebreaker" ]; then
+		# running Zephyr firmware directly from flash is not supported at the moment
+		# as it requires to enable XIP and include flash section in the DTS;
+		# TODO: add this in the future
+		echo "Running $FIRMWARE directly from flash is currently not supported - skipping the test"
+		exit 0
+	fi
 fi
 
 # Download prebuilt renode Release with new terminal tester support
