@@ -11,7 +11,7 @@ Boot
     # the path to the resc file is passed by the test-renode.sh script
     Execute Command           include @${LITEX_SCRIPT}
 
-    Create Terminal Tester    sysbus.uart    timeout=120
+    Create Terminal Tester    sysbus.uart    timeout=240
 
     Start Emulation
 
