@@ -17,7 +17,7 @@ else:
         v =""
         pass
 
-    fname = "build/{p}_{t}_{c}{v}/gateware/top.bit".format(
+    fname = "build/{p}_{t}_{c}{v}/gateware/{p}.bit".format(
         p=p, t=t, c=c,v=v)
     print("fname: ",fname)
 
