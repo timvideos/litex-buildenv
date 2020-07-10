@@ -21,7 +21,7 @@ Boot
     Wait For Prompt On Uart   buildroot login:
     Write Line To Uart        root
 
-    Wait For Line On Uart     login[48]: root login on 'hvc0'
+    Wait For Line On Uart     root login on 'console'
     Wait For Prompt On Uart   \#
 
     Write Line To Uart        ls /
