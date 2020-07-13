@@ -64,6 +64,7 @@ if [ ${CPU} = mor1kx ]; then
 	DTB=mor1kx.dtb
 	ROOTFS_MD5="c9ef89b45b0d2c34d14978a21f2863bd"
 	DTB_MD5="0271bc8f63f2d928dc9536ac31a2c6b9"
+	LINUX_BRANCH=${LINUX_BRANCH:-litex_buildenv-mor1kx}
 elif [ ${CPU} = vexriscv ]; then
 	export ARCH=riscv
 	ROOTFS=riscv32-rootfs.cpio
@@ -226,7 +227,6 @@ LLV_SRC="$TOP_DIR/third_party/linux-on-litex-vexriscv"
 
         	cat << EOF > $TARGET_LINUX_BUILD_DIR/boot.json
 {
-    "mor1kx.dtb":   "0x01000000",
     "Image":        "0x00000000"
 }
 EOF
