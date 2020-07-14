@@ -1,0 +1,15 @@
+Steps to rebuild a rootfs image using buildroot:
+
+(1) clone buildroot:
+
+    git clone https://github.com/buildroot/buildroot
+    cd buildroot
+
+(2) configure
+
+    cp ../buildroot_mor1kx.config .config
+    # or cp ../buildroot_vexriscv.config .config
+    make olddefconfig
+    make
+
+(3) the resulting image is in output/images

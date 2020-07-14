@@ -52,75 +52,68 @@ if ! ${CPU_ARCH}-linux-musl-gcc --version > /dev/null 2>&1; then
 	conda install gcc-${CPU_ARCH}-linux-musl
 fi
 
+LINUX_REMOTE="${LINUX_REMOTE:-https://github.com/litex-hub/linux.git}"
+LINUX_REMOTE_NAME=litex-hub-linux
+LINUX_BRANCH=${LINUX_BRANCH:-litex_buildenv}
+
+RESOURCES_LOCATION="https://dl.antmicro.com/projects/renode/litex-buildenv/"
+
 if [ ${CPU} = mor1kx ]; then
-	LINUX_REMOTE="${LINUX_REMOTE:-https://github.com/timvideos/linux-litex.git}"
-	LINUX_REMOTE_NAME=timvideos-linux-litex
-	LINUX_BRANCH=${LINUX_BRANCH:-master-litex}
-
 	export ARCH=openrisc
-	# To rebuild, use https://ozlabs.org/~joel/litex_or1k_defconfig
-	ROOTFS_LOCATION="https://ozlabs.org/~joel/"
-	ROOTFS=${ARCH}-rootfs.cpio.gz
-	ROOTFS_MD5="3a254683a7b6f441a4acc0d4c555230a"
+	ROOTFS=or1k-rootfs.cpio
+	DTB=mor1kx.dtb
+	ROOTFS_MD5="c9ef89b45b0d2c34d14978a21f2863bd"
+	DTB_MD5="0271bc8f63f2d928dc9536ac31a2c6b9"
+	LINUX_BRANCH=${LINUX_BRANCH:-litex_buildenv-mor1kx}
 elif [ ${CPU} = vexriscv ]; then
-	LINUX_REMOTE="${LINUX_REMOTE:-https://github.com/torvalds/linux.git}"
-	LINUX_REMOTE_NAME=upstream-linux
-	LINUX_BRANCH=${LINUX_BRANCH:-v5.0}
-
 	export ARCH=riscv
-	ROOTFS_LOCATION="https://antmicro.com/projects/renode/litex-buildenv/"
-	ROOTFS=${ARCH}32-rootfs.cpio
-	ROOTFS_MD5="c3a88ff90fbd05dd6dc5773a8202d47f"
-	DTB_MD5="2dc79321d1c5d4de45fbcb866ce816b1"
-	CONFIG_MD5="fed2b661016e1b4aad16f17103839dba"
+	ROOTFS=riscv32-rootfs.cpio
+	DTB=rv32.dtb
+	ROOTFS_MD5="7b1a7fb52a1ba056dffb351a036bd0fb"
+	DTB_MD5="cd6d23543808988fd97447c4ff97392a"
 else
 	echo "Linux is only supported on mor1kx or vexriscv at the moment."
 	exit 1
 fi
 
-if [ ${CPU} = vexriscv ] && [ ${BUILD_BUILDROOT} = 1 ]; then
-	# do not download linux sources, buildroot comes with its own copy
-	:
-else
-	# Get linux-litex is needed
-	LINUX_SRC="$TOP_DIR/third_party/linux"
-	LINUX_LOCAL="$LINUX_GITLOCAL" # Local place to clone from
-	LINUX_REMOTE_BIT=$(echo $LINUX_REMOTE | sed -e's-^.*://--' -e's/.git$//')
-	LINUX_CLONE_FROM="${LINUX_LOCAL:-$LINUX_REMOTE}"
+# Get linux-litex is needed
+LINUX_SRC="$TOP_DIR/third_party/linux"
+LINUX_LOCAL="$LINUX_GITLOCAL" # Local place to clone from
+LINUX_REMOTE_BIT=$(echo $LINUX_REMOTE | sed -e's-^.*://--' -e's/.git$//')
+LINUX_CLONE_FROM="${LINUX_LOCAL:-$LINUX_REMOTE}"
+(
+	# Download the Linux source for the first time
+	if [ ! -d "$LINUX_SRC" ]; then
 	(
-		# Download the Linux source for the first time
-		if [ ! -d "$LINUX_SRC" ]; then
-		(
-			cd $(dirname $LINUX_SRC)
-			echo "Downloading Linux source tree."
-			echo "If you already have a local git checkout you can set 'LINUX_GITLOCAL' to speed up this step."
-			git clone $LINUX_CLONE_FROM $LINUX_SRC --branch $LINUX_BRANCH
-		)
-		fi
-
-		# Change into the dir
-		cd $LINUX_SRC
-
-		# Add the remote if it doesn't exist
-		CURRENT_LINUX_REMOTE_NAME=$(git remote -v | grep fetch | grep "$LINUX_REMOTE_BIT" | sed -e's/\t.*$//')
-		if [ x"$CURRENT_LINUX_REMOTE_NAME" = x ]; then
-			git remote add $LINUX_REMOTE_NAME $LINUX_REMOTE
-			CURRENT_LINUX_REMOTE_NAME=$LINUX_REMOTE_NAME
-		fi
-
-		# Get any new data
-		git fetch $CURRENT_LINUX_REMOTE_NAME
-
-		# Checkout or1k-linux branch it not already on it
-		if [ "$(git rev-parse --abbrev-ref HEAD)" != "$LINUX_BRANCH" ]; then
-			if git rev-parse --abbrev-ref $LINUX_BRANCH > /dev/null 2>&1; then
-				git checkout $LINUX_BRANCH
-			else
-				git checkout "$CURRENT_LINUX_REMOTE_NAME/$LINUX_BRANCH" -b $LINUX_BRANCH
-			fi
-		fi
+		cd $(dirname $LINUX_SRC)
+		echo "Downloading Linux source tree."
+		echo "If you already have a local git checkout you can set 'LINUX_GITLOCAL' to speed up this step."
+		git clone $LINUX_CLONE_FROM $LINUX_SRC --branch $LINUX_BRANCH
 	)
-fi
+	fi
+
+	# Change into the dir
+	cd $LINUX_SRC
+
+	# Add the remote if it doesn't exist
+	CURRENT_LINUX_REMOTE_NAME=$(git remote -v | grep fetch | grep "$LINUX_REMOTE_BIT" | sed -e's/\t.*$//')
+	if [ x"$CURRENT_LINUX_REMOTE_NAME" = x ]; then
+		git remote add $LINUX_REMOTE_NAME $LINUX_REMOTE
+		CURRENT_LINUX_REMOTE_NAME=$LINUX_REMOTE_NAME
+	fi
+
+	# Get any new data
+	git fetch $CURRENT_LINUX_REMOTE_NAME
+
+	# Checkout or1k-linux branch it not already on it
+	if [ "$(git rev-parse --abbrev-ref HEAD)" != "$LINUX_BRANCH" ]; then
+		if git rev-parse --abbrev-ref $LINUX_BRANCH > /dev/null 2>&1; then
+			git checkout $LINUX_BRANCH
+		else
+			git checkout "$CURRENT_LINUX_REMOTE_NAME/$LINUX_BRANCH" -b $LINUX_BRANCH
+		fi
+	fi
+)
 
 # Get litex-devicetree
 LITEX_DT_SRC="$TOP_DIR/third_party/litex-devicetree"
@@ -221,67 +214,26 @@ BD_REMOTE="${BD_REMOTE:-https://github.com/buildroot/buildroot.git}"
 BD_SRC="$TOP_DIR/third_party/buildroot"
 LLV_REMOTE="${LLV_REMOTE:-https://github.com/litex-hub/linux-on-litex-vexriscv.git}"
 LLV_SRC="$TOP_DIR/third_party/linux-on-litex-vexriscv"
-if [ ${CPU} = vexriscv ] && [ ${BUILD_BUILDROOT:-0} = 1 ]; then
-	(
-		if [ ! -d "$BD_SRC" ]; then
-		(
-			cd $(dirname $BD_SRC)
-			echo "Downloading Buildroot code."
-			git clone $BD_REMOTE $BD_SRC
-			if [ x$BD_COMMIT != x ]; then
-			    (cd $BD_SRC; git checkout $BD_COMMIT)
-			fi
-		)
-		fi
+(
+	cd $LINUX_SRC
+	echo "Building Linux in $TARGET_LINUX_BUILD_DIR"
+	mkdir -p $TARGET_LINUX_BUILD_DIR
 
-		if [ ! -d "$LLV_SRC" ]; then
-		(
-			cd $(dirname $LLV_SRC)
-			echo "Downloading Linux on LiteX-VexRiscv code."
-			git clone $LLV_REMOTE $LLV_SRC
-			if [ x$LLV_COMMIT != x ]; then
-			    (cd $LLV_SRC; git checkout $LLV_COMMIT)
-			fi
-		)
-		fi
+	fetch_file $RESOURCES_LOCATION/$ROOTFS_MD5-$ROOTFS $ROOTFS_MD5 $TARGET_LINUX_BUILD_DIR/$ROOTFS
+	fetch_file $RESOURCES_LOCATION/$DTB_MD5-$DTB       $DTB_MD5    $TARGET_LINUX_BUILD_DIR/$DTB
 
-		GENERATED_JSON="$TARGET_BUILD_DIR/test/csr.json"
-		if [ ! -f "$GENERATED_JSON" ]; then
-			make firmware
-		fi
+	if [ ${CPU} = mor1kx ]; then
+		KERNEL_BINARY=vmlinux.bin
 
-		echo "Building Linux on LiteX-VexRiscv in $TARGET_LINUX_BUILD_DIR"
-		mkdir -p $TARGET_LINUX_BUILD_DIR
+        	cat << EOF > $TARGET_LINUX_BUILD_DIR/boot.json
+{
+    "Image":        "0x00000000"
+}
+EOF
+	elif [ ${CPU} = vexriscv ]; then
+		KERNEL_BINARY=Image
 
-		$LLV_SRC/json2dts.py $GENERATED_JSON > $TARGET_LINUX_BUILD_DIR/rv32.dts
-		dtc -I dts -O dtb -o $TARGET_LINUX_BUILD_DIR/rv32.dtb $TARGET_LINUX_BUILD_DIR/rv32.dts
-
-		cd $BD_SRC
-		make BR2_EXTERNAL=${BR2_EXTERNAL:-$LLV_SRC/buildroot} litex_vexriscv_defconfig
-		time make
-		ls -l $BD_SRC/output/images/
-		ln -sf $BD_SRC/output/images/Image $TOP_DIR/$FIRMWARE_FILEBASE.bin
-		ln -sf $BD_SRC/output/images/rootfs.cpio $TARGET_LINUX_BUILD_DIR/$ROOTFS
-	)
-else
-	(
-		cd $LINUX_SRC
-		echo "Building Linux in $TARGET_LINUX_BUILD_DIR"
-		mkdir -p $TARGET_LINUX_BUILD_DIR
-
-
-		fetch_file $ROOTFS_LOCATION/$ROOTFS $ROOTFS_MD5 $TARGET_LINUX_BUILD_DIR/$ROOTFS
-
-		if [ ${CPU} = mor1kx ]; then
-			KERNEL_BINARY=vmlinux.bin
-			make O="$TARGET_LINUX_BUILD_DIR" litex_defconfig
-		elif [ ${CPU} = vexriscv ]; then
-
-			fetch_file $ROOTFS_LOCATION/litex_vexriscv_linux.config $CONFIG_MD5 $TARGET_LINUX_BUILD_DIR/.config
-
-			fetch_file $ROOTFS_LOCATION/$DTB_MD5-rv32.dtb $DTB_MD5 $TARGET_LINUX_BUILD_DIR/rv32.dtb
-
-			cat << EOF > $TARGET_LINUX_BUILD_DIR/boot.json
+        	cat << EOF > $TARGET_LINUX_BUILD_DIR/boot.json
 {
     "Image":        "0x40000000",
     "rootfs.cpio":  "0x40800000",
@@ -289,13 +241,15 @@ else
     "emulator.bin": "0x41100000"
 }
 EOF
+	fi
 
-			KERNEL_BINARY=Image
-			make O="$TARGET_LINUX_BUILD_DIR" olddefconfig
-		fi
+	make O="$TARGET_LINUX_BUILD_DIR" litex_defconfig
+	time make O="$TARGET_LINUX_BUILD_DIR" -j$JOBS
 
-		time make O="$TARGET_LINUX_BUILD_DIR" -j$JOBS
-		ls -l $TARGET_LINUX_BUILD_DIR/arch/${ARCH}/boot/${KERNEL_BINARY}
-		ln -sf $TARGET_LINUX_BUILD_DIR/arch/${ARCH}/boot/${KERNEL_BINARY} $TOP_DIR/$FIRMWARE_FILEBASE.bin
-	)
-fi
+	if [ ${CPU} = mor1kx ]; then
+		${CROSS_COMPILE}objcopy -O binary $TARGET_LINUX_BUILD_DIR/vmlinux $TARGET_LINUX_BUILD_DIR/arch/${ARCH}/boot/${KERNEL_BINARY}
+	fi
+
+	ls -l $TARGET_LINUX_BUILD_DIR/arch/${ARCH}/boot/${KERNEL_BINARY}
+	ln -sf $TARGET_LINUX_BUILD_DIR/arch/${ARCH}/boot/${KERNEL_BINARY} $TOP_DIR/$FIRMWARE_FILEBASE.bin
+)
