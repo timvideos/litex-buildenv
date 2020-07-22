@@ -4,32 +4,48 @@ from .base import BaseSoC
 
 # Connection Overview:
 #
-#                                  |---> LiteScope
-# HOST <--> UARTWishboneBridge <---|---> Crossover UART
-#                                  |---> CPU Debug Interface
-#                                       
-# Note: The CPU Debug Interface is only available 
-#       if your CPU_VARIANT includes "debug"
+#      FPGA:
+#                                                   |--> LiteScope
+#   --SERIAL--> UARTWishboneBridge <--WISHBONE-BUS--+--> Crossover UART
+#   |                                               |--> CPU Debug Interface
+#   |
+#   |  Host:
+#   |                                               |-> LiteScope
+#   |      |--->  litex_server  <--TCP-(ETHERBONE)--+-> litex_crossover_uart -> terminal
+#   |      |                                        |-> wishbone-tool
+#   |      |                                        |-> any custom python client that writes/reads any address
+#   ^-----or
+#          |                                        |-> terminal
+#          |-->   wishbone-tool <-------------------+-> gdb
+#                                                   |-> client that writes/reads any address
+#
+# See also TBD
+#
+# Note: The CPU Debug Interface is only available
+#       if your CPU_VARIANT includes "debug".
+#
+# Note: You can run multiple litex_server clients or
+#       wishbone-tool clients at the same time.
 #
 # There are currently two ways to connect to your UARTWishboneBridge:
 #   1. Litex Server:
 #       Usage: litex_server --uart --uart-port /dev/ttyXXX
 #       - Features:
-#           - LiteScope: (todo)
+#           - LiteScope: (TBD)
 #           - Crossover UART:
 #               - cd into build/[target]/test/
 #               - start litex_crossover_uart
 #               - connect to /dev/pts/XXX (e.g minicom -D /dev/pts/XXX)
 #           - CPU Debug Interface: (not supported)
+#           - Wishbone-tool: wishbone-tool --ethernet-host 127.0.0.1 --ethernet-tcp
 #   2. Wishbone Tool (https://github.com/litex-hub/wishbone-utils)
 #       - Features:
 #           - LiteScope: (not supported)
 #           - Crossover UART: 
-#               wishbone-tool -s terminal --csr-csv build/[target]/test/csr.csv
+#               wishbone-tool --serial /dev/ttyXXX -s terminal --csr-csv build/[target]/test/csr.csv
 #           - CPU Debug Interface: 
-#               - wishbone-tool -s gdb --csr-csv build/[target]/test/csr.csv
-#               - start gdb
-#                   - issue: target remote :1234
+#               - wishbone-tool --serial /dev/ttyXXX -s gdb --csr-csv build/[target]/test/csr.csv
+#               - start gdb: gdb -ex 'target remote :3333'
 
 class DebugSoC(BaseSoC):
 
