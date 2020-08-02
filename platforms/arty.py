@@ -12,7 +12,7 @@ _io = [
     ("user_led", 2, Pins("T9"), IOStandard("LVCMOS33")),
     ("user_led", 3, Pins("T10"), IOStandard("LVCMOS33")),
 
-    ("rgb_leds", 0,
+    ("rgb_led", 0,
         Subsignal("r", Pins("G6 G3 J3 K1")),
         Subsignal("g", Pins("F6 J4 J2 H6")),
         Subsignal("b", Pins("E1 G4 H4 K2")),
