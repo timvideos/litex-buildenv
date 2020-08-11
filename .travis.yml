@@ -13,6 +13,7 @@ addons:
      - gnupg
      - realpath
      - util-linux
+     - device-tree-compiler
 
 git:
   submodules: false
