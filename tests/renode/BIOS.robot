@@ -19,5 +19,5 @@ BIOS boots
     Wait For Line On Uart    BIOS CRC passed
 
     # CPU_TYPE variable is passed by the test-renode.sh script
-    Wait For Line On Uart    CPU:\\s* ${CPU_TYPE} @ [0-9]+MHz       treatAsRegex=true
+    Wait For Line On Uart    CPU:\\s*${CPU_TYPE}.* @ [0-9]+MHz       treatAsRegex=true
 
