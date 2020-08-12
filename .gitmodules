@@ -64,3 +64,6 @@
 [submodule "third_party/VexRiscv"]
 	path = third_party/VexRiscv
 	url = https://github.com/SpinalHDL/VexRiscv.git
+[submodule "third_party/valentyusb"]
+	path = third_party/valentyusb
+	url = https://github.com/im-tomu/valentyusb.git
