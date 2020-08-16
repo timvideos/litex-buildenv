@@ -1,0 +1,422 @@
+pool:
+  vmImage: "ubuntu-16.04"
+
+steps:
+  - script: |
+      echo "CPUS='$CPUS' PLATFORMS='$PLATFORMS' TARGETS='$TARGETS' FIRMWARE='$FIRMWARE'"
+      sudo apt-get install bc bison flex
+      ./.travis/setup.sh
+    displayName: Setup
+    env:
+      XILINX_PASSPHRASE: $(XILINX_PASSPHRASE)
+  - script: ./.travis/build.sh
+    displayName: Build
+  - script: ./.travis/update-prebuilt-list.sh
+    displayName: Update prebuilt list
+
+variables:
+  HDMI2USB_UDEV_IGNORE: 1
+  CLEAN_CHECK: 1
+  PREBUILT_DIR: "/tmp/HDMI2USB-firmware-prebuilt"
+
+strategy:
+  matrix:
+    # C=cpu.variant
+    # TC="toolchain"
+    # P=platform
+    # T="target1 t2"
+    # F=firmware
+
+    #--------------------------------------------
+    # Bare-metal firmware, base targets
+    #--------------------------------------------
+
+    # LatticeMico32
+    lm32-arty:
+      CPUS: lm32
+      TC: "vivado"
+      PLATFORMS: arty
+      TARGETS: "base net"
+    lm32-basys3:
+      CPUS: lm32
+      TC: "vivado"
+      PLATFORMS: basys3
+      TARGETS: "base"
+    lm32-cmod_a7:
+      CPUS: lm32
+      TC: "vivado"
+      PLATFORMS: cmod_a7
+      TARGETS: "base"
+    lm32-mimas_a7:
+      CPUS: lm32
+      TC: "vivado"
+      PLATFORMS: mimas_a7
+      TARGETS: "base net"
+    lm32-neso:
+      CPUS: lm32
+      TC: "vivado"
+      PLATFORMS: neso
+      TARGETS: "base"
+    lm32-nexys_video:
+      CPUS: lm32
+      TC: "vivado"
+      PLATFORMS: nexys_video
+      TARGETS: "base net"
+    lm32-atlys:
+      CPUS: lm32
+      TC: "ise"
+      PLATFORMS: atlys
+      TARGETS: "base net"
+    lm32-galatea:
+      CPUS: lm32
+      TC: "ise"
+      PLATFORMS: galatea
+      TARGETS: "base"
+    lm32-mimasv2:
+      CPUS: lm32
+      TC: "ise"
+      PLATFORMS: mimasv2
+      TARGETS: "base"
+    lm32-minispartan6:
+      CPUS: lm32
+      TC: "ise"
+      PLATFORMS: minispartan6
+      TARGETS: "base"
+    lm32-opsis:
+      CPUS: lm32
+      TC: "ise"
+      PLATFORMS: opsis
+      TARGETS: "base net"
+    lm32-pipistrello:
+      CPUS: lm32
+      TC: "ise"
+      PLATFORMS: pipistrello
+      TARGETS: "base"
+    lm32-saturn:
+      CPUS: lm32
+      TC: "ise"
+      PLATFORMS: saturn
+      TARGETS: "base"
+    lm32-waxwing:
+      CPUS: lm32
+      TC: "ise"
+      PLATFORMS: waxwing
+      TARGETS: "base"
+    lm32.lite-ice40_hx8k_b_evn-stub:
+      CPUS: lm32.lite
+      TC: "icestorm"
+      PLATFORMS: ice40_hx8k_b_evn
+      TARGETS: "base"
+      FIRMWARE: stub
+    lm32.lite-ice40_up5k_b_evn-stub:
+      CPUS: lm32.lite
+      TC: "icestorm"
+      PLATFORMS: ice40_up5k_b_evn
+      TARGETS: "base"
+      FIRMWARE: stub
+    lm32.lite-icebreaker-stub:
+      CPUS: lm32.lite
+      TC: "icestorm"
+      PLATFORMS: icebreaker
+      TARGETS: "base"
+      FIRMWARE: stub
+    lm32.lite-tinyfpga_bx-stub:
+      CPUS: lm32.lite
+      TC: "icestorm"
+      PLATFORMS: tinyfpga_bx
+      TARGETS: "base"
+      FIRMWARE: stub
+    lm32.lite-upduino_v1-stub:
+      CPUS: lm32.lite
+      TC: "icestorm"
+      PLATFORMS: upduino_v1
+      TARGETS: "base"
+      FIRMWARE: stub
+    lm32.lite-arty:
+      CPUS: lm32.lite
+      TC: "vivado"
+      PLATFORMS: arty
+      TARGETS: "base net"
+    lm32.lite-opsis:
+      CPUS: lm32.lite
+      PLATFORMS: opsis
+      TARGETS: "base net"
+    lm32.minimal-ice40_hx8k_b_evn-stub:
+      CPUS: lm32.minimal
+      TC: "icestorm"
+      PLATFORMS: ice40_hx8k_b_evn
+      TARGETS: "base"
+      FIRMWARE: stub
+    lm32.minimal-ice40_up5k_b_evn-stub:
+      CPUS: lm32.minimal
+      TC: "icestorm"
+      PLATFORMS: ice40_up5k_b_evn
+      TARGETS: "base"
+      FIRMWARE: stub
+    lm32.minimal-icebreaker-stub:
+      CPUS: lm32.minimal
+      TC: "icestorm"
+      PLATFORMS: icebreaker
+      TARGETS: "base"
+      FIRMWARE: stub
+    lm32.minimal-tinyfpga_bx-stub:
+      CPUS: lm32.minimal
+      TC: "icestorm"
+      PLATFORMS: tinyfpga_bx
+      TARGETS: "base"
+      FIRMWARE: stub
+    lm32.minimal-upduino_v1-stub:
+      CPUS: lm32.minimal
+      TC: "icestorm"
+      PLATFORMS: upduino_v1
+      TARGETS: "base"
+      FIRMWARE: stub
+    lm32.minimal-arty:
+      CPUS: lm32.minimal
+      TC: "vivado"
+      PLATFORMS: arty
+      TARGETS: "base net"
+    lm32.minimal-opsis:
+      CPUS: lm32.minimal
+      TC: "ise"
+      PLATFORMS: opsis
+      TARGETS: "base net"
+
+    # OpenRISC1000
+    mor1kx-arty:
+      CPUS: mor1kx
+      TC: "vivado"
+      PLATFORMS: arty
+      TARGETS: "base net"
+    mor1kx-mimas_a7:
+      CPUS: mor1kx
+      TC: "vivado"
+      PLATFORMS: mimas_a7
+      TARGETS: "base net"
+    mor1kx-atlys:
+      CPUS: mor1kx
+      TC: "vivado"
+      PLATFORMS: atlys
+      TARGETS: "base net"
+    mor1kx-mimasv2:
+      CPUS: mor1kx
+      TC: "ise"
+      PLATFORMS: mimasv2
+      TARGETS: "base"
+    mor1kx-opsis:
+      CPUS: mor1kx
+      TC: "ise"
+      PLATFORMS: opsis
+      TARGETS: "base net"
+    mor1kx-pipistrello:
+      CPUS: mor1kx
+      TC: "ise"
+      PLATFORMS: pipistrello
+      TARGETS: "base"
+    # VexRISCV
+    vexriscv-arty:
+      CPUS: vexriscv
+      TC: "vivado"
+      PLATFORMS: arty
+      TARGETS: "base net"
+    vexriscv-mimas_a7:
+      CPUS: vexriscv
+      TC: "vivado"
+      PLATFORMS: mimas_a7
+      TARGETS: "base net"
+    vexriscv-mimasv2:
+      CPUS: vexriscv
+      TC: "ise"
+      PLATFORMS: mimasv2
+      TARGETS: "base"
+    vexriscv-opsis:
+      CPUS: vexriscv
+      TC: "ise"
+      PLATFORMS: opsis
+      TARGETS: "base net"
+    vexriscv.lite-ice40_hx8k_b_evn-stub:
+      CPUS: vexriscv.lite
+      TC: "icestorm"
+      PLATFORMS: ice40_hx8k_b_evn
+      TARGETS: "base"
+      FIRMWARE: stub
+    vexriscv.lite-ice40_up5k_b_evn-stub:
+      CPUS: vexriscv.lite
+      TC: "icestorm"
+      PLATFORMS: ice40_up5k_b_evn
+      TARGETS: "base"
+      FIRMWARE: stub
+    vexriscv.lite-icebreaker-stub:
+      CPUS: vexriscv.lite
+      TC: "icestorm"
+      PLATFORMS: icebreaker
+      TARGETS: "base"
+      FIRMWARE: stub
+    vexriscv.lite-tinyfpga_bx-stub:
+      CPUS: vexriscv.lite
+      TC: "icestorm"
+      PLATFORMS: tinyfpga_bx
+      TARGETS: "base"
+      FIRMWARE: stub
+    vexriscv.lite-upduino_v1-stub:
+      CPUS: vexriscv.lite
+      TC: "icestorm"
+      PLATFORMS: upduino_v1
+      TARGETS: "base"
+      FIRMWARE: stub
+    vexriscv.lite-arty:
+      CPUS: vexriscv.lite
+      TC: "vivado"
+      PLATFORMS: arty
+      TARGETS: "base net"
+    vexriscv.lite-opsis:
+      CPUS: vexriscv.lite
+      TC: "ise"
+      PLATFORMS: opsis
+      TARGETS: "base net"
+
+    # PicoRV32
+    picorv32-arty:
+      CPUS: picorv32
+      TC: "vivado"
+      PLATFORMS: arty
+      TARGETS: "base net"
+    picorv32-mimas_a7:
+      CPUS: picorv32
+      TC: "vivado"
+      PLATFORMS: mimas_a7
+      TARGETS: "base net"
+    picorv32-opsis:
+      CPUS: picorv32
+      TC: "ise"
+      PLATFORMS: opsis
+      TARGETS: "base net"
+    picorv32.minimal-icebreaker-stub:
+      CPUS: picorv32.minimal
+      TC: "icestorm"
+      PLATFORMS: icebreaker
+      TARGETS: "base"
+      FIRMWARE: stub
+    picorv32.minimal-arty:
+      CPUS: picorv32.minimal
+      TC: "vivado"
+      PLATFORMS: arty
+      TARGETS: "base net"
+    picorv32.minimal-opsis:
+      CPUS: picorv32.minimal
+      TC: "ise"
+      PLATFORMS: opsis
+      TARGETS: "base net"
+    # minerva target
+    minerva-arty:
+      CPUS: minerva
+      TC: "vivado"
+      PLATFORMS: arty
+      TARGETS: "base net"
+    minerva-opsis:
+      CPUS: minerva
+      TC: "ise"
+      PLATFORMS: opsis
+      TARGETS: "base net"
+
+    #--------------------------------------------
+    # Video Targets
+    #--------------------------------------------
+    lm32-nexys_video-video:
+      CPUS: lm32
+      TC: "vivado"
+      PLATFORMS: nexys_video
+      TARGETS: "video"
+    lm32-atlys-video:
+      CPUS: lm32
+      TC: "ise"
+      PLATFORMS: atlys
+      TARGETS: "video"
+    lm32-opsis-video:
+      CPUS: lm32
+      TC: "ise"
+      PLATFORMS: opsis
+      TARGETS: "video"
+
+    #--------------------------------------------
+    # HDMI2USB Targets
+    #--------------------------------------------
+    lm32-atlys-hdmi2usb:
+      CPUS: lm32
+      TC: "ise"
+      PLATFORMS: atlys
+      TARGETS: "hdmi2usb"
+    lm32-opsis-hdmi2usb:
+      CPUS: lm32
+      TC: "ise"
+      PLATFORMS: opsis
+      TARGETS: "hdmi2usb"
+
+    #--------------------------------------------
+    # MicroPython Targets
+    #--------------------------------------------
+    # FIXME: Add some here
+
+    #--------------------------------------------
+    # Linux Targets
+    #--------------------------------------------
+    mor1kx.linux-arty-linux:
+      CPUS: mor1kx.linux
+      TC: "vivado"
+      PLATFORMS: arty
+      TARGETS: "net"
+      FIRMWARE: linux
+    mor1kx.linux-nexys_video-linux:
+      CPUS: mor1kx.linux
+      TC: "vivado"
+      PLATFORMS: nexys_video
+      TARGETS: "net"
+      FIRMWARE: linux
+    mor1kx.linux-atlys-linux:
+      CPUS: mor1kx.linux
+      TC: "ise"
+      PLATFORMS: atlys
+      TARGETS: "net"
+      FIRMWARE: linux
+    mor1kx.linux-opsis-linux:
+      CPUS: mor1kx.linux
+      TC: "ise"
+      PLATFORMS: opsis
+      TARGETS: "net"
+      FIRMWARE: linux
+    # FIXME: Add vexriscv.linux
+    vexriscv.linux-arty-linux:
+      CPUS: vexriscv.linux
+      TC: "vivado"
+      PLATFORMS: arty
+      TARGETS: "net"
+      FIRMWARE: linux
+    vexriscv.linux-opsis-linux:
+      CPUS: vexriscv.linux
+      TC: "ise"
+      PLATFORMS: opsis
+      TARGETS: "net"
+      FIRMWARE: linux
+    # FIXME: Add rocket.linux
+
+    #--------------------------------------------
+    # Zephyr Targets
+    #--------------------------------------------
+    vexriscv.lite-icebreaker-zephyr:
+      CPUS: vexriscv.lite
+      TC: "icestorm"
+      PLATFORMS: icebreaker
+      TARGETS: "base"
+      FIRMWARE: zephyr
+    vexriscv.lite-arty-zephyr:
+      CPUS: vexriscv.lite
+      TC: "vivado"
+      PLATFORMS: arty
+      TARGETS: "net"
+      FIRMWARE: zephyr
+    vexriscv.lite-atlys-zephyr:
+      CPUS: vexriscv.lite
+      TC: "ise"
+      PLATFORMS: atlys
+      TARGETS: "net"
+      FIRMWARE: zephyr
