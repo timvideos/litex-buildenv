@@ -63,13 +63,11 @@ if [ ${CPU} = mor1kx ]; then
 	ROOTFS=or1k-rootfs.cpio
 	DTB=mor1kx.dtb
 	ROOTFS_MD5="c9ef89b45b0d2c34d14978a21f2863bd"
-	DTB_MD5="0271bc8f63f2d928dc9536ac31a2c6b9"
 elif [ ${CPU} = vexriscv ]; then
 	export ARCH=riscv
 	ROOTFS=riscv32-rootfs.cpio
 	DTB=rv32.dtb
 	ROOTFS_MD5="7b1a7fb52a1ba056dffb351a036bd0fb"
-	DTB_MD5="cd6d23543808988fd97447c4ff97392a"
 else
 	echo "Linux is only supported on mor1kx or vexriscv at the moment."
 	exit 1
@@ -114,41 +112,6 @@ LINUX_CLONE_FROM="${LINUX_LOCAL:-$LINUX_REMOTE}"
 	fi
 )
 
-# Get litex-devicetree
-LITEX_DT_SRC="$TOP_DIR/third_party/litex-devicetree"
-LITEX_DT_REMOTE="${LITEX_DT_REMOTE:-https://github.com/timvideos/litex-devicetree.git}"
-LITEX_DT_REMOTE_BIT=$(echo $LITEX_DT_REMOTE | sed -e's-^.*://--' -e's/.git$//')
-LITEX_DT_REMOTE_NAME=timvideos-litex-devicetree
-LITEX_DT_BRANCH=master
-(
-	# Download the Linux source for the first time
-	if [ ! -d "$LITEX_DT_SRC" ]; then
-	(
-		cd $(dirname $LITEX_DT_SRC)
-		echo "Downloading LiteX devicetree code."
-		git clone $LITEX_DT_REMOTE $LITEX_DT_SRC
-	)
-	fi
-
-	# Change into the dir
-	cd $LITEX_DT_SRC
-
-	# Add the remote if it doesn't exist
-	CURRENT_LITEX_DT_REMOTE_NAME=$(git remote -v | grep fetch | grep "$LITEX_DT_REMOTE_BIT" | sed -e's/\t.*$//')
-	if [ x"$CURRENT_LITEX_DT_REMOTE_NAME" = x ]; then
-		git remote add $LITEX_DT_REMOTE_NAME $LITEX_DT_REMOTE
-		CURRENT_LITEX_DT_REMOTE_NAME=$LITEX_DT_REMOTE_NAME
-	fi
-
-	# Get any new data
-	git fetch $CURRENT_LITEX_DT_REMOTE_NAME
-
-	# Checkout or1k-linux branch it not already on it
-	if [ "$(git rev-parse --abbrev-ref HEAD)" != "$LITEX_DT_BRANCH" ]; then
-		git checkout $LITEX_DT_BRANCH || \
-			git checkout "$CURRENT_LITEX_DT_REMOTE_NAME/$LITEX_DT_BRANCH" -b $LITEX_DT_BRANCH
-	fi
-)
 
 # Build VexRiscv's emulator
 if [ ${CPU} = vexriscv ]; then
@@ -219,14 +182,13 @@ LLV_SRC="$TOP_DIR/third_party/linux-on-litex-vexriscv"
 	mkdir -p $TARGET_LINUX_BUILD_DIR
 
 	fetch_file $RESOURCES_LOCATION/$ROOTFS_MD5-$ROOTFS $ROOTFS_MD5 $TARGET_LINUX_BUILD_DIR/$ROOTFS
-	fetch_file $RESOURCES_LOCATION/$DTB_MD5-$DTB       $DTB_MD5    $TARGET_LINUX_BUILD_DIR/$DTB
 
 	if [ ${CPU} = mor1kx ]; then
 		KERNEL_BINARY=vmlinux.bin
 
         	cat << EOF > $TARGET_LINUX_BUILD_DIR/boot.json
 {
-    "mor1kx.dtb":   "0x01000000",
+    "$DTB":         "0x01000000",
     "Image":        "0x00000000",
     "bootargs": {
         "r1":       "0x01000000"
@@ -240,7 +202,7 @@ EOF
 {
     "Image":        "0x40000000",
     "rootfs.cpio":  "0x40800000",
-    "rv32.dtb":     "0x41000000",
+    "$DTB":         "0x41000000",
     "emulator.bin": "0x41100000"
 }
 EOF
@@ -256,3 +218,13 @@ EOF
 	ls -l $TARGET_LINUX_BUILD_DIR/arch/${ARCH}/boot/${KERNEL_BINARY}
 	ln -sf $TARGET_LINUX_BUILD_DIR/arch/${ARCH}/boot/${KERNEL_BINARY} $TOP_DIR/$FIRMWARE_FILEBASE.bin
 )
+
+# Generate the device tree file
+LITEX_CONFIG_JSON="$TARGET_BUILD_DIR/test/csr.json"
+LITEX_DT_GENERATOR_FILE="$TOP_DIR/third_party/litex/litex/tools/litex_json2dts.py"
+if [ ! -f "$LITEX_CONFIG_JSON" ]; then
+	make firmware
+fi
+
+python $LITEX_DT_GENERATOR_FILE $LITEX_CONFIG_JSON | dtc -I dts -O dtb - > $TARGET_LINUX_BUILD_DIR/$DTB
+
