@@ -4,16 +4,24 @@ from litex.build.lattice.programmer import IceStormProgrammer
 
 
 _io = [
-    ("user_led_n",    0, Pins("11"), IOStandard("LVCMOS33")),
-    ("user_led_n",    1, Pins("37"), IOStandard("LVCMOS33")),
+    # HACK: Use icefeather pins
+    ("user_led_n",    0, Pins("47"), IOStandard("LVCMOS33")),
+    ("user_led_n",    1, Pins("41"), IOStandard("LVCMOS33")),
     # Color-specific aliases
-    ("user_ledr_n",   0, Pins("11"), IOStandard("LVCMOS33")),
-    ("user_ledg_n",   0, Pins("37"), IOStandard("LVCMOS33")),
+    ("user_ledr_n",   0, Pins("47"), IOStandard("LVCMOS33")),
+    ("user_ledg_n",   0, Pins("41"), IOStandard("LVCMOS33")),
     ("user_btn_n", 0, Pins("10"), IOStandard("LVCMOS33")),
+    
+    # HACK: Replace UART with icefeather pins
+    #("serial", 0,
+    #    Subsignal("rx", Pins("6")),
+    #    Subsignal("tx", Pins("9"), Misc("PULLUP")),
+    #    IOStandard("LVCMOS33")
+    #),
 
     ("serial", 0,
-        Subsignal("rx", Pins("6")),
-        Subsignal("tx", Pins("9"), Misc("PULLUP")),
+        Subsignal("rx", Pins("23")),
+        Subsignal("tx", Pins("21"), Misc("PULLUP")),
         IOStandard("LVCMOS33")
     ),
 
@@ -36,33 +44,7 @@ _io = [
 ]
 
 _connectors = [
-    ("PMOD1A", "4 2 47 45 3 48 46 44"),
-    ("PMOD1B", "43 38 34 31 42 36 32 28"),
-    ("PMOD2",  "27 25 21 19 26 23 20 18"),
     ("RGBLED", "39 40 41"),
-]
-
-# The attached LED/button section can be either used standalone or as a PMOD.
-# Attach to platform using:
-# plat.add_extension(break_off_pmod)
-# pmod_btn = plat.request("user_btn")
-break_off_pmod = [
-     ("user_btn", 0, Pins("PMOD2:6"), IOStandard("LVCMOS33")),
-     ("user_btn", 1, Pins("PMOD2:3"), IOStandard("LVCMOS33")),
-     ("user_btn", 2, Pins("PMOD2:7"), IOStandard("LVCMOS33")),
-
-     ("user_led", 0, Pins("PMOD2:4"), IOStandard("LVCMOS33")),
-     ("user_led", 1, Pins("PMOD2:0"), IOStandard("LVCMOS33")),
-     ("user_led", 2, Pins("PMOD2:1"), IOStandard("LVCMOS33")),
-     ("user_led", 3, Pins("PMOD2:5"), IOStandard("LVCMOS33")),
-     ("user_led", 4, Pins("PMOD2:2"), IOStandard("LVCMOS33")),
-
-     # Color-specific aliases
-     ("user_ledr", 0, Pins("PMOD2:4"), IOStandard("LVCMOS33")),
-     ("user_ledg", 0, Pins("PMOD2:0"), IOStandard("LVCMOS33")),
-     ("user_ledg", 1, Pins("PMOD2:1"), IOStandard("LVCMOS33")),
-     ("user_ledg", 2, Pins("PMOD2:5"), IOStandard("LVCMOS33")),
-     ("user_ledg", 3, Pins("PMOD2:2"), IOStandard("LVCMOS33"))
 ]
 
 rgb_led = [

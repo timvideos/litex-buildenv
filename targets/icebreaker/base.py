@@ -74,7 +74,6 @@ class BaseSoC(SoCCore):
 
         # Assume user still has LEDs/Buttons still attached to the PCB or as
         # a PMOD; pinout is identical either way.
-        platform.add_extension(icebreaker.break_off_pmod)
         clk_freq = int(12e6)
 
         kwargs['cpu_reset_address']=self.mem_map["spiflash"]+platform.gateware_size
