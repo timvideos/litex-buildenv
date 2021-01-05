@@ -9,6 +9,7 @@ _io = [
     ("user_ledr_n",   0, Pins("41"), IOStandard("LVCMOS33")),
     ("user_ledg_n",   0, Pins("40"), IOStandard("LVCMOS33")),
     ("user_ledb_n",   0, Pins("39"), IOStandard("LVCMOS33")),
+    ("user_btn_n", 0, Pins("2"), IOStandard("LVCMOS33")),
 
     ("serial", 0,
         Subsignal("rx", Pins("23")),

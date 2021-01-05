@@ -361,7 +361,7 @@ if [ "$PLATFORM" = "tinyfpga_bx" ]; then
 fi
 
 # iceprog compatible platforms
-if [ "$PLATFORM" = "icebreaker" -o "$PLATFORM" = "ice40_hx8k_b_evn" -o "$PLATFORM" = "ice40_up5k_b_evn" ]; then
+if [ "$PLATFORM" = "icebreaker" -o "$PLATFORM" = "icefeather" -o "$PLATFORM" = "ice40_hx8k_b_evn" -o "$PLATFORM" = "ice40_up5k_b_evn" ]; then
 
 
 
