@@ -6,11 +6,14 @@ from litex.build.lattice.programmer import IceStormProgrammer
 _io = [
     # HACK: Use icefeather pins
     ("user_led_n",    0, Pins("47"), IOStandard("LVCMOS33")),
-    ("user_led_n",    1, Pins("41"), IOStandard("LVCMOS33")),
-    # Color-specific aliases
-    ("user_ledr_n",   0, Pins("47"), IOStandard("LVCMOS33")),
-    ("user_ledg_n",   0, Pins("41"), IOStandard("LVCMOS33")),
-    ("user_btn_n", 0, Pins("10"), IOStandard("LVCMOS33")),
+    ("user_led",    0, Pins("41"), IOStandard("LVCMOS33")),
+    ("user_led",    1, Pins("40"), IOStandard("LVCMOS33")),
+    ("user_led",    2, Pins("39"), IOStandard("LVCMOS33")),
+    # RGB LED
+    ("user_ledr_n",   0, Pins("41"), IOStandard("LVCMOS33")),
+    ("user_ledg_n",   0, Pins("40"), IOStandard("LVCMOS33")),
+    ("user_ledb_n",   0, Pins("39"), IOStandard("LVCMOS33")),
+    ("user_btn_n", 0, Pins("2"), IOStandard("LVCMOS33")),
     
     # HACK: Replace UART with icefeather pins
     #("serial", 0,
