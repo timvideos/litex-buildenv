@@ -115,28 +115,40 @@ class SPRAM(Module):
 
 
 class LED(Module, AutoCSR):
-    def __init__(self, pads):
+    def __init__(self, led_defs, pads):
 
-        rgba_pwm = Signal(3)
+        pwm_src = Signal(3)
+        led_drv   = Signal(3)
 
         self.dat = CSRStorage(8)
         self.addr = CSRStorage(4)
-        self.ctrl = CSRStorage(4)
+        self.ctrl = CSRStorage(3)
+        self.raw = CSRStorage(3)
+        self.mux = CSRStorage(3)
+
+        rev_map = {}
+        for key,value in led_defs.items():
+            rev_map[value["SIGNAL_INDEX"]] = key
 
         self.specials += Instance("SB_RGBA_DRV",
             i_CURREN = self.ctrl.storage[1],
             i_RGBLEDEN = self.ctrl.storage[2],
-            i_RGB0PWM = rgba_pwm[0],
-            i_RGB1PWM = rgba_pwm[1],
-            i_RGB2PWM = rgba_pwm[2],
+            i_RGB0PWM = led_drv[0],
+            i_RGB1PWM = led_drv[1],
+            i_RGB2PWM = led_drv[2],
             o_RGB0 = pads.rgb0,
             o_RGB1 = pads.rgb1,
             o_RGB2 = pads.rgb2,
             p_CURRENT_MODE = "0b1",
-            p_RGB0_CURRENT = "0b000011",
-            p_RGB1_CURRENT = "0b000001",
-            p_RGB2_CURRENT = "0b000011",
+            p_RGB0_CURRENT = led_defs[rev_map[0]]["CURRENT"],
+            p_RGB1_CURRENT = led_defs[rev_map[1]]["CURRENT"],
+            p_RGB2_CURRENT = led_defs[rev_map[2]]["CURRENT"],
         )
+
+        self.comb += [If(self.mux.storage[0], led_drv[led_defs["R"]["SIGNAL_INDEX"]].eq(self.raw.storage[0])).Else(led_drv[led_defs["R"]["SIGNAL_INDEX"]].eq(pwm_src[0])),
+                      If(self.mux.storage[1], led_drv[led_defs["G"]["SIGNAL_INDEX"]].eq(self.raw.storage[1])).Else(led_drv[led_defs["R"]["SIGNAL_INDEX"]].eq(pwm_src[1])),
+                      If(self.mux.storage[2], led_drv[led_defs["B"]["SIGNAL_INDEX"]].eq(self.raw.storage[2])).Else(led_drv[led_defs["R"]["SIGNAL_INDEX"]].eq(pwm_src[2])),
+        ]
 
         self.specials += Instance("SB_LEDDA_IP",
             i_LEDDCS = self.dat.re,
@@ -157,9 +169,9 @@ class LED(Module, AutoCSR):
             i_LEDDEXE = self.ctrl.storage[0],
             # o_LEDDON = led_is_on, # Indicates whether LED is on or not
             # i_LEDDRST = ResetSignal(), # This port doesn't actually exist
-            o_PWMOUT0 = rgba_pwm[0],
-            o_PWMOUT1 = rgba_pwm[1],
-            o_PWMOUT2 = rgba_pwm[2],
+            o_PWMOUT0 = pwm_src[0],
+            o_PWMOUT1 = pwm_src[1],
+            o_PWMOUT2 = pwm_src[2],
             o_LEDDON = Signal(),
         )
 
