@@ -16,20 +16,7 @@ from gateware import cas
 from gateware import spi_flash
 
 from targets.utils import define_flash_constants
-from platforms import icebreaker
-
-
-# Alternate serial port, using the second 6-pin PMOD port. Follows Digilent
-# PMOD Specification Type 4, so e.g. PMOD USBUART can be used.
-pmod_serial = [
-    ("serial", 0,
-        Subsignal("rx", Pins("PMOD:6")),
-        Subsignal("tx", Pins("PMOD:5")),
-        Subsignal("rts", Pins("PMOD:4")),
-        Subsignal("cts", Pins("PMOD:7")),
-        IOStandard("LVCMOS33"),
-    ),
-]
+from platforms import icefeather
 
 class _CRG(Module):
     def __init__(self, platform):
@@ -101,7 +88,7 @@ class BaseSoC(SoCCore):
             self.spiflash.bus, size=platform.spiflash_total_size)
 
         # rgb led connector
-        platform.add_extension(icebreaker.rgb_led)
+        platform.add_extension(icefeather.rgb_led)
         self.submodules.rgbled = ice40.LED(platform.request("rgbled", 0))
         self.add_csr("rgbled")
 

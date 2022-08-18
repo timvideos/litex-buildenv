@@ -4,23 +4,12 @@ from litex.build.lattice.programmer import IceStormProgrammer
 
 
 _io = [
-    # HACK: Use icefeather pins
     ("user_led_n",    0, Pins("47"), IOStandard("LVCMOS33")),
-    ("user_led",    0, Pins("41"), IOStandard("LVCMOS33")),
-    ("user_led",    1, Pins("40"), IOStandard("LVCMOS33")),
-    ("user_led",    2, Pins("39"), IOStandard("LVCMOS33")),
     # RGB LED
     ("user_ledr_n",   0, Pins("41"), IOStandard("LVCMOS33")),
     ("user_ledg_n",   0, Pins("40"), IOStandard("LVCMOS33")),
     ("user_ledb_n",   0, Pins("39"), IOStandard("LVCMOS33")),
     ("user_btn_n", 0, Pins("2"), IOStandard("LVCMOS33")),
-    
-    # HACK: Replace UART with icefeather pins
-    #("serial", 0,
-    #    Subsignal("rx", Pins("6")),
-    #    Subsignal("tx", Pins("9"), Misc("PULLUP")),
-    #    IOStandard("LVCMOS33")
-    #),
 
     ("serial", 0,
         Subsignal("rx", Pins("23")),
@@ -33,6 +22,7 @@ _io = [
         Subsignal("clk",       Pins("15"), IOStandard("LVCMOS33")),
         Subsignal("miso",        Pins("17"), IOStandard("LVCMOS33")),
         Subsignal("mosi",        Pins("14"), IOStandard("LVCMOS33")),
+        # TODO: Do not need these
         Subsignal("wp",      Pins("12"), IOStandard("LVCMOS33")),
         Subsignal("hold", Pins("13"), IOStandard("LVCMOS33")),
     ),
@@ -40,6 +30,7 @@ _io = [
     ("spiflash4x", 0,
         Subsignal("cs_n", Pins("16"), IOStandard("LVCMOS33")),
         Subsignal("clk",  Pins("15"), IOStandard("LVCMOS33")),
+        # TODO: Find out quad-spi pins
         Subsignal("dq",   Pins("14 17 12 13"), IOStandard("LVCMOS33")),
     ),
 
@@ -47,7 +38,7 @@ _io = [
 ]
 
 _connectors = [
-    ("RGBLED", "39 40 41"),
+    ("RGBLED", "6 4 3"),
 ]
 
 rgb_led = [
