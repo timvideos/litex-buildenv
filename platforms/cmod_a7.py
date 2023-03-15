@@ -16,7 +16,7 @@ _io = [
     #set_property -dict { PACKAGE_PIN B17   IOSTANDARD LVCMOS33 } [get_ports { led0_b }]; #IO_L14N_T2_SRCC_16 Sch=led0_b
     #set_property -dict { PACKAGE_PIN B16   IOSTANDARD LVCMOS33 } [get_ports { led0_g }]; #IO_L13N_T2_MRCC_16 Sch=led0_g
     #set_property -dict { PACKAGE_PIN C17   IOSTANDARD LVCMOS33 } [get_ports { led0_r }]; #IO_L14P_T2_SRCC_16 Sch=led0_r
-    ("rgb_leds", 0,
+    ("rgb_led", 0,
         Subsignal("r", Pins("C17")),
         Subsignal("g", Pins("B16")),
         Subsignal("b", Pins("B17")),
